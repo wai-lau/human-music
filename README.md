@@ -1,75 +1,45 @@
-# Human Music
+# Worktree: mates-qwen-2
 
-<img src="extension/icons/icon128.png" alt="" width="64" align="right">
+## Task
+Implement the player and queue half of Task 6 from the Human Music extension plan. Create `extension/src/page/ytm.js` — the YouTube Music page adapter that exposes DOM-agnostic functions for reading song info, queue state, and player controls.
 
-A Chrome extension for [YouTube Music](https://music.youtube.com) that keeps
-your listening to music made by people.
+## Objective
+- Create `extension/src/page/ytm.js` with all required exports: SEL, REMOVE_ICON, readSong, readQueue, clickNext, pressNextKey, clickDislike, videoDuration, seekTo, removeQueueRow, mountPlayerButtons, pageAdapter
+- Only player and queue functionality; page items (`readPageItems`, `hideItem`, `unhideAll`) are a later task
+- All functions must never throw: missing elements return `null`, `false`, `NaN`, or no-op
+- Support both 'new' and 'old' layout variants for player and queue elements
+- `REMOVE_ICON` must be the exact SVG path string from the spec
+- `removeQueueRow` requires polling with `setTimeout` (50ms intervals, up to 1500ms) to wait for menu popup
+- `mountPlayerButtons` must be idempotent (second call adds nothing)
+- `pageAdapter(doc)` returns an object with functions bound to the given document
 
-**Status:** in development. Not ready to install yet.
+## Status
+**Done.** Player and queue page adapter implemented and all tests pass.
 
-## What it does
+## Implementation Details
+- `SEL` object contains all selector strings for new and old layouts
+- `readSong(doc)` detects layout, reads title and byline, returns object or null
+- `readQueue(doc)` reads all queue rows, skips `#counterpart-renderer`, returns array
+- `clickNext(doc)` and `pressNextKey(doc)` handle both layouts
+- `clickDislike(doc)` handles aria-pressed state for both layouts
+- `videoDuration(doc)` and `seekTo(doc, seconds)` handle video element access
+- `removeQueueRow(doc, row)` uses polling loop with timeout and Escape fallback
+- `mountPlayerButtons(doc, handlers)` is idempotent, adds to existing or creates new container
+- `pageAdapter(doc)` returns bound functions for use in skipper logic
 
-- Takes songs by listed AI-generated artists out of your queue before they
-  play.
-- Skips one if it plays anyway, moving on exactly one song.
-- Hides their songs, albums and playlists on the home page, Explore and
-  search results.
-- Logs every song it removed, skipped or hid, with the list that caused it,
-  so you can check its work.
+## Files Changed
+- `extension/src/page/ytm.js` — **created** full player and queue adapter implementation
+- `tests/ytm.test.mjs` — **created** 22 comprehensive tests for player and queue operations
+- `tests/fakes.mjs` — **modified** to add `fakeYtm()` helper with layout, song, queue, and video support
 
-## Why
-
-AI music is music, and there's nothing wrong with making or liking it. I
-listen to music to feel connected to other people, though, and a song
-without a person behind it can't give me that. I don't think AI music is
-worse; it's a different kind of thing. Human Music is for people who want
-their listening to stay with music made by people.
-
-That's also why it errs toward playing. Skipping a real artist by mistake
-is the worst thing it could do, so when it isn't sure, the song plays. If
-anything goes wrong (a page change, a slow network, a missing list), the
-song plays too.
-
-## Install
-
-1. Download or clone this repository.
-2. Open `chrome://extensions` and switch on **Developer mode**.
-3. Click **Load unpacked** and pick the `extension` folder.
-
-## How it decides
-
-Human Music checks songs against lists:
-
-- Filter lists you subscribe to. The Soul Over AI list is built in, and
-  you can add others by URL. Each one can be switched off, or put in watch
-  mode, where it only logs what it would have done.
-- Your own lists of artists, songs and keywords. Add to them from the
-  popup or with the Block artist and Block song buttons on the player.
-- Never skip: an artist on that list is always played, whatever the other
-  lists say.
-
-An artist matches only when they're credited on the song. A list entry
-called "After Midnight" catches the artist After Midnight, not every song
-with that title.
-
-Coming from YTM AI Artist & Song Blocker? Export a backup there and import
-it in Human Music's Lists tab to keep your lists.
-
-## Credits
-
-The built-in list is the [Soul Over AI](https://souloverai.com) list by
-souloverai.com, used under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-## Development
-
-Plain JavaScript with no build step and no dependencies. The `extension`
-folder is the whole extension. Run the tests with Node 18 or later:
-
-```sh
-for f in tests/*.test.mjs; do node "$f" || exit 1; done
+## Tests
+All 22 tests for the player and queue adapter pass:
+```
+node tests/ytm.test.mjs
+22/22 pass
 ```
 
-## License
-
-MIT, copyright wai-lau. See [LICENSE](LICENSE).
+Full test suite also passes (all 83 tests):
+```
+for f in tests/*.test.mjs; do node "$f"; done
+```

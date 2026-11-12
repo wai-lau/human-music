@@ -1,3 +1,5 @@
+import { el, makeDocument } from './dom.mjs';
+
 // A clock whose timers run only inside tick(ms). While a timer runs, now() is its fire time.
 export function fakeClock() {
   let now = 0;
@@ -65,4 +67,96 @@ export function fakeStorage(initial = {}) {
   }
 
   return { get, set, onChanged: { addListener: fn => listeners.push(fn) }, data };
+}
+
+// A fake YouTube Music page for tests.
+// layout: 'new' or 'old'
+// song: { title, artistLine } (null = no song)
+// queue: [{ title, artistLine, selected }] (null = no queue rows)
+// nextMovesOn: whether clickNext changes the song (default true)
+export function fakeYtm(opts = {}) {
+  const layout = opts.layout || 'new';
+  let song = opts.song || null;
+  let queue = opts.queue || null;
+  let nextMovesOn = opts.nextMovesOn !== undefined ? opts.nextMovesOn : true;
+  let duration = opts.duration || NaN;
+  let currentTime = 0;
+  let dislikePressed = opts.dislikePressed || false;
+
+  const calls = { clickNext: 0, pressNextKey: 0, clickDislike: 0 };
+  let menuOpenRow = null;
+  let menuVisible = false;
+
+  const doc = makeDocument();
+  doc.location = opts.location || { pathname: '/' };
+  doc.defaultView.location = doc.location;
+
+  // Build player
+  const playerTag = layout === 'new' ? 'ytmusic-miniplayer' : 'ytmusic-player-bar';
+  const player = el(playerTag);
+  if (song) {
+    const titleClass = layout === 'new' ? 'ytmusicTrackInfoTitle' : 'title';
+    const bylineClass = layout === 'new' ? 'ytmusicTrackInfoByline' : 'byline';
+    player.append(el('div', { class: titleClass }, song.title));
+    player.append(el('div', { class: bylineClass }, song.artistLine));
+  }
+  // Next button
+  if (layout === 'new') {
+    player.append(el('button', { 'aria-label': 'Next' }));
+  } else {
+    player.append(el('button', { class: 'next-button' }));
+  }
+  // Dislike button
+  if (layout === 'new') {
+    const dislikeVm = el('dislike-button-view-model');
+    dislikeVm.append(el('button', { 'aria-pressed': String(dislikePressed) }));
+    player.append(dislikeVm);
+  } else {
+    player.append(el('button', { class: 'dislike', 'aria-pressed': String(dislikePressed) }));
+  }
+  doc.body.append(player);
+
+  // Build queue
+  const queueEl = el('div', { id: 'queue' });
+  if (queue) {
+    queue.forEach((item, i) => {
+      const row = el('ytmusic-player-queue-item');
+      row.append(el('div', { class: 'song-title' }, item.title));
+      row.append(el('div', { class: 'byline' }, item.artistLine));
+      if (item.selected) row.setAttribute('selected', '');
+      // Menu button for each row
+      const menuBtn = el('ytmusic-menu-renderer');
+      menuBtn.append(el('button'));
+      row.append(menuBtn);
+      queueEl.append(row);
+    });
+  }
+  doc.body.append(queueEl);
+
+  // Video element — store duration on the element so tests can read it after seekTo
+  let _duration = duration;
+  let _currentTime = currentTime;
+  const video = el('video');
+  video.duration = _duration;
+  video.currentTime = _currentTime;
+  doc.body.append(video);
+
+  return {
+    doc,
+    layout,
+    getSong: () => song,
+    setSong: (s) => { song = s; if (s) { player.children[0].textContent = s.title; player.children[1].textContent = s.artistLine; } },
+    getQueue: () => queue,
+    setQueue: (q) => { queue = q; queueEl.children.forEach(c => c.parentNode.removeChild(c)); if (q) { q.forEach(item => { const row = el('ytmusic-player-queue-item'); row.append(el('div', { class: 'song-title' }, item.title)); row.append(el('div', { class: 'byline' }, item.artistLine)); if (item.selected) row.setAttribute('selected', ''); const menuBtn = el('ytmusic-menu-renderer'); menuBtn.append(el('button')); row.append(menuBtn); queueEl.append(row); }); } },
+    setNextMovesOn: (v) => { nextMovesOn = v; },
+    getDuration: () => video.duration,
+    setDuration: (d) => { video.duration = d; },
+    getCurrentTime: () => video.currentTime,
+    setCurrentTime: (t) => { video.currentTime = t; },
+    getDislikePressed: () => dislikePressed,
+    setDislikePressed: (v) => { dislikePressed = v; },
+    calls,
+    menuOpenRow,
+    get menuVisible() { return menuVisible; },
+  };
 }
