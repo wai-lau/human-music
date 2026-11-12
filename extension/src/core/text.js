@@ -12,7 +12,7 @@
     if (!before || !before.trim()) return [];
     const whole = normalize(before);
     const parts = before
-      .split(/,\s*|&\s*|\s+feat\.\s+/i)
+      .split(/, | & | feat\. /i)
       .map(normalize)
       .filter(c => c !== '');
     const result = [whole];

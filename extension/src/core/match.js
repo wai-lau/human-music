@@ -10,8 +10,9 @@
 
     for (const list of filterLists) {
       if (!list.enabled) continue;
-      const data = list.data || { artists: [] };
-      for (const a of data.artists) {
+      const artists = Array.isArray(list.artists) ? list.artists : [];
+      for (const a of artists) {
+        if (!a || typeof a.name !== 'string' || !normalize(a.name)) continue;
         const key = normalize(a.name);
         if (a.channelId) {
           if (list.mode === 'act') actChannels.set(a.channelId, { listId: list.id, listName: list.name, entry: a.name });
@@ -24,7 +25,8 @@
 
     const userArtists = (user.artists || []).map(a => ({ key: normalize(a), name: a }));
     const userSongs = (user.songs || []).map(s => ({ title: normalize(s.title), artist: s.artist ? normalize(s.artist) : null, original: s }));
-    const userKeywords = (user.keywords || []).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
+    // An empty keyword would match every song, so empties are dropped.
+    const userKeywords = (user.keywords || []).filter(k => normalize(k)).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
     const neverSkip = new Set((user.neverSkip || []).map(a => normalize(a)));
 
     return {
@@ -63,7 +65,7 @@
     }
 
     for (const kw of index.userKeywords) {
-      if (kw.regex.test(title) || kw.regex.test(artistLine)) {
+      if (kw.regex.test(normalize(title)) || kw.regex.test(normalize(artistLine))) {
         return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
       }
     }
@@ -109,28 +111,21 @@
       if (index.neverSkip.has(credit)) return null;
     }
 
+    // A mix card (featured artists) matches only when every credit is listed: one
+    // person in the mix keeps it. It acts only if every credit is on your artists
+    // or an act list; otherwise (some only on watch lists) it is a watch match.
     if (featured) {
-      let allListed = true;
-      let anyMatch = false;
-      let firstMatch = null;
+      if (normCredits.length === 0) return null;
+      const found = [];
       for (const credit of normCredits) {
-        if (index.actArtists.has(credit) || index.watchArtists.has(credit)) {
-          anyMatch = true;
-          if (!firstMatch) firstMatch = credit;
-        } else {
-          allListed = false;
-        }
+        const mine = index.userArtists.find(a => a.key === credit);
+        if (mine) found.push({ listId: 'user:artists', listName: 'Your artists', entry: mine.name, mode: 'act' });
+        else if (index.actArtists.has(credit)) found.push({ ...index.actArtists.get(credit), mode: 'act' });
+        else if (index.watchArtists.has(credit)) found.push({ ...index.watchArtists.get(credit), mode: 'watch' });
+        else return null;
       }
-      if (allListed && anyMatch) {
-        if (index.actArtists.has(firstMatch)) {
-          const m = index.actArtists.get(firstMatch);
-          return { listId: m.listId, listName: m.listName, rule: 'artist', entry: m.entry, mode: 'act' };
-        } else {
-          const m = index.watchArtists.get(firstMatch);
-          return { listId: m.listId, listName: m.listName, rule: 'artist', entry: m.entry, mode: 'watch' };
-        }
-      }
-      return null;
+      const first = found.every(f => f.mode === 'act') ? found[0] : found.find(f => f.mode === 'watch');
+      return { listId: first.listId, listName: first.listName, rule: 'artist', entry: first.entry, mode: first.mode };
     }
 
     for (const songEntry of index.userSongs) {
@@ -154,10 +149,10 @@
     }
 
     for (const kw of index.userKeywords) {
-      if (kw.regex.test(title)) {
+      if (kw.regex.test(normalize(title))) {
         return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
       }
-      for (const credit of creditsList) {
+      for (const credit of normCredits) {
         if (kw.regex.test(credit)) {
           return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
         }

@@ -30,7 +30,7 @@ run([
   ['matchSong: Velvet Sundown in filter list', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchSong(idx, { title: 'Dust on the Wind', artistLine: 'The Velvet Sundown • Floating on Echoes • 2025' });
@@ -39,7 +39,7 @@ run([
   ['matchSong: After Midnight title is not an artist', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     return match.matchSong(idx, { title: 'After Midnight', artistLine: 'Eric Clapton • Slowhand' }) === null;
@@ -47,7 +47,7 @@ run([
   ['matchSong: After Midnight Project is not After Midnight', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     return match.matchSong(idx, { title: 'X', artistLine: 'After Midnight Project • Album' }) === null;
@@ -55,7 +55,7 @@ run([
   ['matchSong: 10mm matches when first in credit list', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchSong(idx, { title: 'X', artistLine: '10mm, Someone • Album' });
@@ -64,7 +64,7 @@ run([
   ['matchSong: empty artistLine does not throw', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     return match.matchSong(idx, { title: 'X', artistLine: '' }) === null;
@@ -72,7 +72,7 @@ run([
   ['matchSong: channel ID match', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'Other', channelId: 'UCabc' }] } }],
+        artists: [{ name: 'Other', channelId: 'UCabc' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchSong(idx, { title: 'X', artistLine: 'Real Band • A', channelIds: ['UCabc'] });
@@ -138,7 +138,7 @@ run([
   ['matchSong: neverSkip overrides filter list', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: ['The Velvet Sundown'] }
     });
     return match.matchSong(idx, { title: 'Dust', artistLine: 'The Velvet Sundown • Album' }) === null;
@@ -146,7 +146,7 @@ run([
   ['matchSong: disabled filter list does not match', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: false, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     return match.matchSong(idx, { title: 'Dust', artistLine: 'The Velvet Sundown • Album' }) === null;
@@ -154,7 +154,7 @@ run([
   ['matchSong: watch mode lists match with watch mode', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'test', name: 'Test', enabled: true, mode: 'watch',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchSong(idx, { title: 'Dust', artistLine: 'The Velvet Sundown • Album' });
@@ -164,9 +164,9 @@ run([
     const idx = match.buildIndex({
       filterLists: [
         { id: 'watch', name: 'Watch', enabled: true, mode: 'watch',
-          data: { artists: [{ name: 'Test Artist' }] } },
+          artists: [{ name: 'Test Artist' }] },
         { id: 'act', name: 'Act', enabled: true, mode: 'act',
-          data: { artists: [{ name: 'Test Artist' }] } }
+          artists: [{ name: 'Test Artist' }] }
       ],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
@@ -177,7 +177,7 @@ run([
   ['matchItem: filter list artist', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: '1950 SoulClub' }] } }],
+        artists: [{ name: '1950 SoulClub' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchItem(idx, {
@@ -188,7 +188,7 @@ run([
   ['matchItem: channel ID match', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'Art', channelId: 'UCOCi_VDTQPFn9fZtfqnpVag' }] } }],
+        artists: [{ name: 'Art', channelId: 'UCOCi_VDTQPFn9fZtfqnpVag' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchItem(idx, {
@@ -199,7 +199,7 @@ run([
   ['matchItem: featured mix with one human not listed', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchItem(idx, {
@@ -210,7 +210,7 @@ run([
   ['matchItem: featured mix with all listed', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }, { name: '10mm' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
     const m = match.matchItem(idx, {
@@ -221,12 +221,39 @@ run([
   ['matchItem: neverSkip overrides', () => {
     const idx = match.buildIndex({
       filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
-        data: { artists: [{ name: 'The Velvet Sundown' }] } }],
+        artists: [{ name: 'The Velvet Sundown' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: ['The Velvet Sundown'] }
     });
     const m = match.matchItem(idx, {
       title: 'X', credits: ['The Velvet Sundown'], channelIds: [], featured: false
     });
     return m === null;
+  }],
+  ['credits: no split on & or , without spaces', () =>
+    deepEqual(text.credits('Simon&Garfunkel,Live • Album'), ['simon&garfunkel,live'])],
+  ['empty keyword never matches', () => {
+    const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [], keywords: ['', '  '], neverSkip: [] } });
+    return match.matchSong(idx, { title: 'Anything', artistLine: 'Anyone • A' }) === null;
+  }],
+  ['list entry with an empty name never matches', () => {
+    const idx = match.buildIndex({ filterLists: [{ id: 'l', name: 'L', enabled: true, mode: 'act', artists: [{ name: '' }, {}] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] } });
+    return match.matchSong(idx, { title: 'X', artistLine: ' • A' }) === null;
+  }],
+  ['keyword matches decomposed accents', () => {
+    const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [], keywords: ['beyoncé'], neverSkip: [] } });
+    return match.matchSong(idx, { title: 'Beyoncé Live', artistLine: 'X • A' })?.rule === 'keyword';
+  }],
+  ['mix with your own artist counts as listed', () => {
+    const idx = match.buildIndex({ filterLists: [{ id: 'l', name: 'L', enabled: true, mode: 'act', artists: [{ name: 'A' }] }],
+      user: { artists: ['B'], songs: [], keywords: [], neverSkip: [] } });
+    return match.matchItem(idx, { title: 'Mix', credits: ['A', 'B'], channelIds: [], featured: true })?.mode === 'act';
+  }],
+  ['mix with a watch-only artist is a watch match', () => {
+    const idx = match.buildIndex({ filterLists: [
+      { id: 'a', name: 'A', enabled: true, mode: 'act', artists: [{ name: 'A' }] },
+      { id: 'w', name: 'W', enabled: true, mode: 'watch', artists: [{ name: 'B' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] } });
+    return match.matchItem(idx, { title: 'Mix', credits: ['A', 'B'], channelIds: [], featured: true })?.mode === 'watch';
   }]
 ]);

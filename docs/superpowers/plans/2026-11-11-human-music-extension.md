@@ -130,7 +130,7 @@ no match for /\b(slop|fake|garbage)\b|fight ai/i
 - Produces `HM.match`: `buildIndex({ filterLists: (FilterList & ListData)[], user: User }) → Index`; `matchSong(index, song: Song) → Match|null`; `matchItem(index, item: PageItem) → Match|null` (credits are names as shown, normalized inside; same precedence; `featured: true` → a Match only when every credit matches an artist entry, keywords and songs ignored).
 - Precedence inside `matchSong`: a credit on `neverSkip` → `null`; then user songs, user artists, user keywords; then enabled filter lists, `act` lists before `watch` lists. Disabled lists are ignored.
 
-- [ ] **Step 1: Write `tests/match.test.mjs`.** Cases (label → assertion):
+- [x] **Step 1: Write `tests/match.test.mjs`.** Cases (label → assertion):
 
 ```js
 credits('1950 SoulClub, 1960 SoulClub & Lewis Hanton • Album • 2025')
@@ -164,11 +164,11 @@ matchItem(idx, {title:'Mix', credits:['The Velvet Sundown','10mm'], channelIds:[
 matchItem with a credit on neverSkip → null
 ```
 
-- [ ] **Step 2: Write `tests/perf.test.mjs`:** a 1375-name filter list (generated names); 2000 `matchSong` calls on distinct songs average under 6 ms each (expect far less); report the average.
-- [ ] **Step 3:** Run both: FAIL.
-- [ ] **Step 4:** Implement. Filter-list names and channel IDs go in `Set`s at build time; keyword regexes are built once in `buildIndex`.
-- [ ] **Step 5:** Check: `node tests/match.test.mjs && node tests/perf.test.mjs`.
-- [ ] **Step 6:** Commit `feat: credit and keyword matching`.
+- [x] **Step 2: Write `tests/perf.test.mjs`:** a 1375-name filter list (generated names); 2000 `matchSong` calls on distinct songs average under 6 ms each (expect far less); report the average.
+- [x] **Step 3:** Run both: FAIL.
+- [x] **Step 4:** Implement. Filter-list names and channel IDs go in `Set`s at build time; keyword regexes are built once in `buildIndex`.
+- [x] **Step 5:** Check: `node tests/match.test.mjs && node tests/perf.test.mjs`.
+- [x] **Step 6:** Commit `feat: credit and keyword matching`.
 
 ### Task 3: Lists and backups [Qwen]
 
