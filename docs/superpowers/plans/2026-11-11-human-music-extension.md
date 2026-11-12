@@ -210,7 +210,7 @@ mergeUser({artists:['A'],…}, {artists:['a','B'],…}).artists deep-equals ['A'
 - Consumes: a page adapter `{ readSong() → Song|null, clickNext() → boolean, pressNextKey() → void, clickDislike() → boolean, videoDuration() → number, seekTo(seconds) → void }` (Task 6 builds the real one; the test builds a fake).
 - Produces `HM.skipper`: `createSkipper({ page, setTimeout, clearTimeout, setInterval, clearInterval }) → { skip({ dislikeFirst: boolean }) → void, busy() → boolean }`.
 
-- [ ] **Step 1: Write `tests/skipper.test.mjs`** with a fake page (title changes when `clickNext`, `pressNextKey` or `clickDislike` "moves on", per case) and `fakeClock()`. Spec rules 1–6, as cases:
+- [x] **Step 1: Write `tests/skipper.test.mjs`** with a fake page (title changes when `clickNext`, `pressNextKey` or `clickDislike` "moves on", per case) and `fakeClock()`. Spec rules 1–6, as cases:
 
 ```js
 Next moves on → clickNext 1 call, seeks []
@@ -227,7 +227,7 @@ skip() called again for the same song while busy() → ignored (clickNext 1 call
 clickNext is called synchronously inside skip() (dislikeFirst false)
 ```
 
-- [ ] **Step 2:** Run: FAIL. **Step 3:** Implement (poll every 100 ms; arm the seek at 1500 ms; give up at 10000 ms; return immediately once the song changed). **Step 4:** Check: `node tests/skipper.test.mjs`. **Step 5:** Commit `feat: skip moves on exactly one song`.
+- [x] **Step 2:** Run: FAIL. **Step 3:** Implement (poll every 100 ms; arm the seek at 1500 ms; give up at 10000 ms; return immediately once the song changed). **Step 4:** Check: `node tests/skipper.test.mjs`. **Step 5:** Commit `feat: skip moves on exactly one song`.
 
 ### Task 5: Settings, log and lookahead [Qwen]
 
