@@ -16,7 +16,7 @@
     nextOld: '.next-button',
     dislikeNew: 'dislike-button-view-model button',
     dislikeOld: '.dislike',
-    queueRow: 'ytmusic-player-queue-item',
+    queueRow: '#queue ytmusic-player-queue-item',
     queueRowTitle: '.song-title',
     queueRowByline: '.byline',
     queueRowMenu: 'ytmusic-menu-renderer button',
@@ -83,17 +83,19 @@
       btn = player.el.querySelector(SEL.nextOld);
     }
     if (!btn) return false;
-    btn.click();
+    try { btn.click(); } catch (e) { return false; }
     return true;
   }
 
   function pressNextKey(doc) {
-    const ev = new doc.defaultView.KeyboardEvent('keydown', {
-      key: 'j',
-      code: 'KeyJ',
-      bubbles: true
-    });
-    doc.body.dispatchEvent(ev);
+    try {
+      const ev = new doc.defaultView.KeyboardEvent('keydown', {
+        key: 'j',
+        code: 'KeyJ',
+        bubbles: true
+      });
+      doc.body.dispatchEvent(ev);
+    } catch (e) { /* no page to press on: nothing to do */ }
   }
 
   function clickDislike(doc) {
@@ -193,18 +195,14 @@
   function mountPlayerButtons(doc, handlers) {
     const player = findPlayer(doc);
     if (!player) return false;
-    const layout = player.layout;
     const el = player.el;
+    if (el.querySelector('#hm-player-buttons')) return true; // already mounted: never a second pair
 
-    // Check for existing container
-    let container = el.querySelector('#hm-player-buttons');
-    if (!container) {
-      container = doc.createElement('div');
-      container.id = 'hm-player-buttons';
-      container.style.display = 'inline-block';
-      container.style.marginLeft = '8px';
-      el.append(container);
-    }
+    const container = doc.createElement('div');
+    container.id = 'hm-player-buttons';
+    container.style.display = 'inline-block';
+    container.style.marginLeft = '8px';
+    el.append(container);
 
     // Add buttons
     const blockArtistBtn = doc.createElement('button');
