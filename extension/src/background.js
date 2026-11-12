@@ -29,7 +29,72 @@
         });
       }
 
+      await importBundled();
       await refreshOne('soul-over-ai');
+    }
+
+    // Import the list files committed in extension/lists/ (named in lists/index.json),
+    // each only when its content changed since the last import (hm.bundled keeps
+    // fingerprints), so an entry deleted in the popup stays deleted until the file
+    // changes. kind 'backup': a Human Music (or old extension) backup, merged into
+    // your lists. kind 'filter-list' with an id: fills that list only while it has
+    // no downloaded copy. A broken file is skipped; resolves to the files imported.
+    async function importBundled() {
+      var done = [];
+      if (typeof opts.assetUrl !== 'function') return done;
+      var HM = globalThis.HM;
+      var index;
+      try {
+        index = JSON.parse(await (await fetchFn(opts.assetUrl('lists/index.json'))).text());
+      } catch (e) {
+        return done;
+      }
+      var files = index && Array.isArray(index.files) ? index.files : [];
+      var seen = (await storage.get('hm.bundled'))['hm.bundled'] || {};
+      for (var i = 0; i < files.length; i++) {
+        var f = files[i];
+        try {
+          if (!f || typeof f.file !== 'string' || !/^[\w.-]+\.json$/.test(f.file)) continue;
+          var text = await (await fetchFn(opts.assetUrl('lists/' + f.file))).text();
+          var print = HM.lists.fingerprint(text);
+          if (seen[f.file] === print) continue;
+          var data = JSON.parse(text);
+          if (f.kind === 'backup') {
+            var imported = HM.lists.importBackup(data);
+            var cur = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
+            var next = HM.lists.applyBackup({
+              user: cur['hm.user'], settings: cur['hm.settings'],
+              filterLists: cur['hm.filterLists'] || [{ ...HM.lists.SOUL_OVER_AI }]
+            }, imported);
+            var write = { 'hm.user': next.user };
+            if (imported.settings) write['hm.settings'] = HM.settings.sanitize(next.settings);
+            if (imported.filterLists) write['hm.filterLists'] = next.filterLists;
+            await storage.set(write);
+          } else if (f.kind === 'filter-list' && typeof f.id === 'string') {
+            var parsed = HM.lists.parseFilterList(data);
+            if (!parsed) continue;
+            var key = 'hm.list.' + f.id;
+            var have = (await storage.get(key))[key];
+            if (!have || !Array.isArray(have.artists) || have.artists.length === 0) {
+              var setObj = {};
+              setObj[key] = parsed;
+              await storage.set(setObj);
+              var metas = (await storage.get('hm.filterLists'))['hm.filterLists'] || [];
+              await storage.set({ 'hm.filterLists': metas.map(function (m) {
+                return m.id === f.id ? Object.assign({}, m, { count: parsed.artists.length }) : m;
+              }) });
+            }
+          } else {
+            continue;
+          }
+          seen[f.file] = print;
+          await storage.set({ 'hm.bundled': seen });
+          done.push(f.file);
+        } catch (e) {
+          // skip this file; the others still import
+        }
+      }
+      return done;
     }
 
     async function refreshOne(id) {
@@ -128,7 +193,7 @@
       return refreshed;
     }
 
-    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue };
+    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue, importBundled: importBundled };
   }
 
   globalThis.HM.createRefresher = createRefresher;
@@ -136,13 +201,21 @@
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     globalThis.HM.refresher = globalThis.HM.createRefresher({
       storage: chrome.storage.local,
-      fetch: fetch,
-      now: function () { return Date.now(); }
+      fetch: function (url) { return fetch(url); },
+      now: function () { return Date.now(); },
+      assetUrl: function (path) { return chrome.runtime.getURL(path); }
     });
 
+    // Installing, updating and reloading the extension all land here.
     chrome.runtime.onInstalled.addListener(function () {
       globalThis.HM.refresher.install();
     });
+
+    if (chrome.runtime.onStartup) {
+      chrome.runtime.onStartup.addListener(function () {
+        globalThis.HM.refresher.importBundled();
+      });
+    }
 
     chrome.alarms.create('hm-refresh', { periodInMinutes: 60 });
 

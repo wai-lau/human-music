@@ -256,6 +256,42 @@
     return { artists: artists, songs: songs, keywords: keywords, neverSkip: neverSkip };
   }
 
+  // Apply an imported backup (the result of importBackup) to the current state.
+  // Your lists are merged (a union); settings in the backup replace those keys;
+  // known filter lists take the backup's on/off and mode, and lists the state
+  // doesn't have arrive switched off (turning one on asks Chrome for its site).
+  // Returns a new { user, settings, filterLists }; the inputs are not changed.
+  function applyBackup(current, imported) {
+    const emptyUser = { artists: [], songs: [], keywords: [], neverSkip: [] };
+    const user = mergeUser({ ...emptyUser, ...(current.user || {}) }, { ...emptyUser, ...(imported.user || {}) });
+    const settings = imported.settings ? { ...(current.settings || {}), ...imported.settings } : { ...(current.settings || {}) };
+    let lists = (current.filterLists || []).map(l => ({ ...l }));
+    if (Array.isArray(imported.filterLists)) {
+      lists = lists.map(l => {
+        const b = imported.filterLists.find(x => x && x.id === l.id);
+        return b ? { ...l, enabled: !!b.enabled, mode: b.mode === 'watch' ? 'watch' : 'act' } : l;
+      });
+      for (const b of imported.filterLists) {
+        if (!b || b.builtIn || typeof b.url !== 'string' || !/^https:\/\//.test(b.url)) continue;
+        if (lists.some(l => l.id === b.id || l.url === b.url)) continue;
+        lists.push({ id: String(b.id), name: String(b.name || b.id), url: b.url, enabled: false,
+          mode: b.mode === 'watch' ? 'watch' : 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
+      }
+    }
+    return { user, settings, filterLists: lists };
+  }
+
+  // A short, stable fingerprint of a text (FNV-1a, 32 bit), to tell whether a
+  // bundled list file changed since it was last imported.
+  function fingerprint(text) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < text.length; i++) {
+      h ^= text.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0') + ':' + text.length;
+  }
+
   globalThis.HM.lists = {
     SOUL_OVER_AI: SOUL_OVER_AI,
     FREQUENCIES: FREQUENCIES,
@@ -263,6 +299,8 @@
     isRefreshDue: isRefreshDue,
     importBackup: importBackup,
     exportBackup: exportBackup,
-    mergeUser: mergeUser
+    mergeUser: mergeUser,
+    applyBackup: applyBackup,
+    fingerprint: fingerprint
   };
 })();

@@ -191,24 +191,10 @@
       return;
     }
     const u = data.user;
-    await saveUser(HM.lists.mergeUser(state.user, u));
-    if (data.settings) await saveSettings({ ...state.settings, ...data.settings });
-    if (data.filterLists) {
-      // Known lists take the backup's on/off and mode; new ones arrive switched off
-      // (turning one on asks Chrome for access to its site).
-      let lists = state.lists.map(l => {
-        const b = data.filterLists.find(x => x && x.id === l.id);
-        return b ? { ...l, enabled: !!b.enabled, mode: b.mode === 'watch' ? 'watch' : 'act' } : l;
-      });
-      for (const b of data.filterLists) {
-        if (!b || b.builtIn || lists.some(l => l.id === b.id || l.url === b.url)) continue;
-        try {
-          lists = HM.popup.addFilterList(lists, b.url, b.name);
-          lists[lists.length - 1] = { ...lists[lists.length - 1], enabled: false, mode: b.mode === 'watch' ? 'watch' : 'act' };
-        } catch (e) { /* not https or a repeat: skip it */ }
-      }
-      await saveLists(lists);
-    }
+    const next = HM.lists.applyBackup({ user: state.user, settings: state.settings, filterLists: state.lists }, data);
+    await saveUser(next.user);
+    if (data.settings) await saveSettings(next.settings);
+    if (data.filterLists) await saveLists(next.filterLists);
     const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
     status(`Imported ${n(u.artists.length, 'artist', 'artists')}, ${n(u.songs.length, 'song', 'songs')}, ${n(u.keywords.length, 'keyword', 'keywords')} and ${n(u.neverSkip.length, 'never-skip artist', 'never-skip artists')}.`);
   });

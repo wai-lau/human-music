@@ -309,6 +309,27 @@ without notice, so selectors belong in one place in the code.
 - Wording rules from the anti-goals apply to every string, including the
   manifest description and README.
 
+## Lists that survive removal (Wai, 2026-11-12)
+
+Removing the old extension deleted its lists (Chrome wipes an extension's
+storage on removal). Wai: "save the lists in chrome storage, save a local
+copy that is auto-imported and committed (for now) / In the future, the
+extension should be bundled without the lists, it should auto-download and
+import from \"known lists\" that it is shipped with".
+
+- **Now.** Lists live in `chrome.storage.local`. `extension/lists/` holds a
+  committed copy: `index.json` names the files; `my-lists.json` is a Human
+  Music backup of your own lists; `soul-over-ai.json` is a names-only
+  snapshot of the Soul Over AI list (CC BY 4.0). On install and on every
+  start the service worker imports each file whose content changed since the
+  last import: a backup merges into your lists (a union, so an entry deleted
+  in the popup stays deleted until the file changes); a filter-list file
+  fills that list only while it has no downloaded copy.
+  `scripts/save-lists.sh` copies the newest popup Export from Downloads into
+  `my-lists.json` and commits it.
+- **Later.** The package ships with no list data, only a file of known list
+  URLs, and downloads and imports those on install.
+
 ## Phases
 
 1. **Extension.** Everything above. Done when Wai uses Human Music instead

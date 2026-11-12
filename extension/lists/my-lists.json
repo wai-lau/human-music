@@ -1,0 +1,29 @@
+{
+  "format": "human-music-backup",
+  "version": 1,
+  "user": {
+    "artists": [],
+    "songs": [],
+    "keywords": [],
+    "neverSkip": []
+  },
+  "settings": {
+    "lookahead": 3,
+    "autoSkip": true,
+    "autoDislike": false,
+    "hidePageItems": true,
+    "playerButtons": true,
+    "paused": false,
+    "refresh": "daily"
+  },
+  "filterLists": [
+    {
+      "id": "soul-over-ai",
+      "name": "Soul Over AI",
+      "url": "https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json",
+      "enabled": true,
+      "mode": "act",
+      "builtIn": true
+    }
+  ]
+}

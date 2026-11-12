@@ -1,0 +1,7 @@
+{
+  "note": "List files the extension imports on install and on every start, each only when its content changed. Phase 1 only: later the package ships with no lists and downloads its known lists instead.",
+  "files": [
+    { "file": "my-lists.json", "kind": "backup" },
+    { "file": "soul-over-ai.json", "kind": "filter-list", "id": "soul-over-ai" }
+  ]
+}

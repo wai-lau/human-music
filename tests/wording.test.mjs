@@ -18,8 +18,12 @@ function walk(dir) {
 }
 
 const files = walk(EXT);
+// List data in extension/lists/*.json holds artist names as published (one is
+// literally "FAKE MUSIC"); it is data, not wording, so it is not checked.
+const LIST_DATA = join(EXT, 'lists');
 const textFiles = files.filter(f => {
   const ext = f.substring(f.lastIndexOf('.'));
+  if (ext === '.json' && f.startsWith(LIST_DATA)) return false;
   return ['.js', '.html', '.css', '.json', '.md'].includes(ext);
 });
 
