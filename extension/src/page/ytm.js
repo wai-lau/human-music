@@ -233,6 +233,140 @@
     };
   }
 
+  // --- Page items (home, Explore, search) ---
+
+  const ITEM_SELECTOR = 'ytmusic-two-row-item-renderer, ytmusic-responsive-list-item-renderer, ytmusic-card-shelf-renderer';
+
+  function isPageItemPath(path) {
+    return path === '/' || path === '/explore' || path.startsWith('/search');
+  }
+
+  function dedupe(arr) {
+    const seen = new Set();
+    const out = [];
+    for (const s of arr) {
+      if (!s || seen.has(s)) continue;
+      seen.add(s);
+      out.push(s);
+    }
+    return out;
+  }
+
+  function splitNames(text) {
+    // Split on ', ', ' & ', ' feat. ' (case-insensitive)
+    const parts = text.split(/, | & | feat\. /i);
+    return parts.map(p => p.trim()).filter(Boolean);
+  }
+
+  function extractPageItem(itemEl, doc) {
+    try {
+      // Title
+      const titleEl = itemEl.querySelector('.title');
+      const title = titleEl ? (titleEl.textContent || '').trim() : '';
+
+      // Channel links
+      const channelLinks = itemEl.querySelectorAll('a[href*="channel/"]');
+      const channelIds = [];
+      let linkCredits = [];
+      for (let i = 0; i < channelLinks.length; i++) {
+        const link = channelLinks[i];
+        const text = (link.textContent || '').trim();
+        if (text) linkCredits.push(text);
+        const href = link.getAttribute('href') || '';
+        const chMatch = href.match(/channel\/(UC[A-Za-z0-9_-]+)/);
+        if (chMatch) channelIds.push(chMatch[1]);
+      }
+      linkCredits = dedupe(linkCredits);
+      const channelIdsUnique = dedupe(channelIds);
+
+      if (linkCredits.length > 0) {
+        // Has channel links → use them as credits
+        return { title, credits: linkCredits, channelIds: channelIdsUnique, featured: false };
+      }
+
+      // No channel links → read subtitle
+      let subtitleEl = itemEl.querySelector('.subtitle');
+      if (!subtitleEl) subtitleEl = itemEl.querySelector('.secondary-flex-columns');
+      const subtitle = subtitleEl ? (subtitleEl.textContent || '').trim() : '';
+
+      if (!subtitle) {
+        return { title, credits: [], channelIds: [], featured: false };
+      }
+
+      const parts = subtitle.split(' • ').map(p => p.trim()).filter(Boolean);
+
+      // Check for type word at start
+      const typeWords = ['Song', 'Album', 'Single', 'EP', 'Playlist', 'Artist', 'Video'];
+      let typeWord = null;
+      let creditParts = parts;
+      if (parts.length > 0) {
+        for (const tw of typeWords) {
+          if (parts[0].toLowerCase() === tw.toLowerCase()) {
+            typeWord = parts[0];
+            creditParts = parts.slice(1);
+            break;
+          }
+        }
+      }
+
+      // Type word was "Artist" → credits = [title]
+      if (typeWord && typeWord.toLowerCase() === 'artist') {
+        return { title, credits: [title], channelIds: [], featured: false };
+      }
+
+      // No ' • ' at all AND at least one ', ' → mix card
+      if (parts.length === 1 && subtitle.includes(',')) {
+        const mixCredits = splitNames(subtitle).filter(p => p && !p.toLowerCase().includes('album') && !p.toLowerCase().includes('single') && !p.toLowerCase().includes('playlist') && !p.toLowerCase().includes('video'));
+        return { title, credits: mixCredits, channelIds: [], featured: true };
+      }
+
+      // Normal: first remaining part is the credit
+      if (creditParts.length === 0) {
+        return { title, credits: [], channelIds: [], featured: false };
+      }
+
+      const creditText = creditParts[0];
+      const split = splitNames(creditText);
+      // Credits: whole text first, then split parts
+      const allCredits = [creditText, ...split].filter(Boolean);
+      const uniqueCredits = dedupe(allCredits);
+      return { title, credits: uniqueCredits, channelIds: [], featured: false };
+    } catch (e) {
+      return { title: '', credits: [], channelIds: [], featured: false };
+    }
+  }
+
+  function readPageItems(doc, path) {
+    if (!isPageItemPath(path)) return [];
+
+    const items = doc.querySelectorAll(ITEM_SELECTOR);
+    const result = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      // Skip items inside player page or queue
+      if (item.closest('ytmusic-player-page') || item.closest('#queue')) continue;
+      result.push({ ...extractPageItem(item, doc), el: item });
+    }
+    return result;
+  }
+
+  function hideItem(el) {
+    try {
+      el.hidden = true;
+      el.setAttribute('data-hm-hidden', '');
+    } catch (e) { /* ignore */ }
+  }
+
+  function unhideAll(doc) {
+    try {
+      const hidden = doc.querySelectorAll('[data-hm-hidden]');
+      for (let i = 0; i < hidden.length; i++) {
+        hidden[i].hidden = false;
+        hidden[i].removeAttribute('data-hm-hidden');
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   HM.ytm = {
     SEL,
     REMOVE_ICON,
@@ -246,5 +380,8 @@
     removeQueueRow,
     mountPlayerButtons,
     pageAdapter,
+    readPageItems,
+    hideItem,
+    unhideAll,
   };
 })();
