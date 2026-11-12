@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A Chrome extension for music.youtube.com that takes songs by listed artists out of the queue before they play, skips any that play anyway, and logs every action with its source list.
+**Goal:** A Chrome extension for music.youtube.com that takes songs by listed artists out of the queue before they play, skips any that play anyway, hides their songs, albums and playlists on the home page, Explore and search results, and logs every action with its source list.
 
 **Architecture:** Pure logic modules (`extension/src/core/`) hold matching, list parsing, skipping, lookahead, log and settings; each attaches to a shared `globalThis.HM` namespace so the content script, popup, service worker and Node tests all load the same files. One page adapter (`extension/src/page/ytm.js`) is the only code that touches YouTube Music's DOM. The content script wires them; a service worker refreshes filter lists.
 
@@ -58,6 +58,8 @@
 ```js
 // A song as read from the page or a queue row
 Song  = { title: string, artistLine: string, channelIds?: string[] }
+// An item on the home page, Explore or search results
+PageItem = { title: string, credits: string[], channelIds: string[], featured: boolean }  // featured: a mix card's comma list
 // A filter list's metadata (storage key "hm.filterLists": FilterList[])
 FilterList = { id, name, url, enabled: boolean, mode: 'act'|'watch', builtIn: boolean,
                lastRefresh: number|null, count: number, lastError: string|null }
@@ -125,7 +127,7 @@ no match for /\b(slop|fake|garbage)\b|fight ai/i
 
 **Interfaces:**
 - Produces `HM.text`: `normalize(s: string) → string` (NFC, lowercase, trimmed, runs of whitespace → one space); `credits(artistLine: string) → string[]` (normalized; the whole credit before the first " • ", then its parts after splitting on ", ", " & " and " feat. " (case-insensitive), no duplicates, no empty strings); `wholeWord(term: string) → RegExp` (flags `iu`; boundary = start, end, or a character that is not `\p{L}` or `\p{N}`).
-- Produces `HM.match`: `buildIndex({ filterLists: (FilterList & ListData)[], user: User }) → Index`; `matchSong(index, song: Song) → Match|null`.
+- Produces `HM.match`: `buildIndex({ filterLists: (FilterList & ListData)[], user: User }) → Index`; `matchSong(index, song: Song) → Match|null`; `matchItem(index, item: PageItem) → Match|null` (credits are names as shown, normalized inside; same precedence; `featured: true` → a Match only when every credit matches an artist entry, keywords and songs ignored).
 - Precedence inside `matchSong`: a credit on `neverSkip` → `null`; then user songs, user artists, user keywords; then enabled filter lists, `act` lists before `watch` lists. Disabled lists are ignored.
 
 - [ ] **Step 1: Write `tests/match.test.mjs`.** Cases (label → assertion):
@@ -155,6 +157,11 @@ user.songs [{title:'Love', artist:null}]: 'Love' by anyone → match
 neverSkip ['The Velvet Sundown'] → the Velvet Sundown song above → null (overrides the filter list)
 filter list enabled:false → null; mode:'watch' → match with mode 'watch'
 same artist on an act list and a watch list → mode 'act'
+matchItem(idx, {title:'EP', credits:['1950 SoulClub','Lewis Hanton'], channelIds:[], featured:false}) with list name '1950 SoulClub' → rule 'artist'
+matchItem(idx, {title:'X', credits:['Someone'], channelIds:['UCOCi_VDTQPFn9fZtfqnpVag'], featured:false}) with that channelId listed → rule 'channel'
+matchItem(idx, {title:'Replay Mix', credits:['The Velvet Sundown','ILLENIUM'], channelIds:[], featured:true}) → null   // one human in the mix
+matchItem(idx, {title:'Mix', credits:['The Velvet Sundown','10mm'], channelIds:[], featured:true}) → match
+matchItem with a credit on neverSkip → null
 ```
 
 - [ ] **Step 2: Write `tests/perf.test.mjs`:** a 1375-name filter list (generated names); 2000 `matchSong` calls on distinct songs average under 6 ms each (expect far less); report the average.
@@ -227,8 +234,8 @@ clickNext is called synchronously inside skip() (dislikeFirst false)
 **Files:** Create `extension/src/core/settings.js`, `log.js`, `lookahead.js`, `tests/core.test.mjs`.
 
 **Interfaces:**
-- `HM.settings`: `DEFAULTS = { lookahead: 3, autoSkip: true, autoDislike: false, playerButtons: true, paused: false, refresh: 'daily' }`; `sanitize(obj: any) → Settings` (fills defaults; `lookahead` integer clamped 0–10; `refresh` must be a key of `HM.lists.FREQUENCIES` else `'daily'`; booleans coerced).
-- `HM.log`: `makeEntry({ event, song, match, at }) → LogEntry` where `event ∈ 'removed'|'skipped'|'disliked'|'seen'|'watched'` and `LogEntry = { at, event, title, artistLine, listId, listName, rule, entry }`; `append(entries, entry, cap = 1000) → LogEntry[]` (new array, newest first); `describe(entry) → string`.
+- `HM.settings`: `DEFAULTS = { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, paused: false, refresh: 'daily' }`; `sanitize(obj: any) → Settings` (fills defaults; `lookahead` integer clamped 0–10; `refresh` must be a key of `HM.lists.FREQUENCIES` else `'daily'`; booleans coerced).
+- `HM.log`: `makeEntry({ event, song, match, at }) → LogEntry` where `event ∈ 'removed'|'skipped'|'disliked'|'hidden'|'seen'|'watched'` and `LogEntry = { at, event, title, artistLine, listId, listName, rule, entry }`; `append(entries, entry, cap = 1000) → LogEntry[]` (new array, newest first); `describe(entry) → string`; `seenRecently(entries, entry, now, windowMs = 86400000) → boolean` (an entry with the same event, title and artist line inside the window; used so a hidden item is logged at most once a day).
 - `HM.lookahead`: `pickRemovals(rows: (Song & { selected: boolean })[], distance: number, matchFn: (Song) → Match|null) → { remove: number[], watched: { index: number, match: Match }[] }` (rows after the selected one, at most `distance`; no selected row or `distance` 0 → both empty; `remove` holds `act` matches only).
 
 - [ ] **Step 1: Write `tests/core.test.mjs`:**
@@ -243,6 +250,8 @@ describe(entry seen, listId 'user:artists')             === 'Played (auto-skip o
 describe(entry watched, list 'Soul Over AI')            === 'Watch mode, left alone: AI-generated (Soul Over AI)'
 describe(entry skipped, listId 'user:keywords', entry 'remix') === 'Skipped: keyword "remix" from your keywords list'
 describe(entry skipped, listId 'user:songs')            === 'Skipped: on your songs list'
+describe(entry hidden, list 'Soul Over AI')             === 'Hidden on page: AI-generated (Soul Over AI)'
+seenRecently([hidden X at t], hidden X, t + 3600000) === true; at t + 90000000 → false; a 'skipped' X doesn't count
 append(1000 entries, new) → length 1000, [0] is new
 pickRemovals(rows [A(selected), B*, C, D*, E*], 3, fn) → remove [1, 3]     // E is 4 ahead
 pickRemovals(same, 0, fn) → remove []; no selected row → remove []
@@ -256,9 +265,9 @@ a watch-mode match → in watched, not in remove
 **Files:** Create `extension/src/page/ytm.js`, `tests/ytm.test.mjs`; extend `tests/fakes.mjs` with `fakeYtm({ layout: 'new'|'old', song, queue, nextMovesOn })`.
 
 **Interfaces:**
-- Produces `HM.ytm`: `SEL` (the spec's selector table, one object); `readSong(doc) → Song|null`; `readQueue(doc) → (Song & { selected: boolean, el })[]`; `clickNext(doc) → boolean`; `pressNextKey(doc) → void` (keydown, `key: 'j'`, `code: 'KeyJ'`, `bubbles: true`, on `doc.body`); `clickDislike(doc) → boolean` (already pressed → no click, returns true); `videoDuration(doc) → number` (NaN without a video); `seekTo(doc, seconds)`; `removeQueueRow(doc, row) → Promise<boolean>`; `mountPlayerButtons(doc, { onBlockArtist, onBlockSong }) → boolean` (one container `#hm-player-buttons`, never two); `pageAdapter(doc) → ` the adapter Task 4 consumes.
+- Produces `HM.ytm`: `SEL` (the spec's selector table, one object); `readSong(doc) → Song|null`; `readQueue(doc) → (Song & { selected: boolean, el })[]`; `clickNext(doc) → boolean`; `pressNextKey(doc) → void` (keydown, `key: 'j'`, `code: 'KeyJ'`, `bubbles: true`, on `doc.body`); `clickDislike(doc) → boolean` (already pressed → no click, returns true); `videoDuration(doc) → number` (NaN without a video); `seekTo(doc, seconds)`; `removeQueueRow(doc, row) → Promise<boolean>`; `mountPlayerButtons(doc, { onBlockArtist, onBlockSong }) → boolean` (one container `#hm-player-buttons`, never two); `pageAdapter(doc) → ` the adapter Task 4 consumes; `readPageItems(doc, path: string) → (PageItem & { el })[]` (only when `path` is `/`, `/explore` or starts with `/search`; else `[]`); `hideItem(el)` (sets `el.hidden = true` and `data-hm-hidden`); `unhideAll(doc)`.
 
-- [ ] **Step 1: Write `tests/ytm.test.mjs`**, both layouts: `readSong` returns the fake's title and artist line; `channelIds` from artist links when present; `readQueue` returns rows with `selected`; `clickNext` clicks the Next button (true) and returns false when it's absent; `pressNextKey` dispatches one keydown `j` on body; `clickDislike` doesn't click when `aria-pressed="true"`; `mountPlayerButtons` twice → one container with two buttons labelled "Block artist" and "Block song"; `removeQueueRow` clicks the row's menu button, then the item with the exact remove icon, and resolves true; with no matching item it clicks nothing else, sends Escape and resolves false; a twin row inside `#counterpart-renderer` is not returned by `readQueue`.
+- [ ] **Step 1: Write `tests/ytm.test.mjs`**, both layouts: `readSong` returns the fake's title and artist line; `channelIds` from artist links when present; `readQueue` returns rows with `selected`; `clickNext` clicks the Next button (true) and returns false when it's absent; `pressNextKey` dispatches one keydown `j` on body; `clickDislike` doesn't click when `aria-pressed="true"`; `mountPlayerButtons` twice → one container with two buttons labelled "Block artist" and "Block song"; `removeQueueRow` clicks the row's menu button, then the item with the exact remove icon, and resolves true; with no matching item it clicks nothing else, sends Escape and resolves false; a twin row inside `#counterpart-renderer` is not returned by `readQueue`. Page items: a search row with three `channel/` links → credits are the three link texts and channelIds the three IDs; a card with subtitle "Album • Otis Redding" and no links → credits ['Otis Redding']; a mix card with subtitle "ILLENIUM, GameChops, Shin-Ski" → featured true, three credits; on `/browse/x` → `[]`; items inside `ytmusic-player-page` or the queue are never returned; `hideItem` then `unhideAll` restores `hidden = false`.
 - [ ] **Step 2:** Run: FAIL.
 - [ ] **Step 3:** Implement. `readQueue` reads `#queue ytmusic-player-queue-item` rows, skipping any inside `#counterpart-renderer`. `removeQueueRow(doc, row)`, from Task 0: click `row.querySelector('ytmusic-menu-renderer button')`; wait (poll ≤ 1500 ms) for a visible `ytmusic-menu-popup-renderer`; find the `[role=menuitem]` whose first `svg path` `d` equals `HM.ytm.REMOVE_ICON` (the exact string in the spec's page facts); none → dispatch an Escape keydown on `doc` and resolve false (never click anything else: "Dismiss queue" is in the same menu); found → click it, then resolve true once `row.isConnected` is false or the row count dropped, false after 1500 ms. `readSong` returns `channelIds: []` (the page has none).
 - [ ] **Step 4:** Check: `node tests/ytm.test.mjs`. **Step 5:** Commit `feat: YouTube Music page adapter`.
@@ -293,6 +302,7 @@ refreshDue with refresh 'daily', lastRefresh now-25h → refreshes it; now-1h �
 - Reads `hm.user`, `hm.settings`, `hm.filterLists`, `hm.list.<id>`; rebuilds the index when any of those change (`storage.onChanged`), never on `hm.log` changes.
 - `checkPlaying`: skips when paused; re-checks only when title+artist line changed; on an `act` match with `autoSkip` → `skipper.skip({ dislikeFirst: autoDislike })` and log `skipped`/`disliked`; without `autoSkip` → log `seen`; `watch` match → log `watched`.
 - `runLookahead`: when not paused and `lookahead > 0`, `pickRemovals` then remove rows one at a time, re-reading `readQueue` after each removal; log `removed` per success.
+- Hiding: when `hidePageItems` and not paused, a pass over `readPageItems(doc, location.pathname)` on page mutations (one per animation frame): `act` match → `hideItem` and log `hidden` unless `seenRecently`. Pausing or switching hiding off → `unhideAll`.
 - Player buttons per `playerButtons`: "Block artist" adds the playing song's credits (the whole credit) to `user.artists`; "Block song" adds `{ title, artist: first credit }` to `user.songs`.
 
 - [ ] **Step 1: Write `tests/content.test.mjs`** with `fakeYtm`, `fakeStorage`, `fakeClock`:
@@ -308,6 +318,9 @@ queue [cur, B*, C*, D] with lookahead 3 → B and C removed (the fake shifts row
 never-skip artist → nothing happens
 "Block artist" click → hm.user.artists includes the whole credit; the song is then skipped
 writing hm.log does not rebuild the index (count buildIndex calls)
+on '/search' with a listed artist's EP row → hidden, one 'hidden' log line; a second pass → no second line
+watch-mode list match on a page → not hidden; paused → unhideAll restores it
+a hiding pass over 100 page items under 30 ms
 same-song re-check under 0.5 ms; new song under 6 ms (1375-name list)
 runLookahead's matching over 10 queue rows under 20 ms (removal itself excluded)
 ```

@@ -51,10 +51,14 @@ flowchart LR
    later Wai's public list and others.
 3. Your own lists of artists, songs and keywords, from the popup and from
    buttons on the player.
-4. A clear log of every song taken out or skipped, with the list that
+4. Hide songs, albums, playlists and artists by listed artists on the home
+   page, Explore and search results, like an ad blocker. Wai: "I want it to
+   work like an adblock too, automatically hide the songs and playlists on
+   the front page and from results".
+5. A clear log of every song taken out or skipped, with the list that
    caused it.
-5. Import a backup exported from the old extension, so Wai keeps her lists.
-6. Later: the research tool, and more community lists.
+6. Import a backup exported from the old extension, so Wai keeps her lists.
+7. Later: the research tool, and more community lists.
 
 ## Non-goals
 
@@ -169,6 +173,32 @@ playing song's credited artists to your artists) and "Block song" (adds
 title plus artist to your songs). Adding re-checks the playing song at
 once. **(Claude's call:** kept from the old extension's feature set.)
 
+### Hiding on pages
+
+Like an ad blocker, Human Music hides matching items so they never show.
+
+- **Where:** the home page (`/`), Explore (`/explore`) and search results
+  (`/search`). Album, playlist and artist pages are left alone: you went
+  there on purpose. **(Claude's call)** The queue and the player are never
+  touched by hiding (lookahead and auto-skip handle them).
+- **What:** song rows, album/single/EP cards, playlist cards, artist cards and
+  the top search result card.
+- **Who an item is by:** the text and channel ID of its artist links
+  (`a[href*="channel/"]`, checked live: search and home items have them).
+  Without links, the subtitle's credits after a leading type word ("Song",
+  "Album", "Single", "EP", "Playlist", "Artist", "Video").
+- **Rule:** hide when a credited artist matches an `act` filter list or your
+  artists, songs or keywords, and nobody credited is on Never skip.
+  **Mix cards** (a subtitle that is only a comma list of featured artists,
+  like "ILLENIUM, GameChops, El Jazzy Chavo") hide only when every named
+  artist is listed: one AI artist in a mix doesn't hide the human ones.
+  **(Claude's call)** Watch-mode lists never hide.
+- **Undo:** pausing Human Music or switching hiding off shows everything
+  again at once.
+- **Log:** a hidden item gets one log line ("Hidden on page"), at most once
+  a day per item, so a wrongly hidden person can be found and put on Never
+  skip. **(Claude's call)**
+
 ## Popup
 
 Three tabs (Wai's layout).
@@ -198,10 +228,11 @@ Three tabs (Wai's layout).
 | Lookahead distance | 3 (0 to 10; 0 = off) |
 | Auto-skip a playing match | on |
 | Auto-dislike | off (Wai: "off by default") |
+| Hide listed artists on pages | on |
 | Player buttons | on |
 | Pause Human Music | off (one switch stops everything) |
 
-The last three rows are **Claude's calls** (Wai asked "more?").
+Player buttons and Pause are **Claude's calls** (Wai asked "more?"); hiding is Wai's.
 
 ### 3. Log
 
@@ -209,8 +240,8 @@ Wai: "a clear log of every song that was skipped with details and source
 list".
 
 - One line per event, newest first: time, title, artist line, what happened
-  (removed from queue, skipped, disliked, seen with auto-skip off, seen in
-  watch mode), the list and the entry that matched.
+  (removed from queue, skipped, disliked, hidden on a page, seen with
+  auto-skip off, seen in watch mode), the list and the entry that matched.
 - Each line has "Wrong: never skip this artist", which adds the artist to
   Never skip. **(Claude's call)**
 - Keeps the last 1000 lines; "Clear log" and "Export log". **(Claude's
@@ -246,8 +277,15 @@ without notice, so selectors belong in one place in the code.
   screen moves. The same menu holds "Dismiss queue", which clears the whole
   queue, so only an exact icon match may be clicked. Escape (a keydown on
   `document`) closes the menu without acting.
-- **No channel IDs on the page.** The playing song's artist links have no
-  `href`, and queue rows have no links, so matching is by name only for now.
+- **Channel IDs.** The playing song's artist links have no `href`, and queue
+  rows have no links, so the player and queue match by name only. Search and
+  home items do link artists (`channel/UC…`), so hiding can match by channel ID.
+- **Page items (checked live 2026-11-11).** Home and Explore: cards are
+  `ytmusic-two-row-item-renderer` (`.title`, `.subtitle`); song rows (Quick
+  picks) are `ytmusic-responsive-list-item-renderer`. Search: rows are
+  `ytmusic-responsive-list-item-renderer` with subtitles like "EP • 1950
+  SoulClub, 1960 SoulClub & Lewis Hanton • 2025"; the top result is
+  `ytmusic-card-shelf-renderer`.
 - Song rows in lists carry a `like-status` attribute (`LIKE`, `DISLIKE`,
   `INDIFFERENT`).
 - The layout switch happened in 2026; keep both layouts working.
@@ -264,7 +302,8 @@ without notice, so selectors belong in one place in the code.
   Node tests can load them without a browser. Tests are `tests/*.test.mjs`,
   run with `node`, printing `N/N pass` and exiting 1 on any failure.
 - Speed, with a 1375-name list: checking the same song again under 0.5 ms,
-  a new song under 6 ms; a lookahead pass over 10 queue rows under 20 ms.
+  a new song under 6 ms; a lookahead pass over 10 queue rows under 20 ms;
+  a hiding pass over 100 page items under 30 ms.
 - MIT license; copyright "wai-lau".
 - New icons (16, 48, 128 px), drawn for Human Music.
 - Wording rules from the anti-goals apply to every string, including the
