@@ -35,18 +35,25 @@ categorically different (not inferior)".
 - Plain JavaScript, Manifest V3, no build step, no dependencies. Each file
   in `extension/` is an IIFE that sets `globalThis.HM.<name>`.
 - Tests: `for f in tests/*.test.mjs; do node "$f" || exit 1; done`. Each
-  prints `N/N pass` and exits 1 on failure.
+  prints `N/N pass` and exits 1 on failure. `tests/dom.mjs` is a small DOM
+  (no dependencies); `tests/contract-*.check.mjs` are the lead's contract
+  checks, written from the plan apart from each module's own tests, run by
+  `tests/contracts.test.mjs`. Qwen writes both code and tests, so a task's
+  check must include a contract check written before the send (red on base).
 - Routing (mates): tasks with a test as their check go to Qwen; live checks
   on YouTube Music and judgment work stay with Claude.
 - YouTube Music page facts (selectors, what works) are in the spec; they
   were checked live on 2026-11-11 and YouTube changes them without notice.
 
-## Start here (2026-11-11)
+## Start here (2026-11-12)
 
-- Phase 1 plan: Task 0 (live recon) is done; its results are in the spec's
-  page facts and in Task 6. Start at Task 1.
+- Phase 1 plan: Tasks 0-10 are done (all tests and contract checks pass).
+  Next is Task 11, the live end-to-end check with Wai. Load the extension
+  unpacked from `\\wsl$\Ubuntu\home\wai\src\human-music\extension`
+  (the old one is loaded the same way from its repo).
 - Questions for Wai go in a gitignored `OPEN-QUESTIONS.md` here, published as
-  this repo's own questions page (see the global CLAUDE.md).
+  this repo's own questions page (see the global CLAUDE.md); its URL is in
+  project memory.
 - Background lives in the old repo's docs (`docs/answered-questions.md` in
   `~/src/YTM-AI-Artist-Song-Blocker`); reading those docs is fine, its code
   is not.
