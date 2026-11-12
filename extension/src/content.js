@@ -1,3 +1,204 @@
+// Content script on music.youtube.com: wires the core modules to the page.
+// One MutationObserver schedules a pass (at most one pending, 50 ms later):
+// check the playing song, run lookahead, hide page items, keep the player buttons.
+// Anything that throws leaves the song playing.
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  'use strict';
+  const HM = (globalThis.HM = globalThis.HM || {});
+
+  const emptyUser = () => ({ artists: [], songs: [], keywords: [], neverSkip: [] });
+  const rebuilds = key => key === 'hm.user' || key === 'hm.settings' || key === 'hm.filterLists' || key.startsWith('hm.list.');
+  const rowKey = row => `${row.title}\n${row.artistLine}`;
+  const safe = (fn, fallback) => { try { return fn(); } catch (e) { return fallback; } };
+
+  function createApp({ doc, storage, timers, now }) {
+    const state = {
+      settings: HM.settings.sanitize({}),
+      index: null,
+      last: null, // { title, artistLine } of the song checked last
+      lookaheadRunning: false,
+      passTimer: null,
+      skipper: null,
+    };
+    let writes = Promise.resolve();
+
+    const matchSong = song => (state.index ? safe(() => HM.match.matchSong(state.index, song), null) : null);
+
+    // Storage writes run one after another, so two quick ones never lose each other.
+    function queueWrite(fn) {
+      writes = writes.then(fn).catch(() => {});
+      return writes;
+    }
+
+    function log(event, song, match, { oncePerDay = false } = {}) {
+      const entry = HM.log.makeEntry({ event, song, match, at: now() });
+      return queueWrite(async () => {
+        const stored = await storage.get('hm.log');
+        const entries = Array.isArray(stored['hm.log']) ? stored['hm.log'] : [];
+        if (oncePerDay && HM.log.seenRecently(entries, entry, entry.at)) return;
+        await storage.set({ 'hm.log': HM.log.append(entries, entry, 1000) });
+      });
+    }
+
+    async function reload() {
+      const stored = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
+      state.settings = HM.settings.sanitize(stored['hm.settings']);
+      const user = { ...emptyUser(), ...(stored['hm.user'] || {}) };
+      const lists = Array.isArray(stored['hm.filterLists']) ? stored['hm.filterLists'] : [];
+      const keys = lists.map(l => `hm.list.${l.id}`);
+      const data = keys.length ? await storage.get(keys) : {};
+      state.index = HM.match.buildIndex({
+        filterLists: lists.map(l => ({ ...l, artists: (data[`hm.list.${l.id}`] || {}).artists || [] })),
+        user,
+      });
+    }
+
+    // --- the playing song ---------------------------------------------------------
+
+    function checkPlaying() {
+      if (state.settings.paused) return;
+      const song = safe(() => HM.ytm.readSong(doc), null);
+      if (!song) return;
+      if (state.last && state.last.title === song.title && state.last.artistLine === song.artistLine) return;
+      state.last = { title: song.title, artistLine: song.artistLine };
+      const match = matchSong(song);
+      if (!match) return;
+      if (match.mode === 'watch') { log('watched', song, match); return; }
+      if (!state.settings.autoSkip) { log('seen', song, match); return; }
+      safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
+      log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
+    }
+
+    // --- lookahead ----------------------------------------------------------------------
+
+    async function runLookahead() {
+      if (state.settings.paused || !state.settings.lookahead || state.lookaheadRunning) return;
+      state.lookaheadRunning = true;
+      const failed = new Set();
+      try {
+        for (let guard = 0; guard < 50; guard++) {
+          // Re-read every time: removing a row shifts the rows after it.
+          const rows = safe(() => HM.ytm.readQueue(doc), []);
+          const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
+            row => (failed.has(rowKey(row)) ? null : matchSong(row)));
+          for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
+          if (!remove.length) break;
+          const row = rows[remove[0]];
+          const match = matchSong(row);
+          const removed = await Promise.resolve(safe(() => HM.ytm.removeQueueRow(doc, row), false)).catch(() => false);
+          if (removed) log('removed', row, match);
+          else failed.add(rowKey(row));
+        }
+      } finally {
+        state.lookaheadRunning = false;
+      }
+    }
+
+    // --- page items -----------------------------------------------------------------------
+
+    function hidePass() {
+      if (state.settings.paused || !state.settings.hidePageItems || !state.index) return;
+      const path = safe(() => doc.location.pathname, '');
+      for (const item of safe(() => HM.ytm.readPageItems(doc, path), [])) {
+        if (safe(() => item.el.hasAttribute('data-hm-hidden'), true)) continue;
+        const match = safe(() => HM.match.matchItem(state.index, item), null);
+        if (!match || match.mode !== 'act') continue;
+        HM.ytm.hideItem(item.el);
+        log('hidden', { title: item.title, artistLine: item.credits.join(', ') }, match, { oncePerDay: true });
+      }
+    }
+
+    // --- player buttons -----------------------------------------------------------------
+
+    function block(kind) {
+      const song = safe(() => HM.ytm.readSong(doc), null);
+      if (!song) return;
+      const credit = song.artistLine.split(' • ')[0].trim();
+      const N = HM.text.normalize;
+      queueWrite(async () => {
+        const stored = await storage.get('hm.user');
+        const user = { ...emptyUser(), ...(stored['hm.user'] || {}) };
+        if (kind === 'artist') {
+          if (!credit || user.artists.some(a => N(a) === N(credit))) return;
+          user.artists = [...user.artists, credit];
+        } else {
+          const artist = credit.split(/, | & | feat\. /i)[0].trim() || null;
+          if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return;
+          user.songs = [...user.songs, { title: song.title, artist }];
+        }
+        await storage.set({ 'hm.user': user });
+      });
+    }
+
+    function playerButtons() {
+      if (state.settings.playerButtons && !state.settings.paused) {
+        safe(() => HM.ytm.mountPlayerButtons(doc, { onBlockArtist: () => block('artist'), onBlockSong: () => block('song') }));
+      } else {
+        const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
+        if (box) box.remove();
+      }
+    }
+
+    // --- passes ---------------------------------------------------------------------------
+
+    function pass() {
+      state.passTimer = null;
+      safe(checkPlaying);
+      safe(() => runLookahead().catch(() => {}));
+      safe(hidePass);
+      safe(playerButtons);
+    }
+
+    function schedule() {
+      if (state.passTimer == null) state.passTimer = timers.setTimeout(pass, 50);
+    }
+
+    async function start() {
+      try { await reload(); } catch (e) { /* no lists yet: nothing matches */ }
+      state.skipper = HM.skipper.createSkipper({
+        page: HM.ytm.pageAdapter(doc),
+        setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout,
+        setInterval: timers.setInterval, clearInterval: timers.clearInterval,
+      });
+      storage.onChanged.addListener((changes, area) => {
+        if (area && area !== 'local') return;
+        if (!Object.keys(changes).some(rebuilds)) return; // hm.log alone changes nothing
+        reload().then(() => {
+          state.last = null; // check the playing song again against the new lists
+          safe(() => HM.ytm.unhideAll(doc)); // shown again unless it still matches
+          schedule();
+        }).catch(() => {});
+      });
+      safe(() => {
+        const Observer = doc.defaultView.MutationObserver;
+        new Observer(schedule).observe(doc.body, { childList: true, subtree: true, characterData: true });
+      });
+      pass();
+    }
+
+    // Resolves once every queued storage write has finished.
+    async function flush() {
+      let seen;
+      do { seen = writes; await seen; } while (seen !== writes);
+    }
+
+    return { start, checkPlaying, runLookahead, flush };
+  }
+
+  HM.createApp = createApp;
+
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    HM.app = createApp({
+      doc: document,
+      storage: chrome.storage.local,
+      timers: {
+        setTimeout: (fn, ms) => setTimeout(fn, ms),
+        clearTimeout: id => clearTimeout(id),
+        setInterval: (fn, ms) => setInterval(fn, ms),
+        clearInterval: id => clearInterval(id),
+      },
+      now: () => Date.now(),
+    });
+    HM.app.start().catch(() => {});
+  }
 })();

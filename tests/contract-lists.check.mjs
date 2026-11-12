@@ -1,5 +1,5 @@
-// Lead-side probe for Task 3 (lists and backups). Run from the repo root:
-//   node --input-type=module -e "$(cat .mates/probes/task3.mjs)"
+// Contract check for Task 3 (lists and backups). Run from the repo root:
+//   node tests/contract-lists.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { lists } = load(['src/core/text.js', 'src/core/lists.js']).HM;
 const fails = [];

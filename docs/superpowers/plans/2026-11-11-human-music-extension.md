@@ -305,7 +305,7 @@ refreshDue with refresh 'daily', lastRefresh now-25h → refreshes it; now-1h �
 - Hiding: when `hidePageItems` and not paused, a pass over `readPageItems(doc, location.pathname)` on page mutations (one per animation frame): `act` match → `hideItem` and log `hidden` unless `seenRecently`. Pausing or switching hiding off → `unhideAll`.
 - Player buttons per `playerButtons`: "Block artist" adds the playing song's credits (the whole credit) to `user.artists`; "Block song" adds `{ title, artist: first credit }` to `user.songs`.
 
-- [ ] **Step 1: Write `tests/content.test.mjs`** with `fakeYtm`, `fakeStorage`, `fakeClock`:
+- [x] **Step 1: Write `tests/content.test.mjs`** with `fakeYtm`, `fakeStorage`, `fakeClock`:
 
 ```js
 playing song by a Soul Over AI artist → Next clicked once, hm.log[0].event === 'skipped'
@@ -325,7 +325,7 @@ same-song re-check under 0.5 ms; new song under 6 ms (1375-name list)
 runLookahead's matching over 10 queue rows under 20 ms (removal itself excluded)
 ```
 
-- [ ] **Step 2:** Run: FAIL. **Step 3:** Implement (one MutationObserver on the player for song changes, one on the queue container; both debounced to one run per animation frame). **Step 4:** Check: run all tests. **Step 5:** Commit `feat: content script wiring`.
+- [x] **Step 2:** Run: FAIL. **Step 3:** Implement (one MutationObserver on the player for song changes, one on the queue container; both debounced to one run per animation frame). **Step 4:** Check: run all tests. **Step 5:** Commit `feat: content script wiring`.
 
 ### Task 9: Popup [Qwen]
 
