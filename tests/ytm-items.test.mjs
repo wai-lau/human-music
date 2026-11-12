@@ -167,4 +167,11 @@ await run([
     const items = ytm.readPageItems(doc, '/');
     return items.length === 0;
   }],
+  ['mix card keeps every name, even ones with type words in them', () => {
+    const doc = makeDocument(el('ytmusic-two-row-item-renderer', {}, el('div', { class: 'title' }, 'Mix'),
+      el('div', { class: 'subtitle' }, 'The Velvet Sundown, Video Games Live, Single Mothers')));
+    const item = ytm.readPageItems(doc, '/')[0];
+    return item.featured === true && JSON.stringify(item.credits) === JSON.stringify(['The Velvet Sundown', 'Video Games Live', 'Single Mothers']);
+  }],
+  ['no path means no items', () => ytm.readPageItems(makeDocument(), undefined).length === 0],
 ]);

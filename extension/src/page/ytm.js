@@ -238,6 +238,7 @@
   const ITEM_SELECTOR = 'ytmusic-two-row-item-renderer, ytmusic-responsive-list-item-renderer, ytmusic-card-shelf-renderer';
 
   function isPageItemPath(path) {
+    if (typeof path !== 'string') return false;
     return path === '/' || path === '/explore' || path.startsWith('/search');
   }
 
@@ -315,8 +316,9 @@
       }
 
       // No ' • ' at all AND at least one ', ' → mix card
-      if (parts.length === 1 && subtitle.includes(',')) {
-        const mixCredits = splitNames(subtitle).filter(p => p && !p.toLowerCase().includes('album') && !p.toLowerCase().includes('single') && !p.toLowerCase().includes('playlist') && !p.toLowerCase().includes('video'));
+      // Every name is kept: dropping one would let a mix with a person in it count as all listed.
+      if (parts.length === 1 && subtitle.includes(', ')) {
+        const mixCredits = dedupe(subtitle.split(', ').map(p => p.trim()));
         return { title, credits: mixCredits, channelIds: [], featured: true };
       }
 
