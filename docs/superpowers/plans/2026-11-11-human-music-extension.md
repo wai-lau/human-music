@@ -340,10 +340,10 @@ runLookahead's matching over 10 queue rows under 20 ms (removal itself excluded)
 
 ### Task 10: Icons, README, CLAUDE.md [Claude]
 
-- [ ] **Step 1:** Draw a simple icon (a person and a note, readable at 16 px) as SVG in `docs/icon.svg`; export PNGs at 16, 48 and 128 px to `extension/icons/`.
-- [ ] **Step 2:** `README.md`: what it does, the why in one paragraph, install (load `extension/` unpacked), the Soul Over AI credit, MIT. Run the humanizer skill over it.
-- [ ] **Step 3:** `CLAUDE.md`: Wai's why and wording rules, clean-room rule, `extension/` is the package, research tool stays out, test command, mates routing.
-- [ ] **Step 4:** Check: all tests pass (the manifest test now finds the icons). Commit `docs: icons, README, CLAUDE.md`.
+- [x] **Step 1:** Draw a simple icon (a person and a note, readable at 16 px) as SVG in `docs/icon.svg`; export PNGs at 16, 48 and 128 px to `extension/icons/`.
+- [x] **Step 2:** `README.md`: what it does, the why in one paragraph, install (load `extension/` unpacked), the Soul Over AI credit, MIT. Run the humanizer skill over it.
+- [x] **Step 3:** `CLAUDE.md`: Wai's why and wording rules, clean-room rule, `extension/` is the package, research tool stays out, test command, mates routing.
+- [x] **Step 4:** Check: all tests pass (the manifest test now finds the icons). Commit `docs: icons, README, CLAUDE.md`.
 
 ### Task 11: Live end-to-end [Wai + Claude]
 

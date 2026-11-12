@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Human Music icon: a person and a note. Source for extension/icons/*.png (docs/make-icons.sh).
+       Edges sit on multiples of 8 where possible so the 16 px icon stays sharp. -->
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="#2E6B5E"/>
+  <g fill="#FFF4E0">
+    <!-- person: head and shoulders -->
+    <circle cx="40" cy="48" r="16"/>
+    <path d="M12 104 C12 80 24 72 40 72 C56 72 68 80 68 104 Z"/>
+    <!-- eighth note: head, stem, flag -->
+    <ellipse cx="88" cy="90" rx="15" ry="11" transform="rotate(-22 88 90)"/>
+    <rect x="96" y="24" width="8" height="66"/>
+    <path d="M100 24 C110 32 124 36 120 60 C118 52 110 48 102 48 Z"/>
+  </g>
+</svg>
