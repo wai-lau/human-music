@@ -1,0 +1,213 @@
+body {
+  width: 400px;
+  max-height: 600px;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+}
+
+.header {
+  padding: 8px 12px;
+  font-weight: bold;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabs {
+  display: flex;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.tab.active {
+  background: white;
+  border-bottom: 2px solid #4a90d9;
+  font-weight: bold;
+}
+
+.content {
+  padding: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+h3 {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: #333;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+li button {
+  padding: 2px 6px;
+  font-size: 11px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+li button:hover {
+  background: #e0e0e0;
+}
+
+.entry-form {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.entry-form input {
+  flex: 1;
+  padding: 4px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+}
+
+.entry-form button,
+.add-list button,
+#add-song-btn,
+.backup-controls button,
+.log-controls button {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.entry-form button:hover,
+.add-list button:hover,
+#add-song-btn:hover,
+.backup-controls button:hover,
+.log-controls button:hover {
+  background: #e0e0e0;
+}
+
+.add-list {
+  margin: 8px 0;
+  display: flex;
+  gap: 4px;
+}
+
+.add-list input[type="url"] {
+  flex: 2;
+  padding: 4px;
+  border: 1px solid #ccc;
+}
+
+.add-list input[type="text"] {
+  flex: 1;
+  padding: 4px;
+  border: 1px solid #ccc;
+}
+
+.refresh-settings {
+  margin: 8px 0;
+}
+
+.refresh-settings select {
+  margin-left: 4px;
+  padding: 4px;
+}
+
+.setting {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setting label {
+  flex: 1;
+}
+
+.setting input[type="number"] {
+  width: 40px;
+  text-align: center;
+  padding: 4px;
+}
+
+.hint {
+  color: #666;
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+.backup-controls {
+  margin: 8px 0;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.backup-controls input[type="file"] {
+  max-width: 150px;
+}
+
+.log-controls {
+  margin-bottom: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+#log-entries li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  display: block;
+}
+
+#log-entries .log-desc {
+  font-weight: bold;
+}
+
+#log-entries .log-meta {
+  color: #666;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+#log-entries button {
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+.credit {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+}

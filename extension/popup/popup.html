@@ -1,10 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Human Music</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  Human Music
+  <div class="header">Human Music</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="lists">Lists</button>
+    <button class="tab" data-tab="behaviour">Behaviour</button>
+    <button class="tab" data-tab="log">Log</button>
+  </div>
+
+  <div class="content">
+    <div id="tab-lists" class="tab-content active">
+      <h3>Filter lists</h3>
+      <ul id="filter-lists"></ul>
+      <div class="add-list">
+        <input type="url" id="list-url" placeholder="https://">
+        <input type="text" id="list-name" placeholder="Name (optional)">
+        <button id="add-list-btn">Add list by URL</button>
+      </div>
+      <div class="refresh-settings">
+        <label for="refresh-frequency">Refresh all lists:</label>
+        <select id="refresh-frequency">
+          <option value="6h">Every 6 hours</option>
+          <option value="12h">Every 12 hours</option>
+          <option value="daily" selected>Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="manual">Manual only</option>
+        </select>
+      </div>
+      <h3>Your artists</h3>
+      <div class="entry-form">
+        <input type="text" id="artist-input" placeholder="Artist name">
+        <button data-kind="artists" class="add-entry-btn">Add</button>
+      </div>
+      <ul id="artists"></ul>
+      <h3>Your songs</h3>
+      <div class="entry-form">
+        <input type="text" id="song-title" placeholder="Song title">
+        <input type="text" id="song-artist" placeholder="Artist (optional)">
+        <button id="add-song-btn">Add</button>
+      </div>
+      <ul id="songs"></ul>
+      <h3>Your keywords</h3>
+      <div class="entry-form">
+        <input type="text" id="keyword-input" placeholder="Keyword (whole word)">
+        <button data-kind="keywords" class="add-entry-btn">Add</button>
+      </div>
+      <ul id="keywords"></ul>
+      <h3>Never skip</h3>
+      <div class="entry-form">
+        <input type="text" id="never-skip-input" placeholder="Artist to always play">
+        <button data-kind="neverSkip" class="add-entry-btn">Add</button>
+      </div>
+      <ul id="never-skip"></ul>
+      <h3>Backup</h3>
+      <div class="backup-controls">
+        <button id="export-btn">Export</button>
+        <input type="file" id="import-file" accept=".json">
+        <button id="import-btn">Import</button>
+      </div>
+      <div class="credit">Soul Over AI list by souloverai.com, CC BY 4.0.</div>
+    </div>
+
+    <div id="tab-behaviour" class="tab-content">
+      <div class="setting">
+        <label for="lookahead">Lookahead distance (songs ahead to remove):</label>
+        <input type="number" id="lookahead" min="0" max="10">
+        <span class="hint">0 = off</span>
+      </div>
+      <div class="setting">
+        <label for="auto-skip">Auto-skip a playing match:</label>
+        <input type="checkbox" id="auto-skip">
+      </div>
+      <div class="setting">
+        <label for="auto-dislike">Auto-dislike:</label>
+        <input type="checkbox" id="auto-dislike">
+      </div>
+      <div class="setting">
+        <label for="hide-items">Hide listed artists on pages:</label>
+        <input type="checkbox" id="hide-items">
+      </div>
+      <div class="setting">
+        <label for="player-buttons">Player buttons:</label>
+        <input type="checkbox" id="player-buttons">
+      </div>
+      <div class="setting">
+        <label for="paused">Pause Human Music:</label>
+        <input type="checkbox" id="paused">
+      </div>
+    </div>
+
+    <div id="tab-log" class="tab-content">
+      <div class="log-controls">
+        <button id="clear-log">Clear log</button>
+        <button id="export-log">Export log</button>
+      </div>
+      <ul id="log-entries"></ul>
+    </div>
+  </div>
+
+  <script src="../src/core/text.js"></script>
+  <script src="../src/core/lists.js"></script>
+  <script src="../src/core/settings.js"></script>
+  <script src="../src/core/log.js"></script>
+  <script src="model.js"></script>
+  <script src="popup.js"></script>
 </body>
 </html>
