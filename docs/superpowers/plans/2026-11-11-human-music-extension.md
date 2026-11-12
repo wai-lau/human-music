@@ -238,7 +238,7 @@ clickNext is called synchronously inside skip() (dislikeFirst false)
 - `HM.log`: `makeEntry({ event, song, match, at }) → LogEntry` where `event ∈ 'removed'|'skipped'|'disliked'|'hidden'|'seen'|'watched'` and `LogEntry = { at, event, title, artistLine, listId, listName, rule, entry }`; `append(entries, entry, cap = 1000) → LogEntry[]` (new array, newest first); `describe(entry) → string`; `seenRecently(entries, entry, now, windowMs = 86400000) → boolean` (an entry with the same event, title and artist line inside the window; used so a hidden item is logged at most once a day).
 - `HM.lookahead`: `pickRemovals(rows: (Song & { selected: boolean })[], distance: number, matchFn: (Song) → Match|null) → { remove: number[], watched: { index: number, match: Match }[] }` (rows after the selected one, at most `distance`; no selected row or `distance` 0 → both empty; `remove` holds `act` matches only).
 
-- [ ] **Step 1: Write `tests/core.test.mjs`:**
+- [x] **Step 1: Write `tests/core.test.mjs`:**
 
 ```js
 sanitize({}) deep-equals DEFAULTS; sanitize({lookahead: 99}).lookahead === 10; sanitize({lookahead: -1}).lookahead === 0
@@ -258,7 +258,7 @@ pickRemovals(same, 0, fn) → remove []; no selected row → remove []
 a watch-mode match → in watched, not in remove
 ```
 
-- [ ] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/core.test.mjs`. **Step 5:** Commit `feat: settings, log and lookahead choice`.
+- [x] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/core.test.mjs`. **Step 5:** Commit `feat: settings, log and lookahead choice`.
 
 ### Task 6: YouTube Music page adapter [Qwen]
 

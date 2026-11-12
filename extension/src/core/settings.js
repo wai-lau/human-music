@@ -16,8 +16,11 @@
       return { ...DEFAULTS };
     }
     const out = {};
-    if (typeof obj.lookahead === 'number' && Number.isFinite(obj.lookahead)) {
-      out.lookahead = Math.max(0, Math.min(10, Math.floor(obj.lookahead)));
+    // A number, or text that reads as one ('4' from a form field); anything else is the default.
+    const n = typeof obj.lookahead === 'number' ? obj.lookahead
+      : typeof obj.lookahead === 'string' && obj.lookahead.trim() !== '' ? Number(obj.lookahead) : NaN;
+    if (Number.isFinite(n)) {
+      out.lookahead = Math.max(0, Math.min(10, Math.floor(n)));
     } else {
       out.lookahead = DEFAULTS.lookahead;
     }

@@ -32,7 +32,8 @@ run([
   ['sanitize empty object gives defaults', () => eq(HM.settings.sanitize({}), HM.settings.DEFAULTS)],
   ['sanitize clamps lookahead high', () => HM.settings.sanitize({ lookahead: 99 }).lookahead === 10],
   ['sanitize clamps lookahead low', () => HM.settings.sanitize({ lookahead: -1 }).lookahead === 0],
-  ['sanitize rejects non-number lookahead', () => HM.settings.sanitize({ lookahead: '4' }).lookahead === 3],
+  ['sanitize reads lookahead text', () => HM.settings.sanitize({ lookahead: '4' }).lookahead === 4],
+  ['sanitize lookahead null, empty or words -> default', () => [null, '', 'x', Infinity].every(v => HM.settings.sanitize({ lookahead: v }).lookahead === 3)],
   ['sanitize rejects unknown refresh', () => HM.settings.sanitize({ refresh: 'hourly' }).refresh === 'daily'],
   ['describe removed', () => {
     const entry = HM.log.makeEntry({ event: 'removed', song: song, match: match, at: 1000 });
