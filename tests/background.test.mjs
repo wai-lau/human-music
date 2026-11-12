@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import { runInContext } from 'vm';
 import { load } from './load.mjs';
 import { fakeStorage } from './fakes.mjs';
 
@@ -44,14 +46,17 @@ function loadBackground(storage, fetchFn, nowFn) {
     alarms: { create: () => {}, onAlarm: { addListener: () => {} } },
     sendMessage: () => {}
   };
-  const ctx = load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/background.js'], {
-    importScripts() {},
+  // Load only background.js, as Chrome does; its importScripts call must bring in the core files.
+  const run = f => runInContext(readFileSync(new URL('../extension/src/' + f, import.meta.url), 'utf8'), ctx);
+  const ctx = load([], {
+    importScripts: (...files) => files.forEach(run),
     chrome: chrome,
     fetch: fetchFn || (() => { throw new Error('fetch not stubbed'); }),
     setTimeout: () => 1,
     clearTimeout: () => {},
     Date: { now: nowFn || (() => 0) }
   });
+  run('background.js');
   return { ctx, storage, refresher: ctx.HM.refresher };
 }
 

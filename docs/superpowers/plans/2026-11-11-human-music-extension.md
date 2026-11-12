@@ -280,7 +280,7 @@ a watch-mode match → in watched, not in remove
 - `background.js` loads core files with `importScripts('core/text.js', 'core/lists.js', 'core/settings.js')` and exposes `HM.refresher = createRefresher({ storage, fetch, now })` → `{ install() → Promise, refreshDue() → Promise<string[]>, refreshOne(id) → Promise<boolean> }`. Chrome hooks: `onInstalled` → `install()`; alarm `hm-refresh` every 60 min → `refreshDue()`; message `{ type: 'refresh', id }` → `refreshOne(id)`.
 - `install()` writes `hm.filterLists = [SOUL_OVER_AI]`, `hm.user` empty, `hm.settings = DEFAULTS` only where missing, then refreshes Soul Over AI.
 
-- [ ] **Step 1: Write `tests/background.test.mjs`** (load `background.js` in a context with stub `chrome`, `importScripts` mapped to `load`, stub `fetch`):
+- [x] **Step 1: Write `tests/background.test.mjs`** (load `background.js` in a context with stub `chrome`, `importScripts` mapped to `load`, stub `fetch`):
 
 ```js
 install() on empty storage → hm.filterLists[0].id === 'soul-over-ai', hm.settings deep-equals DEFAULTS
@@ -291,7 +291,7 @@ refreshOne first ever, fetch rejects → hm.list.soul-over-ai deep-equals {artis
 refreshDue with refresh 'daily', lastRefresh now-25h → refreshes it; now-1h → doesn't; disabled list → skipped
 ```
 
-- [ ] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/background.test.mjs`. **Step 5:** Commit `feat: filter-list refresh`.
+- [x] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/background.test.mjs`. **Step 5:** Commit `feat: filter-list refresh`.
 
 ### Task 8: Content script wiring [Qwen]
 

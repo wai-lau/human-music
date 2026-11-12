@@ -1,5 +1,7 @@
 (function () {
   globalThis.HM = globalThis.HM || {};
+  // The service worker loads only this file; the helpers come in here (paths relative to src/).
+  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/lists.js', 'core/settings.js');
 
   function createRefresher(opts) {
     var storage = opts.storage;
@@ -11,17 +13,7 @@
 
       if (!stored['hm.filterLists']) {
         await storage.set({
-          'hm.filterLists': [{
-            id: 'soul-over-ai',
-            name: 'Soul Over AI',
-            url: 'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json',
-            enabled: true,
-            mode: 'act',
-            builtIn: true,
-            lastRefresh: null,
-            count: 0,
-            lastError: null
-          }]
+          'hm.filterLists': [{ ...globalThis.HM.lists.SOUL_OVER_AI }]
         });
       }
 
