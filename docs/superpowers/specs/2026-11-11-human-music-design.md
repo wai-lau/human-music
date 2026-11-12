@@ -277,6 +277,17 @@ without notice, so selectors belong in one place in the code.
   screen moves. The same menu holds "Dismiss queue", which clears the whole
   queue, so only an exact icon match may be clicked. Escape (a keydown on
   `document`) closes the menu without acting.
+- **Queue rows without menus (checked live 2026-11-12).** After a song is
+  started from search, the auto-generated up-next rows (`#queue
+  ytmusic-player-queue-item`) carry no `ytmusic-menu-renderer` at all, and
+  hovering does not create one; a row added with "Play next" does have its
+  menu. So lookahead can remove songs you add, but not rows of the
+  auto-generated radio until YouTube Music renders their menus; those fall
+  back to auto-skip when they play. The row's menu data exists only in page
+  script properties, which a content script cannot read.
+- **Next in a Claude test tab (checked live 2026-11-12).** There, Next (a
+  real click too, on any song) unloads the video and leaves the player
+  stuck, so skipping can only be checked in Wai's own window.
 - **Channel IDs.** The playing song's artist links have no `href`, and queue
   rows have no links, so the player and queue match by name only. Search and
   home items do link artists (`channel/UC…`), so hiding can match by channel ID.
