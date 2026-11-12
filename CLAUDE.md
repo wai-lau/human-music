@@ -40,3 +40,13 @@ categorically different (not inferior)".
   on YouTube Music and judgment work stay with Claude.
 - YouTube Music page facts (selectors, what works) are in the spec; they
   were checked live on 2026-11-11 and YouTube changes them without notice.
+
+## Start here (2026-11-11)
+
+- Phase 1 plan: Task 0 (live recon) is done; its results are in the spec's
+  page facts and in Task 6. Start at Task 1.
+- Questions for Wai go in a gitignored `OPEN-QUESTIONS.md` here, published as
+  this repo's own questions page (see the global CLAUDE.md).
+- Background lives in the old repo's docs (`docs/answered-questions.md` in
+  `~/src/YTM-AI-Artist-Song-Blocker`); reading those docs is fine, its code
+  is not.
