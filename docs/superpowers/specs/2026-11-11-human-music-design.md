@@ -232,6 +232,22 @@ without notice, so selectors belong in one place in the code.
 
 - Synthetic clicks on Next and a synthetic `j` keydown on `document.body`
   both work.
+- **Queue (checked live 2026-11-11, plan Task 0).** Rows live in
+  `#queue ytmusic-player-queue-item` and exist while the player is minimized
+  (no need to open the queue panel). Each song can have a hidden twin row (its
+  video version) inside `div#counterpart-renderer`; skip those. The playing
+  song's row sits in `div#primary-renderer` and has `selected`.
+- **Removing a row.** Click the row's `ytmusic-menu-renderer button`; a
+  visible `ytmusic-menu-popup-renderer` opens with `[role=menuitem]` items.
+  "Remove from queue" is the item whose first `svg path` `d` is exactly
+  `M9 .75a8.25 8.25 0 100 16.5A8.25 8.25 0 009 .75Zm0 1.5a6.75 6.75 0 110 13.5 6.75 6.75 0 010-13.5Zm3 6H6a.75.75 0 000 1.5h6a.75.75 0 100-1.5Z`
+  (a circle with a minus; unique in that menu, so no English text needed).
+  Clicking it closes the menu and removes the row within 1.5 s; nothing on
+  screen moves. The same menu holds "Dismiss queue", which clears the whole
+  queue, so only an exact icon match may be clicked. Escape (a keydown on
+  `document`) closes the menu without acting.
+- **No channel IDs on the page.** The playing song's artist links have no
+  `href`, and queue rows have no links, so matching is by name only for now.
 - Song rows in lists carry a `like-status` attribute (`LIKE`, `DISLIKE`,
   `INDIFFERENT`).
 - The layout switch happened in 2026; keep both layouts working.

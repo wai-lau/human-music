@@ -80,10 +80,12 @@ User list ids: `user:artists`, `user:songs`, `user:keywords`. Built-in filter li
 
 Facts the later tasks depend on, checked on music.youtube.com in Chrome.
 
-- [ ] **Step 1:** With a queue of 5+ songs, find how to remove one row: the row's menu button selector, the menu item for "Remove from queue" identified without English text (icon name, item position or service endpoint), and whether the queue panel must be open. Remove one row by script and confirm the queue shrinks by exactly one.
-- [ ] **Step 2:** Check whether the playing song's artist line contains links to `channel/UC…`.
-- [ ] **Step 3:** Check that `ytmusic-player-queue-item` rows exist while the queue panel is closed.
-- [ ] **Step 4:** Write the results into the spec's "YouTube Music page facts" table and into Task 6 Step 3 below; commit.
+Done 2026-11-11: removal by script works (queue 67 → 66, nothing on screen moved); details in the spec's page facts and Task 6 Step 3. The playing song's artist links carry no channel IDs.
+
+- [x] **Step 1:** With a queue of 5+ songs, find how to remove one row: the row's menu button selector, the menu item for "Remove from queue" identified without English text (icon name, item position or service endpoint), and whether the queue panel must be open. Remove one row by script and confirm the queue shrinks by exactly one.
+- [x] **Step 2:** Check whether the playing song's artist line contains links to `channel/UC…`.
+- [x] **Step 3:** Check that `ytmusic-player-queue-item` rows exist while the queue panel is closed.
+- [x] **Step 4:** Write the results into the spec's "YouTube Music page facts" table and into Task 6 Step 3 below; commit.
 - [ ] **Gate:** if no reliable removal exists, stop and tell Wai: lookahead would fall back to skipping when the song starts. Don't build Task 6's `removeQueueRow` on a guess.
 
 ### Task 1: Scaffold, manifest and test helpers [Qwen]
@@ -256,9 +258,9 @@ a watch-mode match → in watched, not in remove
 **Interfaces:**
 - Produces `HM.ytm`: `SEL` (the spec's selector table, one object); `readSong(doc) → Song|null`; `readQueue(doc) → (Song & { selected: boolean, el })[]`; `clickNext(doc) → boolean`; `pressNextKey(doc) → void` (keydown, `key: 'j'`, `code: 'KeyJ'`, `bubbles: true`, on `doc.body`); `clickDislike(doc) → boolean` (already pressed → no click, returns true); `videoDuration(doc) → number` (NaN without a video); `seekTo(doc, seconds)`; `removeQueueRow(doc, row) → Promise<boolean>`; `mountPlayerButtons(doc, { onBlockArtist, onBlockSong }) → boolean` (one container `#hm-player-buttons`, never two); `pageAdapter(doc) → ` the adapter Task 4 consumes.
 
-- [ ] **Step 1: Write `tests/ytm.test.mjs`**, both layouts: `readSong` returns the fake's title and artist line; `channelIds` from artist links when present; `readQueue` returns rows with `selected`; `clickNext` clicks the Next button (true) and returns false when it's absent; `pressNextKey` dispatches one keydown `j` on body; `clickDislike` doesn't click when `aria-pressed="true"`; `mountPlayerButtons` twice → one container with two buttons labelled "Block artist" and "Block song"; `removeQueueRow` performs the recon's steps on the fake (Task 0) and resolves true, and resolves false when the menu item never appears.
+- [ ] **Step 1: Write `tests/ytm.test.mjs`**, both layouts: `readSong` returns the fake's title and artist line; `channelIds` from artist links when present; `readQueue` returns rows with `selected`; `clickNext` clicks the Next button (true) and returns false when it's absent; `pressNextKey` dispatches one keydown `j` on body; `clickDislike` doesn't click when `aria-pressed="true"`; `mountPlayerButtons` twice → one container with two buttons labelled "Block artist" and "Block song"; `removeQueueRow` clicks the row's menu button, then the item with the exact remove icon, and resolves true; with no matching item it clicks nothing else, sends Escape and resolves false; a twin row inside `#counterpart-renderer` is not returned by `readQueue`.
 - [ ] **Step 2:** Run: FAIL.
-- [ ] **Step 3:** Implement. `removeQueueRow`: *filled in by Task 0 with the exact selectors and steps.*
+- [ ] **Step 3:** Implement. `readQueue` reads `#queue ytmusic-player-queue-item` rows, skipping any inside `#counterpart-renderer`. `removeQueueRow(doc, row)`, from Task 0: click `row.querySelector('ytmusic-menu-renderer button')`; wait (poll ≤ 1500 ms) for a visible `ytmusic-menu-popup-renderer`; find the `[role=menuitem]` whose first `svg path` `d` equals `HM.ytm.REMOVE_ICON` (the exact string in the spec's page facts); none → dispatch an Escape keydown on `doc` and resolve false (never click anything else: "Dismiss queue" is in the same menu); found → click it, then resolve true once `row.isConnected` is false or the row count dropped, false after 1500 ms. `readSong` returns `channelIds: []` (the page has none).
 - [ ] **Step 4:** Check: `node tests/ytm.test.mjs`. **Step 5:** Commit `feat: YouTube Music page adapter`.
 
 ### Task 7: Service worker list refresh [Qwen]
