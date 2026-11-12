@@ -28,14 +28,14 @@ function player(layout, { title = 'Dust on the Wind', pressed = false, clicks } 
     el('div', { class: 'middle-controls' }, dis, next));
 }
 
-function queue(doc, titles, sel, { menuItems = [OTHER, REMOVE, OTHER], removeAfter = 100, clicks } = {}) {
+function queue(doc, titles, sel, { menuItems = [OTHER, REMOVE, OTHER], removeAfter = 100, clicks, noButtons = false } = {}) {
   const popup = el('ytmusic-menu-popup-renderer', {});
   const dropdown = el('tp-yt-iron-dropdown', { style: { display: 'none' } }, popup);
   const rows = titles.map((t, i) => {
     const menuBtn = el('button', { 'aria-label': 'Action menu' });
     const row = el('ytmusic-player-queue-item', { selected: i === sel }, el('div', { class: 'song-title' }, t), el('span', { class: 'byline' }, `Artist ${t} • 3:00`),
-      el('ytmusic-menu-renderer', {}, menuBtn));
-    menuBtn.addEventListener('click', () => {
+      noButtons ? null : el('ytmusic-menu-renderer', {}, menuBtn));
+    const open = () => {
       clicks.menu = (clicks.menu || 0) + 1;
       popup.textContent = '';
       for (const [k, d] of menuItems.entries()) {
@@ -48,7 +48,9 @@ function queue(doc, titles, sel, { menuItems = [OTHER, REMOVE, OTHER], removeAft
         popup.append(item);
       }
       dropdown.style.display = '';
-    });
+    };
+    menuBtn.addEventListener('click', open);
+    row.addEventListener('contextmenu', e => { clicks.contextmenu = (clicks.contextmenu || 0) + 1; e.preventDefault(); open(); });
     const twin = el('ytmusic-player-queue-item', {}, el('div', { class: 'song-title' }, `${t} (video)`), el('span', { class: 'byline' }, 'x'));
     return i % 2 === 0
       ? el('ytmusic-playlist-panel-video-wrapper-renderer', {}, el('div', { id: 'primary-renderer' }, row), el('div', { id: 'counterpart-renderer' }, twin))
@@ -147,6 +149,11 @@ await t('removeQueueRow with no remove item: Escape, nothing clicked, false', as
   const t0 = Date.now();
   const r = await ytm.removeQueueRow(doc, ytm.readQueue(doc)[1]);
   return (r === false && !clicks.items && clicks.escape === 1 && ytm.readQueue(doc).length === 2 && Date.now() - t0 < 2000) || J({ r, clicks });
+});
+await t('removeQueueRow on a row with no menu button uses a right-click', async () => {
+  const clicks = {}; const doc = makeDocument(player('new', { clicks })); queue(doc, ['A', 'B', 'C'], 0, { clicks, noButtons: true });
+  const r = await ytm.removeQueueRow(doc, ytm.readQueue(doc)[2]);
+  return (r === true && clicks.contextmenu === 1 && J(ytm.readQueue(doc).map(x => x.title)) === J(['A', 'B'])) || J({ r, clicks });
 });
 await t('removeQueueRow never rejects on a detached row', async () => {
   const doc = makeDocument(player('new', { clicks: {} }));

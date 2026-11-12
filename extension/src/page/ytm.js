@@ -138,9 +138,16 @@
 
   async function removeQueueRow(doc, row) {
     try {
+      if (!row.el.isConnected) return false;
       const menuBtn = row.el.querySelector(SEL.queueRowMenu);
-      if (!menuBtn) return false;
-      menuBtn.click();
+      if (menuBtn) {
+        menuBtn.click();
+      } else {
+        // Rows YouTube Music adds itself (its up-next radio) have no menu button until the
+        // queue panel is drawn; a right-click on the row opens the same menu (checked live).
+        const View = (doc.defaultView && doc.defaultView.MouseEvent) || MouseEvent;
+        row.el.dispatchEvent(new View('contextmenu', { bubbles: true, cancelable: true, composed: true, button: 2 }));
+      }
 
       // Wait for menu popup (up to 1500 ms)
       let popup = null;
