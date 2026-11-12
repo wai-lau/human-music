@@ -1,103 +1,68 @@
+// A clock whose timers run only inside tick(ms). While a timer runs, now() is its fire time.
 export function fakeClock() {
   let now = 0;
+  let seq = 0;
   let timers = [];
-  let idCounter = 0;
 
-  function nowMs() {
-    return now;
+  function add(type, fn, delay) {
+    const d = Number(delay) || 0;
+    const t = { id: ++seq, type, fn, delay: type === 'interval' ? Math.max(1, d) : Math.max(0, d) };
+    t.at = now + t.delay;
+    timers.push(t);
+    return t.id;
   }
-
-  function setTimeout(fn, delay) {
-    const id = ++idCounter;
-    timers.push({ id, type: 'timeout', fn, at: now + delay });
-    return id;
-  }
-
-  function clearTimeout(id) {
-    timers = timers.filter(t => t.id !== id);
-  }
-
-  function setInterval(fn, delay) {
-    const id = ++idCounter;
-    timers.push({ id, type: 'interval', fn, at: now + delay, delay });
-    return id;
-  }
-
-  function clearInterval(id) {
+  function clear(id) {
     timers = timers.filter(t => t.id !== id);
   }
 
   function tick(ms) {
-    now += ms;
-    let changed = true;
-    while (changed) {
-      changed = false;
-      const toRun = [];
+    const end = now + ms;
+    for (;;) {
+      let next = null;
       for (const t of timers) {
-        if (t.at <= now) {
-          toRun.push(t);
-        }
+        if (t.at <= end && (!next || t.at < next.at || (t.at === next.at && t.id < next.id))) next = t;
       }
-      toRun.sort((a, b) => a.at - b.at);
-      for (const t of toRun) {
-        changed = true;
-        const firedAt = t.at;
-        t.fn();
-        if (t.type === 'interval') {
-          t.at = firedAt + t.delay;
-        } else {
-          t.done = true;
-        }
-      }
-      timers = timers.filter(t => !t.done);
+      if (!next) break;
+      now = next.at;
+      if (next.type === 'interval') next.at += next.delay;
+      else clear(next.id);
+      next.fn();
     }
+    now = end;
   }
 
-  function pending() {
-    return timers.length;
-  }
-
-  return { setTimeout, clearTimeout, setInterval, clearInterval, tick, pending, now: nowMs };
+  return {
+    setTimeout: (fn, delay) => add('timeout', fn, delay),
+    clearTimeout: clear,
+    setInterval: (fn, delay) => add('interval', fn, delay),
+    clearInterval: clear,
+    tick,
+    pending: () => timers.length,
+    now: () => now,
+  };
 }
 
+// Async storage shaped like chrome.storage.local; values are copied in and out.
 export function fakeStorage(initial = {}) {
-  const data = { ...initial };
-  let listeners = [];
+  const data = structuredClone(initial);
+  const listeners = [];
 
-  function get(keys) {
-    return new Promise(resolve => {
-      if (keys === null || keys === undefined) {
-        resolve({ ...data });
-      } else if (typeof keys === 'string') {
-        resolve({ [keys]: data[keys] });
-      } else {
-        const result = {};
-        for (const k of keys) {
-          result[k] = data[k];
-        }
-        resolve(result);
-      }
-    });
+  async function get(keys) {
+    const wanted = keys == null ? Object.keys(data) : typeof keys === 'string' ? [keys] : keys;
+    const out = {};
+    for (const k of wanted) if (k in data) out[k] = structuredClone(data[k]);
+    return out;
   }
 
-  function set(obj) {
-    return new Promise(resolve => {
-      const changes = {};
-      for (const [k, v] of Object.entries(obj)) {
-        const oldValue = data[k];
-        data[k] = v;
-        changes[k] = { oldValue, newValue: v };
-      }
-      for (const listener of listeners) {
-        listener(changes, 'local');
-      }
-      resolve();
-    });
+  async function set(obj) {
+    const changes = {};
+    for (const [k, v] of Object.entries(obj)) {
+      const oldValue = k in data ? structuredClone(data[k]) : undefined;
+      data[k] = structuredClone(v);
+      changes[k] = { oldValue, newValue: structuredClone(v) };
+    }
+    for (const fn of listeners) fn(changes, 'local');
   }
 
-  function addListener(fn) {
-    listeners.push(fn);
-  }
-
-  return { get, set, addListener, data };
+  return { get, set, onChanged: { addListener: fn => listeners.push(fn) }, data };
 }

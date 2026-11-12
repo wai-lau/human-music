@@ -97,7 +97,7 @@ Done 2026-11-11: removal by script works (queue 67 → 66, nothing on screen mov
 **Interfaces:**
 - Produces: `load(files: string[], globals?: object) → vm.Context` (runs each `extension/<file>` in one context and returns it; `ctx.HM` is the namespace); `run(cases: [label: string, fn: () => true|string|Promise<true|string>][]) → never` (prints, exits); `fakeClock() → { setTimeout, clearTimeout, setInterval, clearInterval, tick(ms), pending() }`; `fakeStorage(initial?) → { get(keys), set(obj), onChanged: { addListener(fn) }, data }` (async like `chrome.storage.local`, fires listeners with `(changes, 'local')`).
 
-- [ ] **Step 1: Write `tests/manifest.test.mjs` and `tests/wording.test.mjs`.**
+- [x] **Step 1: Write `tests/manifest.test.mjs` and `tests/wording.test.mjs`.**
 
 ```js
 // manifest.test.mjs
@@ -116,10 +116,10 @@ every file named in the manifest exists under extension/ (the icons may be missi
 no match for /\b(slop|fake|garbage)\b|fight ai/i
 ```
 
-- [ ] **Step 2:** Run `node tests/manifest.test.mjs`: FAIL (no manifest).
-- [ ] **Step 3:** Write the manifest (description: "Keeps your YouTube Music listening to music made by people.", version "0.1.0", icons 16/48/128 under `icons/`), `load.mjs`, `fakes.mjs`. Create the content-script files as empty IIFE stubs so the existence check passes.
-- [ ] **Step 4:** Check: `node tests/manifest.test.mjs && node tests/wording.test.mjs` → both `N/N pass`.
-- [ ] **Step 5:** Commit `feat: manifest, test helpers`.
+- [x] **Step 2:** Run `node tests/manifest.test.mjs`: FAIL (no manifest).
+- [x] **Step 3:** Write the manifest (description: "Keeps your YouTube Music listening to music made by people.", version "0.1.0", icons 16/48/128 under `icons/`), `load.mjs`, `fakes.mjs`. Create the content-script files as empty IIFE stubs so the existence check passes.
+- [x] **Step 4:** Check: `node tests/manifest.test.mjs && node tests/wording.test.mjs` → both `N/N pass`.
+- [x] **Step 5:** Commit `feat: manifest, test helpers`.
 
 ### Task 2: Text and matching [Qwen]
 

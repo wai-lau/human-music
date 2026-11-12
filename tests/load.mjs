@@ -5,31 +5,19 @@ import { createContext, runInContext } from 'vm';
 
 const EXT = join(fileURLToPath(import.meta.url), '..', '..', 'extension');
 
-export async function load(files, globals = {}) {
-  const ctx = createContext({
-    global: null,
-    self: null,
-    window: null,
-    document: null,
-    setTimeout: null,
-    clearTimeout: null,
-    setInterval: null,
-    clearInterval: null,
-    ...globals
-  });
-
+// Run each extension/<file> in one fresh context and return it; ctx.HM is the namespace.
+export function load(files, globals = {}) {
+  const ctx = createContext({ console, ...globals });
   for (const file of files) {
     const path = join(EXT, file);
-    const code = readFileSync(path, 'utf8');
-    runInContext(`global = self; ${code}`, ctx);
+    runInContext(readFileSync(path, 'utf8'), ctx, { filename: path });
   }
-
   return ctx;
 }
 
+// cases: [label, fn] where fn returns (or resolves) true, or a failure reason.
 export async function run(cases) {
   let passed = 0;
-  let failed = 0;
   for (const [label, fn] of cases) {
     try {
       const result = await fn();
@@ -38,13 +26,11 @@ export async function run(cases) {
         passed++;
       } else {
         console.log(`FAIL ${label}: ${result}`);
-        failed++;
       }
     } catch (e) {
-      console.log(`FAIL ${label}: ${e.message}`);
-      failed++;
+      console.log(`FAIL ${label}: ${e && e.stack || e}`);
     }
   }
   console.log(`${passed}/${cases.length} pass`);
-  if (failed > 0) process.exit(1);
+  process.exit(passed === cases.length ? 0 : 1);
 }
