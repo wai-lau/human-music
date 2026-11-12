@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Human Music",
+  "version": "0.1.0",
+  "description": "Keeps your YouTube Music listening to music made by people.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["alarms", "storage"],
+  "host_permissions": [
+    "https://music.youtube.com/*",
+    "https://raw.githubusercontent.com/xoundbyte/soul-over-ai/*"
+  ],
+  "optional_host_permissions": ["https://*/*"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://music.youtube.com/*"],
+      "js": [
+        "src/core/text.js",
+        "src/core/match.js",
+        "src/core/lists.js",
+        "src/core/settings.js",
+        "src/core/log.js",
+        "src/core/lookahead.js",
+        "src/core/skipper.js",
+        "src/page/ytm.js",
+        "src/content.js"
+      ]
+    }
+  ]
+}
