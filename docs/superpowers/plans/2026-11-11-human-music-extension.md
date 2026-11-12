@@ -177,7 +177,7 @@ matchItem with a credit on neverSkip → null
 **Interfaces:**
 - Produces `HM.lists`: `SOUL_OVER_AI` (the built-in FilterList above, with `lastRefresh:null, count:0, lastError:null`); `FREQUENCIES = { '6h': 21600000, '12h': 43200000, daily: 86400000, weekly: 604800000, manual: Infinity }`; `parseFilterList(data: any) → ListData|null`; `isRefreshDue(lastRefresh: number|null, frequency: string, now: number) → boolean`; `importBackup(data: any) → { user: User, settings?: object, filterLists?: FilterList[] }` (throws `Error('Not a Human Music or YTM blocker backup')` otherwise); `exportBackup(state: { user, settings, filterLists }) → object`; `mergeUser(a: User, b: User) → User` (union, duplicates by `HM.text.normalize`).
 
-- [ ] **Step 1: Write `tests/lists.test.mjs`:**
+- [x] **Step 1: Write `tests/lists.test.mjs`:**
 
 ```js
 parseFilterList([{name:'A',removed:false},{name:'B',removed:true},{name:'C'}]) deep-equals {artists:[{name:'A'},{name:'C'}]}
@@ -200,7 +200,7 @@ importBackup({}) throws; importBackup('x') throws
 mergeUser({artists:['A'],…}, {artists:['a','B'],…}).artists deep-equals ['A','B']
 ```
 
-- [ ] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/lists.test.mjs`. **Step 5:** Commit `feat: filter-list formats and backups`.
+- [x] **Step 2:** Run: FAIL. **Step 3:** Implement. **Step 4:** Check: `node tests/lists.test.mjs`. **Step 5:** Commit `feat: filter-list formats and backups`.
 
 ### Task 4: Skipper [Qwen]
 
