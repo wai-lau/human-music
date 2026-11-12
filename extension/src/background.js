@@ -226,6 +226,12 @@
     });
 
     chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+      // Development only: an unpacked extension (no update_url) can be told to reload
+      // itself, so new code is picked up without a trip to chrome://extensions.
+      if (msg && msg.type === 'dev-reload' && !('update_url' in chrome.runtime.getManifest())) {
+        chrome.runtime.reload();
+        return false;
+      }
       if (msg && msg.type === 'refresh' && typeof msg.id === 'string') {
         globalThis.HM.refresher.refreshOne(msg.id).then(sendResponse);
         return true;

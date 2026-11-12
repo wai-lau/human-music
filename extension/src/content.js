@@ -200,5 +200,14 @@
       now: () => Date.now(),
     });
     HM.app.start().catch(() => {});
+    // Development only (unpacked, no update_url): a page script can ask the extension
+    // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
+    if (!('update_url' in chrome.runtime.getManifest())) {
+      window.addEventListener('message', e => {
+        if (e.source === window && e.data && e.data.type === 'human-music:dev-reload') {
+          try { chrome.runtime.sendMessage({ type: 'dev-reload' }); } catch (err) { /* already reloading */ }
+        }
+      });
+    }
   }
 })();
