@@ -25,9 +25,9 @@
     if (Array.isArray(data)) {
       const artists = [];
       for (const entry of data) {
-        if (typeof entry === 'string') {
+        if (typeof entry === 'string' && entry !== '') {
           artists.push({ name: entry });
-        } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && !entry.removed) {
+        } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && entry.name !== '' && !entry.removed) {
           const artist = { name: entry.name };
           if (typeof entry.channelId === 'string' && entry.channelId !== '') {
             artist.channelId = entry.channelId;
@@ -54,7 +54,7 @@
   }
 
   function isRefreshDue(lastRefresh, frequency, now) {
-    if (lastRefresh === null) return true;
+    if (lastRefresh == null) return true;
     const interval = FREQUENCIES[frequency];
     if (interval === undefined) {
       return now - lastRefresh >= FREQUENCIES.daily;
@@ -67,16 +67,48 @@
       throw new Error('Not a Human Music or YTM blocker backup');
     }
     if (data.format === 'human-music-backup') {
-      const user = {
-        artists: Array.isArray(data.user.artists) ? data.user.artists : [],
-        songs: Array.isArray(data.user.songs) ? data.user.songs : [],
-        keywords: Array.isArray(data.user.keywords) ? data.user.keywords : [],
-        neverSkip: Array.isArray(data.user.neverSkip) ? data.user.neverSkip : []
-      };
+      if (data.version !== 1) {
+        throw new Error('Unsupported Human Music backup version');
+      }
+      const rawUser = data.user || {};
+      const settings = data.settings || {};
+      const filterLists = Array.isArray(data.filterLists) ? data.filterLists : [];
+      const artists = [];
+      if (Array.isArray(rawUser.artists)) {
+        for (const entry of rawUser.artists) {
+          if (typeof entry === 'string' && entry !== '') {
+            artists.push(entry);
+          }
+        }
+      }
+      const songs = [];
+      if (Array.isArray(rawUser.songs)) {
+        for (const entry of rawUser.songs) {
+          if (entry && typeof entry === 'object' && typeof entry.title === 'string' && entry.title !== '') {
+            songs.push(entry);
+          }
+        }
+      }
+      const keywords = [];
+      if (Array.isArray(rawUser.keywords)) {
+        for (const entry of rawUser.keywords) {
+          if (typeof entry === 'string' && entry !== '') {
+            keywords.push(entry);
+          }
+        }
+      }
+      const neverSkip = [];
+      if (Array.isArray(rawUser.neverSkip)) {
+        for (const entry of rawUser.neverSkip) {
+          if (typeof entry === 'string' && entry !== '') {
+            neverSkip.push(entry);
+          }
+        }
+      }
       return {
-        user: user,
-        settings: data.settings,
-        filterLists: data.filterLists
+        user: { artists, songs, keywords, neverSkip },
+        settings: settings,
+        filterLists: filterLists
       };
     }
     const oldStyle = (Array.isArray(data.blockedArtists) ||
@@ -85,20 +117,34 @@
     if (!oldStyle) {
       throw new Error('Not a Human Music or YTM blocker backup');
     }
-    const artists = Array.isArray(data.blockedArtists) ? data.blockedArtists : [];
-    const keywords = Array.isArray(data.blockedKeywords) ? data.blockedKeywords : [];
+    const artists = [];
+    if (Array.isArray(data.blockedArtists)) {
+      for (const entry of data.blockedArtists) {
+        if (typeof entry === 'string' && entry !== '' && entry.trim() !== '') {
+          artists.push(entry);
+        }
+      }
+    }
+    const keywords = [];
+    if (Array.isArray(data.blockedKeywords)) {
+      for (const entry of data.blockedKeywords) {
+        if (typeof entry === 'string' && entry !== '') {
+          keywords.push(entry);
+        }
+      }
+    }
     const songs = [];
     if (Array.isArray(data.blockedTracks)) {
       for (const entry of data.blockedTracks) {
-        if (typeof entry === 'string') {
+        if (typeof entry === 'string' && entry !== '' && entry.trim() !== '') {
           songs.push({ title: entry, artist: null });
-        } else if (entry && typeof entry === 'object') {
+        } else if (entry && typeof entry === 'object' && typeof entry.title === 'string' && entry.title !== '') {
           let artist = null;
           if (typeof entry.artist === 'string' && entry.artist !== 'Manual Entry' && entry.artist.trim() !== '') {
             artist = entry.artist.split(' • ')[0].trim();
             if (artist === '') artist = null;
           }
-          songs.push({ title: entry.title || '', artist: artist });
+          songs.push({ title: entry.title, artist: artist });
         }
       }
     }
