@@ -1,4 +1,4 @@
-# HumanMusic: design
+# Human Music: design
 
 Status: draft for Wai's approval, 2026-11-11.
 
@@ -8,14 +8,14 @@ Wai, 2026-11-11: "I want to say that AI music is music and not immoral on its
 own / I just want to use music as a way to connect to other humans, and AI is
 categorically different (not inferior)".
 
-HumanMusic is a Chrome extension for YouTube Music that keeps your listening
+Human Music is a Chrome extension for YouTube Music that keeps your listening
 to music made by people. When a song by an AI artist comes up, it moves on to
 the next song. It is not a campaign against AI music, and nothing it says
 calls AI music bad.
 
 It replaces Wai's use of an existing extension (YTM AI Artist & Song
 Blocker) that has no license, so its code can't be reused or published.
-HumanMusic is written from scratch and released under MIT.
+Human Music is written from scratch and released under MIT.
 
 ## Goals
 
@@ -32,8 +32,8 @@ HumanMusic is written from scratch and released under MIT.
 
 ## Non-goals
 
-- youtube.com. HumanMusic runs only on music.youtube.com.
-- Judging audio. HumanMusic reads public information about artists.
+- youtube.com. Human Music runs only on music.youtube.com.
+- Judging audio. Human Music reads public information about artists.
 - A shared or public database of verdicts.
 - On-screen notices while listening (Wai chose a quiet log).
 - Firefox, for now.
@@ -163,18 +163,18 @@ without notice, so selectors belong in one place in the code.
 - Speed, with a 1375-name list: checking the same song again under 0.5 ms,
   a new song under 6 ms.
 - MIT license; copyright "wai-lau".
-- New icons (16, 48, 128 px), drawn for HumanMusic.
+- New icons (16, 48, 128 px), drawn for Human Music.
 - Wording rules from the anti-goals apply to every string, including the
   manifest description and README.
 
 ## Phases
 
 1. **Core.** Everything above, without the Log tab's checker verdicts. Done
-   when Wai uses HumanMusic instead of the old extension and the old
+   when Wai uses Human Music instead of the old extension and the old
    extension's backup imports cleanly.
 2. **AI checker.** `2026-11-11-ai-artist-checker-design.md`, approved
    2026-11-11, carried over from the old repo. Where it names the old code
-   (`content.js`, `blockCurrentSong`, `checkAndSkip`), read: HumanMusic's
+   (`content.js`, `blockCurrentSong`, `checkAndSkip`), read: Human Music's
    content script and its skip path. Its plan gets rewritten for this repo.
 3. **More known-AI lists.** The community lists that the MIT-licensed
    ytm-deslop project merges (Stevoisiak, muhdiboy, AiSList, Cevval), matched
