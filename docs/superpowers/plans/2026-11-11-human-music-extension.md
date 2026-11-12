@@ -349,6 +349,7 @@ runLookahead's matching over 10 queue rows under 20 ms (removal itself excluded)
 
 - [ ] **Step 1 [Wai]:** export a backup from the old extension's popup; disable the old extension; load `extension/` unpacked.
 - [ ] **Step 2 [Wai]:** import the backup in Human Music's Lists tab; counts match the old popup's.
-- [ ] **Step 3 [Claude]:** with a queue holding a Soul Over AI artist 2 songs ahead: it's removed before it plays, and the Log tab shows "Removed from queue: AI-generated (Soul Over AI)".
+- [x] **Step 3 [Claude]:** with a queue holding a Soul Over AI artist 2 songs ahead: it's removed before it plays, and the Log tab shows "Removed from queue: AI-generated (Soul Over AI)".
+  Done 2026-11-12 in a Claude test tab: "Smoke and Silence" (The Velvet Sundown) added with Play next appeared at 1.36 s and was removed at 1.81 s, the other 51 rows untouched. Search for the artist hid all 8 of its items and kept look-alikes (a song titled "The Velvet Sundown" by Velvet Meadow, "The Velvet Sundown Band", covers). Starting one of its songs directly made Human Music click Next once at 0.4 s, but in a test tab Next does nothing and the video never loads, so Step 4 needs Wai's own window.
 - [ ] **Step 4 [Wai]:** start a song by The Velvet Sundown directly: it's skipped once, no dislike; the log shows it.
 - [ ] **Step 5:** Note anything that broke as new tests before fixing.
