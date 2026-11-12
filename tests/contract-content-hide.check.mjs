@@ -29,10 +29,12 @@ function page({ path = '/search', title = 'Fine Song', artist = 'Some Person', i
   const ti = el('div', { class: 'ytmusicTrackInfoTitle' }, title);
   const by = el('div', { class: 'ytmusicTrackInfoByline' }, `${artist} • Album • 2025`);
   const next = el('button', { 'aria-label': 'Next' });
-  next.addEventListener('click', () => { clicks.next++; ti.textContent = `Next ${clicks.next}`; by.textContent = 'Someone Else • X'; });
+  const goNext = () => { clicks.next++; ti.textContent = `Next ${clicks.next}`; by.textContent = 'Someone Else • X'; };
+  next.addEventListener('click', goNext);
   const doc = makeDocument(el('ytmusic-miniplayer', {}, ti, by, el('dislike-button-view-model', {}, el('button', { 'aria-pressed': 'false' })), next),
     el('div', { id: 'contents' }, ...items));
   doc.location.pathname = path;
+  doc.addEventListener('keydown', e => { if (e.key === 'j') goNext(); });
   return { doc, clicks };
 }
 async function app(b, p, clock = fakeClock()) {

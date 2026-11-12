@@ -185,6 +185,10 @@ export class Element extends EventTarget {
   set textContent(v) { for (const c of this.childNodes) c.parentNode = null; this.childNodes = v === '' || v == null ? [] : [new Text(v)]; this.childNodes.forEach(c => { c.parentNode = this; }); notify(this, 'childList'); }
   get innerText() { return this.textContent; }
   get isConnected() { let n = this; while (n.parentNode) n = n.parentNode; return n.nodeType === 9; }
+  get isContentEditable() { return this.getAttribute('contenteditable') === 'true' || this.getAttribute('contenteditable') === ''; }
+  _doc() { let n = this; while (n.parentNode) n = n.parentNode; return n.nodeType === 9 ? n : null; }
+  focus() { const d = this._doc(); if (d) d._active = this; }
+  blur() { const d = this._doc(); if (d && d._active === this) d._active = null; }
   _eventParent() { return this.parentNode; }
   append(...nodes) {
     for (let n of nodes) {
@@ -234,6 +238,7 @@ class Document extends EventTarget {
     this.defaultView = { Event, KeyboardEvent, MouseEvent, MutationObserver, location: this.location };
   }
   get children() { return [this.documentElement]; }
+  get activeElement() { return this._active && this._active.isConnected ? this._active : this.body; }
   createElement(tag) { return new Element(tag); }
   querySelector(sel) { return this.documentElement.matches(sel) ? this.documentElement : this.documentElement.querySelector(sel); }
   querySelectorAll(sel) { return [...(this.documentElement.matches(sel) ? [this.documentElement] : []), ...this.documentElement.querySelectorAll(sel)]; }

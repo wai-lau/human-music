@@ -71,8 +71,17 @@
 
     // --- lookahead ----------------------------------------------------------------------
 
+    // Removing a row opens its menu, which takes keyboard focus: never while the person is
+    // typing (search box, any text field). A later pass removes it; auto-skip still covers it.
+    function typing() {
+      return safe(() => {
+        const a = doc.activeElement;
+        return !!a && (a.localName === 'input' || a.localName === 'textarea' || a.isContentEditable === true);
+      }, false);
+    }
+
     async function runLookahead() {
-      if (state.settings.paused || !state.settings.lookahead || state.lookaheadRunning) return;
+      if (state.settings.paused || !state.settings.lookahead || state.lookaheadRunning || typing()) return;
       state.lookaheadRunning = true;
       const failed = new Set();
       try {
@@ -82,7 +91,7 @@
           const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
             row => (failed.has(rowKey(row)) ? null : matchSong(row)));
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
-          if (!remove.length) break;
+          if (!remove.length || typing()) break;
           const row = rows[remove[0]];
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => HM.ytm.removeQueueRow(doc, row), false)).catch(() => false);

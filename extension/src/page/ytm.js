@@ -129,6 +129,17 @@
     return video.duration;
   }
 
+  // { time, paused } of the playing video, or null when there is none.
+  function videoState(doc) {
+    try {
+      const video = doc.querySelector('video');
+      if (!video) return null;
+      return { time: Number(video.currentTime) || 0, paused: !!video.paused };
+    } catch (e) {
+      return null;
+    }
+  }
+
   function seekTo(doc, seconds) {
     const video = doc.querySelector('video');
     if (!video) return;
@@ -136,7 +147,21 @@
     return seconds;
   }
 
+  // Opening a row's menu moves keyboard focus into the menu, and closing it leaves focus
+  // on some other control (checked live). Put focus back where the person had it.
   async function removeQueueRow(doc, row) {
+    let before = null;
+    try { before = doc.activeElement; } catch (e) { /* no page */ }
+    try {
+      return await removeQueueRowInner(doc, row);
+    } finally {
+      try {
+        if (before && before !== doc.body && before.isConnected && doc.activeElement !== before) before.focus({ preventScroll: true });
+      } catch (e) { /* focus is a courtesy */ }
+    }
+  }
+
+  async function removeQueueRowInner(doc, row) {
     try {
       if (!row.el.isConnected) return false;
       const menuBtn = row.el.querySelector(SEL.queueRowMenu);
@@ -236,6 +261,7 @@
       pressNextKey: () => pressNextKey(doc),
       clickDislike: () => clickDislike(doc),
       videoDuration: () => videoDuration(doc),
+      videoState: () => videoState(doc),
       seekTo: (seconds) => seekTo(doc, seconds),
     };
   }
@@ -387,6 +413,7 @@
     videoDuration,
     seekTo,
     removeQueueRow,
+    videoState,
     mountPlayerButtons,
     pageAdapter,
     readPageItems,

@@ -155,6 +155,15 @@ await t('removeQueueRow on a row with no menu button uses a right-click', async 
   const r = await ytm.removeQueueRow(doc, ytm.readQueue(doc)[2]);
   return (r === true && clicks.contextmenu === 1 && J(ytm.readQueue(doc).map(x => x.title)) === J(['A', 'B'])) || J({ r, clicks });
 });
+await t('removeQueueRow puts keyboard focus back', async () => {
+  const clicks = {}; const doc = makeDocument(player('new', { clicks })); queue(doc, ['A', 'B', 'C'], 0, { clicks, noButtons: true });
+  const search = el('input', { id: 'search' }); doc.body.append(search); search.focus();
+  // the menu takes focus when it opens, as YouTube Music's does
+  const steal = () => { const item = doc.querySelector('ytmusic-menu-popup-renderer [role=menuitem]'); if (item) item.focus(); };
+  doc.addEventListener('contextmenu', () => setTimeout(steal, 10), true);
+  const r = await ytm.removeQueueRow(doc, ytm.readQueue(doc)[1]);
+  return (r === true && doc.activeElement === search) || J({ r, active: doc.activeElement.localName });
+});
 await t('removeQueueRow never rejects on a detached row', async () => {
   const doc = makeDocument(player('new', { clicks: {} }));
   const r = await ytm.removeQueueRow(doc, { title: 'x', artistLine: 'y', selected: false, el: el('ytmusic-player-queue-item') });

@@ -35,7 +35,9 @@ function page({ title = 'Dust on the Wind', artist = 'The Velvet Sundown', queue
   const by = el('div', { class: 'ytmusicTrackInfoByline' }, `${artist} • Album • 2025`);
   const setSong = (a, b) => { ti.textContent = a; by.textContent = `${b} • Album • 2025`; };
   const next = el('button', { 'aria-label': 'Next' });
-  next.addEventListener('click', () => { clicks.next++; if (nextMoves) setSong(`Next ${clicks.next}`, 'Some Person'); });
+  // clicks.next counts every Next, by button or by YouTube Music's 'j' shortcut.
+  const goNext = () => { clicks.next++; if (nextMoves) setSong(`Next ${clicks.next}`, 'Some Person'); };
+  next.addEventListener('click', goNext);
   const dis = el('button', { 'aria-pressed': 'false' });
   dis.addEventListener('click', () => { clicks.dislike++; dis.setAttribute('aria-pressed', 'true'); });
   const popup = el('ytmusic-menu-popup-renderer', {});
@@ -53,7 +55,7 @@ function page({ title = 'Dust on the Wind', artist = 'The Velvet Sundown', queue
     return row;
   });
   const doc = makeDocument(el('ytmusic-miniplayer', {}, ti, by, el('dislike-button-view-model', {}, dis), next), el('div', { id: 'queue' }, ...rows), dropdown);
-  doc.addEventListener('keydown', e => { if (e.key === 'Escape') dropdown.style.display = 'none'; });
+  doc.addEventListener('keydown', e => { if (e.key === 'Escape') dropdown.style.display = 'none'; if (e.key === 'j') goNext(); });
   return { doc, clicks, setSong, queueTitles: () => [...doc.querySelectorAll('#queue ytmusic-player-queue-item')].map(r => r.querySelector('.song-title').textContent) };
 }
 
@@ -121,7 +123,17 @@ else {
     const removed = log(b).filter(e => e.event === 'removed').map(e => e.title).sort();
     return (J(p.queueTitles()) === J(['Cur', 'D']) && J(removed) === J(['B', 'C', 'E']) && J(p.clicks.removed) === J(['B', 'C', 'E'])) || J({ q: p.queueTitles(), removed, clicks: p.clicks.removed });
   });
-  await t('never skip wins', async () => {
+  await t('no removal while typing in a text field', async () => {
+  const b = boot(); const p = page({ title: 'Cur', artist: 'Some Person', queue: [['Cur', 'Some Person'], ['B', '10mm'], ['C', 'Human']] });
+  const search = el('input', { id: 'search' }); p.doc.body.append(search); search.focus();
+  const { a } = await app(b, p);
+  await drain(a);
+  const whileTyping = p.clicks.removed.length;
+  search.blur();
+  await drain(a);
+  return (whileTyping === 0 && J(p.clicks.removed) === J(['B']) && J(p.queueTitles()) === J(['Cur', 'C'])) || J({ whileTyping, removed: p.clicks.removed });
+});
+await t('never skip wins', async () => {
     const b = boot({ user: { neverSkip: ['The Velvet Sundown'] } }); const p = page();
     const { a } = await app(b, p); await a.flush();
     return (p.clicks.next === 0 && log(b).length === 0) || J({ clicks: p.clicks, l: log(b) });

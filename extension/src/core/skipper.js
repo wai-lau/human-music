@@ -10,6 +10,7 @@
       let seekTimeout = null;
       let seekInterval = null;
       let dislikeWaitTimeout = null;
+      let buttonTimeout = null;
 
       function isCurrentSong() {
         try {
@@ -28,14 +29,28 @@
         if (seekTimeout != null) { clearTimeout(seekTimeout); seekTimeout = null; }
         if (seekInterval != null) { clearInterval(seekInterval); seekInterval = null; }
         if (dislikeWaitTimeout != null) { clearTimeout(dislikeWaitTimeout); dislikeWaitTimeout = null; }
+        if (buttonTimeout != null) { clearTimeout(buttonTimeout); buttonTimeout = null; }
+      }
+
+      // Next: YouTube Music's own shortcut first (Wai, 2026-11-12: "Use shortcut keys when
+      // possible"). The button only if, 750 ms later, the same song is plainly still
+      // playing (video running, time moving on), so a slow but working key never leads
+      // to a second Next. The seek to the end stays the last resort at 1500 ms.
+      function videoNow() {
+        try { return page.videoState ? page.videoState() : null; } catch (e) { return null; }
       }
 
       function pressNext() {
-        let moved = false;
-        try { moved = page.clickNext(); } catch (e) {}
-        if (!moved) {
-          try { page.pressNextKey(); } catch (e) {}
-        }
+        const before = videoNow();
+        try { page.pressNextKey(); } catch (e) {}
+        buttonTimeout = setTimeout(() => {
+          buttonTimeout = null;
+          if (!busy || !isCurrentSong()) return;
+          const now = videoNow();
+          if (before && now && !now.paused && now.time > before.time) {
+            try { page.clickNext(); } catch (e) {}
+          }
+        }, 750);
         seekTimeout = setTimeout(() => {
           seekTimeout = null;
           if (busy && isCurrentSong()) {
