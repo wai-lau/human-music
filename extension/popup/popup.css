@@ -211,3 +211,39 @@ li button:hover {
   color: #666;
   text-align: center;
 }
+.status {
+  min-height: 1em;
+  padding: 4px 12px;
+  color: #444;
+}
+
+.list-row {
+  display: block;
+}
+
+.list-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.list-info {
+  color: #666;
+  margin: 2px 0 4px 22px;
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 22px;
+}
+
+.list-actions .watch {
+  flex: 1;
+}
+
+#log-entries li {
+  display: block;
+}

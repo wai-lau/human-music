@@ -13,6 +13,7 @@
     <button class="tab" data-tab="behaviour">Behaviour</button>
     <button class="tab" data-tab="log">Log</button>
   </div>
+  <div id="status" class="status" role="status"></div>
 
   <div class="content">
     <div id="tab-lists" class="tab-content active">
@@ -71,7 +72,7 @@
       <div class="setting">
         <label for="lookahead">Lookahead distance (songs ahead to remove):</label>
         <input type="number" id="lookahead" min="0" max="10">
-        <span class="hint">0 = off</span>
+        <span class="hint">0 turns lookahead off</span>
       </div>
       <div class="setting">
         <label for="auto-skip">Auto-skip a playing match:</label>

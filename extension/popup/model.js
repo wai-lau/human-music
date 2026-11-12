@@ -34,10 +34,7 @@
     const trimmedTitle = typeof title === 'string' ? title.trim() : '';
     let trimmedArtist = null;
     if (typeof artist === 'string') {
-      trimmedArtist = artist.trim();
-      if (trimmedArtist === '') {
-        return cloneUser(user);
-      }
+      trimmedArtist = artist.trim() || null; // blank artist: the song matches by title alone
     }
     if (trimmedTitle === '') {
       return cloneUser(user);

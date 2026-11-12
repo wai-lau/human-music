@@ -159,6 +159,7 @@ export class Element extends EventTarget {
       contains: k => (self.getAttribute('class') || '').split(/\s+/).includes(k),
       add: (...ks) => self.setAttribute('class', [...new Set([...(self.getAttribute('class') || '').split(/\s+/).filter(Boolean), ...ks])].join(' ')),
       remove: (...ks) => self.setAttribute('class', (self.getAttribute('class') || '').split(/\s+/).filter(k => k && !ks.includes(k)).join(' ')),
+      toggle: (k, force) => { const on = force ?? !self.classList.contains(k); if (on) self.classList.add(k); else self.classList.remove(k); return on; },
     };
     this.dataset = new Proxy({}, {
       get: (_, k) => self.getAttribute('data-' + String(k).replace(/[A-Z]/g, m => '-' + m.toLowerCase())) ?? undefined,
@@ -273,5 +274,57 @@ export function el(tag, attrs = {}, ...children) {
 export function makeDocument(...bodyChildren) {
   const doc = new Document();
   doc.body.append(...bodyChildren.flat());
+  return doc;
+}
+
+// Parse simple, well-formed HTML (like extension/popup/popup.html) into a document.
+// The <body>'s children become the document body; <head>, scripts and comments are
+// dropped. Inputs and selects get their value/checked properties from the markup.
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+const decode = t => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+
+export function parseHTML(html) {
+  const doc = new Document();
+  const root = new Element('root');
+  const stack = [root];
+  let skip = null; // inside <head>, <script> or <style>
+  const token = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/([a-zA-Z][\w-]*)\s*>|<([a-zA-Z][\w-]*)((?:\s+[^\s"'>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*(\/?)>|([^<]+)/gi;
+  for (const m of html.matchAll(token)) {
+    const [, close, open, attrText, selfClose, text] = m;
+    if (close) {
+      const tag = close.toLowerCase();
+      if (skip) { if (tag === skip) skip = null; continue; }
+      if (tag === 'html' || tag === 'body') continue;
+      for (let i = stack.length - 1; i > 0; i--) if (stack[i].localName === tag) { stack.length = i; break; }
+    } else if (open) {
+      const tag = open.toLowerCase();
+      if (skip) continue;
+      if (tag === 'head' || tag === 'script' || tag === 'style') { skip = tag; continue; }
+      if (tag === 'html' || tag === 'body') continue;
+      const e = new Element(tag);
+      for (const a of (attrText || '').matchAll(/([^\s"'>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) {
+        e._attrs.set(a[1].toLowerCase(), decode(a[2] ?? a[3] ?? a[4] ?? ''));
+      }
+      stack[stack.length - 1].childNodes.push(e);
+      e.parentNode = stack[stack.length - 1];
+      if (!VOID.has(tag) && !selfClose) stack.push(e);
+    } else if (text && !skip) {
+      const parent = stack[stack.length - 1];
+      const n = new Text(decode(text));
+      n.parentNode = parent;
+      parent.childNodes.push(n);
+    }
+  }
+  doc.body.append(...root.childNodes.slice());
+  for (const e of doc.querySelectorAll('input, select, textarea')) {
+    if (e.localName === 'select') {
+      const opts = e.querySelectorAll('option');
+      const sel = opts.find(o => o.hasAttribute('selected')) || opts[0];
+      e.value = sel ? (sel.getAttribute('value') ?? sel.textContent) : '';
+    } else {
+      e.value = e.getAttribute('value') ?? '';
+      e.checked = e.hasAttribute('checked');
+    }
+  }
   return doc;
 }

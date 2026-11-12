@@ -80,10 +80,10 @@ run([
     const result = HM.popup.addSong(u, '   ', 'Band');
     return result.songs.length === 0;
   }],
-  ['addSong ignores empty artist when not null', () => {
+  ['addSong with a blank artist keeps the song, artist null', () => {
     const u = emptyUser();
     const result = HM.popup.addSong(u, 'Love', '   ');
-    return result.songs.length === 0;
+    return result.songs.length === 1 && result.songs[0].artist === null;
   }],
   ['addSong ignores duplicate by normalized title and artist', () => {
     const u = { artists: [], songs: [{ title: 'Love', artist: 'Some Band' }], keywords: [], neverSkip: [] };
