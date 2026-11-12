@@ -152,9 +152,11 @@ Moving on exactly one song is the hard part; these rules come from bugs
 found in the old extension on 2026-11-11.
 
 1. Remember the song (title and artist line) at the moment of the skip.
-2. Press Next: the player's Next button when found, otherwise YouTube
-   Music's own shortcut `j` (a keydown on the page body). The button is
-   found by its English label, so `j` covers other page languages.
+2. Press Next with YouTube Music's own shortcut `j` (a keydown on the page
+   body). Wai, 2026-11-12: "Use shortcut keys when possible". Only if, 750 ms
+   later, the same song is plainly still playing (the video running and its
+   time moving on) click the player's Next button, so a slow but working key
+   never leads to a second Next.
 3. Watch for the song to change. Once it has changed, do nothing more.
 4. If it has not changed after 1.5 s, jump to the end of the song, but only
    when the video has loaded (its duration is a finite number above 0).
@@ -165,6 +167,15 @@ found in the old extension on 2026-11-11.
    run steps 2 to 5.
 7. A song that was already checked is never checked again while it plays.
    The check compares title and artist line together.
+
+### Never in the person's way
+
+Wai, 2026-11-12: "the addon shouldnt be changing the user's focused tab".
+Human Music acts only inside the YouTube Music page (keys and clicks sent to
+its own elements); it never navigates, switches tabs or focuses a window, so
+it works the same in a background tab. Opening a queue row's menu takes
+keyboard focus (checked live), so lookahead waits while the person is typing
+in a text field, and puts focus back where it was after each removal.
 
 ### On the player
 
