@@ -206,27 +206,35 @@
       assetUrl: function (path) { return chrome.runtime.getURL(path); }
     });
 
-    // Installing, updating and reloading the extension all land here. Chrome leaves
-    // YouTube Music tabs that are already open without a working content script (the old
-    // copy is cut off), so put the current one into each of them.
+    // Installing, updating and reloading the extension all land here.
     chrome.runtime.onInstalled.addListener(function () {
       globalThis.HM.refresher.install();
-      injectIntoOpenTabs();
     });
 
-    function injectIntoOpenTabs() {
+    // After a reload or update Chrome leaves YouTube Music tabs that are already open with
+    // a cut-off content script (it stands down) and does not inject the new one. So each
+    // time this worker starts, ping every open YouTube Music tab and put the current
+    // script into any tab that doesn't answer. (A self-reload does not fire onInstalled.)
+    function ensureContentScripts() {
       try {
         var files = chrome.runtime.getManifest().content_scripts[0].js;
         chrome.tabs.query({ url: 'https://music.youtube.com/*' }, function (tabs) {
           (tabs || []).forEach(function (tab) {
             try {
-              var done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
-              if (done && done.catch) done.catch(function () {});
-            } catch (e) { /* a tab that can't take it keeps working without */ }
+              chrome.tabs.sendMessage(tab.id, { type: 'hm-ping' }, function (reply) {
+                var missing = chrome.runtime.lastError || reply !== true;
+                if (!missing) return;
+                try {
+                  var done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
+                  if (done && done.catch) done.catch(function () {});
+                } catch (e) { /* a tab that can't take it */ }
+              });
+            } catch (e) { /* tab went away */ }
           });
         });
-      } catch (e) { /* nothing to inject into */ }
+      } catch (e) { /* nothing to do */ }
     }
+    ensureContentScripts();
 
     if (chrome.runtime.onStartup) {
       chrome.runtime.onStartup.addListener(function () {

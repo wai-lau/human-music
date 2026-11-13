@@ -236,6 +236,11 @@
       alive: () => !!(chrome.runtime && chrome.runtime.id),
     });
     HM.app.start().catch(() => {});
+    // The service worker pings open tabs when it starts; a tab that answers has a live copy.
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg && msg.type === 'hm-ping') { sendResponse(true); return false; }
+      return false;
+    });
     // Development only (unpacked, no update_url): a page script can ask the extension
     // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
     if (!('update_url' in chrome.runtime.getManifest())) {
