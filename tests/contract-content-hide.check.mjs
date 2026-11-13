@@ -108,6 +108,14 @@ await t('player buttons: Block artist adds the whole credit, then skips', async 
   await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
   return (J(b.storage.data['hm.user'].artists) === J(['Band A & Band B']) && p.clicks.next === 1) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
 });
+await t("a button left by an earlier copy is replaced", async () => {
+  const b = boot(); const p = page({ title: 'Song', artist: 'Band A' });
+  const stale = el('div', { id: 'hm-player-buttons' }, el('button', {}, 'Block artist'), el('button', {}, 'Block song'));
+  p.doc.querySelector('ytmusic-miniplayer').append(stale);
+  await app(b, p);
+  const boxes = p.doc.querySelectorAll('#hm-player-buttons');
+  return (boxes.length === 1 && boxes[0] !== stale && !stale.isConnected && boxes[0].querySelectorAll('button').length === 1) || J({ boxes: boxes.length, staleConnected: stale.isConnected });
+});
 await t('only a Block artist button (no Block song)', async () => {
   const b = boot(); const p = page({ title: 'Song', artist: 'Band A' });
   await app(b, p);

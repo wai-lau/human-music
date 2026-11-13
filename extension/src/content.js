@@ -153,9 +153,17 @@
       });
     }
 
+    // Each copy tags the button it mounts; a button left by an earlier copy (cut off by a
+    // reload, its clicks going nowhere) is replaced at once.
+    const copyId = Math.random().toString(36).slice(2, 10);
+
     function playerButtons() {
       if (state.settings.playerButtons && !state.settings.paused) {
+        const old = safe(() => doc.querySelector('#hm-player-buttons'), null);
+        if (old && old.getAttribute('data-hm-copy') !== copyId) safe(() => old.remove());
         safe(() => HM.ytm.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));
+        const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
+        if (box && !box.hasAttribute('data-hm-copy')) safe(() => box.setAttribute('data-hm-copy', copyId));
       } else {
         const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (box) box.remove();
