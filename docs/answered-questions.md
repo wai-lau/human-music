@@ -4,6 +4,7 @@ Decisions Wai made on the open-questions page, newest first.
 
 | When | Question | Wai's answer | Reading taken |
 |---|---|---|---|
+| 2026-11-13 | Add Forrest Rose (not on any list; Wai could still play them) to her own list? | "skip forrest" | Forrest Rose stays off every list and keeps playing. |
 | 2026-11-13 | On Spotify, should lookahead open the Queue panel? (Spotify only shows its queue while that panel is open.) | "yes" | Human Music opens the Queue panel by itself once while a song is loaded, so listed songs are removed before they play; if Wai closes it, it stays closed until Spotify is reloaded. |
 | 2026-11-13 | On Spotify, what should auto-dislike do? (Spotify has no dislike; the closest is "Exclude from your taste profile".) | "nothing" | Auto-dislike never changes the Spotify account; on Spotify it only skips. |
 | 2026-11-12 | Lookahead can't remove songs from YouTube Music's own up-next radio (those rows have no menu button). Leave it, use a page script, or flash the queue panel? | "right click the 3 dots at the right of a track, then click remove from queue" (with a screenshot of the menu) | A right-click on a queue row opens the same menu even when the row has no button; removeQueueRow now dispatches contextmenu when the button is missing. Checked live: a radio row by The Velvet Sundown was removed 1.4 s after the queue filled. |
