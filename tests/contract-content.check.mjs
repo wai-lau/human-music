@@ -133,6 +133,30 @@ else {
   await drain(a);
   return (whileTyping === 0 && J(p.clicks.removed) === J(['B']) && J(p.queueTitles()) === J(['Cur', 'C'])) || J({ whileTyping, removed: p.clicks.removed });
 });
+await t('a cut-off copy stands down: no skip, buttons removed', async () => {
+  const b = boot({ artists: [] }); const p = page({ title: 'Fine', artist: 'Some Person' });
+  let alive = true;
+  const clock = fakeClock();
+  const a = b.ctx.HM.createApp({ doc: p.doc, storage: b.storage, timers: clock, now: () => clock.now(), alive: () => alive });
+  await a.start(); await settle(clock, 60);
+  const hadButtons = !!p.doc.querySelector('#hm-player-buttons');
+  alive = false;
+  p.setSong('Dust on the Wind', 'The Velvet Sundown');
+  await settle(clock, 60);
+  return (hadButtons && !p.doc.querySelector('#hm-player-buttons') && p.clicks.next === 0) || J({ hadButtons, buttons: !!p.doc.querySelector('#hm-player-buttons'), next: p.clicks.next });
+});
+await t('a paused tab never presses Next; it acts once its video plays', async () => {
+  const b = boot(); const p = page();
+  const video = el('video', { props: { paused: true, currentTime: 0, duration: 200 } });
+  p.doc.body.append(video);
+  const { a, clock } = await app(b, p);
+  a.checkPlaying(); await settle(clock, 60);
+  const whilePaused = p.clicks.next;
+  video.paused = false;
+  p.doc.body.append(el('span')); // the page moves on while it plays (time display and so on)
+  await settle(clock, 60); await a.flush();
+  return (whilePaused === 0 && p.clicks.next === 1 && log(b).filter(e => e.event === 'skipped').length === 1) || J({ whilePaused, next: p.clicks.next, log: log(b).map(e => e.event) });
+});
 await t('never skip wins', async () => {
     const b = boot({ user: { neverSkip: ['The Velvet Sundown'] } }); const p = page();
     const { a } = await app(b, p); await a.flush();

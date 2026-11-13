@@ -8,12 +8,18 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["alarms", "storage"],
+  "permissions": [
+    "alarms",
+    "scripting",
+    "storage"
+  ],
   "host_permissions": [
     "https://music.youtube.com/*",
     "https://raw.githubusercontent.com/xoundbyte/soul-over-ai/*"
   ],
-  "optional_host_permissions": ["https://*/*"],
+  "optional_host_permissions": [
+    "https://*/*"
+  ],
   "background": {
     "service_worker": "src/background.js"
   },
@@ -22,7 +28,9 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://music.youtube.com/*"],
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
       "js": [
         "src/core/text.js",
         "src/core/match.js",

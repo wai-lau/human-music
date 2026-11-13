@@ -11,7 +11,10 @@
   const rowKey = row => `${row.title}\n${row.artistLine}`;
   const safe = (fn, fallback) => { try { return fn(); } catch (e) { return fallback; } };
 
-  function createApp({ doc, storage, timers, now }) {
+  // alive() turns false once this copy's extension is reloaded or removed: its chrome APIs
+  // stop working while its page code keeps running. It then stands down (stops watching,
+  // removes its buttons) so the fresh copy injected into the tab is the only one acting.
+  function createApp({ doc, storage, timers, now, alive = () => true }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -19,6 +22,8 @@
       lookaheadRunning: false,
       passTimer: null,
       skipper: null,
+      observer: null,
+      stopped: false,
     };
     let writes = Promise.resolve();
 
@@ -55,11 +60,20 @@
 
     // --- the playing song ---------------------------------------------------------
 
+    // Only the tab whose video is actually playing acts on the playing song: pressing Next in
+    // a paused YouTube Music tab would start music there too (Wai: "find the tab that's
+    // actually playing audio"). A paused tab is checked again on a later pass.
+    function videoPlaying() {
+      const v = safe(() => HM.ytm.videoState(doc), null);
+      return !v || !v.paused; // no video element at all: nothing to tell, act as before
+    }
+
     function checkPlaying() {
       if (state.settings.paused) return;
       const song = safe(() => HM.ytm.readSong(doc), null);
       if (!song) return;
       if (state.last && state.last.title === song.title && state.last.artistLine === song.artistLine) return;
+      if (!videoPlaying()) return; // not remembered yet, so the song is checked once it plays
       state.last = { title: song.title, artistLine: song.artistLine };
       const match = matchSong(song);
       if (!match) return;
@@ -150,8 +164,19 @@
 
     // --- passes ---------------------------------------------------------------------------
 
+    function standDown() {
+      state.stopped = true;
+      safe(() => state.observer && state.observer.disconnect());
+      if (state.passTimer != null) safe(() => timers.clearTimeout(state.passTimer));
+      state.passTimer = null;
+      const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
+      if (box) safe(() => box.remove());
+    }
+
     function pass() {
       state.passTimer = null;
+      if (state.stopped) return;
+      if (!safe(alive, false)) { standDown(); return; }
       safe(checkPlaying);
       safe(() => runLookahead().catch(() => {}));
       safe(hidePass);
@@ -159,7 +184,7 @@
     }
 
     function schedule() {
-      if (state.passTimer == null) state.passTimer = timers.setTimeout(pass, 50);
+      if (!state.stopped && state.passTimer == null) state.passTimer = timers.setTimeout(pass, 50);
     }
 
     async function start() {
@@ -180,7 +205,8 @@
       });
       safe(() => {
         const Observer = doc.defaultView.MutationObserver;
-        new Observer(schedule).observe(doc.body, { childList: true, subtree: true, characterData: true });
+        state.observer = new Observer(schedule);
+        state.observer.observe(doc.body, { childList: true, subtree: true, characterData: true });
       });
       pass();
     }
@@ -196,7 +222,7 @@
 
   HM.createApp = createApp;
 
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local && !HM.app) {
     HM.app = createApp({
       doc: document,
       storage: chrome.storage.local,
@@ -207,6 +233,7 @@
         clearInterval: id => clearInterval(id),
       },
       now: () => Date.now(),
+      alive: () => !!(chrome.runtime && chrome.runtime.id),
     });
     HM.app.start().catch(() => {});
     // Development only (unpacked, no update_url): a page script can ask the extension
