@@ -5,17 +5,22 @@
 A Chrome extension for [YouTube Music](https://music.youtube.com) that keeps
 your listening to music made by people.
 
-**Status:** in development. Not ready to install yet.
+**Status:** early. I use it loaded unpacked; it isn't on the Chrome Web
+Store.
 
 ## What it does
 
 - Takes songs by listed AI-generated artists out of your queue before they
-  play.
+  play, including the songs YouTube Music adds to its own radio.
 - Skips one if it plays anyway, moving on exactly one song.
 - Hides their songs, albums and playlists on the home page, Explore and
   search results.
 - Logs every song it removed, skipped or hid, with the list that caused it,
   so you can check its work.
+
+Everything happens inside the YouTube Music tab. It doesn't switch tabs or
+take your keyboard focus, it holds off while you type, and if you have more
+than one YouTube Music tab open, only the one that's playing skips songs.
 
 ## Why
 
@@ -44,13 +49,19 @@ Human Music checks songs against lists:
   you can add others by URL. Each one can be switched off, or put in watch
   mode, where it only logs what it would have done.
 - Your own lists of artists, songs and keywords. Add to them from the
-  popup or with the Block artist and Block song buttons on the player.
+  popup, or press the block button (a circle with a slash) next to Repeat
+  on the player to add the artist that's playing.
 - Never skip: an artist on that list is always played, whatever the other
   lists say.
 
 An artist matches only when they're credited on the song. A list entry
 called "After Midnight" catches the artist After Midnight, not every song
 with that title.
+
+For now the repository also holds a copy of my own lists in
+`extension/lists/`. The extension imports it when it installs, so the lists
+survive removing the extension. If you load the folder yourself and don't
+want my lists, empty `my-lists.json` first.
 
 Coming from YTM AI Artist & Song Blocker? Export a backup there and import
 it in Human Music's Lists tab to keep your lists.

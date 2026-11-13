@@ -347,9 +347,13 @@ runLookahead's matching over 10 queue rows under 20 ms (removal itself excluded)
 
 ### Task 11: Live end-to-end [Wai + Claude]
 
-- [ ] **Step 1 [Wai]:** export a backup from the old extension's popup; disable the old extension; load `extension/` unpacked.
-- [ ] **Step 2 [Wai]:** import the backup in Human Music's Lists tab; counts match the old popup's.
+- [x] **Step 1 [Wai]:** export a backup from the old extension's popup; disable the old extension; load `extension/` unpacked.
+  2026-11-12: loaded unpacked. The old extension was removed before a backup was exported, which deleted its lists.
+- [x] **Step 2 [Wai]:** import the backup in Human Music's Lists tab; counts match the old popup's.
+  Not possible: no backup existed. Wai: "start fresh". Lists now also live in the committed `extension/lists/` (spec, "Lists that survive removal"); the popup's import is covered by `tests/popup-ui.test.mjs`.
 - [x] **Step 3 [Claude]:** with a queue holding a Soul Over AI artist 2 songs ahead: it's removed before it plays, and the Log tab shows "Removed from queue: AI-generated (Soul Over AI)".
   Done 2026-11-12 in a Claude test tab: "Smoke and Silence" (The Velvet Sundown) added with Play next appeared at 1.36 s and was removed at 1.81 s, the other 51 rows untouched. Search for the artist hid all 8 of its items and kept look-alikes (a song titled "The Velvet Sundown" by Velvet Meadow, "The Velvet Sundown Band", covers). Starting one of its songs directly made Human Music click Next once at 0.4 s, but in a test tab Next does nothing and the video never loads, so Step 4 needs Wai's own window.
+  Later the same day: radio rows (no menu button) are removed through a right-click on the row ("Ride..." by The Velvet Sundown left the queue 1.4 s after it filled); with focus in the search box a queued listed song waited, then left within 0.5 s of leaving the box.
 - [ ] **Step 4 [Wai]:** start a song by The Velvet Sundown directly: it's skipped once, no dislike; the log shows it.
-- [ ] **Step 5:** Note anything that broke as new tests before fixing.
+- [x] **Step 5:** Note anything that broke as new tests before fixing.
+  What broke live, each now a test: radio rows had no menu button (contract-ytm-player: right-click); removing a row took keyboard focus (contract-ytm-player: focus restored; contract-content: no removal while typing); after a reload open tabs kept a cut-off script (worker pings and re-injects; contract-content: a cut-off copy stands down; contract-content-hide: its button is replaced); a paused tab could press Next (contract-content); Next by shortcut first (contract-skipper); the player buttons didn't match the controls (contract-ytm-player: one button right of Repeat, same classes).
