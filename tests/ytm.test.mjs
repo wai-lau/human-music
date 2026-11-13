@@ -145,30 +145,20 @@ const cases = [
     return fake.getCurrentTime() === 45;
   }],
 
-  ['mountPlayerButtons new layout', () => {
+  ['mountPlayerButtons new layout: one Block artist button', () => {
     const fake = fakeYtm({ layout: 'new', song: { title: 'Song', artistLine: 'Artist' } });
-    let blockedArtist = false, blockedSong = false;
-    const result = ytm.mountPlayerButtons(fake.doc, {
-      onBlockArtist: () => { blockedArtist = true; },
-      onBlockSong: () => { blockedSong = true; }
-    });
-    const container = fake.doc.querySelector('#hm-player-buttons');
-    const buttons = container.querySelectorAll('button');
-    return result === true && buttons.length === 2 &&
-      buttons[0].textContent === 'Block artist' &&
-      buttons[1].textContent === 'Block song';
+    let blocked = 0;
+    const result = ytm.mountPlayerButtons(fake.doc, { onBlockArtist: () => { blocked++; } });
+    const buttons = fake.doc.querySelectorAll('#hm-player-buttons button');
+    buttons[0].click();
+    return result === true && buttons.length === 1 && buttons[0].getAttribute('aria-label') === 'Block artist' && blocked === 1;
   }],
 
-  ['mountPlayerButtons old layout', () => {
+  ['mountPlayerButtons old layout: one Block artist button', () => {
     const fake = fakeYtm({ layout: 'old', song: { title: 'Song', artistLine: 'Artist' } });
-    let blockedArtist = false, blockedSong = false;
-    const result = ytm.mountPlayerButtons(fake.doc, {
-      onBlockArtist: () => { blockedArtist = true; },
-      onBlockSong: () => { blockedSong = true; }
-    });
-    const container = fake.doc.querySelector('#hm-player-buttons');
-    const buttons = container.querySelectorAll('button');
-    return result === true && buttons.length === 2;
+    const result = ytm.mountPlayerButtons(fake.doc, { onBlockArtist: () => {} });
+    const buttons = fake.doc.querySelectorAll('#hm-player-buttons button');
+    return result === true && buttons.length === 1 && buttons[0].getAttribute('title') === 'Block artist';
   }],
 
   ['mountPlayerButtons twice no duplicate', () => {

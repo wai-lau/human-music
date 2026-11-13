@@ -224,33 +224,87 @@
     doc.dispatchEvent(ev);
   }
 
+  // The "skip" glyph (a circle with a slash, as on an UNO skip card), drawn for Human Music.
+  const BLOCK_GLYPH = [
+    { d: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0ZM4 12a8 8 0 1 0 16 0a8 8 0 1 0-16 0Z', rule: 'evenodd' },
+    { d: 'M7.05 5.63 18.37 16.95 16.95 18.37 5.63 7.05Z' },
+  ];
+
+  function glyph(doc) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = doc.createElementNS ? doc.createElementNS(NS, 'svg') : doc.createElement('svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '24');
+    svg.setAttribute('height', '24');
+    svg.setAttribute('fill', 'currentColor');
+    svg.setAttribute('aria-hidden', 'true');
+    for (const part of BLOCK_GLYPH) {
+      const path = doc.createElementNS ? doc.createElementNS(NS, 'path') : doc.createElement('path');
+      path.setAttribute('d', part.d);
+      if (part.rule) path.setAttribute('fill-rule', part.rule);
+      svg.appendChild(path);
+    }
+    return svg;
+  }
+
+  // The player's repeat button: found by its label, else the last of the main controls.
+  function repeatButton(player) {
+    const buttons = [...player.querySelectorAll('button')];
+    const byLabel = buttons.find(b => /repeat|loop/i.test(b.getAttribute('aria-label') || ''));
+    if (byLabel) return byLabel;
+    const row = player.querySelector('.ytmusicPlayerControlsMainControls');
+    const last = row && row.lastElementChild;
+    return last ? last.querySelector('button') : null;
+  }
+
+  // One "Block artist" button just right of the repeat button, built from a copy of the
+  // repeat button's own wrapper so it has the same size, colours and spacing (its icon
+  // swapped for the skip glyph). Without the player controls, a plain icon button goes at
+  // the end of the player instead. Mounted once; returns false when there is no player.
   function mountPlayerButtons(doc, handlers) {
     const player = findPlayer(doc);
     if (!player) return false;
     const el = player.el;
-    if (el.querySelector('#hm-player-buttons')) return true; // already mounted: never a second pair
+    if (doc.querySelector('#hm-player-buttons')) return true;
 
-    const container = doc.createElement('div');
-    container.id = 'hm-player-buttons';
-    container.style.display = 'inline-block';
-    container.style.marginLeft = '8px';
-    el.append(container);
+    const onClick = e => {
+      try { e.preventDefault(); e.stopPropagation(); } catch (err) { /* plain event */ }
+      try { if (handlers && handlers.onBlockArtist) handlers.onBlockArtist(); } catch (err) { /* never break the page */ }
+    };
 
-    // Add buttons
-    const blockArtistBtn = doc.createElement('button');
-    blockArtistBtn.textContent = 'Block artist';
-    blockArtistBtn.addEventListener('click', () => {
-      if (handlers.onBlockArtist) handlers.onBlockArtist();
-    });
+    const repeat = repeatButton(el);
+    const wrapper = repeat && repeat.parentElement;
+    if (wrapper && wrapper.parentElement) {
+      const box = wrapper.cloneNode(true);
+      box.id = 'hm-player-buttons';
+      const button = box.querySelector('button');
+      button.id = 'hm-block-artist';
+      for (const name of ['aria-pressed', 'aria-disabled', 'disabled']) button.removeAttribute(name);
+      button.setAttribute('aria-label', 'Block artist');
+      button.setAttribute('title', 'Block artist');
+      const icon = button.querySelector('svg');
+      if (icon && icon.parentNode) icon.parentNode.replaceChild(glyph(doc), icon);
+      else button.appendChild(glyph(doc));
+      button.addEventListener('click', onClick);
+      wrapper.parentElement.insertBefore(box, wrapper.nextSibling);
+      return true;
+    }
 
-    const blockSongBtn = doc.createElement('button');
-    blockSongBtn.textContent = 'Block song';
-    blockSongBtn.addEventListener('click', () => {
-      if (handlers.onBlockSong) handlers.onBlockSong();
-    });
-
-    container.append(blockArtistBtn);
-    container.append(blockSongBtn);
+    const box = doc.createElement('div');
+    box.id = 'hm-player-buttons';
+    box.style.display = 'inline-flex';
+    box.style.alignItems = 'center';
+    box.style.marginLeft = '16px';
+    const button = doc.createElement('button');
+    button.id = 'hm-block-artist';
+    button.setAttribute('aria-label', 'Block artist');
+    button.setAttribute('title', 'Block artist');
+    Object.assign(button.style, { width: '40px', height: '40px', padding: '8px', border: 'none', borderRadius: '50%',
+      background: 'transparent', color: 'inherit', cursor: 'pointer' });
+    button.appendChild(glyph(doc));
+    button.addEventListener('click', onClick);
+    box.appendChild(button);
+    el.append(box);
     return true;
   }
 

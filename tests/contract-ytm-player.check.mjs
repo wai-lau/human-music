@@ -14,11 +14,16 @@ function player(layout, { title = 'Dust on the Wind', pressed = false, clicks } 
   if (layout === 'new') {
     const next = el('button', { 'aria-label': 'Next' }); next.addEventListener('click', count('next'));
     const dis = el('button', { 'aria-pressed': String(pressed) }); dis.addEventListener('click', count('dislike'));
+    const control = (label, extra = {}) => el('div', { class: 'ytmusicPlayerControlsControlButton x9Hash' },
+      el('button', { class: 'ytSpecButtonShapeNextHost ytSpecButtonShapeNextText', 'aria-label': label, title: label, ...extra },
+        el('div', { class: 'ytSpecButtonShapeNextIcon' }, el('span', { class: 'ytIconWrapperHost' }, el('svg', { viewBox: '0 0 24 24' }, el('path', { d: 'M1 1h22v22H1Z' }))))));
+    const nextWrap = el('div', { class: 'ytmusicPlayerControlsControlButton x9Hash' }, next);
     return el('ytmusic-miniplayer', {},
       el('div', { class: 'ytmusicTrackInfoTitle' }, ` ${title} `),
       el('div', { class: 'ytmusicTrackInfoByline' }, el('a', {}, 'The Velvet Sundown'), ' • Floating • 2025'),
       el('div', {}, el('like-button-view-model', {}, el('button', { 'aria-pressed': 'false' })), el('dislike-button-view-model', {}, dis)),
-      next);
+      el('ytmusic-wiz-player-controls', {}, el('div', { class: 'ytmusicPlayerControlsMainControls' },
+        control('Shuffle'), control('Previous'), nextWrap, control('Repeat off', { 'aria-pressed': 'false' }))));
   }
   const next = el('tp-yt-paper-icon-button', { class: 'next-button' }); next.addEventListener('click', count('next'));
   const dis = el('tp-yt-paper-icon-button', { class: 'dislike', 'aria-pressed': String(pressed) }); dis.addEventListener('click', count('dislike'));
@@ -83,19 +88,36 @@ for (const layout of ['new', 'old']) {
     const r = ytm.clickDislike(doc);
     return (r === true && !clicks.dislike) || J({ r, clicks });
   });
-  await t(`${layout}: player buttons mount once`, () => {
+  await t(`${layout}: one Block artist button, mounted once`, () => {
     const doc = makeDocument(player(layout, { clicks: {} })); const hits = [];
-    const h = { onBlockArtist: () => hits.push('artist'), onBlockSong: () => hits.push('song') };
+    const h = { onBlockArtist: () => hits.push('artist') };
     const a = ytm.mountPlayerButtons(doc, h), b = ytm.mountPlayerButtons(doc, h);
     const boxes = doc.querySelectorAll('#hm-player-buttons');
     const btns = boxes[0] ? boxes[0].querySelectorAll('button') : [];
-    btns.forEach(x => x.click());
-    const inPlayer = boxes[0] && boxes[0].closest('ytmusic-miniplayer, ytmusic-player-bar');
-    return (a === true && b === true && boxes.length === 1 && btns.length === 2 && btns.map(x => x.textContent.trim()).join() === 'Block artist,Block song'
-      && hits.join() === 'artist,song' && !!inPlayer) || J({ a, b, boxes: boxes.length, labels: btns.map(x => x.textContent), hits });
+    if (!(a === true && b === true && boxes.length === 1 && btns.length === 1)) return J({ a, b, boxes: boxes.length, btns: btns.length });
+    const btn = btns[0];
+    btn.click();
+    return (btn.getAttribute('aria-label') === 'Block artist' && btn.getAttribute('title') === 'Block artist' && !btn.textContent.trim()
+      && btn.querySelectorAll('svg path').length === 2 && hits.join() === 'artist' && !!boxes[0].closest('ytmusic-miniplayer, ytmusic-player-bar'))
+      || J({ label: btn.getAttribute('aria-label'), text: btn.textContent, paths: btn.querySelectorAll('svg path').length, hits });
   });
 }
 
+await t('new layout: the button sits right of Repeat and looks like it', () => {
+  const doc = makeDocument(player('new', { clicks: {} }));
+  ytm.mountPlayerButtons(doc, { onBlockArtist() {} });
+  const row = doc.querySelector('.ytmusicPlayerControlsMainControls');
+  const kids = row.children;
+  const box = doc.querySelector('#hm-player-buttons');
+  const repeatWrap = kids[kids.length - 2];
+  const repeatBtn = repeatWrap.querySelector('button');
+  const btn = box.querySelector('button');
+  return (kids[kids.length - 1] === box && repeatBtn.getAttribute('aria-label') === 'Repeat off'
+    && box.className === repeatWrap.className && btn.className === repeatBtn.className
+    && !btn.hasAttribute('aria-pressed') && box.querySelector('.ytSpecButtonShapeNextIcon svg') !== null
+    && repeatBtn.querySelector('svg path').getAttribute('d') === 'M1 1h22v22H1Z')
+    || J({ last: kids[kids.length - 1].id, boxClass: box.className, btnClass: btn.className });
+});
 await t('no player: everything safe', () => {
   const doc = makeDocument(el('div'));
   const a = ytm.pageAdapter(doc);

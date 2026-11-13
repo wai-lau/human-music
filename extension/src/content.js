@@ -155,7 +155,7 @@
 
     function playerButtons() {
       if (state.settings.playerButtons && !state.settings.paused) {
-        safe(() => HM.ytm.mountPlayerButtons(doc, { onBlockArtist: () => block('artist'), onBlockSong: () => block('song') }));
+        safe(() => HM.ytm.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));
       } else {
         const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (box) box.remove();

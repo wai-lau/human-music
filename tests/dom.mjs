@@ -126,6 +126,7 @@ function* descendants(node) {
 class Text {
   constructor(data) { this.nodeType = 3; this.data = String(data); this.parentNode = null; }
   get textContent() { return this.data; }
+  cloneNode() { return new Text(this.data); }
 }
 
 let observers = [];
@@ -181,6 +182,16 @@ export class Element extends EventTarget {
   get children() { return this.childNodes.filter(n => n.nodeType === 1); }
   get parentElement() { return this.parentNode && this.parentNode.nodeType === 1 ? this.parentNode : null; }
   get firstElementChild() { return this.children[0] || null; }
+  get lastElementChild() { const c = this.children; return c[c.length - 1] || null; }
+  get nextSibling() { if (!this.parentNode) return null; const k = this.parentNode.childNodes; return k[k.indexOf(this) + 1] || null; }
+  // A copy without listeners, like the DOM's.
+  cloneNode(deep = false) {
+    const e = new Element(this.localName);
+    for (const [k, v] of this._attrs) e._attrs.set(k, v);
+    Object.assign(e.style, this.style);
+    if (deep) for (const c of this.childNodes) { const k = c.cloneNode(true); k.parentNode = e; e.childNodes.push(k); }
+    return e;
+  }
   get textContent() { return this.childNodes.map(n => n.textContent).join(''); }
   set textContent(v) { for (const c of this.childNodes) c.parentNode = null; this.childNodes = v === '' || v == null ? [] : [new Text(v)]; this.childNodes.forEach(c => { c.parentNode = this; }); notify(this, 'childList'); }
   get innerText() { return this.textContent; }
@@ -209,6 +220,14 @@ export class Element extends EventTarget {
     return n;
   }
   removeChild(n) { const i = this.childNodes.indexOf(n); if (i >= 0) { this.childNodes.splice(i, 1); n.parentNode = null; notify(this, 'childList', { removedNodes: [n] }); } return n; }
+  replaceChild(n, old) {
+    const i = this.childNodes.indexOf(old);
+    if (i < 0) return old;
+    if (n.parentNode) n.parentNode.removeChild(n);
+    this.childNodes[i] = n; n.parentNode = this; old.parentNode = null;
+    notify(this, 'childList', { removedNodes: [old] });
+    return old;
+  }
   remove() { if (this.parentNode) this.parentNode.removeChild(this); }
   contains(n) { for (let p = n; p; p = p.parentNode) if (p === this) return true; return false; }
   matches(sel) { return matches(this, sel); }
@@ -240,6 +259,7 @@ class Document extends EventTarget {
   get children() { return [this.documentElement]; }
   get activeElement() { return this._active && this._active.isConnected ? this._active : this.body; }
   createElement(tag) { return new Element(tag); }
+  createElementNS(ns, tag) { return new Element(tag); }
   querySelector(sel) { return this.documentElement.matches(sel) ? this.documentElement : this.documentElement.querySelector(sel); }
   querySelectorAll(sel) { return [...(this.documentElement.matches(sel) ? [this.documentElement] : []), ...this.documentElement.querySelectorAll(sel)]; }
   getElementById(id) { return this.querySelector('#' + id); }

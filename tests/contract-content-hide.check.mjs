@@ -103,19 +103,16 @@ await t('player buttons: Block artist adds the whole credit, then skips', async 
   const b = boot({ artists: [] }); const p = page({ title: 'Song', artist: 'Band A & Band B' });
   const r = await app(b, p);
   const btns = [...p.doc.querySelectorAll('#hm-player-buttons button')];
-  if (btns.length !== 2) return `buttons ${btns.length}`;
-  btns.find(x => x.textContent.trim() === 'Block artist').click();
+  if (btns.length !== 1) return `buttons ${btns.length}`;
+  btns.find(x => x.getAttribute('aria-label') === 'Block artist').click();
   await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
   return (J(b.storage.data['hm.user'].artists) === J(['Band A & Band B']) && p.clicks.next === 1) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
 });
-await t('player buttons: Block song adds title and first name', async () => {
-  const b = boot({ artists: [], settings: { autoSkip: false } }); const p = page({ title: 'Song', artist: 'Band A, Band B feat. C' });
-  const r = await app(b, p);
-  [...p.doc.querySelectorAll('#hm-player-buttons button')].find(x => x.textContent.trim() === 'Block song').click();
-  await settle(r.clock, 60); await r.a.flush();
-  [...p.doc.querySelectorAll('#hm-player-buttons button')].find(x => x.textContent.trim() === 'Block song')?.click();
-  await settle(r.clock, 60);
-  return J(b.storage.data['hm.user'].songs) === J([{ title: 'Song', artist: 'Band A' }]) || J(b.storage.data['hm.user'].songs);
+await t('only a Block artist button (no Block song)', async () => {
+  const b = boot(); const p = page({ title: 'Song', artist: 'Band A' });
+  await app(b, p);
+  const labels = [...p.doc.querySelectorAll('#hm-player-buttons button')].map(x => x.getAttribute('aria-label'));
+  return J(labels) === J(['Block artist']) || J(labels);
 });
 await t('player buttons off: none, and turning off removes them', async () => {
   const b = boot({ settings: { playerButtons: false } }); const p = page();
