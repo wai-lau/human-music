@@ -207,7 +207,7 @@
     });
 
     // Installing, updating and reloading the extension all land here.
-    var DEV = !('update_url' in chrome.runtime.getManifest());
+    var DEV = (function () { try { return !('update_url' in chrome.runtime.getManifest()); } catch (e) { return false; } })();
     function devNote(key, value) {
       if (!DEV) return;
       try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); chrome.storage.local.set(o); } catch (e) { /* diagnostics only */ }
