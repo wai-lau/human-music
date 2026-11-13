@@ -179,10 +179,14 @@ in a text field, and puts focus back where it was after each removal.
 
 ### On the player
 
-Two buttons next to the like and dislike buttons: "Block artist" (adds the
-playing song's credited artists to your artists) and "Block song" (adds
-title plus artist to your songs). Adding re-checks the playing song at
-once. **(Claude's call:** kept from the old extension's feature set.)
+One "Block artist" button just right of the repeat button, with a skip glyph
+(a circle with a slash, as on an UNO skip card). Wai, 2026-11-12: "make these
+buttons coherent wit the other buttons / keep the same colors, just have a
+block artist button, space appropriately ... to the right of loop, a skip
+glyph (like uno)". It is built from a copy of the repeat button's own wrapper,
+so it has the controls' size, colours and spacing. Pressing it adds the
+playing song's whole credit to your artists and the song is skipped at once.
+Songs are blocked from the popup.
 
 ### Hiding on pages
 
