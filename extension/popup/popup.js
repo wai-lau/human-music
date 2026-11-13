@@ -82,6 +82,16 @@
     } catch (e) { then(false); }
   }
 
+  // A removed list's site access goes back to Chrome once no other list uses that site.
+  function releaseAccess(list, rest) {
+    const originOf = url => { try { return new URL(url).origin; } catch (e) { return null; } };
+    const origin = originOf(list.url);
+    if (!origin || rest.some(l => originOf(l.url) === origin)) return;
+    try {
+      chrome.permissions.remove({ origins: [origin + '/*'] }, () => void chrome.runtime.lastError);
+    } catch (e) { /* nothing to give back */ }
+  }
+
   function renderFilterLists() {
     const ul = $('filter-lists');
     clear(ul);
@@ -106,7 +116,12 @@
           node('button', { textContent: 'Refresh now', onclick: () => refreshList(list.id) }),
           list.builtIn ? null : node('button', {
             textContent: 'Remove',
-            onclick: () => { try { saveLists(HM.popup.removeFilterList(state.lists, list.id)); } catch (e) { status(e.message); } },
+            onclick: () => {
+              let rest;
+              try { rest = HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
+              saveLists(rest);
+              releaseAccess(list, rest);
+            },
           }))));
     }
     const freq = $('refresh-frequency');

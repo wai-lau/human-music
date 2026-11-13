@@ -12,7 +12,7 @@ async function open(initial = {}, { grant = true } = {}) {
   const calls = { permissions: [], messages: [] };
   const chrome = {
     storage: { local: storage, onChanged: storage.onChanged },
-    permissions: { request: (q, cb) => { calls.permissions.push(q); cb(grant); } },
+    permissions: { request: (q, cb) => { calls.permissions.push(q); cb(grant); }, remove: (q, cb) => { calls.removed = (calls.removed || []).concat([q]); if (cb) cb(true); } },
     runtime: { sendMessage: (m, cb) => { calls.messages.push(m); if (cb) cb(true); } },
   };
   load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js', 'popup/popup.js'],
@@ -112,6 +112,19 @@ run([
     p.$('list-url').value = 'http://example.org/ai.json';
     await p.click(p.$('add-list-btn'));
     return (p.calls.permissions.length === 0 && p.$('status').textContent === 'Use an https:// address') || p.$('status').textContent;
+  }],
+  ['removing a list gives its site back once no other list uses it', async () => {
+    const mk = (id, url) => ({ id, name: id, url, enabled: true, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
+    const soa = { id: 'soul-over-ai', name: 'Soul Over AI', url: 'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: null, count: 0, lastError: null };
+    const p = await open({ 'hm.filterLists': [soa, mk('a', 'https://lists.example/a.json'), mk('b', 'https://lists.example/b.json'), mk('c', 'https://other.example/c.json')] });
+    const removeBtn = id => [...p.doc.querySelectorAll('#filter-lists li')].find(li => li.querySelector('.list-name').textContent === id).querySelectorAll('button').slice(-1)[0];
+    await p.click(removeBtn('a')); // b still uses lists.example
+    const afterA = JSON.stringify(p.calls.removed || []);
+    await p.click(removeBtn('c'));
+    await p.click(removeBtn('b'));
+    const ids = data(p, 'hm.filterLists').map(l => l.id).join(',');
+    return (afterA === '[]' && JSON.stringify(p.calls.removed) === '[{"origins":["https://other.example/*"]},{"origins":["https://lists.example/*"]}]' && ids === 'soul-over-ai')
+      || JSON.stringify({ afterA, removed: p.calls.removed, ids });
   }],
   ['watch-only switch saves mode', async () => {
     const p = await open();
