@@ -199,8 +199,10 @@
   globalThis.HM.createRefresher = createRefresher;
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
+    var api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
     globalThis.HM.refresher = globalThis.HM.createRefresher({
-      storage: chrome.storage.local,
+      storage: api.storage.local,
       fetch: function (url) { return fetch(url); },
       now: function () { return Date.now(); },
       assetUrl: function (path) { return chrome.runtime.getURL(path); }
@@ -210,7 +212,7 @@
     var DEV = (function () { try { return !('update_url' in chrome.runtime.getManifest()); } catch (e) { return false; } })();
     function devNote(key, value) {
       if (!DEV) return;
-      try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); chrome.storage.local.set(o); } catch (e) { /* diagnostics only */ }
+      try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); api.storage.local.set(o); } catch (e) { /* diagnostics only */ }
     }
 
     chrome.runtime.onInstalled.addListener(function (details) {

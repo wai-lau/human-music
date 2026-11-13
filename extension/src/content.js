@@ -14,7 +14,28 @@
   // alive() turns false once this copy's extension is reloaded or removed: its chrome APIs
   // stop working while its page code keeps running. It then stands down (stops watching,
   // removes its buttons) so the fresh copy injected into the tab is the only one acting.
-  function createApp({ doc, storage, timers, now, alive = () => true }) {
+  // The page adapter for the site this page is on: HM.spotify on open.spotify.com,
+  // HM.ytm (YouTube Music) otherwise. Both have the same shape.
+  function siteFor(doc) {
+    const host = safe(() => doc.location.hostname, '') || '';
+    if (/(^|\.)open\.spotify\.com$/.test(host) && HM.spotify) return HM.spotify;
+    return HM.ytm;
+  }
+
+  // The shape the skipper drives, bound to this page.
+  function pageFor(site, doc) {
+    return {
+      readSong: () => site.readSong(doc),
+      clickNext: () => site.clickNext(doc),
+      pressNextKey: () => site.pressNextKey(doc),
+      clickDislike: () => site.clickDislike(doc),
+      videoDuration: () => site.videoDuration(doc),
+      videoState: () => (site.videoState ? site.videoState(doc) : null),
+      seekTo: seconds => site.seekTo(doc, seconds),
+    };
+  }
+
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc) }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -64,13 +85,13 @@
     // a paused YouTube Music tab would start music there too (Wai: "find the tab that's
     // actually playing audio"). A paused tab is checked again on a later pass.
     function videoPlaying() {
-      const v = safe(() => HM.ytm.videoState(doc), null);
+      const v = safe(() => site.videoState(doc), null);
       return !v || !v.paused; // no video element at all: nothing to tell, act as before
     }
 
     function checkPlaying() {
       if (state.settings.paused) return;
-      const song = safe(() => HM.ytm.readSong(doc), null);
+      const song = safe(() => site.readSong(doc), null);
       if (!song) return;
       if (state.last && state.last.title === song.title && state.last.artistLine === song.artistLine) return;
       if (!videoPlaying()) return; // not remembered yet, so the song is checked once it plays
@@ -101,14 +122,14 @@
       try {
         for (let guard = 0; guard < 50; guard++) {
           // Re-read every time: removing a row shifts the rows after it.
-          const rows = safe(() => HM.ytm.readQueue(doc), []);
+          const rows = safe(() => site.readQueue(doc), []);
           const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
             row => (failed.has(rowKey(row)) ? null : matchSong(row)));
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
           if (!remove.length || typing()) break;
           const row = rows[remove[0]];
           const match = matchSong(row);
-          const removed = await Promise.resolve(safe(() => HM.ytm.removeQueueRow(doc, row), false)).catch(() => false);
+          const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
           if (removed) log('removed', row, match);
           else failed.add(rowKey(row));
         }
@@ -122,11 +143,11 @@
     function hidePass() {
       if (state.settings.paused || !state.settings.hidePageItems || !state.index) return;
       const path = safe(() => doc.location.pathname, '');
-      for (const item of safe(() => HM.ytm.readPageItems(doc, path), [])) {
+      for (const item of safe(() => site.readPageItems(doc, path), [])) {
         if (safe(() => item.el.hasAttribute('data-hm-hidden'), true)) continue;
         const match = safe(() => HM.match.matchItem(state.index, item), null);
         if (!match || match.mode !== 'act') continue;
-        HM.ytm.hideItem(item.el);
+        site.hideItem(item.el);
         log('hidden', { title: item.title, artistLine: item.credits.join(', ') }, match, { oncePerDay: true });
       }
     }
@@ -134,7 +155,7 @@
     // --- player buttons -----------------------------------------------------------------
 
     function block(kind) {
-      const song = safe(() => HM.ytm.readSong(doc), null);
+      const song = safe(() => site.readSong(doc), null);
       if (!song) return;
       const credit = song.artistLine.split(' • ')[0].trim();
       const N = HM.text.normalize;
@@ -161,7 +182,7 @@
       if (state.settings.playerButtons && !state.settings.paused) {
         const old = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (old && old.getAttribute('data-hm-copy') !== copyId) safe(() => old.remove());
-        safe(() => HM.ytm.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));
+        safe(() => site.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));
         const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (box && !box.hasAttribute('data-hm-copy')) safe(() => box.setAttribute('data-hm-copy', copyId));
       } else {
@@ -199,7 +220,7 @@
     async function start() {
       try { await reload(); } catch (e) { /* no lists yet: nothing matches */ }
       state.skipper = HM.skipper.createSkipper({
-        page: HM.ytm.pageAdapter(doc),
+        page: pageFor(site, doc),
         setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout,
         setInterval: timers.setInterval, clearInterval: timers.clearInterval,
       });
@@ -208,7 +229,7 @@
         if (!Object.keys(changes).some(rebuilds)) return; // hm.log alone changes nothing
         reload().then(() => {
           state.last = null; // check the playing song again against the new lists
-          safe(() => HM.ytm.unhideAll(doc)); // shown again unless it still matches
+          safe(() => site.unhideAll(doc)); // shown again unless it still matches
           schedule();
         }).catch(() => {});
       });
@@ -237,9 +258,11 @@
   HM.createApp = createApp;
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local && !HM.app) {
+    // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
+    const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
     HM.app = createApp({
       doc: document,
-      storage: chrome.storage.local,
+      storage: api.storage.local,
       timers: {
         setTimeout: (fn, ms) => setTimeout(fn, ms),
         clearTimeout: id => clearTimeout(id),
@@ -259,7 +282,7 @@
     // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
     if (!('update_url' in chrome.runtime.getManifest())) {
       // Development only: copy the service worker's notes onto the page so a test can read them.
-      chrome.storage.local.get(['hm.dev.installed', 'hm.dev.inject']).then(r => {
+      api.storage.local.get(['hm.dev.installed', 'hm.dev.inject']).then(r => {
         document.documentElement.dataset.hmDev = JSON.stringify(r);
       }).catch(() => {});
       const copy = Math.random().toString(36).slice(2, 7);

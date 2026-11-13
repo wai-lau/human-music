@@ -3,7 +3,9 @@
 (function () {
   'use strict';
   const HM = globalThis.HM;
-  const store = chrome.storage.local;
+  // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
+  const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
+  const store = api.storage.local;
   const $ = id => document.getElementById(id);
   const emptyUser = () => ({ artists: [], songs: [], keywords: [], neverSkip: [] });
 
@@ -246,7 +248,7 @@
 
   function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderLog(); }
 
-  const onChanged = (chrome.storage && chrome.storage.onChanged) || store.onChanged;
+  const onChanged = (api.storage && api.storage.onChanged) || store.onChanged;
   if (onChanged) {
     onChanged.addListener((changes, area) => {
       if (area && area !== 'local') return;
