@@ -429,6 +429,9 @@ for the panel to open (up to about 4 s live) and a removal (about 0.5 s).
 - Lookahead with the Queue panel open: "Dust on the Wind" added with "Add to
   queue" was removed 0.4 s after it appeared, without playing.
 - The Block artist button sits right of Repeat.
+- Last chance, with the panel closed by hand: a song by people was seeked to
+  2:30 of 2:52 through the progress bar (the adapter's seek works); at 2:37
+  the panel opened, the queue was checked, and it closed again at 2:38.
 - Not checked live: skipping a listed song that starts playing (playing one
   would put AI music into Wai's Spotify history); covered by tests.
 
