@@ -6,6 +6,8 @@
 <style>
   body { font: 14px sans-serif; margin: 0; }
   aside[aria-label="Queue"] { display: block; padding: 8px; }
+  /* Like the real site, card CSS sets display; it beats a bare hidden attribute. */
+  [data-encore-id="card"] { display: flex; gap: 8px; }
   [data-testid="context-menu"] { position: absolute; top: 40px; left: 300px; background: #eee; }
 </style>
 </head>

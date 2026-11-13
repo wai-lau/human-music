@@ -6,8 +6,8 @@
 <style>
   body { font: 14px sans-serif; margin: 0; }
   ytmusic-miniplayer, #queue, #results { display: block; padding: 8px; }
-  ytmusic-player-queue-item, ytmusic-responsive-list-item-renderer { padding: 2px 0; }
-  ytmusic-player-queue-item:not([hidden]), ytmusic-responsive-list-item-renderer:not([hidden]) { display: block; }
+  /* Like the real site, item CSS sets display; it beats a bare hidden attribute. */
+  ytmusic-player-queue-item, ytmusic-responsive-list-item-renderer { display: block; padding: 2px 0; }
   ytmusic-menu-popup-renderer { display: block; position: absolute; top: 40px; left: 200px; background: #eee; }
   ytmusic-menu-popup-renderer[hidden] { display: none; }
   video { width: 1px; height: 1px; }

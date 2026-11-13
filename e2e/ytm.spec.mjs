@@ -97,3 +97,17 @@ test('pausing Human Music in settings stops it acting', async ({ context, setSta
   expect(await readLog()).toEqual([]);
   await expect(page.locator('#hm-block-artist')).toHaveCount(0);
 });
+
+test('a hidden item comes back when its artist leaves your list', async ({ context, setState, worker }) => {
+  await setState({ user: { artists: [AI] } });
+  const page = await openSite(context, 'https://music.youtube.com/search?q=e2e', {
+    songs: [{ title: 'Real Song', artist: PERSON }],
+    items: [{ title: 'Made Song', artist: AI }],
+  });
+  await expect(page.locator('[data-e2e="Made Song"]')).toBeHidden();
+  await worker.evaluate(async () => {
+    const u = (await chrome.storage.local.get('hm.user'))['hm.user'];
+    await chrome.storage.local.set({ 'hm.user': { ...u, artists: [] } });
+  });
+  await expect(page.locator('[data-e2e="Made Song"]')).toBeVisible();
+});

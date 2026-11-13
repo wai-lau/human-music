@@ -439,11 +439,25 @@
     return result;
   }
 
+  // Hidden twice over: the attribute, and an inline display:none that page CSS can't beat
+  // (any site rule that sets display, like :host { display: flex }, wins over the attribute).
+  function setDisplayNone(el, on) {
+    try {
+      if (!el.style) return;
+      if (typeof el.style.setProperty === 'function') {
+        if (on) el.style.setProperty('display', 'none', 'important');
+        else el.style.removeProperty('display');
+      } else if (on) el.style.display = 'none';
+      else delete el.style.display;
+    } catch (e) { /* the attribute still hides it */ }
+  }
+
   function hideItem(el) {
     try {
       el.hidden = true;
       el.setAttribute('data-hm-hidden', '');
     } catch (e) { /* ignore */ }
+    setDisplayNone(el, true);
   }
 
   function unhideAll(doc) {
@@ -452,6 +466,7 @@
       for (let i = 0; i < hidden.length; i++) {
         hidden[i].hidden = false;
         hidden[i].removeAttribute('data-hm-hidden');
+        setDisplayNone(hidden[i], false);
       }
     } catch (e) { /* ignore */ }
   }
