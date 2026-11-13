@@ -207,7 +207,14 @@
     });
 
     // Installing, updating and reloading the extension all land here.
-    chrome.runtime.onInstalled.addListener(function () {
+    var DEV = !('update_url' in chrome.runtime.getManifest());
+    function devNote(key, value) {
+      if (!DEV) return;
+      try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); chrome.storage.local.set(o); } catch (e) { /* diagnostics only */ }
+    }
+
+    chrome.runtime.onInstalled.addListener(function (details) {
+      devNote('installed', { reason: details && details.reason });
       globalThis.HM.refresher.install();
     });
 
@@ -218,21 +225,27 @@
     function ensureContentScripts() {
       try {
         var files = chrome.runtime.getManifest().content_scripts[0].js;
+        var notes = [];
         chrome.tabs.query({ url: 'https://music.youtube.com/*' }, function (tabs) {
+          devNote('inject', { tabs: (tabs || []).length, scripting: !!chrome.scripting });
           (tabs || []).forEach(function (tab) {
             try {
               chrome.tabs.sendMessage(tab.id, { type: 'hm-ping' }, function (reply) {
-                var missing = chrome.runtime.lastError || reply !== true;
+                var err = chrome.runtime.lastError;
+                var missing = err || reply !== true;
+                notes.push({ tab: tab.id, reply: reply === true, err: err ? String(err.message) : null });
+                devNote('inject', { tabs: tabs.length, scripting: !!chrome.scripting, notes: notes });
                 if (!missing) return;
                 try {
                   var done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
-                  if (done && done.catch) done.catch(function () {});
-                } catch (e) { /* a tab that can't take it */ }
+                  if (done && done.then) done.then(function () { notes.push({ tab: tab.id, injected: true }); devNote('inject', { tabs: tabs.length, notes: notes }); },
+                    function (e) { notes.push({ tab: tab.id, injectError: String(e && e.message) }); devNote('inject', { tabs: tabs.length, notes: notes }); });
+                } catch (e) { notes.push({ tab: tab.id, injectThrew: String(e && e.message) }); devNote('inject', { notes: notes }); }
               });
             } catch (e) { /* tab went away */ }
           });
         });
-      } catch (e) { /* nothing to do */ }
+      } catch (e) { devNote('inject', { threw: String(e && e.message) }); }
     }
     ensureContentScripts();
 

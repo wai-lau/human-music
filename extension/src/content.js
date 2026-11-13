@@ -244,6 +244,10 @@
     // Development only (unpacked, no update_url): a page script can ask the extension
     // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
     if (!('update_url' in chrome.runtime.getManifest())) {
+      // Development only: copy the service worker's notes onto the page so a test can read them.
+      chrome.storage.local.get(['hm.dev.installed', 'hm.dev.inject']).then(r => {
+        document.documentElement.dataset.hmDev = JSON.stringify(r);
+      }).catch(() => {});
       window.addEventListener('message', e => {
         if (e.source === window && e.data && e.data.type === 'human-music:dev-reload') {
           try { chrome.runtime.sendMessage({ type: 'dev-reload' }); } catch (err) { /* already reloading */ }
