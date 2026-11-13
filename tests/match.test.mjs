@@ -78,6 +78,48 @@ run([
     const m = match.matchSong(idx, { title: 'X', artistLine: 'Real Band • A', channelIds: ['UCabc'] });
     return m && m.rule === 'channel';
   }],
+  ['matchSong: spotify ID match', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
+        artists: [{ name: 'Listed', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] }
+    });
+    const m = match.matchSong(idx, { title: 'X', artistLine: 'Renamed Artist • Album', channelIds: ['5ExXpwxyFXhwPKYKx6ItaN'] });
+    return m && m.rule === 'channel' && m.entry === 'Listed';
+  }],
+  ['matchSong: unknown channel ID does not match', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
+        artists: [{ name: 'Listed', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] }
+    });
+    return match.matchSong(idx, { title: 'X', artistLine: 'Real Band • A', channelIds: ['0000000000000000000000'] }) === null;
+  }],
+  ['matchSong: neverSkip overrides spotify ID', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
+        artists: [{ name: 'Listed', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: ['Real Band'] }
+    });
+    return match.matchSong(idx, { title: 'X', artistLine: 'Real Band • A', channelIds: ['5ExXpwxyFXhwPKYKx6ItaN'] }) === null;
+  }],
+  ['matchSong: spotify ID in watch mode list', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'watch', name: 'Watch', enabled: true, mode: 'watch',
+        artists: [{ name: 'W', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] }
+    });
+    const m = match.matchSong(idx, { title: 'X', artistLine: 'Z • A', channelIds: ['5ExXpwxyFXhwPKYKx6ItaN'] });
+    return m && m.mode === 'watch';
+  }],
+  ['matchSong: spotify ID disabled list ignored', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: false, mode: 'act',
+        artists: [{ name: 'Listed', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] }
+    });
+    return match.matchSong(idx, { title: 'X', artistLine: 'Z • A', channelIds: ['5ExXpwxyFXhwPKYKx6ItaN'] }) === null;
+  }],
 
   ['matchSong: user artists (case-insensitive)', () => {
     const idx = match.buildIndex({
@@ -193,6 +235,17 @@ run([
     });
     const m = match.matchItem(idx, {
       title: 'X', credits: ['Someone'], channelIds: ['UCOCi_VDTQPFn9fZtfqnpVag'], featured: false
+    });
+    return m && m.rule === 'channel';
+  }],
+  ['matchItem: spotify ID match', () => {
+    const idx = match.buildIndex({
+      filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act',
+        artists: [{ name: 'Listed', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] }],
+      user: { artists: [], songs: [], keywords: [], neverSkip: [] }
+    });
+    const m = match.matchItem(idx, {
+      title: 'EP', credits: ['Someone'], channelIds: ['5ExXpwxyFXhwPKYKx6ItaN'], featured: false
     });
     return m && m.rule === 'channel';
   }],

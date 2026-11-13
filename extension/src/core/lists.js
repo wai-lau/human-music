@@ -21,36 +21,41 @@
     manual: Infinity
   };
 
+  const YT_CHANNEL_RE = /^UC[\w-]{22}$/;
+  const SPOTIFY_ID_RE = /^[A-Za-z0-9]{22}$/;
+
   function parseFilterList(data) {
     if (Array.isArray(data)) {
-      const artists = [];
-      for (const entry of data) {
-        if (typeof entry === 'string' && entry !== '') {
-          artists.push({ name: entry });
-        } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && entry.name !== '' && !entry.removed) {
-          const artist = { name: entry.name };
-          if (typeof entry.channelId === 'string' && entry.channelId !== '') {
-            artist.channelId = entry.channelId;
-          }
-          artists.push(artist);
-        }
-      }
-      return { artists };
+      return { artists: parseEntries(data) };
     }
     if (data && typeof data === 'object' && data.artists && Array.isArray(data.artists)) {
-      const artists = [];
-      for (const entry of data.artists) {
-        if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
-          const artist = { name: entry.name };
-          if (typeof entry.channelId === 'string' && entry.channelId !== '') {
-            artist.channelId = entry.channelId;
-          }
-          artists.push(artist);
-        }
-      }
-      return { artists };
+      return { artists: parseEntries(data.artists) };
     }
     return null;
+  }
+
+  function parseEntries(entries) {
+    const artists = [];
+    for (const entry of entries) {
+      if (typeof entry === 'string' && entry !== '') {
+        artists.push({ name: entry });
+      } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && entry.name !== '') {
+        if (entry.removed) continue;
+        const artist = { name: entry.name };
+        if (typeof entry.channelId === 'string' && entry.channelId !== '') {
+          artist.channelId = entry.channelId;
+        } else if (typeof entry.youtube === 'string' && YT_CHANNEL_RE.test(entry.youtube)) {
+          artist.channelId = entry.youtube;
+        }
+        if (typeof entry.spotifyId === 'string' && entry.spotifyId !== '' && SPOTIFY_ID_RE.test(entry.spotifyId)) {
+          artist.spotifyId = entry.spotifyId;
+        } else if (typeof entry.spotify === 'string' && SPOTIFY_ID_RE.test(entry.spotify)) {
+          artist.spotifyId = entry.spotify;
+        }
+        artists.push(artist);
+      }
+    }
+    return artists;
   }
 
   function isRefreshDue(lastRefresh, frequency, now) {

@@ -18,6 +18,10 @@
           if (list.mode === 'act') actChannels.set(a.channelId, { listId: list.id, listName: list.name, entry: a.name });
           else watchChannels.set(a.channelId, { listId: list.id, listName: list.name, entry: a.name });
         }
+        if (a.spotifyId) {
+          if (list.mode === 'act') actChannels.set(a.spotifyId, { listId: list.id, listName: list.name, entry: a.name });
+          else watchChannels.set(a.spotifyId, { listId: list.id, listName: list.name, entry: a.name });
+        }
         if (list.mode === 'act') actArtists.set(key, { listId: list.id, listName: list.name, entry: a.name });
         else watchArtists.set(key, { listId: list.id, listName: list.name, entry: a.name });
       }

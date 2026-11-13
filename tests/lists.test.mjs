@@ -20,6 +20,33 @@ run([
     const r = parseFilterList({ name: 'HM', updated: '2026-11-11', artists: [{ name: 'A', channelId: 'UC1' }] });
     return deepEqual(r, { artists: [{ name: 'A', channelId: 'UC1' }] }) || 'got ' + JSON.stringify(r);
   }],
+  ['parseFilterList: Soul Over AI youtube/spotify fields', () => {
+    const YT = 'UCOCi_VDTQPFn9fZtfqnpVag';
+    const SP = '5ExXpwxyFXhwPKYKx6ItaN';
+    const r = parseFilterList([
+      { name: '10mm', youtube: YT, spotify: SP, apple: '123', removed: false },
+      { name: 'NoIds' },
+      { name: 'BadIds', youtube: 'not-a-channel', spotify: 'short' },
+      { name: 'Gone', youtube: YT, spotify: SP, removed: true }
+    ]);
+    return deepEqual(r, { artists: [
+      { name: '10mm', channelId: YT, spotifyId: SP },
+      { name: 'NoIds' },
+      { name: 'BadIds' }
+    ] }) || 'got ' + JSON.stringify(r);
+  }],
+  ['parseFilterList: channelId field wins over youtube', () => {
+    const r = parseFilterList([{ name: 'A', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', youtube: 'UCbbbbbbbbbbbbbbbbbbbbbb' }]);
+    return r.artists[0].channelId === 'UCaaaaaaaaaaaaaaaaaaaaaa' || 'got ' + r.artists[0].channelId;
+  }],
+  ['parseFilterList: own format keeps spotifyId', () => {
+    const SP = '5ExXpwxyFXhwPKYKx6ItaN';
+    const r = parseFilterList({ name: 'HM', artists: [
+      { name: 'A', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', spotifyId: SP },
+      { name: 'B', spotifyId: 'nope!' }
+    ]});
+    return r.artists[0].spotifyId === SP && !r.artists[1].spotifyId || 'got ' + JSON.stringify(r);
+  }],
   ['parseFilterList: HTML → null', () => parseFilterList('<html>') === null || 'not null'],
   ['parseFilterList: unknown object → null', () => parseFilterList({ foo: 1 }) === null || 'not null'],
   ['parseFilterList: null → null', () => parseFilterList(null) === null || 'not null'],
