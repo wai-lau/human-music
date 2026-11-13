@@ -95,6 +95,11 @@
       if (!song) return;
       if (state.last && state.last.title === song.title && state.last.artistLine === song.artistLine) return;
       if (!videoPlaying()) return; // not remembered yet, so the song is checked once it plays
+      // A skip still finishing (its poll sees the new song within 100 ms) would refuse this
+      // one, so a listed song straight after a skipped one played on (Wai, 2026-11-13: "when
+      // there are multiple songs in a row, it just stop skipping"). Not remembered yet: look
+      // again shortly, once the player shows the new song in full.
+      if (safe(() => state.skipper.busy(), false)) { safe(() => timers.setTimeout(schedule, 200)); return; }
       state.last = { title: song.title, artistLine: song.artistLine };
       const match = matchSong(song);
       if (!match) return;

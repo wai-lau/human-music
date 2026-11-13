@@ -109,6 +109,20 @@ else {
     await a.flush();
     return (p.clicks.next === 2 && log(b).filter(e => e.event === 'skipped').length === 2) || J({ clicks: p.clicks, l: log(b).map(e => e.event) });
   });
+  await t('listed songs back to back: each one is skipped (Wai, 2026-11-13: "when there are multiple songs in a row, it just stop skipping")', async () => {
+    const b = boot(); const p = page({ nextMoves: false });
+    // Next goes straight to the next song: three by The Velvet Sundown, then a person.
+    const order = [['Floating On Echoes', 'The Velvet Sundown'], ['Drift', 'The Velvet Sundown'], ['Fine', 'Some Person']];
+    let presses = 0;
+    const go = () => { const s = order[presses++]; if (s) p.setSong(...s); };
+    p.doc.querySelector('[aria-label="Next"]').addEventListener('click', go);
+    p.doc.addEventListener('keydown', e => { if (e.key === 'j') go(); });
+    const { a, clock } = await app(b, p);
+    for (let i = 0; i < 20; i++) await settle(clock, 60);
+    await a.flush();
+    const skipped = log(b).filter(e => e.event === 'skipped').map(e => e.title);
+    return (presses === 3 && J(skipped) === J(['Drift', 'Floating On Echoes', 'Dust on the Wind'])) || J({ presses, skipped });
+  });
   await t('a page change alone triggers the check', async () => {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
     const { clock } = await app(b, p);
