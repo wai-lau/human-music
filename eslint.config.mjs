@@ -50,4 +50,9 @@ export default [
     // Tests feed hostile strings (javascript: URLs) to the code on purpose.
     rules: { ...shared, 'no-var': 'off', 'prefer-const': 'off', 'no-script-url': 'off' },
   },
+  {
+    // E2E code also runs functions inside the browser (page.evaluate, worker.evaluate).
+    files: ['e2e/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser, ...globals.webextensions } },
+  },
 ];

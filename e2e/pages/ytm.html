@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stand-in music.youtube.com (Human Music E2E)</title>
+<style>
+  body { font: 14px sans-serif; margin: 0; }
+  ytmusic-miniplayer, #queue, #results { display: block; padding: 8px; }
+  ytmusic-player-queue-item, ytmusic-responsive-list-item-renderer { padding: 2px 0; }
+  ytmusic-player-queue-item:not([hidden]), ytmusic-responsive-list-item-renderer:not([hidden]) { display: block; }
+  ytmusic-menu-popup-renderer { display: block; position: absolute; top: 40px; left: 200px; background: #eee; }
+  ytmusic-menu-popup-renderer[hidden] { display: none; }
+  video { width: 1px; height: 1px; }
+</style>
+</head>
+<body>
+<!-- Only the parts Human Music reads, with the selectors from the spec ("YouTube Music
+     page facts"). The script below plays a list of songs: the j key and the Next button
+     move on, the queue row menu can remove a row. window.__setup comes from the test:
+     { songs: [{ title, artist }], playing: bool, items: [{ title, artist, channel }] }. -->
+<ytmusic-miniplayer>
+  <div class="ytmusicTrackInfoTitle"></div>
+  <div class="ytmusicTrackInfoByline"></div>
+  <div class="ytmusicPlayerControlsMainControls">
+    <span class="ctl"><button aria-label="Previous">Prev</button></span>
+    <span class="ctl"><button aria-label="Next">Next</button></span>
+    <span class="ctl"><button aria-label="Repeat off"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M0 0h24v24H0z"></path></svg></button></span>
+  </div>
+  <video muted playsinline></video>
+</ytmusic-miniplayer>
+<div id="queue"></div>
+<div id="results"></div>
+<ytmusic-menu-popup-renderer hidden></ytmusic-menu-popup-renderer>
+<script>
+(function () {
+  const setup = window.__setup || {};
+  const songs = (setup.songs || []).map(s => ({ ...s }));
+  let current = 0;
+  const events = (window.__events = []);
+  const $ = s => document.querySelector(s);
+  const make = (tag, attrs = {}, text) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const svgPath = d => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', d);
+    svg.appendChild(p);
+    return svg;
+  };
+
+  function render() {
+    const s = songs[current];
+    $('.ytmusicTrackInfoTitle').textContent = s ? s.title : '';
+    $('.ytmusicTrackInfoByline').textContent = s ? `${s.artist} • Stand-in album • 2026` : '';
+    const queue = $('#queue');
+    queue.textContent = '';
+    songs.forEach((song, i) => {
+      const row = make('ytmusic-player-queue-item', i === current ? { selected: '' } : {});
+      row.append(make('div', { class: 'song-title' }, song.title), make('div', { class: 'byline' }, song.artist));
+      const menu = make('ytmusic-menu-renderer');
+      const btn = make('button', { 'aria-label': 'Action menu' }, '⋮');
+      btn.addEventListener('click', () => openMenu(song));
+      menu.append(btn);
+      row.append(menu);
+      queue.append(row);
+    });
+  }
+
+  function next(how) {
+    const from = songs[current];
+    events.push({ type: how, title: from ? from.title : null });
+    if (current < songs.length - 1) current++;
+    render();
+  }
+
+  function openMenu(song) {
+    const popup = $('ytmusic-menu-popup-renderer');
+    popup.textContent = '';
+    const radio = make('div', { role: 'menuitem' });
+    radio.append(svgPath('M1 1h2v2H1z'), document.createTextNode('Start radio'));
+    radio.addEventListener('click', () => { events.push({ type: 'radio', title: song.title }); popup.hidden = true; });
+    const remove = make('div', { role: 'menuitem' });
+    remove.append(svgPath(setup.icons.ytm), document.createTextNode('Remove from queue'));
+    remove.addEventListener('click', () => {
+      popup.hidden = true;
+      const i = songs.indexOf(song);
+      if (i >= 0) { songs.splice(i, 1); if (i < current) current--; }
+      events.push({ type: 'removed', title: song.title });
+      setTimeout(render, 100); // the real page takes a moment too
+    });
+    popup.append(radio, remove);
+    popup.hidden = false;
+    events.push({ type: 'menu', title: song.title });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'j' && !e.ctrlKey && !e.metaKey) next('key-j');
+    if (e.key === 'Escape') $('ytmusic-menu-popup-renderer').hidden = true;
+  });
+  $('button[aria-label="Next"]').addEventListener('click', () => next('next-button'));
+
+  // Search results: an item per setup.items, artist linked by channel like the real page.
+  if (location.pathname.startsWith('/search')) {
+    for (const it of setup.items || []) {
+      const item = make('ytmusic-responsive-list-item-renderer', { 'data-e2e': it.title });
+      item.append(make('div', { class: 'title' }, it.title));
+      const credit = make('div', { class: 'secondary-flex-columns' });
+      credit.append(document.createTextNode('Song • '), make('a', { href: 'channel/' + (it.channel || 'UC0000000000000000000000') }, it.artist));
+      item.append(credit);
+      $('#results').append(item);
+    }
+  }
+
+  // A video that is really playing (a silent canvas stream), unless setup.playing is false.
+  const video = $('video');
+  if (setup.playing !== false) {
+    const canvas = make('canvas', { width: '2', height: '2' });
+    canvas.getContext('2d').fillRect(0, 0, 2, 2);
+    video.srcObject = canvas.captureStream(5);
+    video.play().catch(e => events.push({ type: 'play-failed', title: String(e) }));
+  }
+  render();
+})();
+</script>
+</body>
+</html>

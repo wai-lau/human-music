@@ -5,3 +5,4 @@
 /.mates/
 node_modules/
 /dist/
+/e2e/.results/

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stand-in open.spotify.com (Human Music E2E)</title>
+<style>
+  body { font: 14px sans-serif; margin: 0; }
+  aside[aria-label="Queue"] { display: block; padding: 8px; }
+  [data-testid="context-menu"] { position: absolute; top: 40px; left: 300px; background: #eee; }
+</style>
+</head>
+<body>
+<!-- Only the parts Human Music reads, with the selectors from the spec ("Spotify page
+     facts"). The Next button moves on; the Queue button opens and closes the Queue panel;
+     a row's More button opens its menu. window.__setup comes from the test:
+     { songs: [{ title, artist, id }], items: [{ title, artist, id }] } (id: 22-char artist ID). -->
+<main id="main"></main>
+<footer data-testid="now-playing-bar">
+  <div data-testid="now-playing-widget">
+    <a data-testid="context-item-link" href="/track/e2e"></a>
+    <div data-testid="context-item-info-subtitles"></div>
+  </div>
+  <div class="controls">
+    <button data-testid="control-button-skip-back" aria-label="Previous">Prev</button>
+    <button data-testid="control-button-skip-forward" aria-label="Next">Next</button>
+    <button data-testid="control-button-repeat" aria-label="Enable repeat"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M0 0h16v16H0z"></path></svg></button>
+  </div>
+  <span data-testid="playback-position">0:05</span> / <span data-testid="playback-duration">3:30</span>
+  <button data-testid="control-button-queue" aria-label="Queue">Queue</button>
+</footer>
+<script>
+(function () {
+  const setup = window.__setup || {};
+  const songs = (setup.songs || []).map(s => ({ ...s }));
+  let current = 0;
+  let queueOpen = false;
+  const events = (window.__events = []);
+  const $ = s => document.querySelector(s);
+  const make = (tag, attrs = {}, text) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const artistLink = (name, id) => make('a', { href: '/artist/' + (id || 'E2E0000000000000000000') }, name);
+
+  function render() {
+    const s = songs[current];
+    $('[data-testid="context-item-link"]').textContent = s ? s.title : '';
+    const by = $('[data-testid="context-item-info-subtitles"]');
+    by.textContent = '';
+    if (s) by.append(artistLink(s.artist, s.id));
+    const old = $('aside[aria-label="Queue"]');
+    if (old) old.remove();
+    if (!queueOpen) return;
+    const aside = make('aside', { 'aria-label': 'Queue' });
+    const ul = make('ul', { role: 'treegrid' });
+    songs.slice(current + 1).forEach(song => {
+      const li = make('li', { role: 'row', 'data-e2e': song.title });
+      li.append(make('div', { 'data-encore-id': 'listRowTitle' }, song.title), artistLink(song.artist, song.id));
+      const more = make('button', { 'data-testid': 'more-button', 'aria-label': 'More options' }, '…');
+      more.addEventListener('click', () => openMenu(song));
+      li.append(more);
+      ul.append(li);
+    });
+    aside.append(ul);
+    document.body.append(aside);
+  }
+
+  function openMenu(song) {
+    closeMenu();
+    const NS = 'http://www.w3.org/2000/svg';
+    const item = (label, d, fn) => {
+      const b = make('button', { role: 'menuitem' });
+      const svg = document.createElementNS(NS, 'svg');
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d);
+      svg.append(p);
+      b.append(svg, document.createTextNode(label));
+      b.addEventListener('click', fn);
+      return b;
+    };
+    const menu = make('div', { 'data-testid': 'context-menu' });
+    menu.append(
+      item('Go to album', setup.icons.spotify.slice(0, 40) + 'z', () => { events.push({ type: 'album', title: song.title }); closeMenu(); }),
+      item('Remove from queue', setup.icons.spotify, () => {
+        closeMenu();
+        const i = songs.indexOf(song);
+        if (i > current) songs.splice(i, 1);
+        events.push({ type: 'removed', title: song.title });
+        setTimeout(render, 100);
+      }),
+    );
+    document.body.append(menu);
+    events.push({ type: 'menu', title: song.title });
+  }
+  function closeMenu() { const m = $('[data-testid="context-menu"]'); if (m) m.remove(); }
+
+  $('[data-testid="control-button-skip-forward"]').addEventListener('click', () => {
+    const from = songs[current];
+    events.push({ type: 'next-button', title: from ? from.title : null });
+    if (current < songs.length - 1) current++;
+    render();
+  });
+  $('[data-testid="control-button-queue"]').addEventListener('click', () => {
+    queueOpen = !queueOpen;
+    events.push({ type: queueOpen ? 'queue-open' : 'queue-close' });
+    render();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+  // Home and search: one card per setup.items, its artist linked by ID.
+  if (location.pathname === '/' || location.pathname.startsWith('/search')) {
+    for (const it of setup.items || []) {
+      const card = make('div', { 'data-encore-id': 'card', 'data-e2e': it.title });
+      card.append(make('a', { href: '/track/e2e-' + it.title.length, 'data-encore-id': 'cardTitle' }, it.title), artistLink(it.artist, it.id));
+      $('#main').append(card);
+    }
+  }
+  render();
+})();
+</script>
+</body>
+</html>
