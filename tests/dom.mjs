@@ -315,7 +315,7 @@ export function parseHTML(html) {
   const root = new Element('root');
   const stack = [root];
   let skip = null; // inside <head>, <script> or <style>
-  const token = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/([a-zA-Z][\w-]*)\s*>|<([a-zA-Z][\w-]*)((?:\s+[^\s"'>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*(\/?)>|([^<]+)/gi;
+  const token = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/([a-zA-Z][\w-]*)\s*>|<([a-zA-Z][\w-]*)((?:\s+[^\s"'>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*(\/?)>|([^<]+)/gi;
   for (const m of html.matchAll(token)) {
     const [, close, open, attrText, selfClose, text] = m;
     if (close) {
@@ -329,7 +329,7 @@ export function parseHTML(html) {
       if (tag === 'head' || tag === 'script' || tag === 'style') { skip = tag; continue; }
       if (tag === 'html' || tag === 'body') continue;
       const e = new Element(tag);
-      for (const a of (attrText || '').matchAll(/([^\s"'>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) {
+      for (const a of (attrText || '').matchAll(/([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) {
         e._attrs.set(a[1].toLowerCase(), decode(a[2] ?? a[3] ?? a[4] ?? ''));
       }
       stack[stack.length - 1].childNodes.push(e);

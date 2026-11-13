@@ -1,6 +1,5 @@
 import { load } from './load.mjs';
 import { fakeYtm } from './fakes.mjs';
-import { fakeClock } from './fakes.mjs';
 import { KeyboardEvent } from './dom.mjs';
 
 const ctx = load(['src/core/text.js', 'src/page/ytm.js'], { setTimeout, clearTimeout, KeyboardEvent });

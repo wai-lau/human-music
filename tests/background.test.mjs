@@ -189,7 +189,7 @@ async function runTests() {
       refreshedUrls.push(url);
       return { ok: true, status: 200, text: async () => JSON.stringify([{ name: 'X', removed: false }]) };
     }, () => nowMs);
-    const refreshed = await refresher.refreshDue();
+    await refresher.refreshDue();
     if (refreshedUrls.length !== 2) {
       throw new Error('wrong number of fetches: ' + refreshedUrls.length);
     }

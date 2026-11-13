@@ -73,12 +73,10 @@ export function fakeStorage(initial = {}) {
 // layout: 'new' or 'old'
 // song: { title, artistLine } (null = no song)
 // queue: [{ title, artistLine, selected }] (null = no queue rows)
-// nextMovesOn: whether clickNext changes the song (default true)
 export function fakeYtm(opts = {}) {
   const layout = opts.layout || 'new';
   let song = opts.song || null;
   let queue = opts.queue || null;
-  let nextMovesOn = opts.nextMovesOn !== undefined ? opts.nextMovesOn : true;
   let duration = opts.duration || NaN;
   let currentTime = 0;
   let dislikePressed = opts.dislikePressed || false;
@@ -148,7 +146,6 @@ export function fakeYtm(opts = {}) {
     setSong: (s) => { song = s; if (s) { player.children[0].textContent = s.title; player.children[1].textContent = s.artistLine; } },
     getQueue: () => queue,
     setQueue: (q) => { queue = q; queueEl.children.forEach(c => c.parentNode.removeChild(c)); if (q) { q.forEach(item => { const row = el('ytmusic-player-queue-item'); row.append(el('div', { class: 'song-title' }, item.title)); row.append(el('div', { class: 'byline' }, item.artistLine)); if (item.selected) row.setAttribute('selected', ''); const menuBtn = el('ytmusic-menu-renderer'); menuBtn.append(el('button')); row.append(menuBtn); queueEl.append(row); }); } },
-    setNextMovesOn: (v) => { nextMovesOn = v; },
     getDuration: () => video.duration,
     setDuration: (d) => { video.duration = d; },
     getCurrentTime: () => video.currentTime,

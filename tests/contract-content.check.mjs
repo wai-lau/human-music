@@ -111,7 +111,7 @@ else {
   });
   await t('a page change alone triggers the check', async () => {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
-    const { a, clock } = await app(b, p);
+    const { clock } = await app(b, p);
     p.setSong('Dust on the Wind', 'The Velvet Sundown');
     await settle(clock, 60);
     return p.clicks.next === 1 || `next ${p.clicks.next}`;
@@ -177,7 +177,7 @@ await t('never skip wins', async () => {
   });
   await t('hm.log writes never rebuild the index', async () => {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
-    const { a, clock } = await app(b, p);
+    const { clock } = await app(b, p);
     const before = b.builds();
     await b.storage.set({ 'hm.log': [] }); await settle(clock, 60);
     const afterLog = b.builds();

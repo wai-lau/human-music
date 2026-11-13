@@ -17,7 +17,7 @@ execFileSync('bash', [join(work, 'scripts/build-firefox.sh')], { stdio: 'pipe' }
 const out = join(work, 'dist/firefox');
 const ff = JSON.parse(readFileSync(join(out, 'manifest.json'), 'utf8'));
 const background = readFileSync(join(root, 'extension/src/background.js'), 'utf8');
-const imported = (background.match(/importScripts\(([^)]*)\)/) || [, ''])[1].match(/'([^']+)'/g).map(s => 'src/' + s.slice(1, -1));
+const imported = (background.match(/importScripts\(([^)]*)\)/) || [null, ''])[1].match(/'([^']+)'/g).map(s => 'src/' + s.slice(1, -1));
 
 run([
   ['Firefox background is scripts, no service worker', () =>

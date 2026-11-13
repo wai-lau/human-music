@@ -94,8 +94,7 @@ await t('chrome hooks registered', async () => {
     alarms: { create: (n, o) => { seen.alarm = [n, o]; }, onAlarm: ev('onAlarm') } };
   const c2 = load([], { chrome, importScripts: (...f) => { for (const x of f) runInContext(readFileSync(process.cwd() + '/extension/src/' + x, 'utf8'), c2); }, fetch: ok(['A']) });
   runInContext(readFileSync(process.cwd() + '/extension/src/background.js', 'utf8'), c2);
-  let answered;
-  const kept = seen.message && seen.message({ type: 'refresh', id: 'soul-over-ai' }, {}, v => { answered = v; });
+  const kept = seen.message && seen.message({ type: 'refresh', id: 'soul-over-ai' }, {}, () => {});
   return (typeof seen.installed === 'function' && typeof seen.alarm === 'object' && seen.alarm[0] === 'hm-refresh' && seen.alarm[1].periodInMinutes === 60
     && typeof seen.onAlarm === 'function' && kept === true && typeof c2.HM.refresher === 'object') || J({ keys: Object.keys(seen), kept });
 });

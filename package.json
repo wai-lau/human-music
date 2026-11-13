@@ -1,0 +1,17 @@
+{
+  "name": "human-music-dev",
+  "private": true,
+  "description": "Dev tools only (lint, end-to-end tests). The extension itself (extension/) has no dependencies and no build step.",
+  "license": "MIT",
+  "scripts": {
+    "test": "for f in tests/*.test.mjs; do node \"$f\" || exit 1; done",
+    "lint": "eslint .",
+    "e2e": "playwright test -c e2e/playwright.config.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "1.61.1",
+    "eslint": "9.39.5",
+    "globals": "16.5.0"
+  }
+}

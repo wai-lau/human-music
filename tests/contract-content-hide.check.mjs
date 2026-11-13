@@ -1,7 +1,5 @@
 // Contract check for Task 8b (content wiring: hiding page items, player buttons). Run from the repo root:
 //   node tests/contract-content-hide.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
-const { readFileSync } = await import('fs');
-const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
 const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mjs');
