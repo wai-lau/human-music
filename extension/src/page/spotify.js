@@ -82,6 +82,27 @@
     }, false);
   }
 
+  // Close the Queue panel (only used to undo a last-chance open the person hadn't wanted).
+  function closeQueue(doc) {
+    return safe(() => {
+      if (!queueOpen(doc)) return false;
+      const btn = doc.querySelector('[data-testid="control-button-queue"]');
+      if (!btn) return false;
+      btn.click();
+      return true;
+    }, false);
+  }
+
+  // Seconds left in the playing song, from the times shown; NaN when unknown.
+  function timeLeft(doc) {
+    return safe(() => {
+      const pos = text(doc.querySelector('[data-testid="playback-position"]'));
+      if (!/^\d+(:\d{1,2}){1,2}$/.test(pos)) return NaN;
+      const at = pos.split(':').reduce((acc, part) => acc * 60 + Number(part), 0);
+      return videoDuration(doc) - at;
+    }, NaN);
+  }
+
   function clickNext(doc) {
     const btn = safe(() => doc.querySelector(SEL.next), null);
     if (!btn) return false;
@@ -251,7 +272,7 @@
   }
 
   HM.spotify = {
-    SEL, REMOVE_ICON, readSong, readQueue, queueOpen, openQueue, clickNext, pressNextKey, clickDislike,
+    SEL, REMOVE_ICON, readSong, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
     videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideAll,
   };
 })();

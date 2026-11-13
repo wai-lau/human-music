@@ -134,15 +134,38 @@
       timers.setTimeout(schedule, 2100); // look again once the next try is allowed
     }
 
+    const songKey = song => (song ? `${song.title}\n${song.artistLine}` : '');
+
+    // Last chance before the next song (Wai, 2026-11-13: "Try reopening the queue panel
+    // again when the song is about to end and the next queue is not open and ... the
+    // lookahead has not happened yet"). With 15 s or less left, the panel closed and the
+    // upcoming songs not yet seen during this song, open the panel once for this song; if
+    // the person had closed it, close it again after the check.
+    const LAST_CHANCE_S = 15;
+    function lastChance() {
+      if (!site.openQueue || !site.queueOpen || !site.timeLeft) return;
+      const key = songKey(safe(() => site.readSong(doc), null));
+      if (!key || state.checkedFor === key || state.lastChanceFor === key) return;
+      const left = safe(() => site.timeLeft(doc), NaN);
+      if (!(left > 0 && left <= LAST_CHANCE_S)) return;
+      if (safe(() => site.queueOpen(doc), true)) return;
+      state.lastChanceFor = key;
+      state.closeAfterCheck = !!state.queueRefused;
+      safe(() => site.openQueue(doc));
+      timers.setTimeout(schedule, 600); // check as soon as the panel has drawn
+    }
+
     async function runLookahead() {
       if (state.settings.paused || !state.settings.lookahead || state.lookaheadRunning || typing()) return;
       showQueue();
+      lastChance();
       state.lookaheadRunning = true;
       const failed = new Set();
       try {
         for (let guard = 0; guard < 50; guard++) {
           // Re-read every time: removing a row shifts the rows after it.
           const rows = safe(() => site.readQueue(doc), []);
+          if (rows.length > 1) state.checkedFor = songKey(rows.find(r => r.selected) || null) || state.checkedFor;
           const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
             row => (failed.has(rowKey(row)) ? null : matchSong(row)));
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
@@ -155,6 +178,11 @@
         }
       } finally {
         state.lookaheadRunning = false;
+        // A last-chance panel the person had closed goes away again once its rows were seen.
+        if (state.closeAfterCheck && site.closeQueue && state.checkedFor === state.lastChanceFor) {
+          state.closeAfterCheck = false;
+          safe(() => site.closeQueue(doc));
+        }
       }
     }
 

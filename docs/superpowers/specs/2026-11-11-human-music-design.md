@@ -413,6 +413,14 @@ reloaded (Human Music never fights them over it). Asked what auto-dislike
 should do on Spotify, which has no dislike, Wai: "nothing": it only skips and
 never changes the account.
 
+Then, Wai: "Try reopening the queue panel again when the song is about to end
+and the next queue is not open and if when the lookahead has not happened
+yet". With 15 s or less left in a song, the panel closed and the upcoming
+songs not yet seen during that song, Human Music opens the panel once for
+that song (even if the person had closed it), removes a listed next song,
+and, if the person had closed the panel, closes it again. 15 s leaves time
+for the panel to open (up to about 4 s live) and a removal (about 0.5 s).
+
 ### Spotify, checked live (2026-11-13)
 
 - Search for The Velvet Sundown: 33 items hidden, each crediting a listed

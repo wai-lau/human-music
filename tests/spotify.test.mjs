@@ -23,6 +23,37 @@ function spotifyPage({ name = 'A New Name', id = LISTED } = {}) {
   return { doc, clicks };
 }
 
+
+// A Spotify page with times shown, a Queue panel the queue button toggles, and a track
+// menu whose trash-can item removes the row.
+function fullPage({ position = '1:00', duration = '2:43', next = [['Listed Next', LISTED], ['Human Next', '2222222222222222222222']] } = {}) {
+  const page = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
+  const { doc } = page;
+  const REMOVE = load(['src/page/spotify.js']).HM.spotify.REMOVE_ICON;
+  const pos = el('div', { 'data-testid': 'playback-position' }, position);
+  doc.body.append(pos, el('div', { 'data-testid': 'playback-duration' }, duration));
+  const menuHost = el('div');
+  const makeRow = ([title, id]) => {
+    const more = el('button', { 'data-testid': 'more-button' });
+    const row = el('li', { role: 'row' }, el('span', { 'data-encore-id': 'listRowTitle' }, title), el('a', { href: `/artist/${id}` }, title + ' Artist'), more);
+    more.addEventListener('click', () => {
+      menuHost.textContent = '';
+      const item = el('button', { role: 'menuitem' }, el('svg', {}, el('path', { d: REMOVE })));
+      item.addEventListener('click', () => { menuHost.textContent = ''; page.removed = [...(page.removed || []), title]; row.remove(); });
+      menuHost.append(el('div', { 'data-testid': 'context-menu' }, item));
+    });
+    return row;
+  };
+  const panel = el('aside', { 'aria-label': 'Queue' }, el('ul', { role: 'treegrid' }, ...next.map(makeRow)));
+  page.setQueue = list => { const ul = panel.querySelector('ul'); ul.textContent = ''; ul.append(...list.map(makeRow)); };
+  const qbtn = el('button', { 'data-testid': 'control-button-queue' });
+  page.opens = 0;
+  qbtn.addEventListener('click', () => { if (panel.isConnected) panel.remove(); else { page.opens++; doc.body.append(panel); } });
+  doc.body.append(qbtn, menuHost);
+  page.panel = panel; page.pos = pos;
+  return page;
+}
+
 async function start(page, artists = [{ name: 'Listed Name', spotifyId: LISTED }]) {
   const ctx = load(FILES, { setTimeout, clearTimeout });
   const storage = fakeStorage({
@@ -89,6 +120,32 @@ run([
     const { clock } = await start(p);
     for (let i = 0; i < 6; i++) await settle(clock, 2200);
     return clicks === 3 || `clicks ${clicks}`;
+  }],
+  ['near the end, a closed panel is reopened once, the listed next song removed, then closed again', async () => {
+    const p = fullPage();
+    const { clock } = await start(p);
+    if (!(p.opens === 1 && p.panel.isConnected)) return `first open ${p.opens}`;
+    await new Promise(r => setTimeout(r, 120)); await settle(clock, 60); // the first open removes it already
+    return (JSON.stringify(p.removed) === '["Listed Next"]') || JSON.stringify({ removed: p.removed });
+  }],
+  ['you closed the panel: with 13 s left it reopens, removes the listed next song, and closes', async () => {
+    const p = fullPage({ next: [['Human Next', '2222222222222222222222']] });
+    const { clock } = await start(p);
+    p.panel.remove(); // the person closes it
+    await settle(clock, 60);
+    // the queue changes while the panel is closed: a listed song is now next
+    p.setQueue([['Listed Next', LISTED]]);
+    // a new song starts, then nears its end
+    p.doc.querySelector('[data-testid="context-item-link"]').textContent = 'Next Song';
+    p.pos.textContent = '1:00'; await settle(clock, 60);
+    const opensBefore = p.opens;
+    p.pos.textContent = '2:00'; await settle(clock, 60); // 43 s left: nothing yet
+    const early = p.opens;
+    p.pos.textContent = '2:30'; await settle(clock, 60); // 13 s left
+    await settle(clock, 700); await new Promise(r => setTimeout(r, 200)); await settle(clock, 60);
+    const reopened = p.opens === opensBefore + 1;
+    p.pos.textContent = '2:31'; await settle(clock, 60); await settle(clock, 700);
+    return (early === opensBefore && reopened && p.opens === opensBefore + 1 && !p.panel.isConnected) || JSON.stringify({ opensBefore, early, opens: p.opens, open: p.panel.isConnected, removed: p.removed });
   }],
   ['lookahead set to 0: the panel is left alone', async () => {
     const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
