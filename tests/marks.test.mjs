@@ -68,15 +68,16 @@ const ytm = load(['src/core/text.js', 'src/page/ytm.js']).HM.ytm;
 const marked = r => r.hasAttribute('data-hm-marked');
 
 run([
-  ['markRow: dimmed like an unavailable row, thumbnail swapped for the skip glyph', () => {
+  ['markRow: dimmed like an unavailable row, thumbnail swapped for the skip glyph, takes no clicks', () => {
     const r = row('Dust on the Wind', 'The Velvet Sundown', VS);
     const doc = makeDocument(r);
     ytm.markRow(r, doc);
     ytm.markRow(r, doc); // twice: still one glyph
     const icons = r.querySelectorAll('.left-items .hm-mark');
     const thumb = r.querySelector('ytmusic-thumbnail-renderer');
-    return (marked(r) && icons.length === 1 && !!icons[0].querySelector('svg') && thumb.style.display === 'none' && String(r.style.opacity) === '0.6')
-      || J({ marked: marked(r), icons: icons.length, thumb: thumb.style.display, opacity: r.style.opacity });
+    return (marked(r) && icons.length === 1 && !!icons[0].querySelector('svg') && thumb.style.display === 'none' && String(r.style.opacity) === '0.6'
+      && r.style['pointer-events'] === 'none' && r.getAttribute('aria-disabled') === 'true') // Wai: "make the songs that look blocked unclickable"
+      || J({ marked: marked(r), icons: icons.length, thumb: thumb.style.display, opacity: r.style.opacity, pe: r.style['pointer-events'], aria: r.getAttribute('aria-disabled') });
   }],
   ['unmarkAll puts the row back as it was', () => {
     const r = row('Dust on the Wind', 'The Velvet Sundown', VS);
@@ -84,8 +85,8 @@ run([
     ytm.markRow(r, doc);
     ytm.unmarkAll(doc);
     const thumb = r.querySelector('ytmusic-thumbnail-renderer');
-    return (!marked(r) && !r.querySelector('.hm-mark') && !thumb.style.display && !r.style.opacity)
-      || J({ marked: marked(r), icon: !!r.querySelector('.hm-mark'), thumb: thumb.style.display, opacity: r.style.opacity });
+    return (!marked(r) && !r.querySelector('.hm-mark') && !thumb.style.display && !r.style.opacity && !r.style['pointer-events'] && !r.hasAttribute('aria-disabled'))
+      || J({ marked: marked(r), icon: !!r.querySelector('.hm-mark'), thumb: thumb.style.display, opacity: r.style.opacity, pe: r.style['pointer-events'] });
   }],
   ['readListRows reads song rows on any page, not the queue or hidden rows', () => {
     const inQueue = row('Queued', 'The Velvet Sundown', VS);

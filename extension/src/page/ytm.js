@@ -525,6 +525,10 @@
     try {
       row.setAttribute('data-hm-marked', '');
       setStyle(row, 'opacity', '0.6');
+      // Unclickable, like YouTube Music's own unavailable rows (Wai, 2026-11-13: "make the
+      // songs that look blocked unclickable"): it would only be skipped.
+      setStyle(row, 'pointer-events', 'none');
+      row.setAttribute('aria-disabled', 'true');
       const left = row.querySelector('.left-items');
       if (!left) return;
       const thumb = left.querySelector('ytmusic-thumbnail-renderer');
@@ -543,6 +547,8 @@
     try {
       row.removeAttribute('data-hm-marked');
       setStyle(row, 'opacity', null);
+      setStyle(row, 'pointer-events', null);
+      row.removeAttribute('aria-disabled');
       const thumb = row.querySelector('.left-items ytmusic-thumbnail-renderer');
       if (thumb) setStyle(thumb, 'display', null);
       const mark = row.querySelector('.hm-mark');

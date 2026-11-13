@@ -230,8 +230,11 @@ the skip symbol" (pointing at YouTube Music's own unavailable rows).
 - **Rule:** the row would be skipped: it matches like a hidden item (`act`
   lists, your lists, Never skip wins) and auto-skip is on and Human Music
   isn't paused. Every pass looks at every row again, since YouTube Music
-  reuses a row element for another song. The row still plays if clicked;
-  auto-skip then moves on.
+  reuses a row element for another song.
+- **Unclickable** (Wai: "make the songs that look blocked unclickable"):
+  the row takes no pointer events and is `aria-disabled`, like YouTube
+  Music's own unavailable rows. A wrongly listed artist is fixed from the
+  Log ("Wrong: never skip this artist"); the row comes back at once.
 - Rows without their artist on them (some album pages) stay as they are.
 
 ### The toolbar count (Wai, 2026-11-13)
