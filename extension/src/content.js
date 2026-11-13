@@ -326,9 +326,13 @@
       if (msg && msg.type === 'hm-ping') { sendResponse(true); return false; }
       return false;
     });
-    // Development only (unpacked, no update_url): a page script can ask the extension
-    // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
-    if (!('update_url' in chrome.runtime.getManifest())) {
+    // Ask the worker whether this is a development install; page aids are added only on true.
+    const askDev = () => new Promise(resolve => {
+      const result = chrome.runtime.sendMessage({ type: 'dev-mode' }, reply => { resolve(!!reply); });
+      if (result && typeof result.then === 'function') { result.then(r => resolve(!!r)).catch(() => resolve(false)); }
+    });
+    askDev().then(dev => {
+      if (!dev) return;
       // Development only: copy the service worker's notes onto the page so a test can read them.
       api.storage.local.get(null).then(r => {
         const notes = Object.fromEntries(Object.entries(r || {}).filter(([k]) => k.startsWith('hm.dev.')));
@@ -343,6 +347,6 @@
           try { chrome.runtime.sendMessage({ type: 'dev-reload' }); } catch (err) { /* already reloading */ }
         }
       });
-    }
+    });
   }
 })();

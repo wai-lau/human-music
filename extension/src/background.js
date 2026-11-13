@@ -208,10 +208,29 @@
       assetUrl: function (path) { return chrome.runtime.getURL(path); }
     });
 
-    // Installing, updating and reloading the extension all land here.
-    var DEV = (function () { try { return !('update_url' in chrome.runtime.getManifest()); } catch (e) { return false; } })();
+    // Development mode: only true when management.getSelf() reports installType 'development'
+    // (unpacked Chrome extension or temporary Firefox add-on). Cached after first answer.
+    var devMode = null;
+    var devCallbacks = [];
+    function setDevMode(value) {
+      devMode = value;
+      for (var i = 0; i < devCallbacks.length; i++) devCallbacks[i](value);
+      devCallbacks = [];
+    }
+    (function determineDevMode() {
+      var m = chrome.management || {};
+      if (!m.getSelf) { setDevMode(false); return; }
+      try {
+        var result = m.getSelf(function(info) { setDevMode(info && info.installType === 'development'); });
+        if (result && typeof result.then === 'function') {
+          result.then(function(info) { setDevMode(info && info.installType === 'development'); }).catch(function() { setDevMode(false); });
+        }
+      } catch (e) { setDevMode(false); }
+    })();
+    function isDev() { return devMode === true; }
+    function waitDev(callback) { if (devMode !== null) callback(devMode); else devCallbacks.push(callback); }
     function devNote(key, value) {
-      if (!DEV) return;
+      if (!isDev()) return;
       try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); api.storage.local.set(o); } catch (e) { /* diagnostics only */ }
     }
 
@@ -274,10 +293,13 @@
     });
 
     chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-      // Development only: an unpacked extension (no update_url) can be told to reload
-      // itself, so new code is picked up without a trip to chrome://extensions.
-      if (msg && msg.type === 'dev-reload' && !('update_url' in chrome.runtime.getManifest())) {
-        chrome.runtime.reload();
+      if (msg && msg.type === 'dev-mode') {
+        if (devMode !== null) { sendResponse(isDev()); return false; }
+        waitDev(function(value) { sendResponse(value); });
+        return true;
+      }
+      if (msg && msg.type === 'dev-reload') {
+        if (isDev()) chrome.runtime.reload();
         return false;
       }
       if (msg && msg.type === 'refresh' && typeof msg.id === 'string') {
