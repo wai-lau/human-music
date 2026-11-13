@@ -356,6 +356,63 @@ import from \"known lists\" that it is shipped with".
 - **Later.** The package ships with no list data, only a file of known list
   URLs, and downloads and imports those on install.
 
+## Firefox and Spotify (foundation, 2026-11-13)
+
+Wai, 2026-11-13: "Also want you to figure out how to make it work for Firefox
+and Spotify / do anything that lays the foundation that will not require my
+input".
+
+### Sites
+
+One content script runs on each supported site and picks that site's page
+adapter by host: `HM.ytm` (music.youtube.com) or `HM.spotify`
+(open.spotify.com). Both adapters have the same shape (readSong, readQueue,
+clickNext, pressNextKey, clickDislike, videoDuration, videoState, seekTo,
+removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideAll), so
+matching, lookahead, skipping, hiding and the log are shared.
+
+### Artist IDs
+
+Every Soul Over AI record carries a Spotify artist ID (1375 of 1375) and most
+a YouTube channel ID (1279). Lists keep both (`spotifyId`, `channelId`), and a
+song or page item whose artist links carry a listed ID matches that artist
+whatever name it shows. On Spotify every artist link carries its ID, so
+Spotify matching is by ID first.
+
+### Spotify page facts (checked live 2026-11-13, logged in)
+
+| Thing | Where |
+|---|---|
+| Now playing | `[data-testid="now-playing-widget-v2"]` (no `now-playing-widget` in the narrow layout) |
+| Title | `[data-testid="context-item-link"]` |
+| Artists | `[data-testid="now-playing-widget-v2-byline"] a[href*="/artist/"]`, each href holds the 22-character artist ID |
+| Next | `[data-testid="control-button-skip-forward"]`; a script click works (unlike YouTube Music in a test tab) |
+| Repeat | `[data-testid="control-button-repeat"]` (32 px tertiary button; the block button goes right of it) |
+| Play/pause | `[data-testid="control-button-playpause"]` (aria-label Play or Pause) |
+| Position, duration | `[data-testid="playback-position"]`, `[data-testid="playback-duration"]` (text like 2:43), `[data-testid="playback-progressbar"]` |
+| Queue panel | `[data-testid="control-button-queue"]` opens `aside[aria-label="Queue"]`; rows are `ul[role="treegrid"] li[role="row"]` with track and artist links and a "More options" button |
+| Remove from queue | "More options" opens `#context-menu` (`data-testid="context-menu"`); the item whose icon path is the trash can below; "Exclude from your taste profile" and "Go to album" share another icon's start, so only an exact match counts |
+| Search results | `[data-encore-id="listRow"]` rows in `[role="grid"][aria-label="Search results"]` (narrow layout), with track and artist links |
+| Home cards | `[data-encore-id="card"]` with `cardTitle` and `cardSubtitle`; most are playlists whose subtitle is a description, not credits |
+
+- The page's `<video>` element reports a duration that is not the song's
+  (7.36 s for a 2:43 song), so seeking uses the progress bar, not the video.
+- Shortcut keys sent by script (Ctrl+Right, Alt+Shift+Right, Shift+Right) did
+  not move on; Spotify skips with the Next button.
+- Spotify has no dislike; with auto-dislike on, Spotify presses Next.
+- Hiding on Spotify goes by artist links only (their IDs, or the linked
+  name): a playlist subtitle is a description and is never read as credits.
+- Remove-from-queue icon: `M5.25 3v-.917C5.25.933 6.183 0 7.333 0h1.334c1.15 0 2.083.933 2.083 2.083V3h4.75v1.5h-.972l-1.257 9.544A2.25 2.25 0 0 1 11.041 16H4.96a2.25 2.25 0 0 1-2.23-1.956L1.472 4.5H.5V3zm1.5-.917V3h2.5v-.917a.583.583 0 0 0-.583-.583H7.333a.583.583 0 0 0-.583.583M2.986 4.5l1.23 9.348a.75.75 0 0 0 .744.652h6.08a.75.75 0 0 0 .744-.652L13.015 4.5H2.985z`
+
+### Firefox
+
+Firefox runs Manifest V3 with `background.scripts` (no service worker), needs
+`browser_specific_settings.gecko.id`, and offers `chrome.*` APIs. Until a
+combined manifest is checked live in Chrome, `scripts/build-firefox.sh` writes
+a Firefox copy of `extension/` to `dist/firefox/` with a Firefox manifest;
+the Chrome package stays as it is. The service worker's `importScripts` is
+skipped there (the core files are listed in `background.scripts`).
+
 ## Phases
 
 1. **Extension.** Everything above. Done when Wai uses Human Music instead
