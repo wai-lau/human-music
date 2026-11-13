@@ -175,6 +175,7 @@
 
     function pass() {
       state.passTimer = null;
+      state.passes = (state.passes || 0) + 1;
       if (state.stopped) return;
       if (!safe(alive, false)) { standDown(); return; }
       safe(checkPlaying);
@@ -217,7 +218,12 @@
       do { seen = writes; await seen; } while (seen !== writes);
     }
 
-    return { start, checkPlaying, runLookahead, flush };
+    // Development aid: a small summary of this copy's state.
+    function status() {
+      return { passes: state.passes || 0, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
+    }
+
+    return { start, checkPlaying, runLookahead, flush, status };
   }
 
   HM.createApp = createApp;
@@ -248,6 +254,10 @@
       chrome.storage.local.get(['hm.dev.installed', 'hm.dev.inject']).then(r => {
         document.documentElement.dataset.hmDev = JSON.stringify(r);
       }).catch(() => {});
+      const copy = Math.random().toString(36).slice(2, 7);
+      setInterval(() => {
+        try { document.documentElement.setAttribute('data-hm-status-' + copy, JSON.stringify({ alive: !!(chrome.runtime && chrome.runtime.id), ...HM.app.status() })); } catch (e) { /* cut off */ }
+      }, 2000);
       window.addEventListener('message', e => {
         if (e.source === window && e.data && e.data.type === 'human-music:dev-reload') {
           try { chrome.runtime.sendMessage({ type: 'dev-reload' }); } catch (err) { /* already reloading */ }
