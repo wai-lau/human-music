@@ -399,10 +399,19 @@ Spotify matching is by ID first.
   (7.36 s for a 2:43 song), so seeking uses the progress bar, not the video.
 - Shortcut keys sent by script (Ctrl+Right, Alt+Shift+Right, Shift+Right) did
   not move on; Spotify skips with the Next button.
-- Spotify has no dislike; with auto-dislike on, Spotify presses Next.
+- Spotify has no dislike; with auto-dislike on, Spotify only presses Next (Wai: "nothing").
 - Hiding on Spotify goes by artist links only (their IDs, or the linked
   name): a playlist subtitle is a description and is never read as credits.
 - Remove-from-queue icon: `M5.25 3v-.917C5.25.933 6.183 0 7.333 0h1.334c1.15 0 2.083.933 2.083 2.083V3h4.75v1.5h-.972l-1.257 9.544A2.25 2.25 0 0 1 11.041 16H4.96a2.25 2.25 0 0 1-2.23-1.956L1.472 4.5H.5V3zm1.5-.917V3h2.5v-.917a.583.583 0 0 0-.583-.583H7.333a.583.583 0 0 0-.583.583M2.986 4.5l1.23 9.348a.75.75 0 0 0 .744.652h6.08a.75.75 0 0 0 .744-.652L13.015 4.5H2.985z`
+
+### Spotify's Queue panel (Wai, 2026-11-13)
+
+Spotify draws its queue only in the Queue panel. Asked whether lookahead
+should open it, Wai: "yes". Human Music opens the panel itself once while a
+song is loaded; if the person closes it, it stays closed until Spotify is
+reloaded (Human Music never fights them over it). Asked what auto-dislike
+should do on Spotify, which has no dislike, Wai: "nothing": it only skips and
+never changes the account.
 
 ### Spotify, checked live (2026-11-13)
 

@@ -55,6 +55,33 @@ run([
     const box = p.doc.querySelector('#hm-player-buttons');
     return (!!box && box.previousElementSibling.getAttribute('data-testid') === 'control-button-repeat' && box.querySelector('button').getAttribute('aria-label') === 'Block artist') || 'not mounted';
   }],
+  ['lookahead opens the Queue panel once; closed by you, it stays closed', async () => {
+    const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
+    let opens = 0;
+    const panel = el('aside', { 'aria-label': 'Queue' }, el('ul', { role: 'treegrid' }));
+    const qbtn = el('button', { 'data-testid': 'control-button-queue' });
+    qbtn.addEventListener('click', () => { opens++; if (panel.isConnected) panel.remove(); else p.doc.body.append(panel); });
+    p.doc.body.append(qbtn);
+    const { clock } = await start(p);
+    const openedOnce = opens === 1 && panel.isConnected;
+    panel.remove(); // the person closes it
+    p.doc.body.append(el('span')); await settle(clock, 60);
+    p.doc.body.append(el('span')); await settle(clock, 60);
+    return (openedOnce && opens === 1 && !panel.isConnected) || JSON.stringify({ opens, open: panel.isConnected });
+  }],
+  ['lookahead set to 0: the panel is left alone', async () => {
+    const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
+    let opens = 0;
+    const qbtn = el('button', { 'data-testid': 'control-button-queue' });
+    qbtn.addEventListener('click', () => opens++);
+    p.doc.body.append(qbtn);
+    const ctx = load(FILES, { setTimeout, clearTimeout });
+    const storage = fakeStorage({ 'hm.filterLists': [], 'hm.settings': { ...ctx.HM.settings.DEFAULTS, lookahead: 0 }, 'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [] } });
+    const clock = fakeClock();
+    const app = ctx.HM.createApp({ doc: p.doc, storage, timers: clock, now: () => clock.now() });
+    await app.start(); await settle(clock, 60);
+    return opens === 0 || `opens ${opens}`;
+  }],
   ['the manifest runs the Spotify adapter on open.spotify.com', () => {
     const m = JSON.parse(readFileSync(new URL('../extension/manifest.json', import.meta.url), 'utf8'));
     const entry = m.content_scripts.find(c => c.matches.includes('https://open.spotify.com/*'));

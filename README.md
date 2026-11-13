@@ -52,9 +52,9 @@ Firefox itself yet.
 ## Spotify
 
 On Spotify, Human Music matches listed artists by their Spotify ID, so a
-look-alike name never counts. It removes listed songs from your queue while
-the Queue panel is open (it never opens the panel for you), skips one that
-starts anyway, and hides listed artists' songs and albums on the home page
+look-alike name never counts. It removes listed songs from your queue (it
+opens the Queue panel once to see them; close it and it stays closed), skips
+one that starts anyway, and hides listed artists' songs and albums on the home page
 and in search. Spotify has no dislike button, so auto-dislike only skips there.
 
 ## How it decides

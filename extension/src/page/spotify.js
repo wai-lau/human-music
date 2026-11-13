@@ -66,6 +66,22 @@
     }, []);
   }
 
+  // The Queue panel: Spotify draws the queue only while it is open.
+  function queueOpen(doc) {
+    return safe(() => !!doc.querySelector(SEL.queuePanel + ' ul[role="treegrid"]'), false);
+  }
+
+  // Open the Queue panel (Wai, 2026-11-13: lookahead may open it). True if it clicked.
+  function openQueue(doc) {
+    return safe(() => {
+      if (queueOpen(doc)) return false;
+      const btn = doc.querySelector('[data-testid="control-button-queue"]');
+      if (!btn) return false;
+      btn.click();
+      return true;
+    }, false);
+  }
+
   function clickNext(doc) {
     const btn = safe(() => doc.querySelector(SEL.next), null);
     if (!btn) return false;
@@ -235,7 +251,7 @@
   }
 
   HM.spotify = {
-    SEL, REMOVE_ICON, readSong, readQueue, clickNext, pressNextKey, clickDislike,
+    SEL, REMOVE_ICON, readSong, readQueue, queueOpen, openQueue, clickNext, pressNextKey, clickDislike,
     videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideAll,
   };
 })();

@@ -115,8 +115,20 @@
       }, false);
     }
 
+    // Sites that draw their queue only in a panel (Spotify): open it once while a song is
+    // loaded (Wai, 2026-11-13: "yes"). If the person closes it, leave it closed for good
+    // on this page: Human Music never fights them over it.
+    function showQueue() {
+      if (!site.openQueue || !site.queueOpen || state.queueRefused) return;
+      if (safe(() => site.queueOpen(doc), true)) return;
+      if (state.queueOpened) { state.queueRefused = true; return; } // closed by the person
+      if (!safe(() => site.readSong(doc), null)) return;
+      if (safe(() => site.openQueue(doc), false)) state.queueOpened = true;
+    }
+
     async function runLookahead() {
       if (state.settings.paused || !state.settings.lookahead || state.lookaheadRunning || typing()) return;
+      showQueue();
       state.lookaheadRunning = true;
       const failed = new Set();
       try {
