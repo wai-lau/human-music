@@ -69,6 +69,27 @@ run([
     p.doc.body.append(el('span')); await settle(clock, 60);
     return (openedOnce && opens === 1 && !panel.isConnected) || JSON.stringify({ opens, open: panel.isConnected });
   }],
+  ['a first click that opens nothing is tried again (at most 3 times, 2 s apart)', async () => {
+    const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
+    let clicks = 0;
+    const panel = el('aside', { 'aria-label': 'Queue' }, el('ul', { role: 'treegrid' }));
+    const qbtn = el('button', { 'data-testid': 'control-button-queue' });
+    qbtn.addEventListener('click', () => { clicks++; if (clicks >= 2) p.doc.body.append(panel); }); // page not ready for the first
+    p.doc.body.append(qbtn);
+    const { clock } = await start(p);
+    await settle(clock, 2200); await settle(clock, 60);
+    return (clicks === 2 && panel.isConnected) || JSON.stringify({ clicks, open: panel.isConnected });
+  }],
+  ['a button that never opens the panel is pressed 3 times, then left', async () => {
+    const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
+    let clicks = 0;
+    const qbtn = el('button', { 'data-testid': 'control-button-queue' });
+    qbtn.addEventListener('click', () => clicks++);
+    p.doc.body.append(qbtn);
+    const { clock } = await start(p);
+    for (let i = 0; i < 6; i++) await settle(clock, 2200);
+    return clicks === 3 || `clicks ${clicks}`;
+  }],
   ['lookahead set to 0: the panel is left alone', async () => {
     const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });
     let opens = 0;

@@ -118,12 +118,20 @@
     // Sites that draw their queue only in a panel (Spotify): open it once while a song is
     // loaded (Wai, 2026-11-13: "yes"). If the person closes it, leave it closed for good
     // on this page: Human Music never fights them over it.
+    // A click before the page is ready opens nothing, so only a panel seen open and then
+    // found closed counts as the person closing it; until it opens, try at most 3 times,
+    // 2 s apart (checked live: the first click on a fresh page did nothing).
     function showQueue() {
       if (!site.openQueue || !site.queueOpen || state.queueRefused) return;
-      if (safe(() => site.queueOpen(doc), true)) return;
-      if (state.queueOpened) { state.queueRefused = true; return; } // closed by the person
+      if (safe(() => site.queueOpen(doc), true)) { state.queueSeenOpen = true; return; }
+      if (state.queueSeenOpen) { state.queueRefused = true; return; } // closed by the person
       if (!safe(() => site.readSong(doc), null)) return;
-      if (safe(() => site.openQueue(doc), false)) state.queueOpened = true;
+      const t = now();
+      if (state.queueTries >= 3 || t - (state.queueTriedAt || -Infinity) < 2000) return;
+      state.queueTries = (state.queueTries || 0) + 1;
+      state.queueTriedAt = t;
+      safe(() => site.openQueue(doc));
+      timers.setTimeout(schedule, 2100); // look again once the next try is allowed
     }
 
     async function runLookahead() {
