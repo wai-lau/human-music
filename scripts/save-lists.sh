@@ -25,6 +25,6 @@ cp "$src" "$repo/extension/lists/my-lists.json"
 cd "$repo"
 if git diff --quiet -- extension/lists/my-lists.json; then echo "No change to save."; exit 0; fi
 git add extension/lists/my-lists.json
-git commit -q -m "lists: update my lists"
+git commit -q -m "lists: update my lists" -- extension/lists/my-lists.json
 git push -q
 echo "Saved $(basename "$src") as extension/lists/my-lists.json and pushed. Reload the extension to import it."
