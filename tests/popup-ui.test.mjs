@@ -26,6 +26,13 @@ async function open(initial = {}, { grant = true } = {}) {
 const data = (p, k) => p.storage.data[k];
 
 run([
+  ['Log is the first tab and the popup opens on it (Wai, 2026-11-13: "First Tab should be Log")', async () => {
+    const p = await open();
+    const tabs = [...p.doc.querySelectorAll('.tab')];
+    const shown = [...p.doc.querySelectorAll('.tab-content')].filter(c => c.classList.contains('active')).map(c => c.id);
+    return (tabs[0].dataset.tab === 'log' && tabs[0].classList.contains('active') && tabs.filter(t => t.classList.contains('active')).length === 1 && JSON.stringify(shown) === '["tab-log"]')
+      || JSON.stringify({ first: tabs[0].dataset.tab, shown });
+  }],
   ['built-in list shows with its count and refresh time', async () => {
     const p = await open();
     const row = p.doc.querySelector('#filter-lists li');

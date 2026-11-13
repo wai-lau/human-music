@@ -9,14 +9,14 @@
   <div class="header">Human Music</div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="lists">Lists</button>
+    <button class="tab active" data-tab="log">Log</button>
+    <button class="tab" data-tab="lists">Lists</button>
     <button class="tab" data-tab="behaviour">Behaviour</button>
-    <button class="tab" data-tab="log">Log</button>
   </div>
   <div id="status" class="status" role="status"></div>
 
   <div class="content">
-    <div id="tab-lists" class="tab-content active">
+    <div id="tab-lists" class="tab-content">
       <h3>Filter lists</h3>
       <ul id="filter-lists"></ul>
       <div class="add-list">
@@ -96,7 +96,7 @@
       </div>
     </div>
 
-    <div id="tab-log" class="tab-content">
+    <div id="tab-log" class="tab-content active">
       <div class="log-controls">
         <button id="clear-log">Clear log</button>
         <button id="export-log">Export log</button>

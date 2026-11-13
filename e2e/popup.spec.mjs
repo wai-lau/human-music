@@ -10,6 +10,7 @@ test('the built-in Soul Over AI list shows its bundled artists', async ({ contex
   await setState();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
+  await popup.locator('.tab[data-tab="lists"]').click(); // the popup opens on Log
   const row = popup.locator('#filter-lists .list-row').filter({ hasText: 'Soul Over AI' });
   await expect(row).toHaveCount(1);
   await expect(row.locator('.list-name')).toHaveText('Soul Over AI (built in)');
@@ -23,6 +24,7 @@ test('an artist added in the popup is skipped in an open tab', async ({ context,
   await expect(page.locator('#hm-block-artist')).toBeVisible();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
+  await popup.locator('.tab[data-tab="lists"]').click(); // the popup opens on Log
   await popup.locator('#artist-input').fill(AI);
   await popup.locator('#artist-input').press('Enter');
   await expect(popup.locator('#artists li span')).toHaveText([AI]);
@@ -36,7 +38,6 @@ test('"Wrong: never skip this artist" in the log protects the artist', async ({ 
   await expect.poll(async () => (await events(page)).filter(e => e.type === 'key-j').length).toBe(1);
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
-  await popup.getByRole('button', { name: 'Log' }).click();
   await expect(popup.locator('#log-entries .log-desc')).toHaveText(['Skipped: on your artists list']);
   await popup.getByRole('button', { name: 'Wrong: never skip this artist' }).click();
   await expect.poll(async () => (await readStore('hm.user')).neverSkip).toEqual([AI]);
@@ -46,6 +47,7 @@ test('import merges a backup and refuses lists that are not https', async ({ con
   await setState({ user: { artists: ['Already There'] } });
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
+  await popup.locator('.tab[data-tab="lists"]').click(); // the popup opens on Log
   const backup = {
     format: 'human-music-backup', version: 1,
     user: { artists: ['Imported Act', 'already there'], songs: [{ title: 'One Song', artist: null }], keywords: [], neverSkip: [] },
