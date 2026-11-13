@@ -226,28 +226,36 @@
     // script into any tab that doesn't answer. (A self-reload does not fire onInstalled.)
     function ensureContentScripts() {
       try {
-        var files = chrome.runtime.getManifest().content_scripts[0].js;
+        chrome.runtime.getManifest().content_scripts.forEach(function (entry) { ensureEntry(entry.matches, entry.js); });
+      } catch (e) { devNote('inject', { threw: String(e && e.message) }); }
+    }
+
+    // One content_scripts entry: its sites' open tabs get its files where no copy answers.
+    function ensureEntry(matches, files) {
+      var site = String(matches[0]).replace(/^https:\/\//, '').replace(/\/\*$/, '');
+      var note = function (value) { devNote('inject.' + site, value); };
+      try {
         var notes = [];
-        chrome.tabs.query({ url: 'https://music.youtube.com/*' }, function (tabs) {
-          devNote('inject', { tabs: (tabs || []).length, scripting: !!chrome.scripting });
+        chrome.tabs.query({ url: matches }, function (tabs) {
+          note({ tabs: (tabs || []).length, scripting: !!chrome.scripting });
           (tabs || []).forEach(function (tab) {
             try {
               chrome.tabs.sendMessage(tab.id, { type: 'hm-ping' }, function (reply) {
                 var err = chrome.runtime.lastError;
                 var missing = err || reply !== true;
                 notes.push({ tab: tab.id, reply: reply === true, err: err ? String(err.message) : null });
-                devNote('inject', { tabs: tabs.length, scripting: !!chrome.scripting, notes: notes });
+                note({ tabs: tabs.length, scripting: !!chrome.scripting, notes: notes });
                 if (!missing) return;
                 try {
                   var done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
-                  if (done && done.then) done.then(function () { notes.push({ tab: tab.id, injected: true }); devNote('inject', { tabs: tabs.length, notes: notes }); },
-                    function (e) { notes.push({ tab: tab.id, injectError: String(e && e.message) }); devNote('inject', { tabs: tabs.length, notes: notes }); });
-                } catch (e) { notes.push({ tab: tab.id, injectThrew: String(e && e.message) }); devNote('inject', { notes: notes }); }
+                  if (done && done.then) done.then(function () { notes.push({ tab: tab.id, injected: true }); note({ tabs: tabs.length, notes: notes }); },
+                    function (e) { notes.push({ tab: tab.id, injectError: String(e && e.message) }); note({ tabs: tabs.length, notes: notes }); });
+                } catch (e) { notes.push({ tab: tab.id, injectThrew: String(e && e.message) }); note({ notes: notes }); }
               });
             } catch (e) { /* tab went away */ }
           });
         });
-      } catch (e) { devNote('inject', { threw: String(e && e.message) }); }
+      } catch (e) { note({ threw: String(e && e.message) }); }
     }
     ensureContentScripts();
 

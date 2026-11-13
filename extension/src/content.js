@@ -282,8 +282,9 @@
     // to reload itself with window.postMessage({ type: 'human-music:dev-reload' }, '*').
     if (!('update_url' in chrome.runtime.getManifest())) {
       // Development only: copy the service worker's notes onto the page so a test can read them.
-      api.storage.local.get(['hm.dev.installed', 'hm.dev.inject']).then(r => {
-        document.documentElement.dataset.hmDev = JSON.stringify(r);
+      api.storage.local.get(null).then(r => {
+        const notes = Object.fromEntries(Object.entries(r || {}).filter(([k]) => k.startsWith('hm.dev.')));
+        document.documentElement.dataset.hmDev = JSON.stringify(notes);
       }).catch(() => {});
       const copy = Math.random().toString(36).slice(2, 7);
       setInterval(() => {
