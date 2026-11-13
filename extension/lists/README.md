@@ -9,7 +9,7 @@ the last import. `index.json` names them.
   the extension already has. To update it, export a backup from the popup's
   Lists tab and run `scripts/save-lists.sh`, which copies the newest export
   from Downloads here and commits it.
-- `soul-over-ai.json`: a names-only snapshot of the Soul Over AI list
+- `soul-over-ai.json`: a snapshot of the Soul Over AI list (names and artist IDs)
   (souloverai.com, CC BY 4.0), used only while no downloaded copy exists.
 
 Later the package ships without lists and downloads a shipped set of known

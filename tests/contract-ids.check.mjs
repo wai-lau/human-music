@@ -1,6 +1,6 @@
 // Contract check: filter lists keep each artist's YouTube channel ID and Spotify artist ID,
 // and matching uses them. Run from the repo root:
-//   node tests/wip-contract-ids.check.mjs   (becomes contract-ids.check.mjs once it passes)
+//   node tests/contract-ids.check.mjs   (tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { lists, match } = load(['src/core/text.js', 'src/core/match.js', 'src/core/lists.js']).HM;
 const fails = [];

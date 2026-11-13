@@ -1,2758 +1,1375 @@
-{
-"name": "Soul Over AI (snapshot)",
-"updated": "2026-11-12",
-"source": "https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json",
-"license": "CC BY 4.0. Soul Over AI list by souloverai.com; names only, other fields removed.",
-"artists": [{
-"name": "10mm"
-},{
-"name": "1950 SoulClub"
-},{
-"name": "1960 SoulClub"
-},{
-"name": "19s Soulers"
-},{
-"name": "326 YASUBE-"
-},{
-"name": "404 Breakcore"
-},{
-"name": "5 Days Left"
-},{
-"name": "50 Mark Club"
-},{
-"name": "723ChillBeats"
-},{
-"name": "7even Sins"
-},{
-"name": "7th Swing"
-},{
-"name": "88DS"
-},{
-"name": "9 Runes"
-},{
-"name": "A Million Sparks"
-},{
-"name": "A Shrine to Failure"
-},{
-"name": "A Wildheart's Tale"
-},{
-"name": "A7M"
-},{
-"name": "Abel Abaddon"
-},{
-"name": "Abercrombie Music"
-},{
-"name": "abscond"
-},{
-"name": "Absolute Introspect"
-},{
-"name": "Action Cop"
-},{
-"name": "Aeriel"
-},{
-"name": "Aesir Aria"
-},{
-"name": "AetherealDream"
-},{
-"name": "Affinity Chronicles"
-},{
-"name": "Affirmation Club"
-},{
-"name": "Afro-Carpathic"
-},{
-"name": "After Indigo"
-},{
-"name": "After Midnight"
-},{
-"name": "After Midnight Deep"
-},{
-"name": "afterandafter"
-},{
-"name": "AfterSapiens"
-},{
-"name": "Aghapy"
-},{
-"name": "ahiezer"
-},{
-"name": "AI Emo Kids"
-},{
-"name": "ai.mogen"
-},{
-"name": "AI MUSIC MATRIX"
-},{
-"name": "AI NCM Zone"
-},{
-"name": "AI/R\\WAY"
-},{
-"name": "AI Soundtracks"
-},{
-"name": "AIphonic"
-},{
-"name": "Aiyun"
-},{
-"name": "Akeno Lux"
-},{
-"name": "Akuma Dollz"
-},{
-"name": "Alarm Clock Hero"
-},{
-"name": "Aleister Temple"
-},{
-"name": "Alex Esseker"
-},{
-"name": "Alex Stalart"
-},{
-"name": "Alice's Ghosts"
-},{
-"name": "Almost Alive"
-},{
-"name": "Almost Metal"
-},{
-"name": "almost real."
-},{
-"name": "ALPHONIC"
-},{
-"name": "Altered Insurgence"
-},{
-"name": "ALX INV MUSIC"
-},{
-"name": "Amao"
-},{
-"name": "Amarie"
-},{
-"name": "Amazy Music"
-},{
-"name": "Amber Drift"
-},{
-"name": "Ames Ives"
-},{
-"name": "Ami Kagura"
-},{
-"name": "Amir Nazari"
-},{
-"name": "AMiYAH"
-},{
-"name": "Among The Outcasts"
-},{
-"name": "Amy Caprice"
-},{
-"name": "Ancient Mother"
-},{
-"name": "andi_404"
-},{
-"name": "Andrew Lewis"
-},{
-"name": "Angel of Oblivion"
-},{
-"name": "angelbaby"
-},{
-"name": "Angelina Mormando"
-},{
-"name": "AngelofAnarchy"
-},{
-"name": "Angels Of Agony"
-},{
-"name": "Animator"
-},{
-"name": "AnimusIAc"
-},{
-"name": "Anna Regina"
-},{
-"name": "Anointed Family"
-},{
-"name": "Ansel king"
-},{
-"name": "ANSI"
-},{
-"name": "Antikaa"
-},{
-"name": "Antonin Herbeck"
-},{
-"name": "Apexwolf Beats"
-},{
-"name": "Appalachian Anarchy"
-},{
-"name": "Appalachian White Lightning"
-},{
-"name": "Apukat"
-},{
-"name": "ARAÉ"
-},{
-"name": "Aria Byte"
-},{
-"name": "Aria Flux"
-},{
-"name": "Aria Sai"
-},{
-"name": "Ariana Lewis"
-},{
-"name": "Aricie Nova"
-},{
-"name": "Array of Illusions"
-},{
-"name": "Art Roseman"
-},{
-"name": "Artificial Individual"
-},{
-"name": "Artificial Soul"
-},{
-"name": "Artimus Ion"
-},{
-"name": "Ascend Vocals"
-},{
-"name": "Aschensturm"
-},{
-"name": "Ash & Chalice"
-},{
-"name": "Ash and Echo"
-},{
-"name": "Ash & Paradise"
-},{
-"name": "Ash Reed"
-},{
-"name": "Ash to Eden"
-},{
-"name": "Ashborn Records"
-},{
-"name": "Ashes & Altars"
-},{
-"name": "Ashes of Angst"
-},{
-"name": "Ashes of Eden"
-},{
-"name": "Ashes Remember"
-},{
-"name": "Ashley Klein Maddision"
-},{
-"name": "ashpvnk"
-},{
-"name": "Astra Gold"
-},{
-"name": "Astral Bards"
-},{
-"name": "Atlas-Leo Mikkolainen"
-},{
-"name": "Atlas Untamed"
-},{
-"name": "Atomship"
-},{
-"name": "Aural Flame"
-},{
-"name": "AURENZA"
-},{
-"name": "Auric Veil"
-},{
-"name": "Aurora Lane"
-},{
-"name": "Aurum Project"
-},{
-"name": "Austin Blanchfill"
-},{
-"name": "Ava Veex"
-},{
-"name": "Aven"
-},{
-"name": "Avenlis Sound"
-},{
-"name": "Aventhis"
-},{
-"name": "Axiom/Modulo"
-},{
-"name": "Aya Thorn"
-},{
-"name": "Ayla - Chan"
-},{
-"name": "Azophiel"
-},{
-"name": "B Twizzy"
-},{
-"name": "Back of House"
-},{
-"name": "Bad Apples"
-},{
-"name": "Badger Sounds"
-},{
-"name": "Banned Vinyl"
-},{
-"name": "Bardcore Medieval Style"
-},{
-"name": "Bardcore Music"
-},{
-"name": "Bards of Ethernia"
-},{
-"name": "BardStrike"
-},{
-"name": "Bardtholomew"
-},{
-"name": "Barhound"
-},{
-"name": "Basi Gonzalez Music"
-},{
-"name": "Beach Days"
-},{
-"name": "Beat Drift"
-},{
-"name": "Beata Ślusarek"
-},{
-"name": "Beats By AI"
-},{
-"name": "Bella International"
-},{
-"name": "Belly Button Bars"
-},{
-"name": "Beneath Our Ashes"
-},{
-"name": "Beneath the Mercy"
-},{
-"name": "Benetti House Bar"
-},{
-"name": "Bent Ardi"
-},{
-"name": "Berachah"
-},{
-"name": "Berserk Fall"
-},{
-"name": "Beyond Ashes"
-},{
-"name": "BEYOND AWAKE"
-},{
-"name": "Beyond Disdain"
-},{
-"name": "Biodrive"
-},{
-"name": "Biscuit Beats"
-},{
-"name": "Bitblood"
-},{
-"name": "Bitter Ends"
-},{
-"name": "Bjorgamus"
-},{
-"name": "Black Mewtal"
-},{
-"name": "Black Mustang Defense"
-},{
-"name": "Blackbeards Tavern"
-},{
-"name": "BLANK SOULS"
-},{
-"name": "Bleed Token"
-},{
-"name": "Bleeding Verse"
-},{
-"name": "Blood and Oak"
-},{
-"name": "BLOW RECORDS"
-},{
-"name": "Blue Rhapsody Trio"
-},{
-"name": "blueberryclub"
-},{
-"name": "Bob Rust"
-},{
-"name": "BOHEMIOSINCAUSA"
-},{
-"name": "Bon Chic"
-},{
-"name": "BookAria"
-},{
-"name": "BookSongsAI"
-},{
-"name": "BookTok"
-},{
-"name": "BOOMSLICK"
-},{
-"name": "Bots with guitars"
-},{
-"name": "Boulevard da Musica"
-},{
-"name": "Bow Boy"
-},{
-"name": "BoxxBoxx"
-},{
-"name": "Break Me Open"
-},{
-"name": "Breaking Rust"
-},{
-"name": "Breizhwave"
-},{
-"name": "Brewing Chaos"
-},{
-"name": "Broken Altar"
-},{
-"name": "Broken Avenue"
-},{
-"name": "Broken Oracle"
-},{
-"name": "broken record kids"
-},{
-"name": "Broken Trails"
-},{
-"name": "BrownHouse"
-},{
-"name": "Burn the Silence"
-},{
-"name": "BurnerBoo"
-},{
-"name": "Bushido Girl"
-},{
-"name": "Cain Walker"
-},{
-"name": "Caleb Raines"
-},{
-"name": "Call Me Christian"
-},{
-"name": "Cara Bloom"
-},{
-"name": "Cayden Cruz"
-},{
-"name": "Ce A Zar"
-},{
-"name": "Celestial Aeon Project"
-},{
-"name": "Celestial Apexion"
-},{
-"name": "Celestial Melodies"
-},{
-"name": "Celestial Tunes"
-},{
-"name": "Celestial Voices"
-},{
-"name": "ceZk"
-},{
-"name": "ChaluluMusic"
-},{
-"name": "CharFutur"
-},{
-"name": "Charis Studio"
-},{
-"name": "Charli Morgan"
-},{
-"name": "Chat Music"
-},{
-"name": "Chill77"
-},{
-"name": "China Styles"
-},{
-"name": "Chords & Scales"
-},{
-"name": "Chris Wells"
-},{
-"name": "Christian Music Creations"
-},{
-"name": "Chrome Vultures"
-},{
-"name": "Ciara Blue"
-},{
-"name": "Cimmeris"
-},{
-"name": "City of the Fallen"
-},{
-"name": "Claire Pellegrini"
-},{
-"name": "Clarence Blue"
-},{
-"name": "CLEIRIS"
-},{
-"name": "Closure"
-},{
-"name": "Cloud Chief"
-},{
-"name": "Coco Expressions"
-},{
-"name": "Cody Marrow"
-},{
-"name": "CogniVibe"
-},{
-"name": "Cogs Of The Night"
-},{
-"name": "Cold Aurelia"
-},{
-"name": "Collective Mind"
-},{
-"name": "COLLECTIVI SUMUS"
-},{
-"name": "COLTER RAYNE"
-},{
-"name": "conaco"
-},{
-"name": "ConVex"
-},{
-"name": "copperplate"
-},{
-"name": "Cornelius Valerius"
-},{
-"name": "Corner of the Café"
-},{
-"name": "Courland Static"
-},{
-"name": "Covenant Of None"
-},{
-"name": "Cover Series"
-},{
-"name": "CR33PIA"
-},{
-"name": "Cracked by Rocks"
-},{
-"name": "CREEZY"
-},{
-"name": "Crescent City Collective"
-},{
-"name": "Crimson Collapse"
-},{
-"name": "Crimson Sorrow"
-},{
-"name": "Crimson Trace"
-},{
-"name": "Crimson Vale"
-},{
-"name": "Cristi din Apus"
-},{
-"name": "Crown of Glass"
-},{
-"name": "Crowning Flame"
-},{
-"name": "Cut Davis"
-},{
-"name": "CVllXXX"
-},{
-"name": "Cyan The Hedgehog"
-},{
-"name": "CyberMetal Records"
-},{
-"name": "Cyndr"
-},{
-"name": "d33p."
-},{
-"name": "Da Soul Orchestra"
-},{
-"name": "Daddy Unicorn"
-},{
-"name": "DÆMONVEIL"
-},{
-"name": "Daimon Noir"
-},{
-"name": "Dalihen"
-},{
-"name": "Dan Harman"
-},{
-"name": "Daniela Presta"
-},{
-"name": "DannyHO"
-},{
-"name": "Danty_Lwanga"
-},{
-"name": "Daphne Rae Meyers"
-},{
-"name": "DARIUS REIG"
-},{
-"name": "Dark Blues YT"
-},{
-"name": "dark_cloud"
-},{
-"name": "Dark Country Boy"
-},{
-"name": "DarkMatter96"
-},{
-"name": "Dark Noir"
-},{
-"name": "DARK R&B CONFESSIONS"
-},{
-"name": "DarkangelAI"
-},{
-"name": "DarkLux"
-},{
-"name": "Darrin Brentner"
-},{
-"name": "Darth Kanga"
-},{
-"name": "Darth Marley"
-},{
-"name": "Davian Blake"
-},{
-"name": "David Sven"
-},{
-"name": "Davids Son Band"
-},{
-"name": "Daxlin Veylo"
-},{
-"name": "Daylight Rapture"
-},{
-"name": "DaysEye"
-},{
-"name": "DEADCUE"
-},{
-"name": "DEADLUVE"
-},{
-"name": "DEADSTATE"
-},{
-"name": "deadveins"
-},{
-"name": "Dear God It's Me"
-},{
-"name": "Death Culture"
-},{
-"name": "Deathly Hours"
-},{
-"name": "Decadent Stories"
-},{
-"name": "Decayed Souls"
-},{
-"name": "Delaylah"
-},{
-"name": "demonflyingfox"
-},{
-"name": "Denim Highway"
-},{
-"name": "DEPARTIR"
-},{
-"name": "Desa"
-},{
-"name": "DeShawn Williams"
-},{
-"name": "Desyoh"
-},{
-"name": "Dethlord"
-},{
-"name": "Dethrone the crown"
-},{
-"name": "DeuceAI"
-},{
-"name": "Deus Metallicus"
-},{
-"name": "DiDur Lux"
-},{
-"name": "DIESEL"
-},{
-"name": "DIGITAL DELUSION"
-},{
-"name": "Digital Delusions"
-},{
-"name": "Digital Soul Music"
-},{
-"name": "Dirty Charlie"
-},{
-"name": "disclaimer without remarks"
-},{
-"name": "DIVISIVE ECHOES"
-},{
-"name": "DJ Kneupp"
-},{
-"name": "DJ Tralalero Tralala"
-},{
-"name": "DJ XOXO"
-},{
-"name": "DJSource"
-},{
-"name": "Doc Raven"
-},{
-"name": "Dohaka6"
-},{
-"name": "DollWave"
-},{
-"name": "Dominik Witka"
-},{
-"name": "Domsgard"
-},{
-"name": "Dozy Duzzn"
-},{
-"name": "Dr Pflaumisan"
-},{
-"name": "Dragon's Love"
-},{
-"name": "DRDVIX"
-},{
-"name": "Dream.in.Sanity"
-},{
-"name": "Drew Meadows"
-},{
-"name": "Drift Notion"
-},{
-"name": "DropGhost"
-},{
-"name": "drunken night"
-},{
-"name": "Duane Scuttlebutt & The Fog-Town Five"
-},{
-"name": "Dumpster Grooves"
-},{
-"name": "Dumpster Grooves After Dark"
-},{
-"name": "DVRKTHORN"
-},{
-"name": "Dynalectric Orchestra"
-},{
-"name": "Dysmn"
-},{
-"name": "Dystøne"
-},{
-"name": "dzbogel"
-},{
-"name": "Ean Grimm"
-},{
-"name": "eccxo Music"
-},{
-"name": "Echo Harper"
-},{
-"name": "Echo Soul Records"
-},{
-"name": "Echoes From Tomorrow"
-},{
-"name": "Echoes Of Babylon"
-},{
-"name": "Echoes of Midgard"
-},{
-"name": "Echoes Of Skollborn"
-},{
-"name": "EchoesOfVelandria"
-},{
-"name": "Eclipse Warrior"
-},{
-"name": "Edyta Taraszkiewicz"
-},{
-"name": "Efyliph"
-},{
-"name": "Eichenherz"
-},{
-"name": "Eight To The Bar Express"
-},{
-"name": "Einarsson"
-},{
-"name": "EKOSPIR"
-},{
-"name": "El Cantar Del Dragon"
-},{
-"name": "ELBO"
-},{
-"name": "ELDRHEIM"
-},{
-"name": "ElectroJazz Machine"
-},{
-"name": "eli."
-},{
-"name": "ELIAN FROST"
-},{
-"name": "Elicaie"
-},{
-"name": "Elijah Abel"
-},{
-"name": "Elina Lisa　絵里奈リサ"
-},{
-"name": "Élise de Lune"
-},{
-"name": "elle."
-},{
-"name": "Elowine"
-},{
-"name": "Elysium Crow"
-},{
-"name": "Emberosia"
-},{
-"name": "Embers Of The Empty"
-},{
-"name": "Emo Appalachia"
-},{
-"name": "Empty Skyline"
-},{
-"name": "Endless Soul"
-},{
-"name": "Endless Taverns"
-},{
-"name": "Enkisoul"
-},{
-"name": "Enlly"
-},{
-"name": "Enlly Blue"
-},{
-"name": "Eon Veil"
-},{
-"name": "EQurnaz"
-},{
-"name": "Erich"
-},{
-"name": "Esme Rose"
-},{
-"name": "Essecer"
-},{
-"name": "ESSLLL"
-},{
-"name": "Eternal Fantasy Sounds"
-},{
-"name": "Eternal Warriors"
-},{
-"name": "Ethan Horahn"
-},{
-"name": "ÉTHER DARK MOTIVATION"
-},{
-"name": "Ethereal Akoma Sounds"
-},{
-"name": "Ethereal Chronicles"
-},{
-"name": "Eufonia"
-},{
-"name": "Eurozia"
-},{
-"name": "Euryeth"
-},{
-"name": "Everendora"
-},{
-"name": "EVERFADE"
-},{
-"name": "EverHits-moritabari"
-},{
-"name": "Evil Chicken"
-},{
-"name": "Exiled From Hell"
-},{
-"name": "Exiles Of Eden"
-},{
-"name": "Eye Empire"
-},{
-"name": "Fable0x"
-},{
-"name": "Faceless Strangers"
-},{
-"name": "Faded Core"
-},{
-"name": "Fading Entries"
-},{
-"name": "Fading North"
-},{
-"name": "FAKE MUSIC"
-},{
-"name": "Fall Of The Dawn"
-},{
-"name": "Fall To Pieces"
-},{
-"name": "Fallen Jay"
-},{
-"name": "Fallen Vessel"
-},{
-"name": "False Saints"
-},{
-"name": "Farbwende"
-},{
-"name": "FarshidS"
-},{
-"name": "Farsi Jazz"
-},{
-"name": "Fenvian"
-},{
-"name": "Feral Cry"
-},{
-"name": "Fierlayce"
-},{
-"name": "Finally Unalived"
-},{
-"name": "Finlay Walker"
-},{
-"name": "FLOW RECORDS"
-},{
-"name": "Floze"
-},{
-"name": "Forevertown"
-},{
-"name": "Fracker"
-},{
-"name": "Fractal Kin"
-},{
-"name": "Fractured Language"
-},{
-"name": "Fractured Souls"
-},{
-"name": "FraytasticMusic"
-},{
-"name": "Free Fusions"
-},{
-"name": "Free_Thinking_American"
-},{
-"name": "FRIEDETH"
-},{
-"name": "From Ashes to Glory"
-},{
-"name": "Frontier Heart"
-},{
-"name": "FrostBorne"
-},{
-"name": "FrostRaven"
-},{
-"name": "Fruto Celestial"
-},{
-"name": "Full Metal Patriot"
-},{
-"name": "Funkorama"
-},{
-"name": "Fusión Latina 2025"
-},{
-"name": "Future K1d"
-},{
-"name": "Future Studios"
-},{
-"name": "Gabriel Purt"
-},{
-"name": "Galezard Project"
-},{
-"name": "GamBeat"
-},{
-"name": "GANSO SMITH"
-},{
-"name": "Gembana"
-},{
-"name": "GENERATED"
-},{
-"name": "Georgensøn"
-},{
-"name": "Gerda Himmelblau"
-},{
-"name": "Get into Zone"
-},{
-"name": "Ghost//Signal"
-},{
-"name": "GhostChords Music"
-},{
-"name": "Ghosts of American Intellects"
-},{
-"name": "GhostWriteKing"
-},{
-"name": "Girly Girl Productions"
-},{
-"name": "Glassweight"
-},{
-"name": "Glasswell"
-},{
-"name": "Glorb"
-},{
-"name": "Glum Aleks"
-},{
-"name": "GLXE"
-},{
-"name": "GNX75"
-},{
-"name": "GOBTA D"
-},{
-"name": "Gocl"
-},{
-"name": "Goddess No Holy"
-},{
-"name": "GoldenRockStation"
-},{
-"name": "Goober Beatz"
-},{
-"name": "Goober Sounds"
-},{
-"name": "Good Mourning"
-},{
-"name": "Good Vibes Tribe 11:11"
-},{
-"name": "Grace Harmony Music"
-},{
-"name": "Grace Wolffe"
-},{
-"name": "Gradient Dystopia"
-},{
-"name": "Grave Horizon"
-},{
-"name": "Gravel N Bones"
-},{
-"name": "GreyWolve"
-},{
-"name": "grgr_playlist"
-},{
-"name": "Grid Theory"
-},{
-"name": "Grimdark Tavern"
-},{
-"name": "Grimfel"
-},{
-"name": "Groove Monkey"
-},{
-"name": "Groove Nouveau"
-},{
-"name": "GrooveBoom"
-},{
-"name": "GROTESTIQUE"
-},{
-"name": "Guwelia"
-},{
-"name": "Gym Bro Alpha"
-},{
-"name": "HalleluYah Voice Of Zion"
-},{
-"name": "Hallucinophonics"
-},{
-"name": "Halonixx"
-},{
-"name": "Hangover Carousel"
-},{
-"name": "Harukhel"
-},{
-"name": "Haus of Hekate"
-},{
-"name": "Havoc Engine"
-},{
-"name": "HAZE // CTRL"
-},{
-"name": "Hazy Thompson"
-},{
-"name": "HC"
-},{
-"name": "Heart Break Klub"
-},{
-"name": "HEARTVOID"
-},{
-"name": "Heaven//Error"
-},{
-"name": "Heaven Groove & Soul"
-},{
-"name": "Heftique"
-},{
-"name": "Hellena Banner"
-},{
-"name": "Henry Flower"
-},{
-"name": "HexMouth"
-},{
-"name": "HEXXENMIND"
-},{
-"name": "Higher Power"
-},{
-"name": "Highway To Zion"
-},{
-"name": "Hikage"
-},{
-"name": "Hillbilly Hellfire"
-},{
-"name": "Histrocore"
-},{
-"name": "Hollow Ember"
-},{
-"name": "HOLLOWFRAME"
-},{
-"name": "Holy Groove"
-},{
-"name": "Holy Grounds Christian Community"
-},{
-"name": "home alone."
-},{
-"name": "Honey & Buck"
-},{
-"name": "Honey & The Velvet Revival"
-},{
-"name": "Hope Kills Reality"
-},{
-"name": "Horizon Tunes"
-},{
-"name": "Horror Disco"
-},{
-"name": "Housenatic"
-},{
-"name": "How to Haunt Your House"
-},{
-"name": "Howlin Jackson"
-},{
-"name": "Hroldar"
-},{
-"name": "Hroth"
-},{
-"name": "Hushveil"
-},{
-"name": "Hustler Soul"
-},{
-"name": "Hybrid Collapse"
-},{
-"name": "HyFi"
-},{
-"name": "Hymns of the Imperium"
-},{
-"name": "Hyperbaiter"
-},{
-"name": "Hyperbolic Club"
-},{
-"name": "Hyperdrive Sound"
-},{
-"name": "HYPERTECHNO"
-},{
-"name": "I AM THE IMPERATRIX"
-},{
-"name": "I Needed This Dave"
-},{
-"name": "I-V-f-Y"
-},{
-"name": "IAXMUSIC"
-},{
-"name": "Icy Mattrix"
-},{
-"name": "id3ntd"
-},{
-"name": "Ida Nik"
-},{
-"name": "If Rappers Made Blues"
-},{
-"name": "If Rappers Made Country"
-},{
-"name": "iLLKiLLshot"
-},{
-"name": "ILY Ghoul"
-},{
-"name": "Immunosuppressed"
-},{
-"name": "ImperialGuardSounds"
-},{
-"name": "Incident Apocalypse"
-},{
-"name": "IndignA"
-},{
-"name": "Inferisborn"
-},{
-"name": "Inhuman 666"
-},{
-"name": "Inkflow"
-},{
-"name": "Intimate Vibes"
-},{
-"name": "INVADR76"
-},{
-"name": "Invictus"
-},{
-"name": "IR1S"
-},{
-"name": "IRIAS"
-},{
-"name": "is it sunday?"
-},{
-"name": "Istatiks"
-},{
-"name": "IzrailX"
-},{
-"name": "Izzy Byrne"
-},{
-"name": "J Bumi"
-},{
-"name": "J. Cognitto"
-},{
-"name": "J.J. Quest"
-},{
-"name": "j . prodigy"
-},{
-"name": "J-Seren"
-},{
-"name": "Jack Arden"
-},{
-"name": "Jacub"
-},{
-"name": "Japanese Chill Lounge"
-},{
-"name": "Jason Huff and the Artificials"
-},{
-"name": "Jaxon Haze"
-},{
-"name": "jaxtorm"
-},{
-"name": "Jay Carney"
-},{
-"name": "Jay Stacks Beats"
-},{
-"name": "Jazz Nouveau Project"
-},{
-"name": "Jazzscape Symphony"
-},{
-"name": "Jazztified"
-},{
-"name": "Jazzy Nightfall"
-},{
-"name": "JD Steel"
-},{
-"name": "Jerry Baccardi"
-},{
-"name": "JERRY'S SOUND ROOM"
-},{
-"name": "Jess Tailor"
-},{
-"name": "JG Horizon"
-},{
-"name": "Jinxiu"
-},{
-"name": "JJJS"
-},{
-"name": "Joel Binks"
-},{
-"name": "John Drolet"
-},{
-"name": "Johnny Paige"
-},{
-"name": "Johnny “Red Keys” Callahan"
-},{
-"name": "Jonah Dean"
-},{
-"name": "Jonny Boy"
-},{
-"name": "JoshM"
-},{
-"name": "Joshua Salatandra"
-},{
-"name": "Jude Black"
-},{
-"name": "Jude Haden"
-},{
-"name": "Julia St."
-},{
-"name": "Juno Skye"
-},{
-"name": "Just Irish Music"
-},{
-"name": "Just Pete"
-},{
-"name": "Just the Jinx"
-},{
-"name": "Justefunk Funk"
-},{
-"name": "JW \"Broken Veteran\""
-},{
-"name": "Kairo Mansa"
-},{
-"name": "Kairo Miles"
-},{
-"name": "Kalax"
-},{
-"name": "Kalebae Music"
-},{
-"name": "KamNox"
-},{
-"name": "kanegi."
-},{
-"name": "KAO"
-},{
-"name": "KARAVIRS"
-},{
-"name": "Katherine Jayne"
-},{
-"name": "Kattis"
-},{
-"name": "Katy Rivers"
-},{
-"name": "Kawaii Sparkle"
-},{
-"name": "Kayla Kross"
-},{
-"name": "KC N Kind"
-},{
-"name": "Kealux"
-},{
-"name": "Keen Red"
-},{
-"name": "Kelly Boesch"
-},{
-"name": "Kelvin West"
-},{
-"name": "Kenke"
-},{
-"name": "Kenobix"
-},{
-"name": "Ketchem"
-},{
-"name": "Ketlyn Blake"
-},{
-"name": "Khaos"
-},{
-"name": "Kid Icarus"
-},{
-"name": "Kiirelia"
-},{
-"name": "KILLATRONIC"
-},{
-"name": "Kimi Kurro"
-},{
-"name": "KING KILODJS"
-},{
-"name": "KING MOTIV8"
-},{
-"name": "King Willonius"
-},{
-"name": "KingNorthMusic"
-},{
-"name": "Kingslove"
-},{
-"name": "Kingston Cane"
-},{
-"name": "Kintsugi Crusade"
-},{
-"name": "KIONX"
-},{
-"name": "KISS ME DEAD"
-},{
-"name": "Kiyo"
-},{
-"name": "Klosure"
-},{
-"name": "Kod Poezii"
-},{
-"name": "konanoko"
-},{
-"name": "KOTR – Knights of the Revival"
-},{
-"name": "KraHbichT"
-},{
-"name": "Krim2Gwer"
-},{
-"name": "KrimsonTheFox"
-},{
-"name": "Kuroge"
-},{
-"name": "Kuroi Riquid"
-},{
-"name": "kuroki."
-},{
-"name": "kuroshibapalette"
-},{
-"name": "Kutas Records"
-},{
-"name": "KyushuMusic"
-},{
-"name": "L'aurah"
-},{
-"name": "LadyAn"
-},{
-"name": "LAMP HOUSE"
-},{
-"name": "Lappy"
-},{
-"name": "Larek James"
-},{
-"name": "Last Ashes"
-},{
-"name": "LAURA LAVI"
-},{
-"name": "Laura Mia Sommer"
-},{
-"name": "LazyGold"
-},{
-"name": "Lee Vyborny"
-},{
-"name": "Lenzspot"
-},{
-"name": "Léo Castiel"
-},{
-"name": "Les Rock'n'Rollos"
-},{
-"name": "Let Babylon Burn"
-},{
-"name": "LethalCulture"
-},{
-"name": "Letters From Ghosts"
-},{
-"name": "lG0R"
-},{
-"name": "Likeai"
-},{
-"name": "LinRae"
-},{
-"name": "Lines Unspoken"
-},{
-"name": "Linhy"
-},{
-"name": "Linkon Mark"
-},{
-"name": "Lipocalypse"
-},{
-"name": "Liras Crimson"
-},{
-"name": "LivinForThePlanet"
-},{
-"name": "lladywolf"
-},{
-"name": "LMBSA"
-},{
-"name": "Lock & Key Vibes"
-},{
-"name": "Lofi Cafe"
-},{
-"name": "LoFi Plum"
-},{
-"name": "LofiLulla"
-},{
-"name": "LogoFox"
-},{
-"name": "LØKDWN"
-},{
-"name": "Lolita"
-},{
-"name": "Loot & Lyrics"
-},{
-"name": "Lord Pecalon"
-},{
-"name": "Loree Nikole"
-},{
-"name": "LostViking75"
-},{
-"name": "Lullabies From The Crypts"
-},{
-"name": "Lumie"
-},{
-"name": "Luminary Flux"
-},{
-"name": "LumoCore"
-},{
-"name": "Luna Sole"
-},{
-"name": "Luna Veex"
-},{
-"name": "Lunar Horizon"
-},{
-"name": "LUNAs Tunes"
-},{
-"name": "Lunatick"
-},{
-"name": "Lunavia"
-},{
-"name": "Luno"
-},{
-"name": "LXNE"
-},{
-"name": "Lydian Dominant"
-},{
-"name": "LykanAI"
-},{
-"name": "Lyra Vesperi"
-},{
-"name": "LYRYXX"
-},{
-"name": "LYSSA RAYE"
-},{
-"name": "M-H-M"
-},{
-"name": "Machina Aeon"
-},{
-"name": "Machine Six"
-},{
-"name": "Made Human"
-},{
-"name": "Madelgarde"
-},{
-"name": "Magazine Street 24"
-},{
-"name": "Magi spaz"
-},{
-"name": "Magnifly"
-},{
-"name": "Maja Sofie"
-},{
-"name": "Manami"
-},{
-"name": "Mando Viking Music"
-},{
-"name": "Manifestation Music Lounge"
-},{
-"name": "Manifested Dreams"
-},{
-"name": "manifestica_studio"
-},{
-"name": "ManifestMusic.Studio"
-},{
-"name": "MARANATHA"
-},{
-"name": "marco moretto"
-},{
-"name": "Marvmeister"
-},{
-"name": "Mary of Gold"
-},{
-"name": "Mason Jar Moonshine"
-},{
-"name": "Masters of Prophecy"
-},{
-"name": "Matthew's Silent Chapter"
-},{
-"name": "Mavelyn"
-},{
-"name": "Max City"
-},{
-"name": "MAY BEE"
-},{
-"name": "MeaVee"
-},{
-"name": "Medieval Confessions"
-},{
-"name": "Meex000"
-},{
-"name": "meid"
-},{
-"name": "Mela Mirage"
-},{
-"name": "Melania Maye"
-},{
-"name": "MelodAI_Official"
-},{
-"name": "Melodia Simples"
-},{
-"name": "Melodial"
-},{
-"name": "Melody of Wings"
-},{
-"name": "MelodySpot"
-},{
-"name": "Meloman"
-},{
-"name": "Melzona"
-},{
-"name": "Meraki Moon"
-},{
-"name": "Merciless Cult"
-},{
-"name": "Meridian Shore"
-},{
-"name": "mermaidonmars"
-},{
-"name": "Metal Blossom 金属の花"
-},{
-"name": "Metal in My Veins"
-},{
-"name": "Metal Sanctuary"
-},{
-"name": "Metal Universe"
-},{
-"name": "Metalus Prime"
-},{
-"name": "Mia Hipnosis"
-},{
-"name": "Michael DuBois"
-},{
-"name": "Michel Blazquez"
-},{
-"name": "Micolai"
-},{
-"name": "Midnight Groove Ensemble"
-},{
-"name": "Midnight In Manhattan"
-},{
-"name": "Midnight Lust"
-},{
-"name": "midnight muse"
-},{
-"name": "MightyW Project"
-},{
-"name": "Miguel Pascal"
-},{
-"name": "Mika Akakuma"
-},{
-"name": "mikeeysmind"
-},{
-"name": "Miles Laroque"
-},{
-"name": "Milla Sofia"
-},{
-"name": "Millieonthebeat"
-},{
-"name": "Millvoices"
-},{
-"name": "Minako"
-},{
-"name": "Ministry of Dark"
-},{
-"name": "MISFIT"
-},{
-"name": "Mister Cryptic"
-},{
-"name": "MithicLegend"
-},{
-"name": "MiyaVi Amore"
-},{
-"name": "Miyunique"
-},{
-"name": "MKL"
-},{
-"name": "MMEG"
-},{
-"name": "Modranicht"
-},{
-"name": "Moebius FM"
-},{
-"name": "Mokepouch"
-},{
-"name": "Moon Soul"
-},{
-"name": "Moon1k"
-},{
-"name": "Moonshine Outlaws"
-},{
-"name": "Morgan Bailey"
-},{
-"name": "Morgan Luna"
-},{
-"name": "Most High"
-},{
-"name": "Mournwell"
-},{
-"name": "Mufasa The King"
-},{
-"name": "Music City Nashville Corridos"
-},{
-"name": "MVMURO"
-},{
-"name": "My Boy Arlo"
-},{
-"name": "Myko Truth"
-},{
-"name": "Myrkrheimr"
-},{
-"name": "MyRoadTunes"
-},{
-"name": "Mystery Potion"
-},{
-"name": "Mystic Riffs"
-},{
-"name": "Mystik Irieen"
-},{
-"name": "Mythborne"
-},{
-"name": "Mythic Harmonies"
-},{
-"name": "Mythic Melodys"
-},{
-"name": "MythicRealm"
-},{
-"name": "MythicTune"
-},{
-"name": "Nabila Moyo"
-},{
-"name": "nanako"
-},{
-"name": "Narita Metalaw"
-},{
-"name": "NARROWAY"
-},{
-"name": "Natalie Grace"
-},{
-"name": "Native Raven"
-},{
-"name": "Nekonoma"
-},{
-"name": "NEO Arcade"
-},{
-"name": "NEON ONI"
-},{
-"name": "Neon Snakebite"
-},{
-"name": "NEOX STUDIO"
-},{
-"name": "Nerdburglars"
-},{
-"name": "Nethervale"
-},{
-"name": "Neural Pantheon"
-},{
-"name": "New Edda"
-},{
-"name": "NeXoX"
-},{
-"name": "Neytan"
-},{
-"name": "NEZZARA"
-},{
-"name": "NGT ROOTS"
-},{
-"name": "Nick Brown"
-},{
-"name": "Nick Hustles"
-},{
-"name": "Nicola Nicoletti"
-},{
-"name": "NiExshadow"
-},{
-"name": "NIGHT INTRUDER"
-},{
-"name": "NightcoreEngel"
-},{
-"name": "Nightshade Anthem"
-},{
-"name": "NIGHTSYN"
-},{
-"name": "Nika"
-},{
-"name": "Nina Blaze"
-},{
-"name": "Niniel"
-},{
-"name": "NIRMATA BLOOD"
-},{
-"name": "No Soul Society"
-},{
-"name": "Noah Thorne"
-},{
-"name": "Nobody Knew"
-},{
-"name": "nocco"
-},{
-"name": "NOMARKMORE"
-},{
-"name": "Nona Cyrelle"
-},{
-"name": "Nora MacRowe"
-},{
-"name": "Noraeon"
-},{
-"name": "Nordic Versecraft"
-},{
-"name": "NORDSKÁLD"
-},{
-"name": "NOVAINE"
-},{
-"name": "Novi"
-},{
-"name": "NOVRA"
-},{
-"name": "Nox Averill"
-},{
-"name": "Nox Resonantia"
-},{
-"name": "Noxen Rose"
-},{
-"name": "Nukehole"
-},{
-"name": "Numb Theory"
-},{
-"name": "NXTNGen"
-},{
-"name": "Nymik Rose"
-},{
-"name": "Nyqki Niqole"
-},{
-"name": "Nyxen"
-},{
-"name": "O.es.3"
-},{
-"name": "OBEY THE PULSE"
-},{
-"name": "Oblivion Kiss"
-},{
-"name": "Obscurest Vinyl"
-},{
-"name": "Obsidian Swing"
-},{
-"name": "Official_Giorgo"
-},{
-"name": "OKISO"
-},{
-"name": "Ol Man Yarn"
-},{
-"name": "Ola Javis"
-},{
-"name": "Old Money Music"
-},{
-"name": "Olivia B Moore"
-},{
-"name": "Olivia Baynton"
-},{
-"name": "ONE PROJECT"
-},{
-"name": "Onepix"
-},{
-"name": "Operator"
-},{
-"name": "OrbitOST"
-},{
-"name": "ORGAVSM"
-},{
-"name": "Orion7"
-},{
-"name": "Orkestral Studio"
-},{
-"name": "Orvak"
-},{
-"name": "Oryn Etheria"
-},{
-"name": "Otiyan"
-},{
-"name": "Ottilie"
-},{
-"name": "Otto"
-},{
-"name": "OUR OBSIDIAN SCARS"
-},{
-"name": "Outlaw Algorithm"
-},{
-"name": "Outta Reach"
-},{
-"name": "PASXKAL"
-},{
-"name": "Pause maybe?"
-},{
-"name": "Pavament Hymns"
-},{
-"name": "Pawfu"
-},{
-"name": "Penn"
-},{
-"name": "peron"
-},{
-"name": "Phantom Of The Synth"
-},{
-"name": "Phantom Swing"
-},{
-"name": "Phantom Veil"
-},{
-"name": "Phantom Verse"
-},{
-"name": "PhantomFlow"
-},{
-"name": "phantomoffire"
-},{
-"name": "Photoserge"
-},{
-"name": "Phyyy"
-},{
-"name": "Pie For Billy"
-},{
-"name": "Pink Paradox"
-},{
-"name": "Pirates of the Horizon"
-},{
-"name": "Plague on Board"
-},{
-"name": "Playful Devotion"
-},{
-"name": "Pleasurian Pneumatikos"
-},{
-"name": "Plumia production"
-},{
-"name": "Pochito"
-},{
-"name": "POISONPOP Candy"
-},{
-"name": "Pokévibe Studio's"
-},{
-"name": "Polk County Pagan Market"
-},{
-"name": "POLSKAi"
-},{
-"name": "PORCELAIN HEARTS"
-},{
-"name": "Porcelain Sky"
-},{
-"name": "Power Seeker X"
-},{
-"name": "Pradawne Dźwięki"
-},{
-"name": "Preaching Real"
-},{
-"name": "PRELUNE"
-},{
-"name": "Procrastopia"
-},{
-"name": "Project VII"
-},{
-"name": "promptgenix"
-},{
-"name": "Prova MI"
-},{
-"name": "Psalm Of The Redeemer"
-},{
-"name": "Psalms of Ash"
-},{
-"name": "Psalms of Light"
-},{
-"name": "PsychWitch"
-},{
-"name": "PSYndicated Neo-N-Pulse"
-},{
-"name": "Puppet Spider"
-},{
-"name": "Quinzena"
-},{
-"name": "R3ALSON릴슨"
-},{
-"name": "Radio Mandanga"
-},{
-"name": "Radio Sex"
-},{
-"name": "Rap & English"
-},{
-"name": "Rapto Co"
-},{
-"name": "RASELHITS"
-},{
-"name": "Raster Dust"
-},{
-"name": "Raven+Fell"
-},{
-"name": "Raven Knight"
-},{
-"name": "RavenHeart"
-},{
-"name": "Ravenshroud"
-},{
-"name": "Ravnskjold"
-},{
-"name": "Rea Gopane"
-},{
-"name": "ReAmped Covers"
-},{
-"name": "Reaper VX"
-},{
-"name": "Rebel Redeemed 316"
-},{
-"name": "RebornBeat"
-},{
-"name": "Red Grizz"
-},{
-"name": "Red Village"
-},{
-"name": "REDFOX2809"
-},{
-"name": "ReDia"
-},{
-"name": "REDNECK OUTLAW"
-},{
-"name": "Reformed and Dangerous"
-},{
-"name": "Relatone"
-},{
-"name": "Remake Gospel Brasil"
-},{
-"name": "Remy and the Wolf"
-},{
-"name": "RepeatTwiceDaily"
-},{
-"name": "ReStyleHits"
-},{
-"name": "Retro Bird AI"
-},{
-"name": "Retro City Pop"
-},{
-"name": "Retro Soundscapes"
-},{
-"name": "RetroCop 1980"
-},{
-"name": "Retrosync"
-},{
-"name": "ReVibeMusic"
-},{
-"name": "Reyna Joy"
-},{
-"name": "REZØN8"
-},{
-"name": "Rhymes of the Damned"
-},{
-"name": "RHYXA"
-},{
-"name": "Ricardo Abyssal"
-},{
-"name": "Ridge"
-},{
-"name": "Ridge Covers"
-},{
-"name": "Righteous Malfunction"
-},{
-"name": "RIIYA"
-},{
-"name": "Rikki"
-},{
-"name": "Riley77"
-},{
-"name": "RiotTheory"
-},{
-"name": "Risen In Ash"
-},{
-"name": "Risen Sons"
-},{
-"name": "Rithyellen"
-},{
-"name": "River Bottom Audio Co"
-},{
-"name": "Rizzers"
-},{
-"name": "Roadkill Pickers"
-},{
-"name": "Roark"
-},{
-"name": "Rock and Funk"
-},{
-"name": "Rockaholic Productions"
-},{
-"name": "Rocking Rebel"
-},{
-"name": "Romek Addams"
-},{
-"name": "Ronnie OBriant"
-},{
-"name": "Room2Breathe"
-},{
-"name": "Rootsman Rebel"
-},{
-"name": "Rose Ivy"
-},{
-"name": "Rosie K"
-},{
-"name": "Rowan Lewgalon"
-},{
-"name": "Royal Tracks"
-},{
-"name": "Ruby Darkrose"
-},{
-"name": "Rüstung"
-},{
-"name": "Ruinwell"
-},{
-"name": "RumbiaHouse"
-},{
-"name": "Runas da Graça"
-},{
-"name": "Rune & Rosette"
-},{
-"name": "Rune Skald"
-},{
-"name": "Runenhain"
-},{
-"name": "Runes of the North"
-},{
-"name": "Runtime Studios"
-},{
-"name": "Rust Assembly"
-},{
-"name": "Ryder Knox"
-},{
-"name": "Ryker Ashford"
-},{
-"name": "S. Quill"
-},{
-"name": "S3XXX"
-},{
-"name": "Sa'Lunara"
-},{
-"name": "Sable Voice"
-},{
-"name": "Sacred878"
-},{
-"name": "Sailor.EXE"
-},{
-"name": "Saint Vice"
-},{
-"name": "Sakula Darma"
-},{
-"name": "Sakura Yuki"
-},{
-"name": "Salen Records"
-},{
-"name": "Salheim"
-},{
-"name": "Samuel Cabana"
-},{
-"name": "Samurai Girl"
-},{
-"name": "Sandstorm Serenade"
-},{
-"name": "Santino Ray"
-},{
-"name": "SAPEPEKA"
-},{
-"name": "Sara's Handwritten Lyrics"
-},{
-"name": "Sasha Komovich"
-},{
-"name": "Savanna Rae"
-},{
-"name": "Scarlet Songs"
-},{
-"name": "Schlagermelle"
-},{
-"name": "Secret Frequency"
-},{
-"name": "Secret Vaults"
-},{
-"name": "Seek First Worship"
-},{
-"name": "seen it forever"
-},{
-"name": "SEIDR"
-},{
-"name": "Selene Calder"
-},{
-"name": "Self Sabotage"
-},{
-"name": "sellar"
-},{
-"name": "Semargl"
-},{
-"name": "Seraphina Rossi"
-},{
-"name": "Seraphine Black"
-},{
-"name": "Serenity's Soul Music AI"
-},{
-"name": "Seri Rue"
-},{
-"name": "Serinx"
-},{
-"name": "Sermon of Flies"
-},{
-"name": "Seth Abstract"
-},{
-"name": "Seth Summers"
-},{
-"name": "Seventh Sunset"
-},{
-"name": "Severed Soul"
-},{
-"name": "Shadow Beloved"
-},{
-"name": "Shadow Reign"
-},{
-"name": "ShadowEyeMusic"
-},{
-"name": "Shadows Awake"
-},{
-"name": "Shadowthorn"
-},{
-"name": "Shane OHare"
-},{
-"name": "Shatterglass Scallywags"
-},{
-"name": "Shelby Street Blues"
-},{
-"name": "Shift to Abundance"
-},{
-"name": "Shifty Brent"
-},{
-"name": "Shining Light Music"
-},{
-"name": "Shiranai.exe"
-},{
-"name": "Shirlinda"
-},{
-"name": "SHONjii"
-},{
-"name": "SHUNÉ"
-},{
-"name": "Side Slips"
-},{
-"name": "Sienna Rose"
-},{
-"name": "Sierra Vale"
-},{
-"name": "Silas Grime"
-},{
-"name": "SilasCh"
-},{
-"name": "Silent Echos"
-},{
-"name": "Silk & Shadows"
-},{
-"name": "Sirens and Saints"
-},{
-"name": "SireWolf"
-},{
-"name": "SISO Wave"
-},{
-"name": "Sithani"
-},{
-"name": "Six Gun Siren"
-},{
-"name": "Skaldic Storm"
-},{
-"name": "SKARS"
-},{
-"name": "Skate Avenue"
-},{
-"name": "Skavira"
-},{
-"name": "SKorp Club"
-},{
-"name": "SkyCan"
-},{
-"name": "Skyebrows"
-},{
-"name": "Slick Krugers"
-},{
-"name": "Slime Dot"
-},{
-"name": "SLØWBREAKER"
-},{
-"name": "SLOWBURN"
-},{
-"name": "SLVMLORD"
-},{
-"name": "SMARTYR"
-},{
-"name": "Smoke-Oh"
-},{
-"name": "Smokey September"
-},{
-"name": "Smokey Silhouettes"
-},{
-"name": "Smooth Syndicate"
-},{
-"name": "SNOWBYTE"
-},{
-"name": "So"
-},{
-"name": "Soaring Metal Lords"
-},{
-"name": "Sodikken"
-},{
-"name": "Soiya"
-},{
-"name": "Sol."
-},{
-"name": "SOL UMBRA"
-},{
-"name": "SolarShard"
-},{
-"name": "Solé"
-},{
-"name": "Solitary Haze"
-},{
-"name": "Solomon Ray"
-},{
-"name": "solplac"
-},{
-"name": "Solpulse"
-},{
-"name": "Solyn"
-},{
-"name": "Sombras Del Cóndor"
-},{
-"name": "Something New"
-},{
-"name": "Son of the Dead Sun"
-},{
-"name": "Sonara"
-},{
-"name": "SongAlchemist"
-},{
-"name": "Songs of the North"
-},{
-"name": "Sons of Ashes"
-},{
-"name": "Sonya Grace"
-},{
-"name": "Soul Cafe"
-},{
-"name": "Soul'd Out"
-},{
-"name": "Soul Palmer"
-},{
-"name": "Soul Trance Music"
-},{
-"name": "Soulful Sounds Trio"
-},{
-"name": "Soul's Cry"
-},{
-"name": "Souls Divided"
-},{
-"name": "SoulStreet 70"
-},{
-"name": "Soulvox"
-},{
-"name": "SoundsArtificial"
-},{
-"name": "SoundsOfEnigma"
-},{
-"name": "SoundVirtuoso"
-},{
-"name": "Spaceship Encounter"
-},{
-"name": "Spade Of Sparta"
-},{
-"name": "Spalexma"
-},{
-"name": "Special Chill Label"
-},{
-"name": "Spiritual Workz"
-},{
-"name": "SpookyDoo"
-},{
-"name": "Starfreak FM"
-},{
-"name": "Starwynd"
-},{
-"name": "Static Violence"
-},{
-"name": "Steel Legion"
-},{
-"name": "Stella Synth"
-},{
-"name": "Stellar Cruise"
-},{
-"name": "Steph Stephens"
-},{
-"name": "Storm Chant"
-},{
-"name": "Street Gospel Syndicate"
-},{
-"name": "StrikingBlue"
-},{
-"name": "StyleShift AI"
-},{
-"name": "Sublime Vocal"
-},{
-"name": "Sunday Night Low"
-},{
-"name": "sunho974"
-},{
-"name": "Sunny Ray"
-},{
-"name": "sunremo"
-},{
-"name": "Sunshine Girl"
-},{
-"name": "Sunslain"
-},{
-"name": "Superblack"
-},{
-"name": "surelynotsibi42"
-},{
-"name": "susumu."
-},{
-"name": "Swing Stroller"
-},{
-"name": "Sybilanta"
-},{
-"name": "Synaptic"
-},{
-"name": "SYNN"
-},{
-"name": "Synthwave Siren"
-},{
-"name": "SyraxSoul"
-},{
-"name": "Szepty Starych Drzew"
-},{
-"name": "take your time"
-},{
-"name": "Taku The Bard"
-},{
-"name": "Tales with Lora"
-},{
-"name": "Tanjuschka"
-},{
-"name": "Tapas"
-},{
-"name": "Taylor Lakes"
-},{
-"name": "Teeth of Eden"
-},{
-"name": "Temple of Ash"
-},{
-"name": "Tennessee Reaper"
-},{
-"name": "Tess Mac Keen"
-},{
-"name": "Texas Hollow Records"
-},{
-"name": "The 1924 Project"
-},{
-"name": "The Athene Noctua"
-},{
-"name": "The Automatic Singer"
-},{
-"name": "The Avalon Exotica Orchestra"
-},{
-"name": "The Backroad Collective"
-},{
-"name": "The Band You Never Heard Of"
-},{
-"name": "The Bardic DM"
-},{
-"name": "The Bela Vibe"
-},{
-"name": "The Black Mammoth"
-},{
-"name": "The Blackest Red"
-},{
-"name": "The Burning Curse"
-},{
-"name": "The Cheeky Celt"
-},{
-"name": "The Classic Soul Choir"
-},{
-"name": "The Dad Bods Pop Punk"
-},{
-"name": "The Devil Inside"
-},{
-"name": "The Hollow"
-},{
-"name": "The Hollowed"
-},{
-"name": "The Hollows"
-},{
-"name": "The Jazz House"
-},{
-"name": "The King's Blues Club"
-},{
-"name": "The Last Spell"
-},{
-"name": "The Love Algorithm"
-},{
-"name": "The Luna Lounge"
-},{
-"name": "The Mac Roger Project"
-},{
-"name": "The Medieval Inn"
-},{
-"name": "The Miracle Worker"
-},{
-"name": "THE MORA PROJECT"
-},{
-"name": "The Norths"
-},{
-"name": "The Obsoletes"
-},{
-"name": "The Old Harbour"
-},{
-"name": "The Old Tavern"
-},{
-"name": "The Pirx"
-},{
-"name": "The Pleasure Syndicate"
-},{
-"name": "The Power Alchemist"
-},{
-"name": "\"The Professor\" Nick Harrison"
-},{
-"name": "The redacted"
-},{
-"name": "The Relic Hunters"
-},{
-"name": "The RnB Exchange"
-},{
-"name": "The Roux"
-},{
-"name": "The Shadow"
-},{
-"name": "The Singing Tavern"
-},{
-"name": "The Smoothies"
-},{
-"name": "The Softest Tones"
-},{
-"name": "The Soulful Gentlemen"
-},{
-"name": "The Sowers"
-},{
-"name": "The Speakeasy Rappers"
-},{
-"name": "The Traveling Tankard"
-},{
-"name": "The Unbroken Kings"
-},{
-"name": "The Unc's"
-},{
-"name": "THE VAMPIRES OF KOPENHAGEN"
-},{
-"name": "The Velvet Sundown"
-},{
-"name": "The Velvet Sunrise"
-},{
-"name": "The Wandering Innkeeper"
-},{
-"name": "The Whiskey Rebellions"
-},{
-"name": "TheMidnightBlackout"
-},{
-"name": "TheSkeletonsLibrary"
-},{
-"name": "Thodins Path"
-},{
-"name": "Thronebreaker"
-},{
-"name": "Thunderous Steel"
-},{
-"name": "Thyrmine"
-},{
-"name": "TIMELESS 60 BIG BAND"
-},{
-"name": "Timeless Echoes of Middangeard"
-},{
-"name": "Timeless Hour"
-},{
-"name": "Timeless Tone"
-},{
-"name": "TitanChord"
-},{
-"name": "Tokt"
-},{
-"name": "TOKYO CHILL LAB"
-},{
-"name": "Tom Morgan"
-},{
-"name": "Tomsen.dk"
-},{
-"name": "Tõnu Meldre"
-},{
-"name": "ToonFanatic"
-},{
-"name": "Tora Nightthorn"
-},{
-"name": "Toruc macto"
-},{
-"name": "Total Metal Destruction"
-},{
-"name": "Toxic Chemistry"
-},{
-"name": "Tripstone Heathen"
-},{
-"name": "Trollvarg"
-},{
-"name": "TroubleMent"
-},{
-"name": "True Funk Players"
-},{
-"name": "True Roots Blues"
-},{
-"name": "TRUTH:S3RUM"
-},{
-"name": "Tune Amok"
-},{
-"name": "Tunes of the Future"
-},{
-"name": "Twisted F8"
-},{
-"name": "Twisted Game Songs"
-},{
-"name": "Twisted Reality"
-},{
-"name": "Unbound Music"
-},{
-"name": "Uncle Sams Blues"
-},{
-"name": "Underworld Vibes"
-},{
-"name": "UNFADΞ"
-},{
-"name": "UNFINISH"
-},{
-"name": "Unfound Records"
-},{
-"name": "Unlimited Motivation"
-},{
-"name": "Until Nothing"
-},{
-"name": "Untraceable Records"
-},{
-"name": "UWA: Unity Within Art"
-},{
-"name": "V A E L O R A"
-},{
-"name": "VAELYN"
-},{
-"name": "Vahid Beats"
-},{
-"name": "Valebound"
-},{
-"name": "Valhalla Drums"
-},{
-"name": "Valkorai"
-},{
-"name": "Valkyrian"
-},{
-"name": "Valor Pulse"
-},{
-"name": "Vargnokturn"
-},{
-"name": "Vargvegr"
-},{
-"name": "Varian Vel'Aryn"
-},{
-"name": "Varianz"
-},{
-"name": "Vealdron"
-},{
-"name": "Veil & Verse"
-},{
-"name": "Veil of Doom"
-},{
-"name": "Veilr"
-},{
-"name": "Veins of Gold"
-},{
-"name": "VELCHEVA VIBE"
-},{
-"name": "Velora"
-},{
-"name": "Velour"
-},{
-"name": "Velour Doom"
-},{
-"name": "velvet desires"
-},{
-"name": "Velvet Funk"
-},{
-"name": "Velvet Rae"
-},{
-"name": "Velvet Rebellion"
-},{
-"name": "Velvet Signal"
-},{
-"name": "Velvet Swing Express"
-},{
-"name": "VENGEFUL"
-},{
-"name": "Vermouth IV"
-},{
-"name": "Veyna Ashford"
-},{
-"name": "Vibe4Soul"
-},{
-"name": "VibecraftTwo"
-},{
-"name": "Vibes & Tones"
-},{
-"name": "Vibfy"
-},{
-"name": "Vibra Eterna"
-},{
-"name": "ViceRend"
-},{
-"name": "Video Girl"
-},{
-"name": "vidin"
-},{
-"name": "VikingEchoes"
-},{
-"name": "Viktoria4ever"
-},{
-"name": "violete ephemerty"
-},{
-"name": "Virelia"
-},{
-"name": "Viviana Belle Rey"
-},{
-"name": "void"
-},{
-"name": "Volkan Kuday"
-},{
-"name": "VØLTEKAS"
-},{
-"name": "Vorpalraven"
-},{
-"name": "Vowless"
-},{
-"name": "Voxen Soundworks"
-},{
-"name": "Voxnaris"
-},{
-"name": "Vurtist"
-},{
-"name": "VYRA"
-},{
-"name": "Wade Ward Music"
-},{
-"name": "WAKE UP FALLING"
-},{
-"name": "Waking Up Christopher"
-},{
-"name": "Wander The Cosmos"
-},{
-"name": "WARFORGE"
-},{
-"name": "Warrior Shaman"
-},{
-"name": "WarthogSCL"
-},{
-"name": "Waves Lost"
-},{
-"name": "We Are Jazz"
-},{
-"name": "We Are Still Here"
-},{
-"name": "We're All F*cked"
-},{
-"name": "Western Plains Radio"
-},{
-"name": "What if music"
-},{
-"name": "what is ?"
-},{
-"name": "White Girl"
-},{
-"name": "WHITEFIRE"
-},{
-"name": "Wicked Eve"
-},{
-"name": "WickedAI"
-},{
-"name": "Wild One"
-},{
-"name": "Winta"
-},{
-"name": "Witch Ink"
-},{
-"name": "witchsnook"
-},{
-"name": "Witchy Tips"
-},{
-"name": "Within the Stars"
-},{
-"name": "WizFlow Tunes"
-},{
-"name": "World hive"
-},{
-"name": "WoyWoyBoy"
-},{
-"name": "Wraith & Honey"
-},{
-"name": "Wren and the Daughters of the Bear"
-},{
-"name": "Wyatt Blueridge"
-},{
-"name": "Wyatt Creed"
-},{
-"name": "Wyrmship"
-},{
-"name": "Xania Monet"
-},{
-"name": "XiiiSu Music"
-},{
-"name": "XioFabrY"
-},{
-"name": "XmensiX"
-},{
-"name": "XxCaveinxX"
-},{
-"name": "XXIOS"
-},{
-"name": "Yakupova"
-},{
-"name": "Yanti Niels"
-},{
-"name": "Yara Nocturne"
-},{
-"name": "YDream"
-},{
-"name": "Yesterday Once Again"
-},{
-"name": "Yiikes"
-},{
-"name": "Yui"
-},{
-"name": "Yunna Serene"
-},{
-"name": "Yvora"
-},{
-"name": "YVSK"
-},{
-"name": "ZancrowStudio"
-},{
-"name": "Zayen"
-},{
-"name": "ZeLeo"
-},{
-"name": "Zen Decoys"
-},{
-"name": "Zen Vibes Station"
-},{
-"name": "Zero Code"
-},{
-"name": "zeros_and_ones"
-},{
-"name": "Zetbit"
-},{
-"name": "ZionRay"
-},{
-"name": "ZionRoots"
-},{
-"name": "ZrockPH"
-},{
-"name": "ZUNRAID"
-}
-]
-}
+{"name":"Soul Over AI (snapshot)","updated":"2026-11-13","source":"https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json","license":"CC BY 4.0. Soul Over AI list by souloverai.com; names and artist IDs only, other fields removed.","artists":[{"name":"10mm","spotifyId":"5ExXpwxyFXhwPKYKx6ItaN"},
+{"name":"1950 SoulClub","channelId":"UCOCi_VDTQPFn9fZtfqnpVag","spotifyId":"7piTj1ZywkHBIgDYIPOwbX"},
+{"name":"1960 SoulClub","channelId":"UC6e-VkM_fmmVhOLmfVyiLRw","spotifyId":"7czThvgOrHtfEHwbw88Vbt"},
+{"name":"19s Soulers","channelId":"UCQGENBWGdJo3vMWkxoD5NLQ","spotifyId":"5r5ZNNW0zseFzKcGR9ThIi"},
+{"name":"326 YASUBE-","channelId":"UCHrCbrMLpRzCYfYoBXkwfvg","spotifyId":"53pnP2h9rxepCTy1OG14P7"},
+{"name":"404 Breakcore","channelId":"UCmP7Zo4xw3IjbDl1L3CFz8g","spotifyId":"7bE3SluIg1wlFO80i0cmRl"},
+{"name":"5 Days Left","channelId":"UCnES9BlPCkPuAw4NrBrZkYw","spotifyId":"7IxXElCFQdUjQ8jcKvB6jH"},
+{"name":"50 Mark Club","channelId":"UCcjnPAMrcw3fmuHMjo6cM-A","spotifyId":"6a57wAiGT8CZJKz7eCmEPd"},
+{"name":"723ChillBeats","channelId":"UC5LvSgDSZ11tb8BpFPUVGCA","spotifyId":"4Rab83LuK8t47D8Gp4a9kn"},
+{"name":"7even Sins","channelId":"UCfXUOEgx-767Ra2rr9zIVzQ","spotifyId":"0Z4s72zVZ26SCi5auS4Lwv"},
+{"name":"7th Swing","channelId":"UCX-uHjaqV8JLHPlBnXFk0EA","spotifyId":"5eLzdEJIog5HdDt9S4f2zx"},
+{"name":"88DS","channelId":"UCJ00M0D835zeOdntbuzXz9w","spotifyId":"3r5vRW2MU6y539p7NRcTCt"},
+{"name":"9 Runes","channelId":"UC4RcRqhObWU02L07NRl-fDw","spotifyId":"73V7cws8Pvs6aCX6Ae3lOw"},
+{"name":"A Million Sparks","channelId":"UCrtzlqUn8Y63Uh5sRcMIVgw","spotifyId":"0Nfh2hppHDIUZIePUwsicV"},
+{"name":"A Shrine to Failure","spotifyId":"0nXYxiS5VC7eoz5YR986oS"},
+{"name":"A Wildheart's Tale","channelId":"UCPGWElUAupwgGuDT_CkWVVw","spotifyId":"7rs9jSwkWMCtMgth8HUNNb"},
+{"name":"A7M","channelId":"UCFXO3kGzdQJBbwx90_UMuTw","spotifyId":"0N16MVt8vXzNVIMFtCS72P"},
+{"name":"Abel Abaddon","channelId":"UC4wEjvq0e8_KHWobOfaY32w","spotifyId":"4UjDIpne95vLq6ESKZUSTb"},
+{"name":"Abercrombie Music","channelId":"UCZEI_MhxpVifLpS2-XQp43Q","spotifyId":"0OLroxGWsocS0GJyS85LQE"},
+{"name":"abscond","channelId":"UCJ7Gt8z5sPFZeWVSqjFz_8w","spotifyId":"1I3whUpIkMLTIDkEaETcHe"},
+{"name":"Absolute Introspect","spotifyId":"1ZlAtM7QvAof6FK7yrFAqb"},
+{"name":"Action Cop","channelId":"UCOIA_pWOptm1iszzN3ZlOEQ","spotifyId":"1Z68j75hNrsmmwuwOX2aRy"},
+{"name":"Aeriel","spotifyId":"2PD0BR1xfo5KhUYni6hU7R"},
+{"name":"Aesir Aria","channelId":"UCbmmft2frXZjDX-V_kZjVAg","spotifyId":"3Gnfu7cSBtnQWlbchgjrIc"},
+{"name":"AetherealDream","channelId":"UC6SBiMdWpLJO5oHwOfU7dCA","spotifyId":"1vo2p0baTTuo0vaZ3gnr5w"},
+{"name":"Affinity Chronicles","channelId":"UCTQSqu714WaS5Zqcbn7niCg","spotifyId":"7JlEwAPmaJSmQWhcdMtb0C"},
+{"name":"Affirmation Club","channelId":"UCbqOYOn7Eyj-h5BD13H5VWA","spotifyId":"7JEsohKV7zlxbt0EsjYCfu"},
+{"name":"Afro-Carpathic","channelId":"UCwLfIkZ2YMOqkli2AEZ0MJw","spotifyId":"5DZKNZhV1fwVz5UcmzD83A"},
+{"name":"After Indigo","channelId":"UC26O6Oy5WORJI_NVEO9eebw","spotifyId":"5MP6xtPMgN5JcDy7sOGL6H"},
+{"name":"After Midnight","channelId":"UCWJ6A5PbSP5k3paQ7N5Jc7A","spotifyId":"40oe3PuiYS57cZk7h31VnP"},
+{"name":"After Midnight Deep","channelId":"UC33Voavg9ckkomqUMzags7Q","spotifyId":"44YisjDr2I1wy8UjoMgVz8"},
+{"name":"afterandafter","channelId":"UCUpdf6k29edHhfnGzDiECWw","spotifyId":"7gfg4UIFlnu4qh1pDmryIH"},
+{"name":"AfterSapiens","channelId":"UC7gx4LM0mVUZqqG6cSTu_dQ","spotifyId":"7buY69RUgffP7ATmUyNhiA"},
+{"name":"Aghapy","channelId":"UCtKhSbUtqu3bPJcYZ5oZpiA","spotifyId":"0m3Qvo8WfzeOVC1mQPpXcV"},
+{"name":"ahiezer","channelId":"UCg9dHLKtP_zwCSWFPgHQjoA","spotifyId":"1OT0q3LE7xgkl5EfW7zkv6"},
+{"name":"AI Emo Kids","channelId":"UC3ABrCgwrO_juPMnYCOM7vA","spotifyId":"2PsmPReKNBeUB3iY8REpPA"},
+{"name":"ai.mogen","channelId":"UCrPAaB-XBg_k8EiiBO_46bA","spotifyId":"77mYai06p9Ju6y5pyGBH4C"},
+{"name":"AI MUSIC MATRIX","channelId":"UC4eEg9prJU6ApDrfsRwV1bw","spotifyId":"2q8l7EDyOchwz4biw4uIiW"},
+{"name":"AI NCM Zone","channelId":"UCGnBaw2dytQy4SUGMVRtKJw","spotifyId":"2eU9zF5EqsYNaIaOMBBf3M"},
+{"name":"AI/R\\WAY","channelId":"UCxyGIG2NWWmABJO5GvXDWUg","spotifyId":"4DqQekWotdpMlT6uVwnBoF"},
+{"name":"AI Soundtracks","channelId":"UCevOh86UVZAc3Y2h4DyNYMA","spotifyId":"0vUjNUtyKibIVc0h6tcjmN"},
+{"name":"AIphonic","channelId":"UCMZshO-lUD2ISc0HMOxOmng","spotifyId":"063vqHqNlcCP99ekT9psO9"},
+{"name":"Aiyun","channelId":"UCENgm_VduV3UxaSfSEGtGgQ","spotifyId":"4dSpK6RQ66rjinHJxA5P8s"},
+{"name":"Akeno Lux","channelId":"UC0mooPNdaegwlUnCTntg-Kg","spotifyId":"49v5j9dd7Vk7yeMzmejFMs"},
+{"name":"Akuma Dollz","spotifyId":"2as2Ip5xk4e5jZYWfugntg"},
+{"name":"Alarm Clock Hero","channelId":"UCatap3-5i6DmLhOvi6ew8Vg","spotifyId":"3b4epb94BqwtfRvKLgHI4B"},
+{"name":"Aleister Temple","channelId":"UCF_qMG5PdFsis19wt57AI5w","spotifyId":"0EVrCbMQybkg7m8vZFbQTJ"},
+{"name":"Alex Esseker","channelId":"UCdsUUmk4g-R2HiE2Hvb8wKQ","spotifyId":"5hU2Qey9dRJGz0IWL82TCX"},
+{"name":"Alex Stalart","channelId":"UCaDdeilNUtWt044XbWUeMFg","spotifyId":"56EppNHb3ZEKXxLfpFfLy3"},
+{"name":"Alice's Ghosts","channelId":"UCesuWlswSAaCya4JxC7M6yw","spotifyId":"26PTBF6dsky63ic7PVWDqN"},
+{"name":"Almost Alive","channelId":"UC7H25BQuQwPyyGQewhIOFkA","spotifyId":"20nwmuhP0VHSPkdpvnuJ87"},
+{"name":"Almost Metal","channelId":"UCBryXKiFfCxXdweTqdE59lQ","spotifyId":"0ErHX9fB6k24Rd7q0Fd1Lv"},
+{"name":"almost real.","channelId":"UCTTt2ieqGOzJrB74w5yAziA","spotifyId":"4BbhzV0tZYyHLOAejtp8tf"},
+{"name":"ALPHONIC","channelId":"UCMZshO-lUD2ISc0HMOxOmng","spotifyId":"74zGe3DsYegVuuhOQwjLzR"},
+{"name":"Altered Insurgence","channelId":"UC6kfiFizv2GPJREb50ZEo6A","spotifyId":"6LAmrMOv6WGXr6sw55MJCP"},
+{"name":"ALX INV MUSIC","channelId":"UCxc9t1wtsAyHCr6lqPzeg6w","spotifyId":"4eaEOZfd2iZopkmf3bRy09"},
+{"name":"Amao","channelId":"UCB2_2r0V_2UclZb9eemHiIA","spotifyId":"0mfMxjfwqyOtLR90dwxCfH"},
+{"name":"Amarie","channelId":"UC8lcepKEChAMjyQ5KfchUQA","spotifyId":"241fqh7mSk4e5ssRiNSjqX"},
+{"name":"Amazy Music","channelId":"UCfePOLV0HisLR5ZU-WU6e_Q","spotifyId":"0CowBKB0E9LFX3PRdfeaIC"},
+{"name":"Amber Drift","channelId":"UCOgawHmJsMJSaTdFVmQVsYQ","spotifyId":"0ewhASYRY9oRACxwBkcBOD"},
+{"name":"Ames Ives","channelId":"UCcY3gvyetJzXPmDJx9sYcKA","spotifyId":"0o4LcJRWf8k8du7ELfuINg"},
+{"name":"Ami Kagura","channelId":"UCMd32CgZMgP_TmxajuSbCdQ","spotifyId":"5kD4Fn0dWSk7lqUvQpB258"},
+{"name":"Amir Nazari","channelId":"UCjBl8srjgcDgneH__EkHWhQ","spotifyId":"0Wdymr3gKyVWc0wZgMA2Ub"},
+{"name":"AMiYAH","channelId":"UCFdF_MIZSastTNvNJVYswTQ","spotifyId":"72uG8MtqX1p1jwXzGmLFiC"},
+{"name":"Among The Outcasts","channelId":"UC8aVb_qrjEuBvxgR4Nwb3tw","spotifyId":"7BmwrV1DnkDiokDt3Iwlqn"},
+{"name":"Amy Caprice","channelId":"UCtQ_rXK9i3EhEJ-Nghcn-Tg","spotifyId":"0qK9Jkg56LX48GXYUeOKrr"},
+{"name":"Ancient Mother","channelId":"UCJ1WUags_8_dtzmkQHPUGAQ","spotifyId":"6Oun0Bm4NIZO6rn2XCx03t"},
+{"name":"andi_404","channelId":"UCGOL_Hjp9yHJe9yjEqteBRA","spotifyId":"6w0h4tqsfi0ZwYfrHbV3cf"},
+{"name":"Andrew Lewis","channelId":"UCRe9qgsv7t4v2PEqXroXkIg","spotifyId":"2UTvf2a3xKuWM4nBXMhwEK"},
+{"name":"Angel of Oblivion","channelId":"UCJkVQHhkqtEdmJ7ayGVm95A","spotifyId":"1Q7gmGEGHz40UbQ6lwe0PO"},
+{"name":"angelbaby","channelId":"UCQFVhawSgdSxUi76KpSCvyQ","spotifyId":"6g4ZsQkAV0t8qDAYlB5QGr"},
+{"name":"Angelina Mormando","channelId":"UCDP-EeKBA3NGWEfV5hTLaIg","spotifyId":"4rYruNinsmb8uS86TM2qGX"},
+{"name":"AngelofAnarchy","channelId":"UCLe_ekqZr7043O-HxqPHqcg","spotifyId":"5dt8gRLDwIgSS0uwxvxqqJ"},
+{"name":"Angels Of Agony","spotifyId":"50ve8lBAG1M315OHj41vty"},
+{"name":"Animator","channelId":"UClc2GaRHyhf400EJYgPBEJA","spotifyId":"4XscE4PACFqLUbvJz2c1Zg"},
+{"name":"AnimusIAc","channelId":"UCiUNF-8hw8XZhGKGByzjUVQ","spotifyId":"1BmVXddIrjHZcftHcEpaDW"},
+{"name":"Anna Regina","channelId":"UCrtsfoEp4CmtK9L8uB2NeQg","spotifyId":"68apaJ2x3O9QarUZkSUiiS"},
+{"name":"Anointed Family","channelId":"UCTPakauFNBU97u3XctQ9P8w","spotifyId":"0PgEdAxmA7hnWFPLP9oUCJ"},
+{"name":"Ansel king","channelId":"UCinndcjvlHLNDG1LdLGwt9w","spotifyId":"2oAjuOhcM88KefwkmmlfST"},
+{"name":"ANSI","channelId":"UCWnvJ4cVd4AaAWV_L466iOg","spotifyId":"6Fr8t6zYm03eCUYYWy7ZrG"},
+{"name":"Antikaa","channelId":"UCB7Q9hrrAuBLQTj7gZRYdrg","spotifyId":"2xXk03CJgMNJRB6CXzctgz"},
+{"name":"Antonin Herbeck","channelId":"UCYEecGW77zMaWcmHvbseN9A","spotifyId":"1iQiTD3X6TmEBJbTR1jsRu"},
+{"name":"Apexwolf Beats","channelId":"UCoHGTf8U4HgKsoCteJOSLWQ","spotifyId":"44gGAv89M1zRgttLVdjrR1"},
+{"name":"Appalachian Anarchy","channelId":"UC9R7dZ59Vpqz5G0hMd25m4g","spotifyId":"59JuXWTqK2cLCvSNz63fqN"},
+{"name":"Appalachian White Lightning","channelId":"UC5nUWR8ydICTIYiZMfs7DKg","spotifyId":"36S8Go7W9bT8cBwr3QFvKv"},
+{"name":"Apukat","channelId":"UCdt8KIruv8HkF0XOVjVCNMQ","spotifyId":"6ArOfXp1KmkXOjqYMPVJNc"},
+{"name":"ARAÉ","channelId":"UClX0eD226YaSykDHf5mutyg","spotifyId":"42J5JULUFdteDdTuc3bgr6"},
+{"name":"Aria Byte","channelId":"UCHiLsRo9aM95w5ABze9vdLw","spotifyId":"7pir7W98JXhv4I7zYLUaSr"},
+{"name":"Aria Flux","channelId":"UCoLLXcAvelP0pYMuJfjTbtg","spotifyId":"66uRbhmisjPurkWAYwMLkF"},
+{"name":"Aria Sai","channelId":"UC3ip0joLmtlcR3F2n3iTeig","spotifyId":"2CCtdU1GpSjr32FrR4dlrI"},
+{"name":"Ariana Lewis","channelId":"UC94_lqZcVq2CW1xAlJtjwbA","spotifyId":"1FI4PTQu4WB1qp36jnIMym"},
+{"name":"Aricie Nova","channelId":"UCQDdTyimsAHZXfLl--wDGrA","spotifyId":"3DwGtfGtbQnMM9nPefd718"},
+{"name":"Array of Illusions","channelId":"UCac_1UjmpVn_WWJFa6yeg6g","spotifyId":"6y4m8xu9DuTkzJIiPF6OHe"},
+{"name":"Art Roseman","channelId":"UCYbXHa-LVFji_4uTVC9TJTA","spotifyId":"7DbhILn2zuKOYPlBO4zkux"},
+{"name":"Artificial Individual","channelId":"UCFyQRUJrzy3lznxudFrX_fg","spotifyId":"3T6UjjC5toqZtnqMY1uZ4x"},
+{"name":"Artificial Soul","channelId":"UC0GQKegv90KuqvapFghjpKw","spotifyId":"4xKvwG0r26YvoddWvisGb9"},
+{"name":"Artimus Ion","channelId":"UCm1ilFq1NXMbHzTTajyjUYg","spotifyId":"4iimzs4RqqIpjoZJZzkAKa"},
+{"name":"Ascend Vocals","channelId":"UCGaTxM6wOT1AL9OL0SwSwMg","spotifyId":"4ow8nPS15iu2TY538f4YHs"},
+{"name":"Aschensturm","channelId":"UCtkbAdEnblkOJFwZODneKlQ","spotifyId":"06QiQryte5FfPd9L7zHKLA"},
+{"name":"Ash & Chalice","channelId":"UCFsNmqCUVSWMIbhcf1iMLPA","spotifyId":"6ZsbghSc9y7wQVO0GbjqxF"},
+{"name":"Ash and Echo","channelId":"UCPRi9xUWFA_8pi7Ay0Cf8sw","spotifyId":"0EyCnWOctgTmSzl1Oy5DxR"},
+{"name":"Ash & Paradise","channelId":"UCAbsfK09zB-N1lp5vPq-ALQ","spotifyId":"6oGSglmR93IqpvO8AbNt44"},
+{"name":"Ash Reed","channelId":"UCKy8HJjHtfaSLTmdb9-wBaw","spotifyId":"0e2nOI0lmWMtCHY4ghfqKu"},
+{"name":"Ash to Eden","channelId":"UCiPOlbQ5syJ9Mi33MLPiLOg","spotifyId":"5KlBi01OWLrjDZJKBFtPkd"},
+{"name":"Ashborn Records","channelId":"UCNBBEWHHfI8MOXpnfT8GVew","spotifyId":"47A2ZRxdHXMqclXdEDW8Kr"},
+{"name":"Ashes & Altars","channelId":"UCfvS58SuLFerkrWLq_9OLNw","spotifyId":"2CaHlA99QsnLaSGquv6o6H"},
+{"name":"Ashes of Angst","channelId":"UC_7_SdkKNb021MFsqVvhWqQ","spotifyId":"2UJm5tXcmflQFMi6hPyzvn"},
+{"name":"Ashes of Eden","spotifyId":"5Cw0RywOrfPAzlLEsrBC73"},
+{"name":"Ashes Remember","channelId":"UCn2MHBG7S6kEJ_68xHwlLJQ","spotifyId":"34lXZQb5zf6VLXwpxsT7MQ"},
+{"name":"Ashley Klein Maddision","channelId":"UC3S0pGmvn2nyxlysTCt4sCw","spotifyId":"2KSxRHyNdatBdv5XiuRJul"},
+{"name":"ashpvnk","spotifyId":"3dA0yRUHt4EC9GAbVqJZf3"},
+{"name":"Astra Gold","channelId":"UCBkfJD20WD0UA_fVgW2CKmg","spotifyId":"13iGSHyZFIeo6VQxJXTv9e"},
+{"name":"Astral Bards","channelId":"UChFql2hSBFPBcoQ0G6oD0vg","spotifyId":"650I9wGNnZKUQBZHsFtRKC"},
+{"name":"Atlas-Leo Mikkolainen","channelId":"UCs9UD3va5SRbjm7EYSFXckg","spotifyId":"0dIS9vyzdIAmklUcEVe1eb"},
+{"name":"Atlas Untamed","channelId":"UCbI1VpTLAoL1wWlgqbmedJw","spotifyId":"2acVNiatfP3p96tKG8qH9U"},
+{"name":"Atomship","channelId":"UCcoQgTE79sySR4_A8g6-wZA","spotifyId":"4PbKVheWA7ToOxOrqqzjol"},
+{"name":"Aural Flame","channelId":"UC_EW239yncp2_4kT9QixdxA","spotifyId":"6CLg2lwbXLvDO67u5C8q0j"},
+{"name":"AURENZA","channelId":"UCGeK2TCAmcU8y_M2ICi1PsQ","spotifyId":"4osA1DTtVEc75xSK2GWZXz"},
+{"name":"Auric Veil","channelId":"UCqbIXnOciTT0hiZZkn6BkbQ","spotifyId":"0E92sZIifY5BwrEDL4thua"},
+{"name":"Aurora Lane","channelId":"UCWD_KNAUHQyVh3H7e8ChEAA","spotifyId":"12dTRwxoCBGKgFUWIydcun"},
+{"name":"Aurum Project","channelId":"UCx5H_EnhnlF7hLZGD-P1KRw","spotifyId":"03yTgJXpGbNcPewnYfD2Rv"},
+{"name":"Austin Blanchfill","channelId":"UCsvF3B04sMzWpjsJDv1q1cg","spotifyId":"7pddJCODtxUyoL9TXPzRcy"},
+{"name":"Ava Veex","channelId":"UCbkt6eyVwnTX6bEPISoOzRQ","spotifyId":"1TjyGerbNRYiAw7AHQg8eh"},
+{"name":"Aven","channelId":"UCSr9B06NCfbN58r0SAljFug","spotifyId":"2rvnBchzrPtuue6hfHElmM"},
+{"name":"Avenlis Sound","channelId":"UCPIcJBWUtpEcK6uoZWQxZ8Q","spotifyId":"5Xnd20AR3j5BYhkpjvSYnx"},
+{"name":"Aventhis","channelId":"UC-t79t7t3paBwPx0mYx5V1w","spotifyId":"0a97V3mDhGyNg93Dcf9Ahj"},
+{"name":"Axiom/Modulo","channelId":"UCvr1Zw-FXxvGK6zArAjYQ4A","spotifyId":"3CR55kn9vgOhKrciLYAP43"},
+{"name":"Aya Thorn","channelId":"UCwCHfWdsci7GAyCwl8XuvEA","spotifyId":"0M24mDAFdTyVOHET99WEIF"},
+{"name":"Ayla - Chan","channelId":"UCT-aQt-dNX-QGk8wEYKKIVg","spotifyId":"2QKHU2aU2m7dW6fBPuwZGa"},
+{"name":"Azophiel","channelId":"UCHXH2KfuSxg_LlO44ZmWXhg","spotifyId":"5qP914yXYRucCLKAAIJxqP"},
+{"name":"B Twizzy","channelId":"UCUNYr073ETrfMOqspGzijJw","spotifyId":"5fxAD2CEglwSsAFp0eBP8q"},
+{"name":"Back of House","channelId":"UCAUAGMPLLQiwUcySy3JPNrA","spotifyId":"16kQWkDKaBv5qymJ72YJdL"},
+{"name":"Bad Apples","channelId":"UC-Tpu2gspo0jE2F_BdOph4Q","spotifyId":"1s7brFQBWfA9z2YR7bl9nh"},
+{"name":"Badger Sounds","channelId":"UC5TcQcGhxhHS0ThUqzjLC5g","spotifyId":"64XVZA95MFE7smlQOsEQX4"},
+{"name":"Banned Vinyl","channelId":"UC12pzVnL77E9CUHreiRWdEg","spotifyId":"42t4hWS8aGwWNQhutNCl9c"},
+{"name":"Bardcore Medieval Style","channelId":"UCmjqBTOgk6KfGsWI4jn4XwQ","spotifyId":"4kcJKv2RjQK7qjG1oAndr1"},
+{"name":"Bardcore Music","spotifyId":"4KAX9o2eGyd0oKMpQnecUr"},
+{"name":"Bards of Ethernia","channelId":"UCC1ZAjSefEBtf0W4ul66C7g","spotifyId":"0GwxloWI2QIHXtEWJeTsKU"},
+{"name":"BardStrike","channelId":"UCa9nFNtbI3zTZfPLx7QExiA","spotifyId":"1WuGn0jCPDAovbnnia18hk"},
+{"name":"Bardtholomew","channelId":"UCcIAztuCT11zqvnDK74HtyA","spotifyId":"0cl9oRHLLFTR7ePGp8LEjr"},
+{"name":"Barhound","channelId":"UCG7LMNXonPrGyYhgq5VjSlg","spotifyId":"4HXvLyvzL3JWdBlNdWu5mF"},
+{"name":"Basi Gonzalez Music","channelId":"UCBgP4UOHnmHMzJrPSL82_KQ","spotifyId":"08uDZ5xq2Lnr9cTPUaLpKS"},
+{"name":"Beach Days","channelId":"UCWNZbiDlAoac3TKxs6iTb_Q","spotifyId":"2Lc1LrsShU6Iah5c3oxCc5"},
+{"name":"Beat Drift","channelId":"UC1DL_GGzZW155j5ev9yXoxg","spotifyId":"3X3coPEx339cDpfSp2H36M"},
+{"name":"Beata Ślusarek","channelId":"UCzgDRFbrEvq6L8W3LjJEcKQ","spotifyId":"02TWJAFnfplhjiIe9qTVBc"},
+{"name":"Beats By AI","channelId":"UC_XhaNIPaqmmbKLrm4kAVZQ","spotifyId":"2VL0G8nTevMkOCc1cPWu5i"},
+{"name":"Bella International","channelId":"UCSaxHomrEjHjVOpBre6mu9w","spotifyId":"59XLtiLsOtBF23w29CKlRX"},
+{"name":"Belly Button Bars","channelId":"UCy_wXEWbdOytzqUrLK2E_vA","spotifyId":"7w9OGRhyFOZni7MW16l4pr"},
+{"name":"Beneath Our Ashes","channelId":"UCLIyn-UCDHqDpYRCudF5nSw","spotifyId":"5ZjPP5L00ZzgodEzTKR3EP"},
+{"name":"Beneath the Mercy","channelId":"UCMrkJbC12HiGrhLZsugiJfQ","spotifyId":"4p96mIiBArmhBgmQKcLOSb"},
+{"name":"Benetti House Bar","channelId":"UCTEImHhWamFqQfqlU9Raztw","spotifyId":"2g3XoKBDF3xPN5S68Rl0gR"},
+{"name":"Bent Ardi","channelId":"UCzwHBLPKY6aimdRJ8QkzgnA","spotifyId":"3lV9DEl0qO3WdezMwkJsqw"},
+{"name":"Berachah","channelId":"UClrCpdu1CMEhME-7XSmhCOA","spotifyId":"5m4xI2Y3pbaVH2BUwQv5ub"},
+{"name":"Berserk Fall","spotifyId":"5IXCNpWO1SNGQOyid2DSd2"},
+{"name":"Beyond Ashes","channelId":"UCE2vgthHx9Us6Waqvk5HCzA","spotifyId":"2EKfwEMe0QTcYwfhmQyg2V"},
+{"name":"BEYOND AWAKE","spotifyId":"2R1ak4jDCjXlksuQ2S5DxH"},
+{"name":"Beyond Disdain","channelId":"UC73H8sOxN_kkBGKn26CR4-w","spotifyId":"2MpVNPYFczBeNjPXePyVB4"},
+{"name":"Biodrive","spotifyId":"1Xj8Qf3AK2KBn7AF98OC78"},
+{"name":"Biscuit Beats","channelId":"UCuPNspBTRO-msvZ3rs2eJiw","spotifyId":"7d0vajTzRZvHSQAlLxXwT2"},
+{"name":"Bitblood","channelId":"UCR6BBJT-b5YNzOShOB-22AQ","spotifyId":"0jmq9CS4Q0xV3FJxTePX7F"},
+{"name":"Bitter Ends","channelId":"UC-UX2XXR3QWDZb09oJsZAzw","spotifyId":"3dKJPZ8kCa77upMXE8HHrR"},
+{"name":"Bjorgamus","channelId":"UCglguNnAPZcBILXeQ2BHm5g","spotifyId":"44eEnZAdy8zmwXcTDKnFhf"},
+{"name":"Black Mewtal","channelId":"UCq1cNtV6zcvlGZ5rYguyzcQ","spotifyId":"4pD9k5kwc8iYX2spxUBGeu"},
+{"name":"Black Mustang Defense","channelId":"UC-mQ6i_Mv4eYF9Ng2k3dddA","spotifyId":"6VNyMIYuc1bev0Xe8hIpia"},
+{"name":"Blackbeards Tavern","channelId":"UC0DyYYhJC916tGMP4XOXanA","spotifyId":"5wI5SeZBRJ9nWKgS9oJAQc"},
+{"name":"BLANK SOULS","channelId":"UCyzrEJ5QcC2EnxG7RX8Hc-g","spotifyId":"6AdnBj2BwayvTnH7pLwEg1"},
+{"name":"Bleed Token","channelId":"UCwax9Bx62sNchsI4ZPZIApw","spotifyId":"5X2de7IcUobSTy6B9IAXoP"},
+{"name":"Bleeding Verse","channelId":"UCljtMjyy35oKk3GUnbcy3CA","spotifyId":"6CrsGj3Zj4gIM3rQSU7DeW"},
+{"name":"Blood and Oak","channelId":"UCb9YyrDcvwvpsf4HX1558Yg","spotifyId":"1Muz8ZyAQGHov9KwrfNPGm"},
+{"name":"BLOW RECORDS","channelId":"UCJHVp5FTzNyz99_sJ45GQlg","spotifyId":"6N5PRAVXd4vXyXmKseP3jq"},
+{"name":"Blue Rhapsody Trio","channelId":"UCWeXYo_KmOEvC85j4zoajKw","spotifyId":"2Flu0CF3TFC0U2bXmOU8Ir"},
+{"name":"blueberryclub","channelId":"UC90e2DlOyADSsSjVtA38s8A","spotifyId":"1dgj9mN2Tuy1gdPHn78gZC"},
+{"name":"Bob Rust","channelId":"UCbDa3ItJpaBs_nJpLwLtFWA","spotifyId":"0d6Jwsa8ClHUgneTk0rntf"},
+{"name":"BOHEMIOSINCAUSA","channelId":"UCREBPiKbwgAMDBZxSdSNO7g","spotifyId":"0N2hl8puDxKjQQDyW2eBPz"},
+{"name":"Bon Chic","channelId":"UC77EWey1F1vNeTog_fZwT1Q","spotifyId":"3eRVAsuTAaNukj2vfRnaYo"},
+{"name":"BookAria","channelId":"UCC5-Lhegpfyajqa67OiW6gw","spotifyId":"7uedygrXc2dqm7s3fHTmlx"},
+{"name":"BookSongsAI","channelId":"UCbTm6IkLzQLZQDJodLKLGig","spotifyId":"0BzLyqEXNYRb2FDTMCr2en"},
+{"name":"BookTok","channelId":"UCANDqNI2amhhJfuYhcg7qAg","spotifyId":"3XhzIq3xGVsEIcPf5gz1Cm"},
+{"name":"BOOMSLICK","channelId":"UCEHqnglYQ-OpN5bm6m0G77g","spotifyId":"1VIRmcVEo5qhoj2qgXvf86"},
+{"name":"Bots with guitars","channelId":"UC5LpXvlwJWFyE4n7jPYg0Rg","spotifyId":"2wRbEujffctQ7n11wt6H6F"},
+{"name":"Boulevard da Musica","channelId":"UChrP0W0Ik9rW0A8amx1cEsA","spotifyId":"0FoRtplrw5DwYZeEiT4DjP"},
+{"name":"Bow Boy","spotifyId":"4beFxDuKeWARiQtS8rgNN6"},
+{"name":"BoxxBoxx","channelId":"UC9icCwnRAhqN-Jv3_R1kyiA","spotifyId":"0LBJ6HOlSOhDtS1kTqVMz1"},
+{"name":"Break Me Open","channelId":"UCq0HN8J9iAikbjisrGyw2ww","spotifyId":"44cdc5PhT5bCqd8PJxywac"},
+{"name":"Breaking Rust","channelId":"UCODbKiVoR8lWDPl39uf803Q","spotifyId":"3h9rLaviiFj1TeEhdIRpP5"},
+{"name":"Breizhwave","channelId":"UChIaqiTBI6vsROUeToTpUeg","spotifyId":"0javEO8HPBk2yjZXMsPuoK"},
+{"name":"Brewing Chaos","spotifyId":"0bcpelgVpxL1I8L6d0VWF7"},
+{"name":"Broken Altar","channelId":"UCPo_pO0lTalr9d28bOo_8LQ","spotifyId":"3WSvhkwOXQCzqutMaM7msp"},
+{"name":"Broken Avenue","channelId":"UCVE9UMO6H8b6GQJ_Aa1CvKg","spotifyId":"0zcfo3QWQw4OLLmMuKiDep"},
+{"name":"Broken Oracle","channelId":"UCjLseE0OnhCNghoqMNHWtrw","spotifyId":"4qaRuUEio7d97qKXRc0eh0"},
+{"name":"broken record kids","channelId":"UCn6ijpSKvLgPg7wo4bhE_uw","spotifyId":"5ZHL8LqKjdLnanGhNI8rPQ"},
+{"name":"Broken Trails","channelId":"UC5H9cY2J4fCyHriG8vb7LRw","spotifyId":"4xx3ItNSXI7tUcCYU3St08"},
+{"name":"BrownHouse","channelId":"UCAG9ypGp-SsA7piF6Kk2bIQ","spotifyId":"39s6DYbwWeHavEo5TnXnWx"},
+{"name":"Burn the Silence","channelId":"UCVbhIW1jqjqfFEJ7TnSsojA","spotifyId":"6SOP5bQNtVEh1aXBqN3f7P"},
+{"name":"BurnerBoo","channelId":"UCxWR9Y4p5pGXY5n50xrtROg","spotifyId":"3rwFIh7UXSxwCGpSNbtRi5"},
+{"name":"Bushido Girl","channelId":"UCNUq0GXlyawudiLgJmDAkJQ","spotifyId":"5XdApx9FvkSSP4tKpx8Adz"},
+{"name":"Cain Walker","channelId":"UC0RT8Jn69jJouPvjHMiGFXA","spotifyId":"7BKNTwZykUrvFUK5QbeHhg"},
+{"name":"Caleb Raines","channelId":"UCqpd2H7LxKMEFvSNGwMyC5Q","spotifyId":"3qTrtgdP0sX0hbm29L2A3I"},
+{"name":"Call Me Christian","channelId":"UCQMdMVhpoEzlW6g2atracKA","spotifyId":"7hffEChY9wWnnsew1MRb8z"},
+{"name":"Cara Bloom","channelId":"UCsliN4_O03_ACtb53zQhoYw","spotifyId":"3I1n2OAdW7SQf7F3e8LAA9"},
+{"name":"Cayden Cruz","channelId":"UCpPwzHJHl2nweHtDGw-u8Dw","spotifyId":"36WZQ2Iukj5fVI2FLEt1l5"},
+{"name":"Ce A Zar","channelId":"UCUMk4bhiIcN4Yy2_oxvE0HQ","spotifyId":"4Rk1IR9U0z7PEUBJvvRsGr"},
+{"name":"Celestial Aeon Project","channelId":"UCVhdvFh636Bajc45jyeeOPQ","spotifyId":"3erL8NEQbmmOXhO6yyVWxO"},
+{"name":"Celestial Apexion","channelId":"UCniP9KSqXYNqpB20nHlOxSQ","spotifyId":"7AhQJBpuMAsfn6xqhd6q4Y"},
+{"name":"Celestial Melodies","channelId":"UCLLIPjgubM9Y327hqeAJMIw","spotifyId":"0lUpVjzMvMW2X3fnJfrFqC"},
+{"name":"Celestial Tunes","channelId":"UCTGRgMmXetabvpWX495lyvA","spotifyId":"3M4cwppElD5XYtbCMvOO50"},
+{"name":"Celestial Voices","channelId":"UC2lwmOqxm8jWKA0FoxYgvPA","spotifyId":"4X9DN6NniJAB2vrxYWPeja"},
+{"name":"ceZk","channelId":"UCsS2YfxBHfIzxieY0l6igew","spotifyId":"1kvDLAT3QnCYD9z9R5q0L0"},
+{"name":"ChaluluMusic","channelId":"UCkgfbOlhKIumfXkTGilnOnA","spotifyId":"3EMYxYG1oMaQ48vBz3eXbI"},
+{"name":"CharFutur","channelId":"UCCFb_m1xoA3GCFEnP9iJ4HQ","spotifyId":"1eBdz0heGm09dtvXbo5CEt"},
+{"name":"Charis Studio","channelId":"UClXCiaX6i7LC_B6-bevWwIg","spotifyId":"4DXPjwj0A2XBeL54jYGZGe"},
+{"name":"Charli Morgan","channelId":"UC-KDWf1OwOA_lxJaTYIh2Eg","spotifyId":"3mlOel9qU849uJYOyBP7jc"},
+{"name":"Chat Music","channelId":"UCunF8Uii3BUWodEWosknwww","spotifyId":"3yJAMFHscYRfKEwKagYVWV"},
+{"name":"Chill77","channelId":"UCPhdnRuDDIOjYPaKItFcmdA","spotifyId":"7jixKGP9cSwVSLEkmgbv2s"},
+{"name":"China Styles","channelId":"UCTIAKZ6RevCFvWrcGQiNlfg","spotifyId":"3ubPEAmladxyGrppqdQwTk"},
+{"name":"Chords & Scales","channelId":"UCfDI08PCBCPKbWgv2UaXQyA","spotifyId":"15woIdoSSG3mybnu0b4zW8"},
+{"name":"Chris Wells","channelId":"UCAQ-B9qz3fc6cMcu2KGpDvA","spotifyId":"6yX2ezgy4bn6JP1PbFXkJY"},
+{"name":"Christian Music Creations","channelId":"UCLlyfDzMK1uN5LRrjBJpSqw","spotifyId":"0EexfNs9ZfQ3lWDmO7Csm7"},
+{"name":"Chrome Vultures","channelId":"UCr3YBefTBpxFt0ZysWzNhEQ","spotifyId":"4PQ5sbaZJmQMG5XtwxvVrL"},
+{"name":"Ciara Blue","channelId":"UCacBLSO_n-3zoTotVZbR8RA","spotifyId":"439pMTy0VwEEZS9Rynp4Uo"},
+{"name":"Cimmeris","channelId":"UCTcwKiPAFBIsYh2xE-AM9uQ","spotifyId":"3lEGBkNp6scKHXFvTt9yWi"},
+{"name":"City of the Fallen","channelId":"UCHlKViK8-tMYRq7w-5BrrPQ","spotifyId":"2Y6yi5MrD1GR14YM8qNCjw"},
+{"name":"Claire Pellegrini","spotifyId":"2qg77bmAYHTGKfR9EXo0KG"},
+{"name":"Clarence Blue","channelId":"UCO0MXwd6644mQI71i--QC9g","spotifyId":"1bhoBp0rtFJqG4P4FxcjLy"},
+{"name":"CLEIRIS","channelId":"UCeUsWO3hjljHlqY34v-mz6w","spotifyId":"56Kwrlq7ocxAvv0vdEbFet"},
+{"name":"Closure","channelId":"UCzekJaOuUlO7cOgf8px5uHQ","spotifyId":"0XaShgj4XgdneEkOyv0bCC"},
+{"name":"Cloud Chief","channelId":"UCfO5onXk-TMGreZTRFRyD_A","spotifyId":"4BPXWb9bm3v2vtUimqhkec"},
+{"name":"Coco Expressions","channelId":"UCbUm0X5xRaZRz93T5kJGJbg","spotifyId":"5CxbLeA2tZMI77mfqx1j4M"},
+{"name":"Cody Marrow","channelId":"UCUw3ZPKv0FNyFNjLanynTxQ","spotifyId":"5UnojgaZc7MiDvMXNLKhrQ"},
+{"name":"CogniVibe","channelId":"UCM_nqrz2p1QbjvCIxjRa5jw","spotifyId":"7K1DuH55ff9GGmO8DCUeIp"},
+{"name":"Cogs Of The Night","channelId":"UCtfwOti_WkivBdfdzPn6wHw","spotifyId":"4SqawfsiXeEpWkQ703Bzks"},
+{"name":"Cold Aurelia","channelId":"UCObalNlXej8kaXcDZQVac6g","spotifyId":"6dPW3QcpOWUpLturiO6ymO"},
+{"name":"Collective Mind","channelId":"UCQcxdjM6IbkgvT0I7EawVIw","spotifyId":"3nHlKmB3NO4RKVH8TnX4fV"},
+{"name":"COLLECTIVI SUMUS","channelId":"UCwHkK12xXfRX_7bTX5V97yw","spotifyId":"6Ywi2M2xS11x5wCj4c0Vmd"},
+{"name":"COLTER RAYNE","channelId":"UC8q2CZmwb09L_IResRrv6dA","spotifyId":"544Hd2Ja1526AqcftSnBQc"},
+{"name":"conaco","channelId":"UCNmdmg-uq3Jl3Cqay0-8kDw","spotifyId":"318pAc7ymkSe2l4EIzPINf"},
+{"name":"ConVex","channelId":"UCWi6Rco5WTY76G7GnLAB40Q","spotifyId":"3OSP9uAGtduEBMaVI1DHRm"},
+{"name":"copperplate","channelId":"UCHp9OhzgWDY4ZpeNGWiRaxA","spotifyId":"33gqAcq77ntKPjmks6HLGD"},
+{"name":"Cornelius Valerius","channelId":"UCDO5HDRnO7LEfIo1vdl5-fA","spotifyId":"7aisX9VUgpBVXg6aXGT104"},
+{"name":"Corner of the Café","channelId":"UC0ekccGGE6cVu6ypjofGGkw","spotifyId":"0Xpeg4XkaqBcuPDP76WDwX"},
+{"name":"Courland Static","spotifyId":"2zTn8pnqGFQKo6fDnkrzfj"},
+{"name":"Covenant Of None","spotifyId":"76RGmHjn7Sx7HigY0c5eGV"},
+{"name":"Cover Series","channelId":"UC3lRTbV898bGTkkMg2kBeBA","spotifyId":"0s0Mhb8edq82RTk4BaweI1"},
+{"name":"CR33PIA","channelId":"UCfvjPKqGU49RQuE8c9-2eSw","spotifyId":"0qyYZ1jH3kYBdWUpJNGukG"},
+{"name":"Cracked by Rocks","channelId":"UCxcAGNwBp1jeF5LDJMMt4XA","spotifyId":"0yC7wLSIsi1UqV6RCfriyH"},
+{"name":"CREEZY","channelId":"UC7gjH7UK1EKfbdoMRlf-UlQ","spotifyId":"4CoaYRHaLML5WE0C35HClI"},
+{"name":"Crescent City Collective","channelId":"UCR9oNYVeitjZoxVLkm0HLrQ","spotifyId":"7C0nWAPqKEnjoaeZt55SnY"},
+{"name":"Crimson Collapse","channelId":"UC2YLDyM9TAbDL9GbIGf53VA","spotifyId":"2aS24QHQcFbLYynpaTl3Ia"},
+{"name":"Crimson Sorrow","channelId":"UCrzXqz9cG1P9VSR5qS4lAGw","spotifyId":"2Gw3WYi60bVLy6YztUsxkT"},
+{"name":"Crimson Trace","channelId":"UCJPC44d44zhDIWE7VvizlUQ","spotifyId":"2g9YrYe0cG2UBvcvGbX0hT"},
+{"name":"Crimson Vale","channelId":"UCqfL_JvXfyM3QdBBp8eEf6g","spotifyId":"5GhrfzEjXYGDqEnnM1IahS"},
+{"name":"Cristi din Apus","channelId":"UC-uLp5NCfjjdVzvPaauDlkw","spotifyId":"5l22ouPRNQBUkpAPlzIs6K"},
+{"name":"Crown of Glass","channelId":"UCUOLM5zoKs-xBLHDdmAWw3Q","spotifyId":"5VAyloY5F1Qk7hmGvZHU3D"},
+{"name":"Crowning Flame","channelId":"UCnU_zkqpfKvh5LFc_6GDIbg","spotifyId":"7dPvX0g91DKJw3asUKklZi"},
+{"name":"Cut Davis","channelId":"UC75Fsh4KS3J2kXMBV51qQVg","spotifyId":"1i6IrVs1J6EBtOFNXhn630"},
+{"name":"CVllXXX","channelId":"UC8T8FoCAhg64dNIxQfCwhEQ","spotifyId":"0if9xXy3yUwyqOjViLYnan"},
+{"name":"Cyan The Hedgehog","channelId":"UCQmwR3OaOvvykqOoKzdEsOQ","spotifyId":"3brergMilis6XAwpQ7kcrv"},
+{"name":"CyberMetal Records","channelId":"UCSMZ8ig_Q4Vu33S41Sm5ucA","spotifyId":"4jYzeLekWshwTKlW1BU6t3"},
+{"name":"Cyndr","channelId":"UC4lXG3nnhjhq69N-piN-VCQ","spotifyId":"4q15WBVnHDTs8iNVQQRSSj"},
+{"name":"d33p.","channelId":"UCqClHX9g_Ggu06tORLQL3mA","spotifyId":"1naZP262GojPakSxwoDfZs"},
+{"name":"Da Soul Orchestra","channelId":"UCN2qsPHgXf5uJOIA_81u_og","spotifyId":"4TjVrvgka2iJR9GCbjKfLj"},
+{"name":"Daddy Unicorn","spotifyId":"6w3Uvh4HV44MQtfHKg9vKu"},
+{"name":"DÆMONVEIL","channelId":"UCL4Ap__a52L0j3eN2_AVMNw","spotifyId":"5WpvWQZIERfwTWeprswFRG"},
+{"name":"Daimon Noir","channelId":"UCru7bnmWNGUQuGupxAd1LZw","spotifyId":"5UnlNwwsBNIq3TSHYar3Yz"},
+{"name":"Dalihen","channelId":"UCC-zACUskJXKhdhFtPaSk2w","spotifyId":"0GOQ2trcvRp6RbFIk7Rifx"},
+{"name":"Dan Harman","channelId":"UCGlXNssnXcFAmLZhCqRCp3g","spotifyId":"3Dkmhllp5Rzo1T26CWrCkO"},
+{"name":"Daniela Presta","channelId":"UCbPf9mpEkNAbL5ySGQCYgUg","spotifyId":"4aBho1YauoyVyiamFPIPmJ"},
+{"name":"DannyHO","channelId":"UCqfrzgXGVsX4M1At3laTQLA","spotifyId":"2JbSO56Km4UNAcnzcgcm0D"},
+{"name":"Danty_Lwanga","channelId":"UCEL5e8NVnEykO-ddAbtuj7g","spotifyId":"2fcukpuihcb8bhADyYaGqy"},
+{"name":"Daphne Rae Meyers","channelId":"UCI-FoteIfJ9Q0siq6fMCDAQ","spotifyId":"66rKvHV3Thj9w9XmrJG3WG"},
+{"name":"DARIUS REIG","channelId":"UCK74bk_frC5TN8Q0-7B-l-g","spotifyId":"6IwOZfweSHkjxWTXdarWvY"},
+{"name":"Dark Blues YT","channelId":"UCLElIekh6VVbqkZYo--gklA","spotifyId":"0VD8mh1qWxnA7QanglU9DU"},
+{"name":"dark_cloud","channelId":"UC4K_JabqZsGq8LoKeIvtxnA","spotifyId":"1J8PIKDtlSTIvOU4d11pt5"},
+{"name":"Dark Country Boy","channelId":"UCtRAqLMwAY6xxHm8jaUncXA","spotifyId":"4TQMuCjeTbhqvPinWKqRAv"},
+{"name":"DarkMatter96","channelId":"UCcOnBQfosxy6QZTS-UEqXUg","spotifyId":"2mdilpepqz8eDvE0NVU4L6"},
+{"name":"Dark Noir","spotifyId":"5COVZd3zir997pQ2dDNMnJ"},
+{"name":"DARK R&B CONFESSIONS","channelId":"UCJW7Tkh0THiehAks9axUkoA","spotifyId":"0TK8ypVt5imlKODySz7x6J"},
+{"name":"DarkangelAI","channelId":"UCM6rF0Swa07CKgKRHmzeQ_Q","spotifyId":"7mB3fh2hIAHmqOHYcOMWbq"},
+{"name":"DarkLux","channelId":"UC_Ai8H5NG_iTP8gwTevunhA","spotifyId":"3nALfbbhQR3A5C1g23PnTX"},
+{"name":"Darrin Brentner","channelId":"UCkhuT7TkHuM2zV1BtB1ptVQ","spotifyId":"0UUrb9u49Gx7sVe1YFltdP"},
+{"name":"Darth Kanga","channelId":"UCDtaueeRYux3UxiRRAvSCCA","spotifyId":"1RTcEa37Sbi9AU5sWV1vi8"},
+{"name":"Darth Marley","channelId":"UCsZh9NN1fr06TxvZAv0wROQ","spotifyId":"6VI82roojGceqRlKUdoGdw"},
+{"name":"Davian Blake","channelId":"UCVQDURzGn0oFxohbfG5f9jA","spotifyId":"1kAelaBTwLYFCkelExGjwk"},
+{"name":"David Sven","channelId":"UC77h58MpEmHOKGVhPsZm9ew","spotifyId":"3ar8IMCqAMrVPQoN6cBwok"},
+{"name":"Davids Son Band","channelId":"UCAvKrB5b4ocuhA-Wru1CD6w","spotifyId":"5me91RnWUPcKC36Ucx3XtJ"},
+{"name":"Daxlin Veylo","channelId":"UC0YpowCMYi-w_QiDv5A5ukQ","spotifyId":"6JJmnbgKidCvIjnVibRKwN"},
+{"name":"Daylight Rapture","channelId":"UCEwcIyB1QUt9iJol3ZlBUwQ","spotifyId":"5hqHeSF2ZIr5LOrKQcXlcg"},
+{"name":"DaysEye","channelId":"UCL09ODO_x3g16dQk5GQykWQ","spotifyId":"5xXNSdXlFulKXyuOxHeIwW"},
+{"name":"DEADCUE","channelId":"UCcn9cn3pch79Fp-F1_dBi7Q","spotifyId":"5DdtPwdpxCOSz7HmS9W7wv"},
+{"name":"DEADLUVE","channelId":"UCOFDJM_SFgN1AT9a7v7ftog","spotifyId":"3CwHxE8HXuezwO8DobgbiM"},
+{"name":"DEADSTATE","channelId":"UCoLdiv1O8Oa2QgY6pCTuTCg","spotifyId":"2kH4qyiwPbwUVALfqnKHWf"},
+{"name":"deadveins","channelId":"UCpQQHUBfWpuv9uoYEBj2JsQ","spotifyId":"49aqDHq2JAV6Aj7Z3yH9Ko"},
+{"name":"Dear God It's Me","channelId":"UCQKIX3pv9FafW2tRiYybUqA","spotifyId":"67RevHQrrvrHzFRPAQgOyC"},
+{"name":"Death Culture","channelId":"UCwqU3NR3PMndJRVjD1JkVXg","spotifyId":"2ljo8VNAhHCdKr1J4gWskq"},
+{"name":"Deathly Hours","channelId":"UCtLnTncVauqAouXZXABQP6Q","spotifyId":"07XIuuPrpw0kcGrJApsbQp"},
+{"name":"Decadent Stories","channelId":"UC_gRJweHXNDQ9xkh6bIOe0A","spotifyId":"3o8lVee8DmzpqnMdduu5Gb"},
+{"name":"Decayed Souls","channelId":"UCsADRXEuMIGdw8rodYNwsFg","spotifyId":"1zT2nzyToiqL6OxLrlH2QN"},
+{"name":"Delaylah","channelId":"UCA7vsCqk7oyMQldZLi7YRKQ","spotifyId":"1vQSlfG4o7tT6kJPA61W6f"},
+{"name":"demonflyingfox","channelId":"UCvdUBO1nKje-SqOqBQm1Rmw","spotifyId":"23pEwFXxVcUOJg4iNd7CmE"},
+{"name":"Denim Highway","channelId":"UCvGQ9k1t3HkX5ek5EiMy4cQ","spotifyId":"3A8uae2T4dUJBhcIOftgTA"},
+{"name":"DEPARTIR","channelId":"UCXQOp-fpFvY0GHBLCPXT8Xw","spotifyId":"0cN9sMsVjKY7yVk06NQE5y"},
+{"name":"Desa","channelId":"UCUxsnm-6flBW9Nl42o8snkQ","spotifyId":"7FmIJAs2tTovZGGACFN9zI"},
+{"name":"DeShawn Williams","channelId":"UCltMtrMDMZ6ry_JmkeVu4Zg","spotifyId":"4tAbcBoGVhDWUfPqRFnTqr"},
+{"name":"Desyoh","channelId":"UCbdbgWSqDZtZS7HWTzgdkeA","spotifyId":"47Ww18Cq0Nf1PZIF95aOZg"},
+{"name":"Dethlord","channelId":"UCEvWjJwHzKiMAT8t8mmySNg","spotifyId":"1t2wbcDeg7PIQBv4DQq3yv"},
+{"name":"Dethrone the crown","channelId":"UC53Uo7JDy5K9aCEZWRo7FoA","spotifyId":"003OkIwHU9nsCZKIm4xMFq"},
+{"name":"DeuceAI","channelId":"UCH_faPwJa9qgyflaCn8BuFA","spotifyId":"0XyjWS1YJkC8UhsQH8Peia"},
+{"name":"Deus Metallicus","spotifyId":"3mmIYQi9wrQnA9mRPXHAWg"},
+{"name":"DiDur Lux","channelId":"UCQdHKZVq-IO24hI1U637xFA","spotifyId":"35nnmyOWByVH9bRiHvi1br"},
+{"name":"DIESEL","channelId":"UCKy65OgoeZg27x_FGZ4OjJw","spotifyId":"1qYm0iIet6zLGnUdjw5ZwM"},
+{"name":"DIGITAL DELUSION","channelId":"UCELPd5ZjIzYXbVfqCmN0RtQ","spotifyId":"2MKXxVNJn3boFs4I4Estn0"},
+{"name":"Digital Delusions","channelId":"UClQJ3D3mIPgrec1TKedvNIQ","spotifyId":"5uRkhmMAJ8BD4SUUFndvlB"},
+{"name":"Digital Soul Music","channelId":"UC0H6DXfJo1UBG03nTqCsLgg","spotifyId":"0FJ13O21praOL37ZYtrjC1"},
+{"name":"Dirty Charlie","channelId":"UC6GbyJ0aMoqvcrGoncDqd7g","spotifyId":"74OkAT0lDZ0Hw0hp70md6q"},
+{"name":"disclaimer without remarks","channelId":"UCFj6kVyrYdGERnXU3pkxrfQ","spotifyId":"1IUvCqLwMclvB8WF97IEu2"},
+{"name":"DIVISIVE ECHOES","channelId":"UCatIUCT8_QVLGrqPXx-CZTw","spotifyId":"0jZIXWkozuEZnz7W7ingkk"},
+{"name":"DJ Kneupp","channelId":"UCyhL1tVK8ie-sWTHW19ZOMg","spotifyId":"4zGZQys7KXOQFvw1nDg8H6"},
+{"name":"DJ Tralalero Tralala","channelId":"UCANi7G5D37OeD-UIPva1aAA","spotifyId":"5rChNZRJnV2MciNb9U6HyH"},
+{"name":"DJ XOXO","channelId":"UCgDOgC29exQffRL2jJxHfEA","spotifyId":"3OJNx0qQdhWxbLjTU8jkpQ"},
+{"name":"DJSource","channelId":"UC6Z7MBw_47NXGVhMrjHG2UQ","spotifyId":"7s5jADIx9KUXAbYYOf9mjX"},
+{"name":"Doc Raven","channelId":"UCrD6VqEjvOjJSQSNp91llhA","spotifyId":"1BKJlNV8XB71gXrJuRgAYa"},
+{"name":"Dohaka6","channelId":"UCusHvoKlcEGXCUW89ZrPhFQ","spotifyId":"3DsgZ6kkBWAkNNaYAR06OY"},
+{"name":"DollWave","channelId":"UC1dv-WtuqqOcbaVRSv4nGYA","spotifyId":"3Irbs3dopVKhMb8Dl3m6Yt"},
+{"name":"Dominik Witka","channelId":"UCuAGcoK2uEGm5E4_xazQjBQ","spotifyId":"5cATbhvkfafBq6O064Mz96"},
+{"name":"Domsgard","channelId":"UC-_4aozM5gUjnr3ORh209pw","spotifyId":"4bw38ajepdedya70ivRX35"},
+{"name":"Dozy Duzzn","channelId":"UCAlpBth9hkN9PZRkwNB-QtA","spotifyId":"2CPIZDGSe0zORQADHqFIAY"},
+{"name":"Dr Pflaumisan","channelId":"UCTltFGypq7D9ZZ0TLfjfOrw","spotifyId":"4qVAf9saWY3m4EZzJOZUkt"},
+{"name":"Dragon's Love","channelId":"UCwXmKH09TGya_myBeb-ERQw","spotifyId":"59RsyYC2qC1gYvV1YG47Yb"},
+{"name":"DRDVIX","channelId":"UCLE-i1vPUsEKQZHvRTsdQpw","spotifyId":"09avmjEW545jjgavFVa0JD"},
+{"name":"Dream.in.Sanity","channelId":"UCN5WJB4gbW_TaulrhtLr7xQ","spotifyId":"4HihulpvLShzeMG88CGLII"},
+{"name":"Drew Meadows","channelId":"UCrVzxck9sM3_MIFR1b_KjUg","spotifyId":"0uKwfAiZgjxQ7v5YLgau2C"},
+{"name":"Drift Notion","channelId":"UC4YCu8Z556xV9odsB3vbg8g","spotifyId":"7G5LkC2hyfwvUjzKYSFTWq"},
+{"name":"DropGhost","channelId":"UCFLVxMpww0zXychtiCtgAew","spotifyId":"0e2ZAy1iauyFqjIj1Q0qCD"},
+{"name":"drunken night","channelId":"UCqIIYkiiW2ZrzC25jpynHwA","spotifyId":"4CiXdtqTmDzH1jGZVTDJWL"},
+{"name":"Duane Scuttlebutt & The Fog-Town Five","channelId":"UCIrR0e3TLYSbVdib1YuLB4Q","spotifyId":"3v84ZN58majMkV1adnQJkn"},
+{"name":"Dumpster Grooves","channelId":"UCVhK3T8aFaoILZAPiNB9ODg","spotifyId":"0qgzAKmWeHXQRRxYB9wpvX"},
+{"name":"Dumpster Grooves After Dark","channelId":"UCD2F1pBW0ogtdlzb-tsbcFA","spotifyId":"2wAl4lJq20gyIVBhbZj7MJ"},
+{"name":"DVRKTHORN","channelId":"UCcYmbFrBqBDhR5BoV4-h2fw","spotifyId":"6x1fMjL7uBV0xB3LVcQ3ir"},
+{"name":"Dynalectric Orchestra","channelId":"UCZmfdwoWY8jAuF9gu76zENA","spotifyId":"3GpOfkus6cq91LqesrYw59"},
+{"name":"Dysmn","channelId":"UCBdxXQRUwjfiL0SfVyhkauw","spotifyId":"4m6gJ1ZMwIiUUveRuKg65h"},
+{"name":"Dystøne","channelId":"UCsdpUiT_VQ0lUebc582DTLA","spotifyId":"1PDK3gAsfFKP6ozalNGiPs"},
+{"name":"dzbogel","channelId":"UC5wZPVXPbVMYsEzi7cBVCsg","spotifyId":"3a2sL4BUXiFYyZfN7CT5Jz"},
+{"name":"Ean Grimm","channelId":"UCJolBeKYuoaIJDPTFNqaEPQ","spotifyId":"1CpsGlYxA696bgBGhWlo2j"},
+{"name":"eccxo Music","channelId":"UCqvSHIZbuB1yhaR1q7knQ6A","spotifyId":"01GIRuIZ4AVxvzfmTYH1Ma"},
+{"name":"Echo Harper","spotifyId":"12jCGsTve2SG5DBcNKkGlQ"},
+{"name":"Echo Soul Records","channelId":"UC90s5SYXxiP4WI0YpCpNZng","spotifyId":"4KEYaHJAo7EiU7rDaxrf8l"},
+{"name":"Echoes From Tomorrow","channelId":"UCFM2BP85o6oMiYLlXmtzY_g","spotifyId":"2DGqTV4FmA9d4X1McoWoKa"},
+{"name":"Echoes Of Babylon","channelId":"UCe-gZ0UY7fi0X9HazKV4sPw","spotifyId":"1fEC84VoFMkRi5CF2G0HT1"},
+{"name":"Echoes of Midgard","channelId":"UCnPJtFBjuzA0MYK9la3eA_g","spotifyId":"6ShQDNjovTJjD2UUnaUqVh"},
+{"name":"Echoes Of Skollborn","channelId":"UCqrGWUIQepR3ZupISaC21xA","spotifyId":"1nXBnGAPhA4veMGmaaxFyL"},
+{"name":"EchoesOfVelandria","channelId":"UCxqgYlJdwcsEWX1Nc86ar1A","spotifyId":"7vfaikWkQ79OwYJlKJoK7S"},
+{"name":"Eclipse Warrior","channelId":"UCiZACMoBdpEei04azoYVcZw","spotifyId":"2BTSZypmvtUCtRVTbTP2Uc"},
+{"name":"Edyta Taraszkiewicz","channelId":"UCpzgolAN3tvJdld0x7-jQvQ","spotifyId":"0qLStEomcWnwjZj5LBh8Rt"},
+{"name":"Efyliph","channelId":"UCFAwpmNoQ-sBGB0G94BK0DQ","spotifyId":"0rXuZVlvlhjTs5llexM6TC"},
+{"name":"Eichenherz","channelId":"UChQZesRU2CpUdEMLjvvXt5Q","spotifyId":"0ULLHKNtfdVc59rs5MOlpr"},
+{"name":"Eight To The Bar Express","channelId":"UCsTVFaBAs5t5_JVP4owiT2g","spotifyId":"3RjcaQX8gSyqV05wQineqr"},
+{"name":"Einarsson","channelId":"UCpGbB3ywunq5RX_e9-PO5hw","spotifyId":"3dosGgkIX23viQnzYVTPrH"},
+{"name":"EKOSPIR","channelId":"UCK4SPb4qlaFUHp6Jwso5pkg","spotifyId":"4rCWHvHNo6YpPeLhCnIxS5"},
+{"name":"El Cantar Del Dragon","channelId":"UCtn0hfHRctZRIM6YtvEoaJQ","spotifyId":"7uvaRGEFLO8YnbcEckurGz"},
+{"name":"ELBO","spotifyId":"7g7RstiUlGnVrvZFTdyJmy"},
+{"name":"ELDRHEIM","channelId":"UCH3euEQJqWMAAjtoU0RKZFQ","spotifyId":"0Yn0jPGfMW8IpPwK1MlPXg"},
+{"name":"ElectroJazz Machine","channelId":"UCW6coZyrNk_aTFHWJL8IyTQ","spotifyId":"77HGNkvbJ6TUEzNknURNWx"},
+{"name":"eli.","channelId":"UCoYLFPOzwWzKiKs1uNzJpPg","spotifyId":"7bsplOK3tCf2DDi6z1bthq"},
+{"name":"ELIAN FROST","channelId":"UCJfggpLGpaa3VwSKUnW-Bbw","spotifyId":"1nfeNQNeB602cdXvEemd5d"},
+{"name":"Elicaie","channelId":"UCeyqJeGP_FjnIqq40hathqg","spotifyId":"7tklgmR0TqbDWh5yYAFYyb"},
+{"name":"Elijah Abel","channelId":"UCXaRci7u-mjV2lbO6bzaDEw","spotifyId":"4JRuMxEKxUXCdix6742v1f"},
+{"name":"Elina Lisa　絵里奈リサ","channelId":"UCMLGRmxBdsru1lR4G-hfZhA","spotifyId":"58S7IAQYS64u1oOmCxWp5H"},
+{"name":"Élise de Lune","channelId":"UCdw3N0JFAQ923_V1VLGNXBw","spotifyId":"1Ozysl54BEg6k2ziBCm2yg"},
+{"name":"elle.","channelId":"UCFnlwn5RnMYHbTV5FYujYKg","spotifyId":"1mLMQIK6kSQeuBdoOkaZoX"},
+{"name":"Elowine","channelId":"UCdFJGdw9_uKCu5smXBJF-3Q","spotifyId":"2x3ocULqt2VywpBBmeBVz5"},
+{"name":"Elysium Crow","spotifyId":"4BV130CGZsLUvA4MbrfDSI"},
+{"name":"Emberosia","channelId":"UCkj8a_z4ehhp5DF01pA3Etg","spotifyId":"3ZSM1pVSbbOrGK6a9vqxXY"},
+{"name":"Embers Of The Empty","channelId":"UCS3jCFAhAkyckKB1ezzfZCw","spotifyId":"1EE6CRJaSEPEQrghG3hqz9"},
+{"name":"Emo Appalachia","channelId":"UCzSlCpUarItL5BrUvRljb-A","spotifyId":"3KYI7IiTDZwEh9WUCLcQ4Y"},
+{"name":"Empty Skyline","channelId":"UCT8_hnMQTJcMylZuwPfJRTw","spotifyId":"3KKr6gwQu7rMNK66xYPEoc"},
+{"name":"Endless Soul","spotifyId":"50bJcvFo5AyB33K7Bhkjwz"},
+{"name":"Endless Taverns","channelId":"UCsmQCNC5jpHZo1VagFe8-gQ","spotifyId":"4J8rnLuoQLnT09osjqGsIr"},
+{"name":"Enkisoul","channelId":"UCTwAt-jRNl1NqIrtXIdRJZA","spotifyId":"5PSrqODnWGpcCwajIOZJK7"},
+{"name":"Enlly","channelId":"UCC2S5MPy82xEZQygvrIpQ2w","spotifyId":"4hm3WsEjU56qjJHY9vL9Jd"},
+{"name":"Enlly Blue","channelId":"UCrW_dTcZMRf6HbHCjMgMMFQ","spotifyId":"28W1qq34TByUcLOtkceRxp"},
+{"name":"Eon Veil","channelId":"UCWyYmilkUl7lp83mwju54hw","spotifyId":"6QprMA46cBp02CwFSzGdQb"},
+{"name":"EQurnaz","channelId":"UCyFN0IVE6dqGD7DAFciqGcg","spotifyId":"5jKGaookPozBP99M72GN4O"},
+{"name":"Erich","spotifyId":"10FHBmA3rSKaei8ob0WxAx"},
+{"name":"Esme Rose","channelId":"UCXc4IGZCh8GrjSnkiPnKuVQ","spotifyId":"2g7AUFOLSzsFDz0TMuITbx"},
+{"name":"Essecer","channelId":"UCkmGvqilkS08UMc0z-uXyXw","spotifyId":"72XvP5hst3hGizsbOe9eZY"},
+{"name":"ESSLLL","channelId":"UCkPL5POoC1Hy9Re0O2b8Omw","spotifyId":"0sEzTA4c680qMAoAYkpGP1"},
+{"name":"Eternal Fantasy Sounds","channelId":"UCDmgfWHRQSwFWevnXPd5DtQ","spotifyId":"2Bld4sMlfbeqUkZRNYfRvQ"},
+{"name":"Eternal Warriors","channelId":"UCUNj3ZsDOA22yOd7xJOIsdA","spotifyId":"3snosbhPUmThlHnrGz2Xm5"},
+{"name":"Ethan Horahn","channelId":"UC-fu9FdLEni7k0IFYVadSew","spotifyId":"0eXcx3UhvkuuRBcc4LktP0"},
+{"name":"ÉTHER DARK MOTIVATION","channelId":"UCo63BG44G05izuFXZvCOP9w","spotifyId":"73cp3gWuuS5u2LoA7QCCTY"},
+{"name":"Ethereal Akoma Sounds","channelId":"UCEQ5udLh2lNXr7AgizOt72g","spotifyId":"7jF5Fludo3EADnn9B15vFZ"},
+{"name":"Ethereal Chronicles","channelId":"UCPjPEpQSsHZeEcCD132qIxg","spotifyId":"28F05aeSqQOYQ3CfSplfbk"},
+{"name":"Eufonia","channelId":"UC0UEL92P2uN72LrA_7tj2ow","spotifyId":"44zsVhmhrC1CcckYWtedO0"},
+{"name":"Eurozia","channelId":"UCZLPEqBkwS6VCij8e6q5vDQ","spotifyId":"3PY10kAAGQRVikvXFj57g0"},
+{"name":"Euryeth","channelId":"UCKGGXrmzCmve7sQNhPmi2og","spotifyId":"0FF21wGknM6ELK0speTD5W"},
+{"name":"Everendora","channelId":"UCo7bJUP2d5m72fRTM5E10mg","spotifyId":"4hRCYzLaKSMCcS32KiuPl2"},
+{"name":"EVERFADE","channelId":"UCdtjD07Aw6HhEs_w4j1SvXA","spotifyId":"55QoipFnVQfUvMbYumTXrd"},
+{"name":"EverHits-moritabari","channelId":"UC0TTUIXCEWzqh66i65VGKgA","spotifyId":"3Q8qy6lloVxFZ441RTQpu5"},
+{"name":"Evil Chicken","channelId":"UCZQ0Drk5KfuPIDp6Ax0DIFg","spotifyId":"59754ycalGELpdpY1VPoZP"},
+{"name":"Exiled From Hell","channelId":"UC2Tz5E6XoLVpein0W-MhfBw","spotifyId":"7mdDNgQFisdo2l4wD6tNId"},
+{"name":"Exiles Of Eden","spotifyId":"3pzvk3yrObZeEDM2wPwcBG"},
+{"name":"Eye Empire","spotifyId":"0CPFYzByhaEMhIJ5Gpy7li"},
+{"name":"Fable0x","channelId":"UCuGBqTEEMs0vXUI7eEg972Q","spotifyId":"4YvG2DXblKm8bHp8MHkJj7"},
+{"name":"Faceless Strangers","channelId":"UCS5vwyJ-OyCXjE7lxSu7oFQ","spotifyId":"3vHRRJVpm8hBgeYoRMxWWG"},
+{"name":"Faded Core","channelId":"UCCyF64Mb3kEpGI72UwGk5Uw","spotifyId":"491p4xnIYWLgZ72y1sJQXq"},
+{"name":"Fading Entries","channelId":"UC2Etz8EPWjKi87JZ3aUqasA","spotifyId":"3eCpSfzpUjnq3Q5WtNIkdC"},
+{"name":"Fading North","channelId":"UCFeea9zFTXvx6xyacVCfqKQ","spotifyId":"6bC3glGuAWl1eexEEv7aKe"},
+{"name":"FAKE MUSIC","channelId":"UCBvIaa8L4YTY50YnXWbM8_w","spotifyId":"2ohbNcJ4nbwEbWFuruSX9C"},
+{"name":"Fall Of The Dawn","channelId":"UCngjqkg9IgfiwZ2yapBwoew","spotifyId":"4Py5Gw6RgkDb8jaksMSpZQ"},
+{"name":"Fall To Pieces","channelId":"UCqU8Kg37EDgq6AQaRTMh-Rg","spotifyId":"2WRavyZrFClZuCdi5v5OSu"},
+{"name":"Fallen Jay","channelId":"UC2VKwoD53YVJsoWPVxIUivw","spotifyId":"5TVDljK6HLwuV0Z1QtWd5Y"},
+{"name":"Fallen Vessel","channelId":"UCUq8vlCv-NcBi6QdoD5YyXQ","spotifyId":"4zlklQDjS8hkvQ6IQwdegm"},
+{"name":"False Saints","spotifyId":"70b0lU3W9kVBBXzlNNGaEk"},
+{"name":"Farbwende","channelId":"UCwgz0orDObykC3WPfytU7kg","spotifyId":"7pJ7JMSeS6pbEHC8HCqkND"},
+{"name":"FarshidS","channelId":"UCrV3L1Kt-3ejGSLADQtU-uQ","spotifyId":"6lwYOAhoGCbUQKStGEFS2N"},
+{"name":"Farsi Jazz","channelId":"UCteEE2wb0dDpIhrvMTzyO-w","spotifyId":"2qLYJGp4OHanrVk6VXDaKb"},
+{"name":"Fenvian","channelId":"UC_5lra35zGyiZkDij6wwFdA","spotifyId":"2iZPwVll8ss6vva4KAZFCw"},
+{"name":"Feral Cry","channelId":"UCCZ-7j6iUTnjgOD2OExQtMg","spotifyId":"33c1CjZH8vHeaOoqGWr4kp"},
+{"name":"Fierlayce","channelId":"UCdsnvE9jepmO_4Kjuwk68MQ","spotifyId":"22aqJdfB9cUXuDezkab3il"},
+{"name":"Finally Unalived","channelId":"UC_CLzMBQy3vZP0fftYqcEnQ","spotifyId":"5B0hCv3W0hEOvB9DMdjL49"},
+{"name":"Finlay Walker","channelId":"UCxF54QRMEOd72KNIhb6OvXQ","spotifyId":"5trdpMHQ5gmsMHDQ7Bw5bs"},
+{"name":"FLOW RECORDS","channelId":"UCj8zzPy7R5duGI9232VfJUA","spotifyId":"1XP3YN6EDUIJ5r4Z3nXEsH"},
+{"name":"Floze","channelId":"UCgcPy7Z4RsDlTDQoj73WF2A","spotifyId":"2mAiDOaLARGNuvVRyd01Zx"},
+{"name":"Forevertown","channelId":"UCMdLSUZ0mfqiVY5KXro5AsA","spotifyId":"2nvoB3BJDRz9WbcWpT5BEE"},
+{"name":"Fracker","channelId":"UCHTYYOpTMh2TWCa9SfyKjtw","spotifyId":"3vXmwOYrjkJSXVJtlo6Qxl"},
+{"name":"Fractal Kin","channelId":"UCm1jIzjYf5YZJ59K9V0xBRQ","spotifyId":"28sV1KK4Ij6Ckxu012nwoe"},
+{"name":"Fractured Language","channelId":"UCE2nWSkKiSPhbx9ntPukiaA","spotifyId":"0ZV3f3ovtpkofj9Y4CA8we"},
+{"name":"Fractured Souls","channelId":"UC51_pvxPiDMEuF-vBxQp_kQ","spotifyId":"1akhx9awV2MxGoty0Jh1N1"},
+{"name":"FraytasticMusic","channelId":"UC4EgasE9A6c0Y9EcEAJjUeg","spotifyId":"0UcYkVam5ylTC49uAcoVRL"},
+{"name":"Free Fusions","channelId":"UCtUJ9-HQ7IFQqzKtOVA-tyQ","spotifyId":"4PeU2e1zkESash9T7bc6Ha"},
+{"name":"Free_Thinking_American","channelId":"UC5OjA86ceTA0GpCGCCK7KFA","spotifyId":"1RMfWGIWHfxDzAHdzV5DBR"},
+{"name":"FRIEDETH","channelId":"UCeoSmCwTVXhaEwVf7SEazxA","spotifyId":"7HUBPl2FABiSAvCIhoxRxG"},
+{"name":"From Ashes to Glory","channelId":"UCEZM2FHpgzHdac3hGj5VYeA","spotifyId":"60ftFstCO6CXWckbkvMMcg"},
+{"name":"Frontier Heart","channelId":"UCN27DCg32PMdoz1DJeG4NpQ","spotifyId":"5YFejzV7QmU4udTETfy2wZ"},
+{"name":"FrostBorne","channelId":"UCcPU3DB176XtY2UBRmZVgQA","spotifyId":"7Hhw21dh4HK5LWIRU30cSv"},
+{"name":"FrostRaven","channelId":"UC_FJ2aVK9lBcFVD1LshLKdQ","spotifyId":"2iQZwyb2Vv1Q7SdQEKX563"},
+{"name":"Fruto Celestial","channelId":"UCsIAnNmIQ-4NCU_Sv9xzu5A","spotifyId":"3ICnetbwpYpeXu4x6Cfd3g"},
+{"name":"Full Metal Patriot","channelId":"UC9JT4lu1A6VA5LQiPtAOSMg","spotifyId":"0Yv8vhih8fGBPB4XgARXo1"},
+{"name":"Funkorama","channelId":"UCNbeIsrfo1vwDyl4g0Ckqrg","spotifyId":"3vidCXirERl0CcJ7yGA2gJ"},
+{"name":"Fusión Latina 2025","channelId":"UC3SCk3WyAwUjftmv5kNUOJQ","spotifyId":"4bP6Ngz6Zjs8Hxg2miTwJc"},
+{"name":"Future K1d","channelId":"UCmg3cyl1BEcl6RPe3-Uvmmw","spotifyId":"7uFJ92LH32VSDrBzMTsKWi"},
+{"name":"Future Studios","channelId":"UCSUVj1I7-QXapxCbigUeyQw","spotifyId":"3WXEPP9acqhajYRvCnp0pW"},
+{"name":"Gabriel Purt","spotifyId":"3sUiqrJ7kNHkop9HwaKzvy"},
+{"name":"Galezard Project","channelId":"UC3EFHs6Kl_fSAVW3J1GDmYw","spotifyId":"4IdSITdA8NCKyVO7vYjCvE"},
+{"name":"GamBeat","channelId":"UCYQdOpAonyODhYjZleJZDGA","spotifyId":"1goq3QYQS7VLHzcqQrpM2u"},
+{"name":"GANSO SMITH","channelId":"UCwV5MCu4XkVv9K2of5-3YAQ","spotifyId":"0eZoE6P6dU53Tx1y3WXttP"},
+{"name":"Gembana","channelId":"UCuUyHTYH_-Ytn4t3bY-M-Pg","spotifyId":"23CSE6oPJbKI2spBsoGohn"},
+{"name":"GENERATED","spotifyId":"3tnTz9WCaghp3PJPSsTxQW"},
+{"name":"Georgensøn","channelId":"UCx0dpHyCSBqMWxgMl6O8wJw","spotifyId":"3RwRfD4qAPJ2BP3PQ0Qcz3"},
+{"name":"Gerda Himmelblau","channelId":"UCWRnYbkMkUcOA7ONWTIVhqQ","spotifyId":"6n6E7bdpXweRsugYUW9dyQ"},
+{"name":"Get into Zone","channelId":"UCJBQYPkuJFWu7lFcGJdREGg","spotifyId":"0rCArjBKGMTpx9l72NViY9"},
+{"name":"Ghost//Signal","channelId":"UC4D_GXejDXWtkH8gqRL3H1w","spotifyId":"1MSx7eCIGLByF6My5VMgrH"},
+{"name":"GhostChords Music","channelId":"UCBjV5fDcyCIE2zxct9ZweTA","spotifyId":"7rgorfWkKHNtXMy4t0BwIM"},
+{"name":"Ghosts of American Intellects","channelId":"UC2nulBnj6AR_RGdcmQcZEmw","spotifyId":"1c5wJinJJP8T7GTIkiNSNd"},
+{"name":"GhostWriteKing","spotifyId":"40YWQY4KWFMdNHtbYT49Eu"},
+{"name":"Girly Girl Productions","channelId":"UC31zUwO3wB_z0g10JFmOgCw","spotifyId":"2lltcTYhaxOXcz3kbXgFB9"},
+{"name":"Glassweight","channelId":"UC17uz8MlXjgUsZKTe8kPTNg","spotifyId":"0zYUzGRtw6tKYyBXaiDCLj"},
+{"name":"Glasswell","channelId":"UCNo6x6M-vP7ePgPGxCz9VDg","spotifyId":"3oSH61fBdu6lifGhA1H4OP"},
+{"name":"Glorb","channelId":"UCiMm5csnl5xQHZ1i9ykueQQ","spotifyId":"6YeB9qnbI47owfAXWhctih"},
+{"name":"Glum Aleks","channelId":"UCLIgKxK_hG6kAvuqrmjUnEQ","spotifyId":"5erVxDsEUKaWVQgNLgpHv9"},
+{"name":"GLXE","channelId":"UClt_TuCfI5r4Qh5Q_dYrszA","spotifyId":"0DgpEL50vBHaokDjDJHiN4"},
+{"name":"GNX75","channelId":"UCGA1cSRv4WOcvcchaQss9-g","spotifyId":"2dn1t1ZO6IcJ7oBBGJNfa1"},
+{"name":"GOBTA D","channelId":"UCfKRMUxQj9v6X3QsFNywQuA","spotifyId":"5COZbbIyF7BV9xiaVafNXN"},
+{"name":"Gocl","channelId":"UC8_5_89i1mqkvg6WPBeSGpg","spotifyId":"17AePxrGiOTDUHmg1eTpOY"},
+{"name":"Goddess No Holy","channelId":"UC18GBvXPCVq5IQzAv7J5Unw","spotifyId":"5GJG9Tas5Kp2rZfFCATEDQ"},
+{"name":"GoldenRockStation","channelId":"UC7aIDAaVuZm9WfiEhzvmg-g","spotifyId":"3UQFpq7UvHDlG15jK0s4T4"},
+{"name":"Goober Beatz","channelId":"UC7uZ2Eor5Z9Oyw7y65Z49Tg","spotifyId":"79gZhtg5hJ8ewj8CcZtBzZ"},
+{"name":"Goober Sounds","channelId":"UCMbxMyYLQiXz_HD_vO_60RQ","spotifyId":"0RrRCjWCRujgqoEPZublLs"},
+{"name":"Good Mourning","spotifyId":"0w6HLRyWtF9lvvK1HsUVmB"},
+{"name":"Good Vibes Tribe 11:11","channelId":"UCM-sexTuxfxgZAuMlrwKIzg","spotifyId":"7xkYlVMlHwFL6oVCs3xrCK"},
+{"name":"Grace Harmony Music","channelId":"UCFo-wB70qrrgAAlH_IinjpQ","spotifyId":"6PgIs6bIhbqNgSxRC8b3X0"},
+{"name":"Grace Wolffe","channelId":"UCyq7F0Z2QTx-TPjhCSLIVNg","spotifyId":"43G0eLvNoPK2aGFScWkW60"},
+{"name":"Gradient Dystopia","channelId":"UCgk0jWkGnaJk_iJpUs8H5WA","spotifyId":"3LP6bf4nhoWQ9TYbvP1zxB"},
+{"name":"Grave Horizon","channelId":"UCL9hJXIFg-0cT9Utamrg_7A","spotifyId":"581BcWMoLjJ0uWMehwRW5r"},
+{"name":"Gravel N Bones","channelId":"UCLWxRmA-NzAH4ZYxYy6FmsA","spotifyId":"1qJQE5EXwZ8tg7sUJRsnEd"},
+{"name":"GreyWolve","channelId":"UCYvWjZyWc4ISGKfkvTDzlEA","spotifyId":"0eVUqBxs1Xz6fj2NhhonfQ"},
+{"name":"grgr_playlist","channelId":"UCBfrb7uxrP9blQKWsdjD7dw","spotifyId":"4MTxbWBI7q4w2NhKvEm8nv"},
+{"name":"Grid Theory","channelId":"UCPo8T0rioD_96YXUS1drE4g","spotifyId":"4Dt9fumbYJMr5YeP1ROBj0"},
+{"name":"Grimdark Tavern","channelId":"UC_4IKgpmSQ079q6BmBRqCVQ","spotifyId":"7J1M3xSog7wMHMWe6WiLHG"},
+{"name":"Grimfel","channelId":"UCooxezuwxmRz90ubjU4TseA","spotifyId":"2oSVjQgC836Zsp7byp41BA"},
+{"name":"Groove Monkey","channelId":"UCoSBeEa2Te3KKNwyyKq7zIg","spotifyId":"1rwyKY7azx8ucOwJvsSmTZ"},
+{"name":"Groove Nouveau","channelId":"UCzdiaN5X79AAjE01UCJuarg","spotifyId":"5Fu65cDbQ2y3grOfDnqKGw"},
+{"name":"GrooveBoom","channelId":"UCp72Hvr6OUj7waLs9s5rFlw","spotifyId":"5DBe9f0EnYtMcldlb9vH0R"},
+{"name":"GROTESTIQUE","channelId":"UCGYnKzmPv4sgzQ1Dkle5BhA","spotifyId":"7tW7yJ6MhJjdTy8yNbdhaE"},
+{"name":"Guwelia","channelId":"UC5NlgyBScvS0iMgilEWfEbg","spotifyId":"5dp5ihfnSAwX2Ww7oGasiV"},
+{"name":"Gym Bro Alpha","channelId":"UCcAcLzR0rv5og-4Zsgtr-5A","spotifyId":"3qoLOBjjwX3gyZUBNVREhq"},
+{"name":"HalleluYah Voice Of Zion","channelId":"UC7ckKaPxBbvtlUSRq4rb_zQ","spotifyId":"6qcJQJaJ2cQDXBnv7vaAia"},
+{"name":"Hallucinophonics","channelId":"UCG4DkeyoeoNc8wSjgB5gE-A","spotifyId":"1Xn2Xs80B7ZpGG633ai071"},
+{"name":"Halonixx","channelId":"UCqNMawfoZ5ElfflsKJ-vCoA","spotifyId":"6KPdNf2FlL3CJ6ObpOfutX"},
+{"name":"Hangover Carousel","channelId":"UC9p0m1oTwegLaQxMVNT3dxg","spotifyId":"49AbUrf6xQqBuVrTfS3RY1"},
+{"name":"Harukhel","channelId":"UC0cf3aa8MEsvsGOB5eOB9yA","spotifyId":"00N8r7AVD33mg244c04odY"},
+{"name":"Haus of Hekate","channelId":"UCVd-JzT_K4SFnarqVIS9w3A","spotifyId":"7xsk8KDvs66QzEwvGekZKO"},
+{"name":"Havoc Engine","spotifyId":"50Kd0xm7dp6Oi0cOBW2s2I"},
+{"name":"HAZE // CTRL","channelId":"UC77XUheya-qrtvM7xKUT8pw","spotifyId":"05El5nJuBSdNBgCSVyZFWO"},
+{"name":"Hazy Thompson","channelId":"UC577Ojw7jqcAZnu1CLFmW_A","spotifyId":"5JIhg8TzXNTYj0RN0Y2O30"},
+{"name":"HC","channelId":"UCnGeOhT61LJWojF9tV8m7oQ","spotifyId":"56GBvodDNSoVotWW8yMxnd"},
+{"name":"Heart Break Klub","channelId":"UCIwZaZETfJxBr1a_4QDk2hA","spotifyId":"5sugKrutKAXrknA66CPqum"},
+{"name":"HEARTVOID","channelId":"UCND_f2eQwY1J_p5nwveeKZQ","spotifyId":"1W92618KeHZWH9Rj0ITO5v"},
+{"name":"Heaven//Error","channelId":"UCaxibIzhX8XhIks5E2GgGvQ","spotifyId":"3x0rqh1XEkqONXlHkRWPBe"},
+{"name":"Heaven Groove & Soul","channelId":"UCQM_vveZxg7xgwiqXC8HSEQ","spotifyId":"50leWS5dVkkyUCClW19JzY"},
+{"name":"Heftique","channelId":"UCvnb5w5n9oP3xhfo6c0IFdg","spotifyId":"6JfSjQ1vd85jqczfDcQ2sH"},
+{"name":"Hellena Banner","channelId":"UCjVemcM81dCtH2sZcLF7cUw","spotifyId":"0Z6a7hGL1tkHfN0UW36RUt"},
+{"name":"Henry Flower","channelId":"UC9Xn6S_aBtyp-V6nneqac6w","spotifyId":"297mB3xOXz7lxYcIY6Ur5E"},
+{"name":"HexMouth","channelId":"UCEQe0BfhN8h_gU1givlpTCw","spotifyId":"5NnThRZYK6T1skge9P5Zm9"},
+{"name":"HEXXENMIND","channelId":"UC-RtoZXWbHJO8SO3d51Oiow","spotifyId":"29GuyTDTPnxeRQhEdbmGLn"},
+{"name":"Higher Power","spotifyId":"3HxqMycHyAydB2ksQMtPzj"},
+{"name":"Highway To Zion","channelId":"UCtIbXnOS6q3eGWCS-SvilYw","spotifyId":"4dy76YdN2TwYMNy75T98Pv"},
+{"name":"Hikage","channelId":"UCPzzulq0tTvZbiIch4Zya1w","spotifyId":"5CND4LWfH3CJF8XBtVMIbM"},
+{"name":"Hillbilly Hellfire","channelId":"UCry6ZzPoclJmGZyJCTG0nZA","spotifyId":"3kk0B1DWl74KpVhQjxW6Z7"},
+{"name":"Histrocore","channelId":"UCIYBRfDugM7hHbBgrC3nrfA","spotifyId":"4ByrpboEDAdufNYs66Bn3g"},
+{"name":"Hollow Ember","channelId":"UCg0yf9-DkDiKRNDfRtPzHTw","spotifyId":"0QTmurxKiwTJdbsvzR6pJi"},
+{"name":"HOLLOWFRAME","channelId":"UCYvDi7NhdQKI0bcQQDIWbtw","spotifyId":"4hooXmwOS36e4iNzb6e2r0"},
+{"name":"Holy Groove","channelId":"UCXbmh4yvJXezZf45OSTLE6Q","spotifyId":"3X0VBuAB6cbSpwXcd5uxU1"},
+{"name":"Holy Grounds Christian Community","channelId":"UC0XOXg97egQ4t4ALZWkLD_Q","spotifyId":"3B7cPlfeCds8vBvKtX8IdQ"},
+{"name":"home alone.","channelId":"UCFwIMLfEFfEHyaC89twYU4g","spotifyId":"6vmO4MZo5U4K4s9TtgWweO"},
+{"name":"Honey & Buck","channelId":"UC9GyCFGUiQ-kLGEGcJ7yxqw","spotifyId":"6bG92sR5Bj9ONz6G7oRNyP"},
+{"name":"Honey & The Velvet Revival","spotifyId":"5sHxyiM1qJC6ht7CXyYLoj"},
+{"name":"Hope Kills Reality","spotifyId":"6ac7VTI0rtTVOCq7p9JWa5"},
+{"name":"Horizon Tunes","channelId":"UCgqcRqd5A6jtkwJWpnRhtTA","spotifyId":"62AWrGiPFHTdnLN1Lzxjno"},
+{"name":"Horror Disco","channelId":"UCs_eJCuTb-tL8xE9zAZ9ONA","spotifyId":"3GyTVsCcUAIbtVXzxvWOFO"},
+{"name":"Housenatic","channelId":"UCKOSSloBGYiOtsKiaygZUrg","spotifyId":"6oUMNHGrSiCvHQn1DdH70u"},
+{"name":"How to Haunt Your House","channelId":"UCt08E0BXUjHmfTi3BDtvOpw","spotifyId":"6RCHogOk38IS4wDVzaX6km"},
+{"name":"Howlin Jackson","channelId":"UCCcaNczLrQuKHbCqf4RmL5g","spotifyId":"2oYgK16iRwQMrKS8Hr2S66"},
+{"name":"Hroldar","channelId":"UC9EteqTylmvs6knwMNdStwg","spotifyId":"3yAnivro2YvbLCBfU1UWX5"},
+{"name":"Hroth","channelId":"UCdfQBGvurTmkKLXl2dGEOwQ","spotifyId":"6fAbPELNKoQiLUfynqiDfD"},
+{"name":"Hushveil","channelId":"UCYC1D2Dz5H30eSxpgcZnWNw","spotifyId":"0o3IJF7QLIWHvG0YM6zblM"},
+{"name":"Hustler Soul","channelId":"UC6-wI0YRayng-ehGkJrfgaQ","spotifyId":"5Pi7cpPKREdDVFF5o0JnmQ"},
+{"name":"Hybrid Collapse","channelId":"UCQ15bTPwxa9wHjy7lpeorYw","spotifyId":"7LMJ6wOCyMSkKYZCADApQc"},
+{"name":"HyFi","channelId":"UCfPZL9pFl96ec4WMxQ3VTDg","spotifyId":"41vv3GovRsnrru3b2xOz5U"},
+{"name":"Hymns of the Imperium","channelId":"UClu5FhMmtN7W4yHwrRrmXzQ","spotifyId":"4B0qRT1wAIp3IJFbJ2bdgf"},
+{"name":"Hyperbaiter","channelId":"UCqXuLGnpDrW-Xp_RRs0F2BA","spotifyId":"32RaA7TgQ8WDXFG7xYBxXE"},
+{"name":"Hyperbolic Club","channelId":"UCd6CY32LpsfcbMwUJSJXZQw","spotifyId":"5RE34tNzQRNtxD4wGWiGPA"},
+{"name":"Hyperdrive Sound","channelId":"UC8WjHT3Coqp2_Y8tyUBYKvQ","spotifyId":"5qsgwNthCvc282o9dstOMP"},
+{"name":"HYPERTECHNO","channelId":"UCE-Bx-FjGRpxnIAUtQ305Lg","spotifyId":"4YYOTpMoikKdYWWuTWjbqo"},
+{"name":"I AM THE IMPERATRIX","channelId":"UC2_9Vdyqlmho2o-LY-cmFBw","spotifyId":"2hefK0wl7Q8ITeqXMAmJLP"},
+{"name":"I Needed This Dave","channelId":"UCPuXldcePE1ULDTBCPrc--A","spotifyId":"1atTAZjHUqisi3Kavz7ADA"},
+{"name":"I-V-f-Y","channelId":"UCwKGvhyg-zFFYlBQ5E-GtPQ","spotifyId":"54SUZG7cwYNoPgLdyu57gn"},
+{"name":"IAXMUSIC","channelId":"UCSr2z-x0jhVp1_2wFt7DYjw","spotifyId":"1GlWzEuSxQe13cfCZRDYEw"},
+{"name":"Icy Mattrix","channelId":"UCjn7mBcEpMkAUyYP5V0cDbg","spotifyId":"68836SJE8W22kbI9RG8oUT"},
+{"name":"id3ntd","channelId":"UC4WfU1SvxCXtPlZbnTbHHlQ","spotifyId":"006Ze9QDn5vP0WMhhnb0Rl"},
+{"name":"Ida Nik","channelId":"UCgx2TB3irW843aY3_nLvwNQ","spotifyId":"1GQBLB86ZXbB96ZFaduS4l"},
+{"name":"If Rappers Made Blues","spotifyId":"3g0w81kdSfkROLuH4DTSkx"},
+{"name":"If Rappers Made Country","channelId":"UCzcSWvv71MFm7SnNDiEZ7Iw","spotifyId":"7kzas3DrAAIQXXdaUDB6Hd"},
+{"name":"iLLKiLLshot","channelId":"UC4ofhJeV3DEO2Qc1D9bWuoA","spotifyId":"2OM0G5jFKlRWkybIN3skrA"},
+{"name":"ILY Ghoul","channelId":"UChdlyvTwTV8CIEiEDdo6x1w","spotifyId":"29zyVGfurGAtHudLs6wPIg"},
+{"name":"Immunosuppressed","channelId":"UCgSX3qtmQoXtca_zDj070sQ","spotifyId":"2nvlWkCXy09gqe0K2eKjjE"},
+{"name":"ImperialGuardSounds","channelId":"UCjSDPUXmHWhhkuAn55K7fRg","spotifyId":"2nYAixiYuI1ImbFPwHf4a3"},
+{"name":"Incident Apocalypse","channelId":"UCZNvoxkNmz6q6_OETuMYz2w","spotifyId":"14tWDPoxhp4cRpJZvO8dMs"},
+{"name":"IndignA","channelId":"UCcYaql1A7yTsOjoY0d__BLg","spotifyId":"6G1cEkXW2Q5jllo1wgwDvE"},
+{"name":"Inferisborn","channelId":"UCn9XB-_QSqFVluVYERXBaeg","spotifyId":"5FX4xIVa1Rp14ru695666a"},
+{"name":"Inhuman 666","channelId":"UCKI9W7Eu2PiRE3ikpTi2y9g","spotifyId":"0CUZIIXfh6lAXwBJTg4OUX"},
+{"name":"Inkflow","channelId":"UCJOZ1seQFPr2EkWqWT7aiHw","spotifyId":"4YdG0BPYRJstDLvB9yW2nz"},
+{"name":"Intimate Vibes","channelId":"UCPzwot91OpxPs439NSneQ4g","spotifyId":"0m2ZWklF7gejc0Q9GzxACb"},
+{"name":"INVADR76","channelId":"UCMzm9LyvZan_IiOupTIsbLg","spotifyId":"3KjQDMDK4Zc08VmXnAGAiX"},
+{"name":"Invictus","spotifyId":"5rYgnIcAHaJXh359SMpXwI"},
+{"name":"IR1S","channelId":"UClsFw3ndCdY8cNvD1IrGi2w","spotifyId":"0MXTbSvmj5W2OfKIsZDM6A"},
+{"name":"IRIAS","channelId":"UCwS5kwqNJupncyaDUpcwHLw","spotifyId":"1dYibFRLVJCavyn87bsoQ6"},
+{"name":"is it sunday?","channelId":"UCURCGKUkSIcJBFG0GbPuJpQ","spotifyId":"5FnXL6BQqC7UWY3xDvgkLA"},
+{"name":"Istatiks","spotifyId":"2nXRtoIVJBvgE9HMNffMsc"},
+{"name":"IzrailX","channelId":"UCEpzLIy8_VEY0fx9SOJVBgw","spotifyId":"6vXRAaF2xseLx5a7n0HaXf"},
+{"name":"Izzy Byrne","channelId":"UCQzochjD-C4QyB7mThxmzZg","spotifyId":"6djzLHd3BUw3zHklHN7qbO"},
+{"name":"J Bumi","spotifyId":"04KukyCGwGzV7OphBeN5qa"},
+{"name":"J. Cognitto","channelId":"UCZI4S2yxuVMd0XE85u519zw","spotifyId":"19770aFQnsVbdMJQYngSmA"},
+{"name":"J.J. Quest","channelId":"UCBy9l7XNBgulWYe7OPWys5g","spotifyId":"7sHpsm7cSyslVM7jxo6wih"},
+{"name":"j . prodigy","channelId":"UCab4sn2qW1menRT--bocVVw","spotifyId":"2ZJFg1ffDHrtrKjruYYqnf"},
+{"name":"J-Seren","channelId":"UCC4aVwU0RigaA8CAJnk4t5A","spotifyId":"4kESvR1Dq3y5fc1PGT1zV3"},
+{"name":"Jack Arden","channelId":"UC38vCpEXeeX4qEk8x6XEWXQ","spotifyId":"5hEdCKwzDHl8SCpO5DjYb3"},
+{"name":"Jacub","channelId":"UCf4s6sKiLq9y_XdsP8tfjCQ","spotifyId":"7ifEkzjmxo75vYZ6y61NqN"},
+{"name":"Japanese Chill Lounge","channelId":"UCAD10eIu5bLlbfmo17tisow","spotifyId":"1BglJrE3iRI9CPcXLALJJv"},
+{"name":"Jason Huff and the Artificials","channelId":"UCff31vkQfyKDYe7h7Q_Hisg","spotifyId":"4oFnSoeMwzCDKteFnov3r9"},
+{"name":"Jaxon Haze","channelId":"UCjL_bXBEcJ3RhVqaq0dx8wg","spotifyId":"1BF3aB8tWeGaaugiqXGzJf"},
+{"name":"jaxtorm","channelId":"UCC-xHLXVknPkBJnmgSF3IvA","spotifyId":"16cDFrZfza66Xa3gkLSggI"},
+{"name":"Jay Carney","channelId":"UCvL2Z2nnEKhhA3GsbXfEdyA","spotifyId":"7amugpC7Kj2t6yuGhEH6NG"},
+{"name":"Jay Stacks Beats","channelId":"UCBnR77rg1izGdM7Ji9z_7Iw","spotifyId":"4tOdQubkpjym2wQOG3btox"},
+{"name":"Jazz Nouveau Project","channelId":"UCJAcp9zBS_bW8XIUQGDL6bQ","spotifyId":"2aoMCW2VySEft8UediKi3Q"},
+{"name":"Jazzscape Symphony","channelId":"UCmk8UCjDQP7wT_TqGCuLe0g","spotifyId":"0uR7FiakAH3F5IDY0W8Drs"},
+{"name":"Jazztified","channelId":"UCAL-GGWtfBU4cYCTbYnUdZw","spotifyId":"0PLJZEScPxYu5k9MQD0P5Z"},
+{"name":"Jazzy Nightfall","channelId":"UC_dnLs9s0TdtcUwOgWfZFLw","spotifyId":"5K1Au6BfUuIxd81E2sZoQl"},
+{"name":"JD Steel","channelId":"UCAn45suDflhrvBI4EzqF5vQ","spotifyId":"3utZ2ymhpigP8zEtND9Ybx"},
+{"name":"Jerry Baccardi","channelId":"UCyTIdgohxDyr5GtG5Ca71_A","spotifyId":"4T3X3IkP2wMb1eNcZ3YgWo"},
+{"name":"JERRY'S SOUND ROOM","channelId":"UCwurt0T7OBjCOZtDGmmSNmA","spotifyId":"0tuO2DDZTKEQ6t6RT47WKH"},
+{"name":"Jess Tailor","channelId":"UCBd--G0-kwkz0PpyUGHn9pQ","spotifyId":"5Ih7I4jNqvyf4PDKbr8yZQ"},
+{"name":"JG Horizon","channelId":"UCRHdj2zM94LxX07fTiUT6Jg","spotifyId":"7aBKmut7UT6j04DsMxxeJS"},
+{"name":"Jinxiu","channelId":"UCAkdOZX32F0K6nK84l6rUtA","spotifyId":"5WcoeM1pK18LTn5GbWu2eH"},
+{"name":"JJJS","channelId":"UCpMNkDluio5sorc0FNG05Cg","spotifyId":"3zxL5Ke50bFsDVkfMmvabs"},
+{"name":"Joel Binks","channelId":"UCSvLlgvST76n2SJWTVcAOpw","spotifyId":"0FDOamctvP9QaefHP7CLKa"},
+{"name":"John Drolet","channelId":"UCpejTXe6ixgEJND1oZs1stQ","spotifyId":"3hwAhyDHi5X9dMgaF7TOAf"},
+{"name":"Johnny Paige","channelId":"UCehVorWV7dwh01hRPt2IKQA","spotifyId":"0aVBeenhRBzu7w5faVvVPQ"},
+{"name":"Johnny “Red Keys” Callahan","channelId":"UCX78Ag9z4XdfKt1P7ced6Aw","spotifyId":"4edyFpE41JpkLNwq3xiaJn"},
+{"name":"Jonah Dean","channelId":"UCSfmlfhbgWFIm-k9jhuPsEA","spotifyId":"7cVcIR2MuwJy2y6biq8ouU"},
+{"name":"Jonny Boy","channelId":"UCoHM6Gk7ctAIjdDMOVqEf0A","spotifyId":"4fIpl7nNhGcZBerkfawPq5"},
+{"name":"JoshM","channelId":"UC3xUbf5bFF9YJHn_2MnLTdA","spotifyId":"1VIDdmbn9nycvSOTeC32LV"},
+{"name":"Joshua Salatandra","channelId":"UCnh4ysj5v04WhxPtPvya45g","spotifyId":"7zmdH8ECU4EkupcEvkFdns"},
+{"name":"Jude Black","channelId":"UCYc0uYF_dOy59OjpsjAJrFQ","spotifyId":"4koXG5mmZVpbeUUv2BeuIE"},
+{"name":"Jude Haden","channelId":"UC9L5qLCyXUwUyCoW2kQ29Ig","spotifyId":"7IH1EoHfjIJ1h89GMpoqKb"},
+{"name":"Julia St.","channelId":"UCILvBZQNLd--xOh3cNdt--A","spotifyId":"1ushN8gTRinumk7HlJVg1p"},
+{"name":"Juno Skye","channelId":"UCTR6Spz_7NYgezsH_TdWiNA","spotifyId":"6Cj6b8mNLrtMGn78MY1f3b"},
+{"name":"Just Irish Music","channelId":"UCViZdk-JYgvNMiADKQ3AQFw","spotifyId":"2EHyY4pmTwQYuJ0ZKKohHb"},
+{"name":"Just Pete","channelId":"UCsSHZt1pzJJ76kodlIBdfzg","spotifyId":"719a6TvHrH0Zzpv9HEcufs"},
+{"name":"Just the Jinx","channelId":"UCn4L5kwLnxGfbqTC3ce2lLw","spotifyId":"542n3w4R3K1yMfeS39DxLC"},
+{"name":"Justefunk Funk","channelId":"UCthxiEuGMJLm-N8zaRwH2RQ","spotifyId":"1LItYNogzd3AxdY03olZ8p"},
+{"name":"JW \"Broken Veteran\"","channelId":"UCCQisV9BlKwWoWqhmPGI0Gg","spotifyId":"7vpoGzvUHw31dnQlyd5YSW"},
+{"name":"Kairo Mansa","channelId":"UCG0sT0O7qfUdw3c9h4dG46A","spotifyId":"6xVJxmHDivuJuuGfnfMR3i"},
+{"name":"Kairo Miles","channelId":"UCCMSKE84RWT-vF28EBPV4og","spotifyId":"2Rz0lsZCOkQ5ixKVqadCRE"},
+{"name":"Kalax","channelId":"UCR60TjamubEWklMM_6tppBA","spotifyId":"2o88SjmtVVVyCmTGCuSPoY"},
+{"name":"Kalebae Music","channelId":"UCaEIOsy8S7VaDvzABYRppbA","spotifyId":"7xPNkqlNXu2ADr4Vd3ZCGF"},
+{"name":"KamNox","channelId":"UCA4VRNeRvdccDQ0o00tJcpQ","spotifyId":"4giUCuob7KQttfJNM36qFb"},
+{"name":"kanegi.","channelId":"UCxz2RO0o6lN-d-kZguBWcdQ","spotifyId":"1IbdIX1U1e04JRrrh9HQSc"},
+{"name":"KAO","spotifyId":"78kImooBfNPeEVkx1MLOdn"},
+{"name":"KARAVIRS","channelId":"UCjDm-bZuDc-wSGrVdu9QrgQ","spotifyId":"7y25aQ8W1jYhdkTdDdiUjH"},
+{"name":"Katherine Jayne","channelId":"UCxmw1m2CUJ0J30ZETu9jbLQ","spotifyId":"4miFlZJ2yAE7OqtwklQVOK"},
+{"name":"Kattis","spotifyId":"0C8brMCW1EyuDghZM9KtdU"},
+{"name":"Katy Rivers","channelId":"UCk4LEclmcI5AnpOP-s-JVGQ","spotifyId":"2nrlL02f5cvQF06EDYCoSm"},
+{"name":"Kawaii Sparkle","channelId":"UCWO67PMI_6nLfUdswNOyuvQ","spotifyId":"2xRnLjgvSyDzKqGvEqMjFZ"},
+{"name":"Kayla Kross","channelId":"UC1NoCQ9GZND6NFyarsKylag","spotifyId":"6HnvNzsqH33fKnRO0qoZui"},
+{"name":"KC N Kind","channelId":"UCvnIf5R62B-0RCMvZOTHPAg","spotifyId":"7om8vUuvFYXJtEMxHNI3Tb"},
+{"name":"Kealux","channelId":"UCi25kcC9luuPwe5kBLghb4w","spotifyId":"3WTRGOdgo9ZUwqRzvObalK"},
+{"name":"Keen Red","channelId":"UClmSqg6WG6M6ClifgLa3JTA","spotifyId":"3eTnHN4xvYorMWlcVZruzT"},
+{"name":"Kelly Boesch","channelId":"UCfXg6PpmyP6c1h4vuerWUhw","spotifyId":"5xsRtqtzsn3i2vYi3rcmUu"},
+{"name":"Kelvin West","channelId":"UColGWquLJM0rVQ0mRESBsDw","spotifyId":"0b4itX2MNDly72zaZKnrZg"},
+{"name":"Kenke","channelId":"UCBVVFXMWtQJzneuuWOg6j4g","spotifyId":"4xtHuFpCIm0x8S3lUga0dg"},
+{"name":"Kenobix","channelId":"UCHv1P_s2Wep-KH9qHX0DzKg","spotifyId":"31kBLs6YEfXb80JytFuxPr"},
+{"name":"Ketchem","channelId":"UC4j78FMbN_xla-yOw98iVMQ","spotifyId":"5Bm9HPrrHYmWt4fwiulS3u"},
+{"name":"Ketlyn Blake","channelId":"UCUcRke6sxns9tOygJBfj2-A","spotifyId":"69M0IwNxc39HrpdgqIhcSh"},
+{"name":"Khaos","channelId":"UCasLQifNQGW4V9n5QrqKcnA","spotifyId":"0MwZD0lskUQtUUxNtWC1sN"},
+{"name":"Kid Icarus","channelId":"UCFpUfvQuXJZeGAgv_AnxAuA","spotifyId":"28J2NLFuDmTpkAZM8ExH2Z"},
+{"name":"Kiirelia","channelId":"UCH1V65k0jP6hfBHw8FaoI7Q","spotifyId":"3a8oNNSSpypCdSSNsoI6Pj"},
+{"name":"KILLATRONIC","channelId":"UC0G5HPbBwzPmDDlj0RcTOPw","spotifyId":"1UPRtWzjPrj9y56tOmjouA"},
+{"name":"Kimi Kurro","channelId":"UCP6hOjMwIGU3-Kmahc9PIGw","spotifyId":"4eF9lqNSqRHnyD5dMpj0x3"},
+{"name":"KING KILODJS","channelId":"UCyPWACHrayerKoNvtrdWVSA","spotifyId":"1Ah7lRYPGcYKIPSHyJpUVj"},
+{"name":"KING MOTIV8","channelId":"UCkoQ_GRNWhWiKYNDGfOPQPA","spotifyId":"5Owg0O5KyLNuqrSinFeL9f"},
+{"name":"King Willonius","channelId":"UCKnTKn9FaatR_V7TQtOul8A","spotifyId":"7cU7vDTcVBcBek0hkGylM1"},
+{"name":"KingNorthMusic","channelId":"UCA9wFDCT2PRWFJJ6HG7T0rA","spotifyId":"5sVhFD0zOLC8YCa7VYneSR"},
+{"name":"Kingslove","channelId":"UCmMYWyBOp0l-pSCO1XwGw_A","spotifyId":"66iRXtLQbPVHOMlCVEoM7c"},
+{"name":"Kingston Cane","channelId":"UCCB0hipRjyc2Z4nfhgniyAw","spotifyId":"1yfEZGomeDAQvuHrFyPBmI"},
+{"name":"Kintsugi Crusade","channelId":"UChuinVKhgOvLqI-SHFgyLXg","spotifyId":"2jrV0SnQ9caIiAgyM8QFVe"},
+{"name":"KIONX","channelId":"UCURtlgmHmIsKvi0DZXoGUHQ","spotifyId":"701dNbXEZGmi0y4KLR9SNC"},
+{"name":"KISS ME DEAD","channelId":"UCh-vkeKRgs5Z8iaJw46wQFQ","spotifyId":"5PTqxY8B3rIXaAK6DGoGRw"},
+{"name":"Kiyo","spotifyId":"3WPTsMdNZY3cEeWUcKrkpt"},
+{"name":"Klosure","channelId":"UCsctNjMeoNUN7ON4W5pqw-w","spotifyId":"6g5IAFJ7hIIEtBMmmgeYGx"},
+{"name":"Kod Poezii","channelId":"UC-iLEVoDZxUCGMQphDQePZw","spotifyId":"3nlRiM6ApPQREK8HJB6sjp"},
+{"name":"konanoko","channelId":"UChE-RZ-l_0knoWsRKL0BxXQ","spotifyId":"2mcNCob4QtnaBBzrfujP9x"},
+{"name":"KOTR – Knights of the Revival","channelId":"UCw3mKyh-jBTM9D0kdWBKO7g","spotifyId":"6iLjmjmpinbtgD1dS3uEZ5"},
+{"name":"KraHbichT","channelId":"UC0B4nGuC_Z3O7vWNEZJUbGA","spotifyId":"6BviIFP7ZRxpgu79x7Y8a8"},
+{"name":"Krim2Gwer","channelId":"UCT6ge8rTS-kKEI_vqXIYikg","spotifyId":"6i2yglGFxhmuoFm2Z9OxNR"},
+{"name":"KrimsonTheFox","channelId":"UCgRH0GjmGu_Eux3D8IIzdBw","spotifyId":"4hsrVqYtMfGwPTN5g9Upsf"},
+{"name":"Kuroge","channelId":"UC9PaXbupcCMpC2-NvG4TE2Q","spotifyId":"4CwGTdFETLmTeb9Up0zndS"},
+{"name":"Kuroi Riquid","channelId":"UCwzmKxpeNtf3yyR3OX_7lUw","spotifyId":"4oWo3YZqtxbZWOgpp6JR3o"},
+{"name":"kuroki.","spotifyId":"4NqjXZD0xrFzrH5q68Sv7d"},
+{"name":"kuroshibapalette","channelId":"UCUmZKjaaFxao9lzozxSGd1w","spotifyId":"0OFXacOlqEejo9tCfS20iP"},
+{"name":"Kutas Records","channelId":"UCUqvcn_5i4tfICUoLBSAmzg","spotifyId":"2j2UkX1yKVgfoXrdF06SkS"},
+{"name":"KyushuMusic","spotifyId":"18rylvbtrWJHoSvhwu8XZq"},
+{"name":"L'aurah","channelId":"UCsktnRWTDBcPrdMwdMCiNLQ","spotifyId":"6jhtibfsJUEtyv38EJomqd"},
+{"name":"LadyAn","channelId":"UCINvP3s1FRxxMGUzbL6WhLA","spotifyId":"7baklZiKsChz4UqHTpynJg"},
+{"name":"LAMP HOUSE","channelId":"UCKVQzYJOv3OuVi8n9gl4HHg","spotifyId":"3DG2RuOvuBIW8UYdBtSQtR"},
+{"name":"Lappy","channelId":"UCeA2_nawteB3Bn-sF9CBGxg","spotifyId":"50RI7HrjY56ozmvYBd5mND"},
+{"name":"Larek James","channelId":"UCzbWy-BPDYxmZq6Q5GDoRnw","spotifyId":"0JROCTt8nQa3AD2P0vlX5r"},
+{"name":"Last Ashes","spotifyId":"2OYfMb2VZJEwhjFWPLzY9s"},
+{"name":"LAURA LAVI","spotifyId":"0kCYU15mdslJDYRQ1MFvCL"},
+{"name":"Laura Mia Sommer","channelId":"UCaY60GQdkwk8O7ATnn82ZKg","spotifyId":"57CTTPzo7JUivNBqGOqXfT"},
+{"name":"LazyGold","channelId":"UCTGM_R6vc1ixXvUqAMoH6SA","spotifyId":"4wC7i4a7xcnSV13Y2tOrgW"},
+{"name":"Lee Vyborny","channelId":"UC1W8uFYW_PRGA3CGpI6bspQ","spotifyId":"7pdAlDbg3tCRW27aqGCQBW"},
+{"name":"Lenzspot","channelId":"UCQkwuZ9IYVNagcb_Bic9zJw","spotifyId":"5Bv2R6g89dxUwVXBFu2BCx"},
+{"name":"Léo Castiel","channelId":"UCE31quqyo7hNsmQwT-cWokQ","spotifyId":"7GiIP1GXFaDERrf3c5CuBf"},
+{"name":"Les Rock'n'Rollos","channelId":"UCeHC-3bkYnMEsTlyOyzpZAQ","spotifyId":"5zx9WIVEZN7Mo5m2G6DSzO"},
+{"name":"Let Babylon Burn","channelId":"UC28wfEMsuOvbOF874XwYmWg","spotifyId":"469QwZuyXGWnZqBN07zzt5"},
+{"name":"LethalCulture","spotifyId":"61iqx6GNeb3n5I1XlmK3oq"},
+{"name":"Letters From Ghosts","channelId":"UCMDSF-1H5NK_PDj9cG4Pv3g","spotifyId":"2Ohfg0JoNorwdSISSTkz3m"},
+{"name":"lG0R","channelId":"UCvr3Mr-piqGYhtsHVy3NHUg","spotifyId":"2jqyq4qkWVmYItaq6O3lwA"},
+{"name":"Likeai","channelId":"UCjBzl6Yp_jJXSDbtjpeIFgw","spotifyId":"2AtcyK7DI8ZSYtdZlRZIt1"},
+{"name":"LinRae","channelId":"UCxyEAwulIJGIcGaFzLdbk8g","spotifyId":"1f2s246dl6NidZfetCkXaW"},
+{"name":"Lines Unspoken","channelId":"UCw2oyzAxqAsi6ElbrfceDIw","spotifyId":"6RNaOnGvtKmPJsvqw0Nnyq"},
+{"name":"Linhy","channelId":"UCHhGGM0tQsP1TexPr--Yg9w","spotifyId":"4syy4UsOn4CYg7O7SleihY"},
+{"name":"Linkon Mark","spotifyId":"68BOvCDhMe69C2j4nEhNex"},
+{"name":"Lipocalypse","channelId":"UCOkyWw6S5lWn74FcHRsC6fA","spotifyId":"03Nvv5RhJak8JCRbLaDsyh"},
+{"name":"Liras Crimson","channelId":"UCit2cR-ij-jsEJYMCUuaB0A","spotifyId":"5dWfeq28VVYWhpQuhQT70S"},
+{"name":"LivinForThePlanet","channelId":"UCaVQ5tX0BwBBHpDYktA_JLg","spotifyId":"3q5Mx94zNB83CeaQAKnJ1v"},
+{"name":"lladywolf","channelId":"UCNXIGg9DQccwPhcZiqc2fTA","spotifyId":"1forlKinrLciaIUXwAjywk"},
+{"name":"LMBSA","channelId":"UCR-GZL2DHSzmOcOilYrcbTA","spotifyId":"5t1bNBKz571793w252nLik"},
+{"name":"Lock & Key Vibes","channelId":"UCQUZoL0qKBsnGqnfq77MZdg","spotifyId":"09naYA5MYucUiUHmeKtCQe"},
+{"name":"Lofi Cafe","channelId":"UCY44DK4U-aa53HAoyVShiKw","spotifyId":"27OYqalWN51rtQrGg8HxyL"},
+{"name":"LoFi Plum","channelId":"UCadk6bvuUcT-0OK6kni0QbQ","spotifyId":"3hu5fLXYwgRLhitcC4osZt"},
+{"name":"LofiLulla","channelId":"UCOSYz86Wqnghvfk7tPyEyNg","spotifyId":"7cNMZuHLHT9eEQ11It1CY5"},
+{"name":"LogoFox","channelId":"UCqCmChmLQQMYdAWry0wvw_w","spotifyId":"1SBKUCSv0lMankDasprEAF"},
+{"name":"LØKDWN","channelId":"UCDqmEJluZg9gSb5lQsogb0A","spotifyId":"5PHIGD79rfAWfAt98bXBgo"},
+{"name":"Lolita","channelId":"UCr1qMIeABloJxz0VhzaX3gw","spotifyId":"74DHTAvzuTLZNZ6XBVY4Od"},
+{"name":"Loot & Lyrics","channelId":"UCwqHKZANCToZUJNbePWVGpQ","spotifyId":"1i409y4lAfUbcIhq0uPHq4"},
+{"name":"Lord Pecalon","channelId":"UCchSU8zf81mf2SQCRefynTA","spotifyId":"1laZHi5BgZWBEqK299361n"},
+{"name":"Loree Nikole","channelId":"UCP7EFO3gIyFZYRsOP__Pwcw","spotifyId":"0yT7mzhZuWyhIdtY0ohBEQ"},
+{"name":"LostViking75","channelId":"UCmbBchwwm1ETbLI2iVICwAw","spotifyId":"3hejWfbLzYlAUCMuZepOTU"},
+{"name":"Lullabies From The Crypts","channelId":"UCe0RZv1zAXwIhIzx1yDw9Nw","spotifyId":"3yo8Jwd60i1fjD1mtZ0nS4"},
+{"name":"Lumie","channelId":"UCxRqmIt55SZTVKcGhNyT4fA","spotifyId":"7hOuKJk6PNwvkRLFHA12FE"},
+{"name":"Luminary Flux","channelId":"UCPN3cw3X6aH1Cm98YN1j_7Q","spotifyId":"4xk4YzPhEw1csQwvRfs3Lh"},
+{"name":"LumoCore","channelId":"UCXr2VT9ATR8j940f09o7_4Q","spotifyId":"0Lmmj6hhgmpW6Oz6lCBlZl"},
+{"name":"Luna Sole","channelId":"UCz7O32FFvmPoWehFOLg2suA","spotifyId":"0BH88qkQDiF94pwddp3l42"},
+{"name":"Luna Veex","channelId":"UCghnwYNhvFgMHm9AR-vpTPg","spotifyId":"3lo4fh3URRdOcEiCnmOcz8"},
+{"name":"Lunar Horizon","channelId":"UC4NKb6R4C7Fwx8bAKvrNxFA","spotifyId":"5PRt8vGJbcTElqUqSBlGEV"},
+{"name":"LUNAs Tunes","channelId":"UCWl3E-Bj8L_saNzQuDp5fpA","spotifyId":"4oslnEJgsfaypRhGZ0vlFF"},
+{"name":"Lunatick","channelId":"UC6yML89BTI4Gsxi9mx7pU_g","spotifyId":"3lOaRDpJxenuwREjjYkfLF"},
+{"name":"Lunavia","channelId":"UC2SM1mV4AtlVrBLA3Ls9Acw","spotifyId":"5ZgGOx5Fuumj40y1kDvASd"},
+{"name":"Luno","channelId":"UC5VX4XyB6lR1ulvbxE1S_4w","spotifyId":"1JacQ0N8ryIgfeJ8WVqS6U"},
+{"name":"LXNE","channelId":"UCsOdSA0ghEGBvdtH_d-O-WQ","spotifyId":"4BJyNEBj4MifX2KRwMmFyI"},
+{"name":"Lydian Dominant","channelId":"UCqZ7j2Qmm8tDbrmHFjtJdhA","spotifyId":"6YqDbj7CNxm6lqZGHK6ryQ"},
+{"name":"LykanAI","channelId":"UCc5Kc_EXhe1UMolo_IUSDjw","spotifyId":"4NQrFNvVfIyyvrWgd0Vnkn"},
+{"name":"Lyra Vesperi","channelId":"UCyKMXQn_Wd43N8mU9Nb7-5w","spotifyId":"3SjOWNhqeaJ6B0d6KFpAeE"},
+{"name":"LYRYXX","channelId":"UC4DATTYt0_1Sugh1XwmnCeQ","spotifyId":"31SVvG3RROXlN03ez3h7F3"},
+{"name":"LYSSA RAYE","channelId":"UCQCGhQEx_KUEsmkPjIM2NZA","spotifyId":"7taA6k0MSLJYXgPu8zEjOS"},
+{"name":"M-H-M","channelId":"UCy7P-3kZp0BVKB26GUb_P3A","spotifyId":"7gQB07XguuzGImL1CTzb5p"},
+{"name":"Machina Aeon","channelId":"UCps9k9-qDWciJSuIPPvOsXw","spotifyId":"6IU9SrkKQPhkpD03PZzUeP"},
+{"name":"Machine Six","spotifyId":"7sEQ2pLJ4WsqfSEyJ3PKOP"},
+{"name":"Made Human","channelId":"UCcJOBtbhvc8Td8aDz1lmJiQ","spotifyId":"4QVLIMVIv76VdGByjcCt6V"},
+{"name":"Madelgarde","channelId":"UC7MRiI_FcVkSjGjQJSJotzw","spotifyId":"1NGtZFrDLBVyOKnRo9ic4y"},
+{"name":"Magazine Street 24","channelId":"UCcyodzwI3Ea59Eo-u-KGKlQ","spotifyId":"599lP7FCBbQb9wThFdB0rI"},
+{"name":"Magi spaz","channelId":"UCfPnGaKwetVB9idu2jX5BNw","spotifyId":"6fXg8PZJLNrFjQOuCewkMA"},
+{"name":"Magnifly","channelId":"UCHTn8Y7GhOpP8WS0eNbk60A","spotifyId":"3LfgUKWUbXlHtnH4xtiDEN"},
+{"name":"Maja Sofie","channelId":"UC7gAt3r9NGf520C8HjJUDYw","spotifyId":"1BFZjLa5VjbRDTt10R2cbI"},
+{"name":"Manami","channelId":"UCetItF6WA5pCY0h8rfNsdlA","spotifyId":"4kFFAvUSGHBv2WRbulxH7n"},
+{"name":"Mando Viking Music","channelId":"UCV6-e7BZz1lgtuC6fnlpknA","spotifyId":"2RpduBhIozg8wuYgGyJOJx"},
+{"name":"Manifestation Music Lounge","channelId":"UCAcflAADWXBhiyqKnsvWR6A","spotifyId":"2SpaJxPDvuyzC2qOwesaoh"},
+{"name":"Manifested Dreams","channelId":"UCtBjzKt0XZA0C2eM5032ZLA","spotifyId":"4wppf2VUZmaZ6SQK2UXpVT"},
+{"name":"manifestica_studio","channelId":"UC1XewttuRyHhTd-nS66Ia8Q","spotifyId":"7kzZVbD8lYi5Rn7GYinpNf"},
+{"name":"ManifestMusic.Studio","channelId":"UCQB5y-OhyFUME6SGd9IL6bA","spotifyId":"3YGBIBbmNCNrKjGH1EudSm"},
+{"name":"MARANATHA","channelId":"UCHNZ-E2v-jpXR-o3qk3HTVw","spotifyId":"4B6xWqzaQsL1p1678JgxXa"},
+{"name":"marco moretto","channelId":"UCWtZi01sOr84_fbTcudhs9g","spotifyId":"5kkIdj8t8DtXpiIRPVmGdS"},
+{"name":"Marvmeister","channelId":"UCGBt3wHcU10g6ImvHidcBow","spotifyId":"4quN37bgcInpRor7olIt56"},
+{"name":"Mary of Gold","channelId":"UCKe-xULbkCU_HWF6WQ9fj3Q","spotifyId":"3op6isgc6LT6NhkzyUygA2"},
+{"name":"Mason Jar Moonshine","channelId":"UCaQtC00VzM39K0jNfBVCd2w","spotifyId":"3GouiFCfvXeNae1U7dHyNm"},
+{"name":"Masters of Prophecy","channelId":"UCHdH2ijb9dtQRRH08u1jd7A","spotifyId":"3vV6kgqJHi1rg46i4Iwzr1"},
+{"name":"Matthew's Silent Chapter","channelId":"UClzMmb5fbOcZNbcOujy61nQ","spotifyId":"2JUTGg9txxR3B3acyTlFp7"},
+{"name":"Mavelyn","channelId":"UC-LcujQIEamzQ-l606Yi6GQ","spotifyId":"1Qt1Xd6P7HhuooyzDMeWJa"},
+{"name":"Max City","channelId":"UCu_ubnjBGJROh19mfBCV5iw","spotifyId":"1xp4FMUbnrpNhiD88X1eum"},
+{"name":"MAY BEE","channelId":"UCdro7o5W5GpKG0LEEE6DDyQ","spotifyId":"6TmwDtmYEIv8hYGRnskk7Z"},
+{"name":"MeaVee","channelId":"UCxEY95_uXjDuCDWAI586Eag","spotifyId":"2c0PZeqVWzfVMlPeIWlcVL"},
+{"name":"Medieval Confessions","channelId":"UCUcUEv-HFTo-qv8IJMDaveg","spotifyId":"38ytM06M5Uzb0LXkbInz5I"},
+{"name":"Meex000","channelId":"UCVkoZM12xxf3rxgnZ2WYaKw","spotifyId":"5Q8lMUfNrN5xHeoYkqZx0Q"},
+{"name":"meid","channelId":"UC9K2p4vlCrINiS1hakjLq7Q","spotifyId":"0SB7H0uvEdP7VgeTJenyIx"},
+{"name":"Mela Mirage","channelId":"UCgb7-1HfcNt_C1-IDLCguAw","spotifyId":"4xUvh9IpOF7oOpTiRn6YJT"},
+{"name":"Melania Maye","channelId":"UCE-PAlHdlnT8yi9rlOdKfWA","spotifyId":"4fLN4MdVopdfWB5nZ9p3at"},
+{"name":"MelodAI_Official","channelId":"UCc_RvII-l6WgLd8Q666b4TA","spotifyId":"5pQLiPIBfAIMZjGhjaqKwM"},
+{"name":"Melodia Simples","channelId":"UCVgQ9Z9O0YHCZOm5nfmqsJQ","spotifyId":"5TxgZKRmQF7IosLCkTOABp"},
+{"name":"Melodial","spotifyId":"77t1xeeYZDBTsfXqTntmwO"},
+{"name":"Melody of Wings","channelId":"UCYkpPgL5-db0TIs7_FYY3uw","spotifyId":"368WfT2s7BtyBatpmoLUSY"},
+{"name":"MelodySpot","channelId":"UCVGmQpB6_ixzDLpZdA6oCHQ","spotifyId":"4rjU0eNuCuzt46USu7Cjrj"},
+{"name":"Meloman","channelId":"UCS2YH1yIQX7wD6FNWId0amQ","spotifyId":"7rS6aBx3asj6PR2C5IpKMQ"},
+{"name":"Melzona","channelId":"UCq8zmFVTbrdpIT7nlypm6UQ","spotifyId":"2udo0bsvIa1dButgTsw9gs"},
+{"name":"Meraki Moon","channelId":"UCwjrk3v27S_usTIRd8_ZF8g","spotifyId":"7lzsUJl6NQj49mTsLfW15T"},
+{"name":"Merciless Cult","channelId":"UCnaeDcL-i2WyxJzAwlPylgw","spotifyId":"0pyoFB4Ii4JUag5Gqt9ssJ"},
+{"name":"Meridian Shore","channelId":"UC4ZiDPLA-nIS5Z3aUZjCjgw","spotifyId":"48Jp2EWuUpwI1FljrLrJZC"},
+{"name":"mermaidonmars","channelId":"UCIkPi6L1fjCUdB8zfcBTKqw","spotifyId":"3E3Bhr9cOUCWhjJhNZeTAX"},
+{"name":"Metal Blossom 金属の花","channelId":"UC937LWb1WpnJR7ODzRpnk6g","spotifyId":"6QDNLGl9y1BfMK7i2qQF1t"},
+{"name":"Metal in My Veins","channelId":"UCKmZq5xON_S1hAOksEkGQeQ","spotifyId":"6JTj9nRvNPVplWlf8GLOHJ"},
+{"name":"Metal Sanctuary","channelId":"UCZwSMh9JXsuxS_jPkTN4-Kw","spotifyId":"0FB5urAdGjz4RjYs4OtdLL"},
+{"name":"Metal Universe","channelId":"UC3rFORbM2S33-9_E0aDqkSA","spotifyId":"3ILyPKrT4vry1tO9cTd9T8"},
+{"name":"Metalus Prime","channelId":"UCHReclEhfhDTfHKp8qU_5Qw","spotifyId":"0jwvQiPDl2Yj4Xq3AZtmRd"},
+{"name":"Mia Hipnosis","channelId":"UCG4lNLg_XKr0Du1m-Dk4b-Q","spotifyId":"1GT0TeqzWpapvXyWgPwu10"},
+{"name":"Michael DuBois","channelId":"UCxSMstsUvHk1llGZ1zlw97w","spotifyId":"55cIxvusflSYGLHLzPCOdY"},
+{"name":"Michel Blazquez","channelId":"UCSryXlbkY1dmGXbyJFA6zLg","spotifyId":"2q1nX08CgM0shaIZ3L29R0"},
+{"name":"Micolai","channelId":"UCVfhhhXn9uIVqEK_dLq_CnQ","spotifyId":"1y8XjeWocHH0tLaftNFtab"},
+{"name":"Midnight Groove Ensemble","channelId":"UCxlT-_2NAUVYEmDcBr3fpUg","spotifyId":"20Y9X4BO7Xv2vhPNTftDht"},
+{"name":"Midnight In Manhattan","channelId":"UCuTiTETmKehqE_ZoFMwNz3A","spotifyId":"2pnuFyxsG8Vf7dQJeH6jkW"},
+{"name":"Midnight Lust","channelId":"UCTduhQ2JJkUEZDgec5j4tKw","spotifyId":"4WvPcD7O2eDUKVvGOVyS16"},
+{"name":"midnight muse","channelId":"UCEBIhVIf22vlrdakq0HOYSA","spotifyId":"5hLAWrKxRJxQYmu1Mb6hTQ"},
+{"name":"MightyW Project","channelId":"UCYJLXxVwqTzVznd3N_q2wwg","spotifyId":"6WXmNu9tMCJZIMipvgbxgw"},
+{"name":"Miguel Pascal","channelId":"UCDTZyvOdD758rAGxVsVqcKw","spotifyId":"56DYvlyuahAj0OWxlb9LDr"},
+{"name":"Mika Akakuma","channelId":"UCPG-aRrr89jNFq-2nQyIDWQ","spotifyId":"7M3FZ9zfhnYIwg4MzDccSz"},
+{"name":"mikeeysmind","channelId":"UCsqfUqT46FCt5v7k-v_z2Yw","spotifyId":"0g0ZYLiNYI4kMg8MX76bkN"},
+{"name":"Miles Laroque","channelId":"UCHanCrUaxt_IW_PT9CZyGhw","spotifyId":"1ToCntP7ueFKrWxPYhEv7Z"},
+{"name":"Milla Sofia","channelId":"UCOzjwCoTjeBAvlUrSt0kahw","spotifyId":"73Es5rYMcaHu0WPz9oaVlV"},
+{"name":"Millieonthebeat","channelId":"UCHfO196dWyHwtM2p1hPh_Uw","spotifyId":"0FKASbdO574xLinA9zJFAb"},
+{"name":"Millvoices","channelId":"UCdNqz-g62_rZAZL-GjjBO7A","spotifyId":"5AftTDwWo0cop0pxXuT8Tc"},
+{"name":"Minako","channelId":"UCW9JEdw-kZtFRZ6XLP3nClg","spotifyId":"3cZsAKBrqjtook9HekB5Uy"},
+{"name":"Ministry of Dark","channelId":"UC8ePMvgCpXWCQcUxhOfAy2g","spotifyId":"1rE5lFciclbNo2P4WGvKAp"},
+{"name":"MISFIT","channelId":"UCGMpLQkG-k1m1HDClJ6SUtQ","spotifyId":"7AiAutnxd8YdKmy8APZazz"},
+{"name":"Mister Cryptic","channelId":"UCyB8zM1CG20mJUSVdN14bCQ","spotifyId":"5wJ4rZ3rOHwxMV8paZKOeN"},
+{"name":"MithicLegend","channelId":"UCycLdg4Al6qkrGgjRP1qlFw","spotifyId":"2u9DBykBhHajtzxQKKN8ye"},
+{"name":"MiyaVi Amore","channelId":"UC_EC2FyGtgymalkCcLtQX_g","spotifyId":"0Zhgqz1Zu9zB8GAcGmoxdv"},
+{"name":"Miyunique","channelId":"UC3wbdn_2gV6A56nMJ_DzKzQ","spotifyId":"3eEhSN0SxKi7o2z3S2hCZh"},
+{"name":"MKL","channelId":"UC8yBK056bSbLNbcJHlRHyDg","spotifyId":"71SDdhl1AlELV1ffU5Hzbp"},
+{"name":"MMEG","channelId":"UCnLTSlB-7yAF1fH2U69zsFA","spotifyId":"2eY3g73T4DteHCjFwOyw8w"},
+{"name":"Modranicht","channelId":"UCJviqd4tLZBNjj85ZESTZoQ","spotifyId":"4nz3plOjHC5adwqYbqWnGn"},
+{"name":"Moebius FM","channelId":"UCpiM1VjFQ5Ke7lW6LICmYzA","spotifyId":"5ocd69uQVtI0FXBVOFXSez"},
+{"name":"Mokepouch","channelId":"UCEGNZ3L3gs3SOQReDMnAppg","spotifyId":"7kpsGMTYZdrGX8P4EwUpsv"},
+{"name":"Moon Soul","channelId":"UC3sbO_2_woyDOyVgf6V-Rlw","spotifyId":"48IWhckCqdKLfS7hFw20x5"},
+{"name":"Moon1k","channelId":"UCXqOrrTI7jnYFlYdvyNPgUQ","spotifyId":"7EUBnJG4WvG8DjyKFoPzmI"},
+{"name":"Moonshine Outlaws","channelId":"UC2vq0pm_W64k0RDqk8siO6w","spotifyId":"4NBzZZiV31JXgF8R4IvBAr"},
+{"name":"Morgan Bailey","channelId":"UC_rKy3PxknoMTKgNZIQmGsA","spotifyId":"7tcbricJTd0ueQJOl0RtH6"},
+{"name":"Morgan Luna","channelId":"UCoBGGbZOUuq7953RGVPJmuw","spotifyId":"5PTFI1cRjCIlXBH9SDSbYd"},
+{"name":"Most High","channelId":"UCa39ev17ipaadzC_aJKps9A","spotifyId":"0XRYb6avzU7bwcRukkly7y"},
+{"name":"Mournwell","channelId":"UCqKtiFW0o7Tnv2F4Wbc-MkA","spotifyId":"54VJP6tcoQB9r8wYByLZI6"},
+{"name":"Mufasa The King","channelId":"UCIH4R2Ctlxf-gRGzcT59ATg","spotifyId":"0CEVhXn0GJd9zZnUdHURHs"},
+{"name":"Music City Nashville Corridos","channelId":"UC-mVbJ-PGdgDu6zt2GBJl_A","spotifyId":"4GlRsd0qqnU5xBZ7ReAI4l"},
+{"name":"MVMURO","channelId":"UCzS7GaLyWn8lbIKD0DEeAYA","spotifyId":"0djpRTkdehwLdqRg7iuX7F"},
+{"name":"My Boy Arlo","channelId":"UCm5Yz51tYirN-MwDE5ssjAw","spotifyId":"7jnEJXIT7Ur1VLF1BC48eD"},
+{"name":"Myko Truth","channelId":"UC1r8gUS16Ph3nsFoM5eA5aQ","spotifyId":"3AtflUq1VKAFldTMS2SkET"},
+{"name":"Myrkrheimr","channelId":"UCIj7Q1tTdDN3dKT8cW20Xcg","spotifyId":"4YVI2kxqhwSfRDOF4oBfif"},
+{"name":"MyRoadTunes","channelId":"UCgoFspP4ynOhOwUX77NFMkQ","spotifyId":"5XcHnaQo3Omkuanlj3kQXQ"},
+{"name":"Mystery Potion","channelId":"UCfAzn605zjXppPJdpxWf9-A","spotifyId":"6XzdMKTdR9MxdDm3C4HKm6"},
+{"name":"Mystic Riffs","channelId":"UCm6P2RD9vmNL72f3SZ3dGRA","spotifyId":"6vESiai7KVad4r1YbNMVjR"},
+{"name":"Mystik Irieen","channelId":"UC3lHxFJ5WRpNpmE8RGuOL1g","spotifyId":"4CtJGNm1c60TqM1mtRZLFW"},
+{"name":"Mythborne","channelId":"UCWXJrT98HLhQPRddHzqaxlg","spotifyId":"5GK5bjfOBUflGBrOjAQ5wp"},
+{"name":"Mythic Harmonies","channelId":"UCZOO_Ljoj5D0AzmnikavIcA","spotifyId":"5ZCJzRZ8kztJP3zdI4vf49"},
+{"name":"Mythic Melodys","channelId":"UCT81UUlbf8o6ZfYoW-f7Wig","spotifyId":"70puqVQo1PUzVBjnklT8ZT"},
+{"name":"MythicRealm","channelId":"UCO6Wk63xxwFg52jfBmSLFpg","spotifyId":"7hc7GsgfI7mQaj63Uj74v8"},
+{"name":"MythicTune","channelId":"UCUxbZd2eD3hKFTDZFtWBogw","spotifyId":"6V4JJLrCeqTibQajwfyMEi"},
+{"name":"Nabila Moyo","channelId":"UCnA_Xz1hMIsvj5v-7V-aZXA","spotifyId":"64lT8Su6nKvpqyb7hj2GjY"},
+{"name":"nanako","channelId":"UCIrZ8R7SdL1qZZIHjvpH5DQ","spotifyId":"3oErpjty6BmygXTjIuNik6"},
+{"name":"Narita Metalaw","channelId":"UCOicoj4LPhEN2fCLg6Ehkbw","spotifyId":"6Jo1HBFl8ngJ0JkWtDcmWY"},
+{"name":"NARROWAY","channelId":"UC5ptEm5Xk1g71-KoIx7DnqA","spotifyId":"6vgMDWteLfrmr231nWxGq8"},
+{"name":"Natalie Grace","channelId":"UCK7ZWjKuffzwDIgxyZPLL7A","spotifyId":"4Ifp046G8ZrOexuwoEk0H5"},
+{"name":"Native Raven","channelId":"UC9WazzSjDxKz04i7mOFiFNQ","spotifyId":"5iwZfM9zqWdzYDAzVx9Uvu"},
+{"name":"Nekonoma","channelId":"UCUAAnReY1hY1Gd2-cRHjTpQ","spotifyId":"0G16twsStodbWZ074tAfyc"},
+{"name":"NEO Arcade","spotifyId":"0skf26fqMmZhiPTk9IPqcM"},
+{"name":"NEON ONI","channelId":"UCX2Bil1Vb3rYUMn1Sk15-Pw","spotifyId":"13ONzC3gAhmuRU25I6saTm"},
+{"name":"Neon Snakebite","channelId":"UCnljJ9gZcXKk3E1fSQbD3mQ","spotifyId":"74PovjsvR65RaguNC6mFlr"},
+{"name":"NEOX STUDIO","channelId":"UCAKWUxFRHUsYemoIa2ie8Uw","spotifyId":"00HNhjFXGsARyozqo0rBDe"},
+{"name":"Nerdburglars","channelId":"UCoa3W8dzV2ugXkKnn3x5uCg","spotifyId":"6O5cN6dczqAduh2eQ9eGxH"},
+{"name":"Nethervale","spotifyId":"5FVRvmqGesugyQ2whGmItk"},
+{"name":"Neural Pantheon","channelId":"UCoRtcaIfZoXiN3YQkSD2WuA","spotifyId":"7AfJEG9p38p0SoiIts71E2"},
+{"name":"New Edda","channelId":"UC8qBTM3wr4sDh8Gf0LyzAZQ","spotifyId":"3RdF43j7wfkshQtw6cxsvQ"},
+{"name":"NeXoX","channelId":"UCDRElj2CUMiOAWFmWNhCUgw","spotifyId":"6ooq0C7Iw7FJuvExuEBMG0"},
+{"name":"Neytan","spotifyId":"29sDg3OXbYCg0SDuYBqP2G"},
+{"name":"NEZZARA","channelId":"UC2AJisfoL81PnlnYB0UZx0w","spotifyId":"6WUiGm5Rb7K0vuvDt0BiTt"},
+{"name":"NGT ROOTS","channelId":"UCW7R98YrINCx0wwyzRSPT4A","spotifyId":"2cFqrFy0kS3cIQMvN6ai5X"},
+{"name":"Nick Brown","channelId":"UC2_WlRJF2j4l9V2Eo0qNxPw","spotifyId":"59X4KrAMn6WXZJlXjumTXx"},
+{"name":"Nick Hustles","channelId":"UC0SXzhrt2zMyE9ifTt3iiSg","spotifyId":"4y6CMS7tqBf8ubmUuP9SQI"},
+{"name":"Nicola Nicoletti","channelId":"UCx9ndrG9YQrdTlv68CuBmpA","spotifyId":"6JmeD3Lackhx3lVpRchqTL"},
+{"name":"NiExshadow","channelId":"UCV3JR-ygfgkUgbElODhTooQ","spotifyId":"7LY1pMdI2PxoQG2xDAkJmx"},
+{"name":"NIGHT INTRUDER","channelId":"UC0jk_It2uYcqJ5QDDjg8T9Q","spotifyId":"3xfXXqF7VydopmH3rqFBWZ"},
+{"name":"NightcoreEngel","channelId":"UCNOyJiRjXZLMqIY85xkwGTA","spotifyId":"41u2zpj6mkjF7uRYTC6JZB"},
+{"name":"Nightshade Anthem","spotifyId":"5j0ka2YxqWRvZWwJxl90Np"},
+{"name":"NIGHTSYN","channelId":"UCunUIMkF3ZmNg6cqNDcVWIw","spotifyId":"3cjY6DO5hMeiG0xN31QxwQ"},
+{"name":"Nika","spotifyId":"2lXT7wYB0cZXsOaddbx5ZZ"},
+{"name":"Nina Blaze","channelId":"UCpvkuq0xi6gce3wVnQ4Kb9w","spotifyId":"3ZqJbUCCCgtTCgGhWgrEOq"},
+{"name":"Niniel","channelId":"UCBc34-IgZ7RP4VXqb0jwP_Q","spotifyId":"7xCDTpVqSiiiP1jfx2qXgl"},
+{"name":"NIRMATA BLOOD","channelId":"UCIUBm5XABXNw1e7u9TPyxFA","spotifyId":"4NyC2tqWKkiGhiSm23eWYG"},
+{"name":"No Soul Society","channelId":"UC8yvt7ZprnSSQll15W0aHmQ","spotifyId":"3gsuENchozal71ZlsWoXLS"},
+{"name":"Noah Thorne","channelId":"UCf1YfCNPX-tS6rTiNOD4KOA","spotifyId":"1wDJ9lRkh1vQTnN46SiQ4u"},
+{"name":"Nobody Knew","channelId":"UCme8W79BRWP9SZLXkW3RyRQ","spotifyId":"2NRM4Eh8PjAv9pq55Q1rIa"},
+{"name":"nocco","channelId":"UCtMj-zcIWMIpi9zS1TIwYaw","spotifyId":"7bcIRyreNpb6BTHlyPoaik"},
+{"name":"NOMARKMORE","channelId":"UC4J2uA-W7dPzZM4fm9qgK-w","spotifyId":"2MWLcIknPfRiaIktptiPil"},
+{"name":"Nona Cyrelle","channelId":"UCkaWZEM9tM3AKt59_AzswEw","spotifyId":"6JdeiRL78vfoGEQ8RhBEa0"},
+{"name":"Nora MacRowe","channelId":"UC-YFcZ1BjRVXbT2HJ863xGA","spotifyId":"1dWDvjr2lP4xnWBqcGhTUG"},
+{"name":"Noraeon","channelId":"UCXqnwqvxMKLf3-wFceC9EaA","spotifyId":"77xGTuPpCPcoFZdbQ9LGKa"},
+{"name":"Nordic Versecraft","channelId":"UCdQnpSuy_H0acGpa0Vn4S6A","spotifyId":"6lqtGiVfAXRM2kxeDgFas6"},
+{"name":"NORDSKÁLD","channelId":"UCklKgzPdxkekdGPhrSKadpg","spotifyId":"25LgPyRMcMvBOm4KjI70YX"},
+{"name":"NOVAINE","channelId":"UC3riFS1nfcbqyK-CH8Spr4w","spotifyId":"1Xr0xMO4dQ8SGVOeYHdC6n"},
+{"name":"Novi","channelId":"UC2VlBjw4Wzpitazktkbk6Bg","spotifyId":"7LfxHLrmQNqEggZvjaQL1A"},
+{"name":"NOVRA","channelId":"UCVYZBS5NweyLU0-Xuj9D14Q","spotifyId":"3UaHmkA10ceTafW1sYcX4x"},
+{"name":"Nox Averill","channelId":"UC6chSnlGrp3j7rQy10Yn-4w","spotifyId":"5UXssPc9Mk10JPMKjoykup"},
+{"name":"Nox Resonantia","channelId":"UCLUSiJw7z6Uafv0rFoAeBLA","spotifyId":"0vhYyim7bqGAOOvVuPstsm"},
+{"name":"Noxen Rose","channelId":"UCBXxG7nK7oDOl061zsQbLrw","spotifyId":"1htOS71Mq6rSzyWcbX5u0F"},
+{"name":"Nukehole","channelId":"UC1NMffmvUrBWRcJKd262VUA","spotifyId":"68Qg8Ukjg5zs3PimhwUBKZ"},
+{"name":"Numb Theory","channelId":"UCaTQjAC9vQJHNKZxVUJZA7g","spotifyId":"6EW6th7nNnqrZKwg4j7X00"},
+{"name":"NXTNGen","channelId":"UC7V4eneQNw3jvmvej4cWMFQ","spotifyId":"27oneELA1cTFA8ZMN6poyZ"},
+{"name":"Nymik Rose","channelId":"UCyVrBBVUPYkxi7viOI88AdA","spotifyId":"1z5MvUyELcPde7GAfUVNaV"},
+{"name":"Nyqki Niqole","channelId":"UCZ-Py5bw1n7fSsM7c2HUKHQ","spotifyId":"5yYRrBAevJaDsmeU53WZZ2"},
+{"name":"Nyxen","channelId":"UCxBLkzmYNxetft7LD6-oGUg","spotifyId":"77VyPcNb3twQOF0ysMIiGI"},
+{"name":"O.es.3","channelId":"UCL0CbAPXCPAsd0h0zG356DQ","spotifyId":"0Zp2agsGSqD4GD8ztPditk"},
+{"name":"OBEY THE PULSE","channelId":"UCS7P_n1oMjaFHDsKBy0iN7g","spotifyId":"0QjTSzyBGfotjuK8cuXMML"},
+{"name":"Oblivion Kiss","channelId":"UCNVN6TF3FRZXcVOpesTYoRQ","spotifyId":"7s65AwajPA4BtImFE9mz8J"},
+{"name":"Obscurest Vinyl","channelId":"UCoyRZ4_hT_IROpTiOpTzOFA","spotifyId":"06or3bj3pOZvjjTLVLSngX"},
+{"name":"Obsidian Swing","channelId":"UCFn4m_PRNIJNGBJCW9n9xlw","spotifyId":"6ydIK3fZelJNbF5KwgZUga"},
+{"name":"Official_Giorgo","channelId":"UCihbG1ijqrcF2Fvd9pDMneA","spotifyId":"3bwuh5nhjLHiw3pgWBsVoj"},
+{"name":"OKISO","channelId":"UCNO2N-pl14P4MdrRZp2UCuA","spotifyId":"2FSh9530hmphpeK3QmDSPm"},
+{"name":"Ol Man Yarn","channelId":"UCDZx_1DBz6FM-r5bx8JVgzA","spotifyId":"6Qh45YYljqKFN9yWJG2P2F"},
+{"name":"Ola Javis","spotifyId":"5qrfGIk1r7quoj3jeHTFvU"},
+{"name":"Old Money Music","channelId":"UC11oMtlhZEwGMaTVSMur7cw","spotifyId":"7tCo9FI2eH4xKWURh8gcUw"},
+{"name":"Olivia B Moore","channelId":"UCyhG9AZX8bJtlFVPOHyMQmw","spotifyId":"1YY7Y1erZcoybkGPxPPBTa"},
+{"name":"Olivia Baynton","channelId":"UCp1gqFA_ZWOcmEyyTkQG9ig","spotifyId":"2iPSM4g1ILRqdu230ae2Gr"},
+{"name":"ONE PROJECT","channelId":"UC_yKp9qlR8xXQ-CVsv2VjPQ","spotifyId":"2VIZDPesAdDk0zppWuy70U"},
+{"name":"Onepix","channelId":"UCwCjVc9baAU2W5vb-lOGRzg","spotifyId":"60jnmZuQLow54kbbmy0zh2"},
+{"name":"Operator","spotifyId":"7lKhzVXxyZtPdHBNdhzF41"},
+{"name":"OrbitOST","channelId":"UCN1dtfQmPpISg3JScdfUfJg","spotifyId":"4gFtuX28fUDUgR7WDzfNBY"},
+{"name":"ORGAVSM","channelId":"UCsoGPC3JyHo5873q2rAcZ5Q","spotifyId":"4EgvOK2eIdBfhklxnrEBOK"},
+{"name":"Orion7","channelId":"UCwZZ-LbxPO8XLwoGxsmYHmg","spotifyId":"5xq85p5vUAcHW9qjlJ2Hle"},
+{"name":"Orkestral Studio","channelId":"UCscrY5c2oOEeFm-vr2bWIZg","spotifyId":"2BVFod60BdkHiUOEXfFVcw"},
+{"name":"Orvak","channelId":"UCIXeDa2HNDwDTbyJ4qx53GQ","spotifyId":"2HfGipqNU17U5eS2vpfnoJ"},
+{"name":"Oryn Etheria","channelId":"UCi3-IVOVc4A8IShNgr4LsTg","spotifyId":"7gTOOru74mFQEIRV2f2QLO"},
+{"name":"Otiyan","channelId":"UCrjnebY2RZQJNkVx0k4vr6g","spotifyId":"6nyx8JBKH1k5TQXETzI2C6"},
+{"name":"Ottilie","channelId":"UCg7AHnKTq7WxXPIzUoWvEBA","spotifyId":"6OIu3d9AFSPsn9XMyzGIzA"},
+{"name":"Otto","channelId":"UCloU2GnUbbZsyc-JNbezH4Q","spotifyId":"6k2h7cAuvLNIIERuHfJTdB"},
+{"name":"OUR OBSIDIAN SCARS","channelId":"UCgC9rE6HQ4RruDhI3DGHqag","spotifyId":"6psPs20pUX7oh0t6MHy4ie"},
+{"name":"Outlaw Algorithm","channelId":"UCamWE1eZJhVqU5IQ6NDdYyA","spotifyId":"4Ge1nKihvBgEWLJrKxoKrN"},
+{"name":"Outta Reach","channelId":"UCsEWTSP6p7PBBM-Qn2IKkjg","spotifyId":"2DXR8ww8Tcjlbv0FlZLAHq"},
+{"name":"PASXKAL","channelId":"UC__wmg94KkMs1tXF9gYroIg","spotifyId":"6iLOMTcm0XzgfJ6GeV1D2S"},
+{"name":"Pause maybe?","channelId":"UCbIMs1cJMngsMrcSgbXw1vQ","spotifyId":"39qg15Rtb00BmU98HN4TFZ"},
+{"name":"Pavament Hymns","spotifyId":"27tloJ3aC6I9WRtm51kvHY"},
+{"name":"Pawfu","channelId":"UCTkyJtw0cJwep1UU-5kjbrg","spotifyId":"1b4AHY2LAlXNxEYdaZ0yWB"},
+{"name":"Penn","spotifyId":"5hr0N82ZyJl3RqQXUt0TMR"},
+{"name":"peron","channelId":"UCaxEsit6SsroO0vqtSyaflQ","spotifyId":"4pcZmdW9UX8lTqNgkyxbbC"},
+{"name":"Phantom Of The Synth","channelId":"UC3vllnPbJ5HyiRqgvEAKYKg","spotifyId":"102nWmiocKhcYzCggFZ0hA"},
+{"name":"Phantom Swing","channelId":"UCfzkkqjBu7QE7IzxYQQiDeg","spotifyId":"0cNihMer7NrlB8ULkVD0HB"},
+{"name":"Phantom Veil","channelId":"UCC16KHdNskt1PU_VUXbz09A","spotifyId":"38VxxXFe30VFUMpK2PhBMA"},
+{"name":"Phantom Verse","spotifyId":"0VxEkJyHqpsYabj1Br8dck"},
+{"name":"PhantomFlow","channelId":"UCM2MQWm4sdVUbFFAFY-OEaw","spotifyId":"1ZUMlbUfKFwPoFQbekakDZ"},
+{"name":"phantomoffire","channelId":"UCcd1pEzZx1JET1zjlB7QqNg","spotifyId":"25ID5cZhqUVKZdqUZwDgdY"},
+{"name":"Photoserge","channelId":"UC7fQ9HXJb3dkMxD7sYoQOjQ","spotifyId":"2onKmM2RXRYy9TOa6ZWUxw"},
+{"name":"Phyyy","channelId":"UCqWyWkqvOqmKqhckIlIWSmg","spotifyId":"747usBRyhoykbmyxgpyfx2"},
+{"name":"Pie For Billy","channelId":"UCmCy_ldZThdJtVf7SMX6DXw","spotifyId":"3djeIfXzxwOgWLOkkWzkHj"},
+{"name":"Pink Paradox","channelId":"UC5s_52aNSAsgG_gQlluH_PA","spotifyId":"41RYrzskJoovYRHB07AQdh"},
+{"name":"Pirates of the Horizon","channelId":"UCz-X8GGLYArXHe0q5nhmYtA","spotifyId":"1Rf7kz5LxseEixxKRizCdt"},
+{"name":"Plague on Board","channelId":"UCh_il9cNK1EQi0uIG6x8h6A","spotifyId":"4aMDUxv2inevvTyo3yFcFN"},
+{"name":"Playful Devotion","channelId":"UCv-0SDIi1Sr95mdagdtF4tQ","spotifyId":"5DHIgh0MCb17cVuB2FkbGO"},
+{"name":"Pleasurian Pneumatikos","channelId":"UCxm6ppl2juVYwPeqxrkiLKw","spotifyId":"6Yfi2pmvgD2hEFCttkwnM1"},
+{"name":"Plumia production","channelId":"UCfBfHrDlGKYKLl-qbMLg-fQ","spotifyId":"5q0RjruPQHAC9t2ufwCdxR"},
+{"name":"Pochito","channelId":"UCbeK6KLVw0tKhYNx2y-z54g","spotifyId":"2p2EQadplVuayD30XPym8j"},
+{"name":"POISONPOP Candy","channelId":"UC8qGpw8GUxcQZftXQeFavXw","spotifyId":"1ORh5hGL8aCx1wDAi8242s"},
+{"name":"Pokévibe Studio's","channelId":"UCSWgkLxkqrWgmiOqUTJ67Ig","spotifyId":"1HhTAdElHjL0yLlyu8Q76v"},
+{"name":"Polk County Pagan Market","channelId":"UCFilMVsz3u3v0Gu6Nk2Do-g","spotifyId":"614M4MQ5ne3YfCHxnDydT4"},
+{"name":"POLSKAi","channelId":"UCf3ElZJiHx7uRD4qAypt9yA","spotifyId":"7bNwfQsUzcgqf7Y9P8xIe6"},
+{"name":"PORCELAIN HEARTS","channelId":"UCAipmgXhXrPFtsM5r7gReBA","spotifyId":"1SaerF7QF5mxah84qBsCnG"},
+{"name":"Porcelain Sky","channelId":"UCxHOHCNnmgY0zseVu_vVIpA","spotifyId":"3DspGStRbmyFSYLHjkYEwu"},
+{"name":"Power Seeker X","channelId":"UCISmlFRKrj9X2z_i1xDA1mQ","spotifyId":"7dF0ePTNopNkNPe0rOIghE"},
+{"name":"Pradawne Dźwięki","channelId":"UCHsYxkBeWl_0zmHffC1BUWg","spotifyId":"4uqHctbRh1oNixmdzTg6v8"},
+{"name":"Preaching Real","channelId":"UCbnuljbR3xHh1FtWmITEwjw","spotifyId":"0OW0RZQYsuoAn5o48urn2u"},
+{"name":"PRELUNE","channelId":"UC9XewUt6BCe36GCQo0NpajA","spotifyId":"5x9QpaiUGbEIaTvVAg5hIU"},
+{"name":"Procrastopia","channelId":"UCXDKGDek42iZsueUoK8-M9A","spotifyId":"4p5EUhmDHdwkpSJmWAY96t"},
+{"name":"Project VII","channelId":"UCgQgh0-HaDhTMbG3ja9ug-w","spotifyId":"60OpTP3KX9BfczqDN08v5t"},
+{"name":"promptgenix","channelId":"UCVohDTn3JHRDlM3YDPCDm_Q","spotifyId":"5P3dOgV9xFmRFfuuxi1I0O"},
+{"name":"Prova MI","channelId":"UCAHizuBqLts8ZzJFjJ77ZMw","spotifyId":"0owRwclwgsWS9XiRSFcdFb"},
+{"name":"Psalm Of The Redeemer","channelId":"UC-K9VftjqRBvSKQEwOE61JQ","spotifyId":"4nHR1KFqHn5ogHP75JE5aq"},
+{"name":"Psalms of Ash","channelId":"UCGCntPLOB1vJt6oTWu9vGpA","spotifyId":"4npf1FoMN4w6IKnSxtSZyl"},
+{"name":"Psalms of Light","channelId":"UCKVDBEX3YMs7MwA9bOz4tcw","spotifyId":"1r1Vr4GfA3F1LDd5lHJ69p"},
+{"name":"PsychWitch","channelId":"UCWK5e_zILvH66EmRA3byU4A","spotifyId":"3S9L43waOfOS5QwRCIKzUh"},
+{"name":"PSYndicated Neo-N-Pulse","channelId":"UCCdnRyY-Xh_Rao1DQ95qNZg","spotifyId":"2f86Ddt5fqIJJqnMsSbMCK"},
+{"name":"Puppet Spider","channelId":"UCwB1A1rOUiJ87LQ6DtBiemA","spotifyId":"5MlG9IL96nYF58A8jsYu9D"},
+{"name":"Quinzena","channelId":"UC9WZqUKoMdTmsX77YjLTHvg","spotifyId":"4HNhHLq0OXCJydg5X00974"},
+{"name":"R3ALSON릴슨","channelId":"UCZgqr7VSxitKSuQFxf1suSg","spotifyId":"0es1ucz1CGN2QdXf9mnTia"},
+{"name":"Radio Mandanga","channelId":"UCFhaGCX7kW6UtuBg-8YqQlQ","spotifyId":"67UfE0oVabYGFlB0jyx1kL"},
+{"name":"Radio Sex","channelId":"UCEq_93L5tJSM7G1qU_IFs_Q","spotifyId":"43m48MpymLr03vHB0euSLE"},
+{"name":"Rap & English","channelId":"UCX-WpFFXIP8wd0dGjLDQl7w","spotifyId":"4Ht9u7BXY1NyT2WZ2yU3yR"},
+{"name":"Rapto Co","channelId":"UCI85jgcAMyKyfJxnjB26dcQ","spotifyId":"0tXbN6Mh68BZxKJ7My0DDG"},
+{"name":"RASELHITS","channelId":"UCYRelw5w82qnsaycIyFBwDA","spotifyId":"2s1NUR7JmW2x6hItRlRh32"},
+{"name":"Raster Dust","channelId":"UCrU9Dlggm1-7FdjyZEAuyfQ","spotifyId":"2s5Rohp2webg01ixb3RrrF"},
+{"name":"Raven+Fell","channelId":"UCRWYpx9OVlKjlp0TQ2CGdbw","spotifyId":"27TqMlIjvKlvIa3cdFWNoM"},
+{"name":"Raven Knight","channelId":"UCUiBKlGfoAhoJ1xa73cMcDg","spotifyId":"2lGM5OCIrdO8VK5Pdt6QgX"},
+{"name":"RavenHeart","channelId":"UC5PhGRy3F2USSrv6zvN2-Kg","spotifyId":"4BELZhMjQmouCeRsOSfEl2"},
+{"name":"Ravenshroud","channelId":"UCKRimHE-scAq3kOZhpNorTQ","spotifyId":"3NJ90WbTcAAquzmOjfp7JX"},
+{"name":"Ravnskjold","channelId":"UCv056pQTT6kr9qUWl4oEeMQ","spotifyId":"0B8wNPtjpy8HNoaCMoq0me"},
+{"name":"Rea Gopane","spotifyId":"1FOb2ztsneNb8Ka0f817t1"},
+{"name":"ReAmped Covers","channelId":"UCJPZGPWABUcMPmdbSqhts2Q","spotifyId":"56N6exXvUyVfA129fDtGgE"},
+{"name":"Reaper VX","channelId":"UC60_GMKbfPcwRmJCUwz5fkw","spotifyId":"4C3ppc7S4yB7Yd7aEJwv7L"},
+{"name":"Rebel Redeemed 316","channelId":"UCPcmZvBI4IlMIR-hzY_zi8A","spotifyId":"6L2qEC7B3xRifDLNJYmKSQ"},
+{"name":"RebornBeat","channelId":"UCA8kQe8_mqdg2-5gtzs-USw","spotifyId":"6XkNk1PfIy2c1uznIvuM0E"},
+{"name":"Red Grizz","channelId":"UCWHbJYMaXQTXQWRQOVG2g7g","spotifyId":"1NKOPriipcFcbwQpeNpjrw"},
+{"name":"Red Village","channelId":"UCkx5Prrlh3-m0RyfzOnYu-w","spotifyId":"0peThqnLn0V2rxo8pKsMPv"},
+{"name":"REDFOX2809","channelId":"UC6lAsLZURabsH3YANfrKDJA","spotifyId":"200V9pGDNVo9hb7VLFbgo5"},
+{"name":"ReDia","channelId":"UCYcJsqMLBkSe-ntguvu-Nrg","spotifyId":"4GtMsoKQCRE9ATd1jhTawG"},
+{"name":"REDNECK OUTLAW","spotifyId":"5BORwASyFfCQ4peOHvrhLD"},
+{"name":"Reformed and Dangerous","channelId":"UCyOjIDEwo6QkQh2leHWPptg","spotifyId":"16nzYmnDybx74bijgsoMdC"},
+{"name":"Relatone","channelId":"UCzYkEL1IJB0I-4oHnedjXrg","spotifyId":"21hT04PtXaWqbH940eWaS9"},
+{"name":"Remake Gospel Brasil","channelId":"UCK9GVrLPx6vL9lVEogTSTig","spotifyId":"5I1nbOHEfBv5hZ6VpPGIBn"},
+{"name":"Remy and the Wolf","channelId":"UCNU4L1D7MNyCGPhfH7gc2EQ","spotifyId":"5RG9PdbdqYJhw4y3G6AEKh"},
+{"name":"RepeatTwiceDaily","channelId":"UC0u4LkLcLtCYtGmpisYm8cw","spotifyId":"6gyYwtCJKWURUHWsAm76PZ"},
+{"name":"ReStyleHits","channelId":"UCw6YNPi1y0UssyXzUETRmTQ","spotifyId":"2yL9pCiXPMGe37vvK7o9U3"},
+{"name":"Retro Bird AI","channelId":"UCQp0G36fgQSZytt9o4rKnfw","spotifyId":"7C8SYpMGJXS7QaeuPrlnlv"},
+{"name":"Retro City Pop","channelId":"UCgZPKl0TkRAmOeLkmaPQ7ig","spotifyId":"6mVkcVizpVfnsAHqzURu9d"},
+{"name":"Retro Soundscapes","channelId":"UCitJC-gG7w7GMzXmlS61W2Q","spotifyId":"20PyEKhILLngnqdZFQg5Ak"},
+{"name":"RetroCop 1980","channelId":"UC2MUXGXY0VMz0V5go92-E4g","spotifyId":"65dR8AGvuWcbLMsVcoL2Hi"},
+{"name":"Retrosync","channelId":"UCgMOOhp8UkDLpjpOq5gEvUQ","spotifyId":"4y8hhwAGbhvDxwbs8nQq7Y"},
+{"name":"ReVibeMusic","channelId":"UCAoY6oPjwKwhuKoD9PnQjaQ","spotifyId":"6gzwDeQrgpkKZD3bxE19c0"},
+{"name":"Reyna Joy","spotifyId":"3e6M0XG1zD0EDRnMjxiKF9"},
+{"name":"REZØN8","channelId":"UCjJckzOnw2xHRjIPXzEoWPw","spotifyId":"1BdzBfitKmsHs4ylI7MCUv"},
+{"name":"Rhymes of the Damned","channelId":"UCGJ-W21qmR4kCGrsNoxDVWg","spotifyId":"1QNNBq8cPoDBzZX2Zz9lUG"},
+{"name":"RHYXA","channelId":"UCWqAINWcKMm77a_71t6ZZpQ","spotifyId":"57hpMX91TOWTH8YW2KL0gD"},
+{"name":"Ricardo Abyssal","spotifyId":"47s2i6XVeEU4bk6nAcOwUb"},
+{"name":"Ridge","channelId":"UCVmLxfdxUI7WBZh2nsoXudw","spotifyId":"2A0dyZWycE4KQUL8mbw8Iq"},
+{"name":"Ridge Covers","channelId":"UCp9wEdlpP0T2uOp93iPGeuQ","spotifyId":"3qmpRT5tccWqB5V9FYGBjT"},
+{"name":"Righteous Malfunction","channelId":"UC6VfGe0eEwwxbIvui_P0-nw","spotifyId":"6w5PUtnqMTpgeh10vNXMPw"},
+{"name":"RIIYA","channelId":"UC_W7hj08OSz9YtrPa_qzNQQ","spotifyId":"5MyKYMt1JjnHxNZyVxGYjA"},
+{"name":"Rikki","channelId":"UCxx9S4Tw9JlhxhZZb032rUg","spotifyId":"6bVYfNixcEYrLi6yrZtKk0"},
+{"name":"Riley77","channelId":"UCK6uu5Tnm16eTFWBGTVw4_w","spotifyId":"4OldnCpGsCb001OGLIx6RH"},
+{"name":"RiotTheory","channelId":"UCUwQiCAL8PHcTgxiUlpCIgA","spotifyId":"6ZiCtCANkfvGfpsv6in9n8"},
+{"name":"Risen In Ash","channelId":"UCV9s_CTMuv5eajwtbzHdwSw","spotifyId":"7Fh8xDyN9wNur08CucDoFh"},
+{"name":"Risen Sons","channelId":"UCLxKyOhoNbiCTBXwuBnNrWA","spotifyId":"36FRaHKzS6hTCyvJQkdlj5"},
+{"name":"Rithyellen","channelId":"UCbEuoag7cQCZbusUpv1vLhA","spotifyId":"2UctwGunfd2AgX0Q5uS6uj"},
+{"name":"River Bottom Audio Co","channelId":"UCcHZe4ek3d5nX8wfkLtyTNQ","spotifyId":"16Ii9llipDem5BQse0XzO2"},
+{"name":"Rizzers","channelId":"UCNBcN8pp9Ieq7f8vIHBZMUg","spotifyId":"1r15AU6aEVq5JxoTDtNGF9"},
+{"name":"Roadkill Pickers","channelId":"UCxGxCKv_aqEHeBhkjATevuQ","spotifyId":"6DhOO3dOrsRRt13lkPrIiy"},
+{"name":"Roark","channelId":"UCYCc6DepfsmkP6VYshSLdeA","spotifyId":"4NNikdyBH8vm8UT1eIBMWZ"},
+{"name":"Rock and Funk","channelId":"UC_7T1JcpTBG89CsBlqXeUiA","spotifyId":"4n7MAyBvfQ0yXs3bOSfSpE"},
+{"name":"Rockaholic Productions","channelId":"UCmwGqfn2QqhdCgtxeMas3Nw","spotifyId":"6BTVID6m0GRajoiXlQcaXc"},
+{"name":"Rocking Rebel","channelId":"UCAUujZDLOxAAvyz5dA76aaQ","spotifyId":"2VIj9Hl1IgPrRURn3A7uZB"},
+{"name":"Romek Addams","channelId":"UCgh6GvFi-ot8JS9fjqs_nXQ","spotifyId":"7I02CiSjK39Zl1WEzx1aqF"},
+{"name":"Ronnie OBriant","channelId":"UCg8e-W8LhQl3UeC_OJRzbFA","spotifyId":"6h6bTqCMdM3wskSzhxLJDQ"},
+{"name":"Room2Breathe","channelId":"UCUiIOtjPH6L7j2OvRldNysQ","spotifyId":"4VTMsDbOCPE9qk1996daN6"},
+{"name":"Rootsman Rebel","channelId":"UCXMgo9JG80vC3VRpcmB5FKQ","spotifyId":"5QuTMNt5qUBsbk8geIrKRF"},
+{"name":"Rose Ivy","spotifyId":"0dBENcQ1Eb25JAsQfetmxb"},
+{"name":"Rosie K","spotifyId":"3rGBFFpO9DoLoLyxGWKlZT"},
+{"name":"Rowan Lewgalon","channelId":"UC-PseivR8qfJigPPkzUYWHg","spotifyId":"26RiOpRrXc5Hea8zgpQnmG"},
+{"name":"Royal Tracks","channelId":"UCBiICy6bcwaTYkGE7qEafPQ","spotifyId":"0cwx66tKDAVYpzRImMs9uE"},
+{"name":"Ruby Darkrose","channelId":"UC6zIywLc1JcPN6dzdYUiVnA","spotifyId":"7o8g4at6tDpzRdmzFCnHUX"},
+{"name":"Rüstung","channelId":"UCMgNu8C9oK9TJNePCek2SmQ","spotifyId":"4q1J3ZAR2Bx6cx9bS8reR3"},
+{"name":"Ruinwell","channelId":"UC9s7HYOy8qzd_ut-wuiCIGQ","spotifyId":"51AtjPMKiaQEC6WFBt67xM"},
+{"name":"RumbiaHouse","channelId":"UCQmz0wdXEqvSOW87mxSnY9Q","spotifyId":"5YzAWmDDMIcGKFEY0K4Pjt"},
+{"name":"Runas da Graça","channelId":"UCcELnFF_1d0s71PrFOpSWjQ","spotifyId":"1KrlNbJ7uQ6hhmiKNO5I3H"},
+{"name":"Rune & Rosette","channelId":"UCTRgZBeNhV1Gn1QjQ7uiGEQ","spotifyId":"0aS5o4MG5Y9iBFP4W48hbA"},
+{"name":"Rune Skald","spotifyId":"5NI0Rs5LbLJnIUzwyKMRZO"},
+{"name":"Runenhain","channelId":"UCsI0IA4juKLAXzAEYRzLmcA","spotifyId":"26EbBoQ6ZjKJzuSWZ9Ewmq"},
+{"name":"Runes of the North","channelId":"UCBs5X2bPMaApmCeHwNxJ0Ag","spotifyId":"3F9TzfzqfNcCnNdLIOUuLh"},
+{"name":"Runtime Studios","channelId":"UCZXuIvvf6vov-76hd2pRvUA","spotifyId":"6A8qm0PPLu3zPL2w7ZF8gB"},
+{"name":"Rust Assembly","channelId":"UCtC4tju6ucOmfi6cuY8Re6Q","spotifyId":"3hQQymTzwZPzi1cW1eHhUJ"},
+{"name":"Ryder Knox","channelId":"UCBppOC29cB7IKXSJg2o-acg","spotifyId":"0t8C3BIAM6tIMyHLQZSmal"},
+{"name":"Ryker Ashford","channelId":"UCPY8h9bjRoAKqBZvdtkm4qw","spotifyId":"5wisI9hqYVfpfmccg9Zmbe"},
+{"name":"S. Quill","channelId":"UCPACrTwzqhqdNdnzjnS_qDg","spotifyId":"1GVzqjmKzh8Za8WPukMUKY"},
+{"name":"S3XXX","spotifyId":"3TltgkE47QSasJJFh1CPhX"},
+{"name":"Sa'Lunara","channelId":"UCG-_mH6aIq43u39SZBiyJWA","spotifyId":"4J5h15Gl60Sij3AHUWxix6"},
+{"name":"Sable Voice","channelId":"UCHyQCR6xcZn8g9Wl11rZWOA","spotifyId":"5ttCSL4gsTCGXDHdxivpW6"},
+{"name":"Sacred878","channelId":"UCMHpA275_R5qcXRl6ZQ_lgg","spotifyId":"6DgLMCNvFHAmDiNprCGAIp"},
+{"name":"Sailor.EXE","spotifyId":"34uYCfmKkC1KFeu8LXLrTM"},
+{"name":"Saint Vice","channelId":"UCwMIELXvDpsVKzROn7-5PoQ","spotifyId":"179nZs7X7xadeJELC8QVsn"},
+{"name":"Sakula Darma","channelId":"UCIxqSsPKx9ksWRRwHKRTiVg","spotifyId":"21ze3Bk5n5DZHOn5t5ZEI5"},
+{"name":"Sakura Yuki","channelId":"UCZ7lWPcj6503SQtTIHHrppA","spotifyId":"7pvSKl3abgvoACznKIvbnR"},
+{"name":"Salen Records","channelId":"UCaGo2NVfpddgyuCltkxWy0w","spotifyId":"1gBONPkLeBUhwEljXAaNIE"},
+{"name":"Salheim","channelId":"UCSJWK73OgJBL4jfeDAI-FOQ","spotifyId":"5iwUJdnoWpHT2H84hllGms"},
+{"name":"Samuel Cabana","channelId":"UCQJhQjM6OMLIbMbOl8C5KWQ","spotifyId":"7vhaBOU1bDfiEjSpcKeI2d"},
+{"name":"Samurai Girl","channelId":"UC9xoOWnsZ4K07h3yZjcjn1g","spotifyId":"3iT3Jpjsn1yVr7mJ53DpVz"},
+{"name":"Sandstorm Serenade","channelId":"UCyTgC5Z2DLI1ppRWdYjmiaw","spotifyId":"538Id3jHm4AWvVYBSeGMQL"},
+{"name":"Santino Ray","channelId":"UCdRTm_oJFG9AUkoo6GTw5Lw","spotifyId":"6zxb6jNn1Su1E2AVcOMNfN"},
+{"name":"SAPEPEKA","channelId":"UCwFIB7QZaraHlaXFCpO3mmQ","spotifyId":"5nWDVqv1uE3plJhXiS6a7r"},
+{"name":"Sara's Handwritten Lyrics","channelId":"UCJRwK7MlGU7YBq3r2jQN2Zg","spotifyId":"6PuFlzWTVrDym2g61Qh4iW"},
+{"name":"Sasha Komovich","spotifyId":"3mMvT7DeT6lG41ZiVPpNVV"},
+{"name":"Savanna Rae","channelId":"UCeATPXFlLGz0DcBgSCpLyig","spotifyId":"3jfEESOgtU9pb59SP4aRgd"},
+{"name":"Scarlet Songs","spotifyId":"5khZTtXXaGJtWEyG2Y0mm3"},
+{"name":"Schlagermelle","channelId":"UCERF_YHo5N5bwu-YbsgKBkg","spotifyId":"23C9ZhKXLGKBdEmPstn91o"},
+{"name":"Secret Frequency","channelId":"UCEptyyZ7saXOnDv-Cq78zPQ","spotifyId":"01znV3xwZz9Tf6O4ngKA0o"},
+{"name":"Secret Vaults","channelId":"UCdZYaSbCzQ3f1HYKjlwvWKA","spotifyId":"5ORc9KdDXxzlwmme4j6JwS"},
+{"name":"Seek First Worship","channelId":"UCt8ucV_27tRPWkonyT6T5Cg","spotifyId":"2myyS6fLH4g4Ujz7huW3GI"},
+{"name":"seen it forever","channelId":"UCF_mgu-_1kjWEpetrF5omsQ","spotifyId":"45udNdlV2KKtxUxVeMLSQZ"},
+{"name":"SEIDR","channelId":"UCFQlgK-kYwGIpfJUhoCBEBQ","spotifyId":"7obewUjFfz4BmXS8NheWhO"},
+{"name":"Selene Calder","channelId":"UCPNzY5lhqFuJaWpRIOJh5ng","spotifyId":"6ol142WWS5UFXOVXQ6hRs3"},
+{"name":"Self Sabotage","channelId":"UCbzqBYb_AIPuhkCpuDaOpbA","spotifyId":"4TsG8NA7GH3s9UWifEqiDp"},
+{"name":"sellar","channelId":"UCATIW4e72syhtq5DI1U5itw","spotifyId":"2eE2igevXc1oO8cBldYZDy"},
+{"name":"Semargl","channelId":"UCdRS0qjXhJxvq20pN7s1Avg","spotifyId":"135gYIRXAwhRKtFIh8mehP"},
+{"name":"Seraphina Rossi","channelId":"UCWFPYvJabGylK66XXC63NkQ","spotifyId":"2loNTfuryAQSwN7bXzmwC3"},
+{"name":"Seraphine Black","channelId":"UCtbLqquenTV_SGskR3dZuBQ","spotifyId":"62EZEE12ZbnDCebB8q41WN"},
+{"name":"Serenity's Soul Music AI","channelId":"UCpDyQkWvGF9P253-8AQ618g","spotifyId":"4ZSPmjprPFZwIn2yiL5SgG"},
+{"name":"Seri Rue","channelId":"UConMd2YKVon-bS-Jy0f6Kxw","spotifyId":"7uibqYCDfuww997LfLFEsp"},
+{"name":"Serinx","channelId":"UCmVUZ4OTnv0h-kP_Nsv-7oA","spotifyId":"7hcy1Ea3D4brTD9M1je4LW"},
+{"name":"Sermon of Flies","channelId":"UCuNmfIg7Z0fWfrZoRejjGjw","spotifyId":"4mB6oKNuXTuXBIwn9YFsI6"},
+{"name":"Seth Abstract","channelId":"UC9O9SxEKhtb40kwhYS6a0FQ","spotifyId":"3Vz4C6LwMn0pJblnXUrT2m"},
+{"name":"Seth Summers","channelId":"UC7W7wf4GQ5vPBRfGtRDnNZQ","spotifyId":"6QhzVSbqEbhhi79ulQZoPH"},
+{"name":"Seventh Sunset","channelId":"UCgkRAOvoZAEbEmpHl91j6tg","spotifyId":"4llPHw7w3uuYn7rzSROgnB"},
+{"name":"Severed Soul","channelId":"UCZtHLXnZa4UpA0v5KpTpBhA","spotifyId":"3jIyun1hBM80ipO4dnfp5O"},
+{"name":"Shadow Beloved","channelId":"UCxpV_ZhMQ02uTXGOrFMlyzg","spotifyId":"5L5yD7T9JncTF1bbzCoIQm"},
+{"name":"Shadow Reign","channelId":"UC7m5vaKdTLIey6wm3ontorA","spotifyId":"575D9OSbD8vjooDhBya85H"},
+{"name":"ShadowEyeMusic","channelId":"UC-SfY04qCP0bR17ZL1gkBnQ","spotifyId":"3L1hnGQuEopctfcQf6vf1E"},
+{"name":"Shadows Awake","spotifyId":"6RFklxKvT8Ulmv7lWID1t3"},
+{"name":"Shadowthorn","channelId":"UC3u0DRk5yNJGQ3hATFrIj6A","spotifyId":"36of2ApreJGvgEs7DYgfby"},
+{"name":"Shane OHare","channelId":"UCVrIJHrpP413NFAs9MuTuAA","spotifyId":"3zCQQPCBsqvyqwT8CcOMra"},
+{"name":"Shatterglass Scallywags","channelId":"UCXF6EYTxTVJ3TqvSOjKrh2g","spotifyId":"3S5JxEhFCWzUV7tcZjdobq"},
+{"name":"Shelby Street Blues","channelId":"UCi5eaflQY5QeMmpPSa12rJQ","spotifyId":"4kAl6IYLXd3cywr1W1gneB"},
+{"name":"Shift to Abundance","channelId":"UCe1Ba27TYUgVlWZHvZlyyGA","spotifyId":"1ySrbBoYh0KYOI99w8cjMP"},
+{"name":"Shifty Brent","channelId":"UCFwzV6sWKE-sMHsHYTTUtNQ","spotifyId":"1x0YcF98Fketh6iGtkAfSX"},
+{"name":"Shining Light Music","channelId":"UCVuidXFVWvFgZXFHsS5Tp6A","spotifyId":"0RDQPIztTEel1T0n8ksDxd"},
+{"name":"Shiranai.exe","channelId":"UClwxLVrCWxuK0C6_Cx3Xw2A","spotifyId":"0pAjW7Vtxmn7zVoEBvmZ9V"},
+{"name":"Shirlinda","channelId":"UC3aPyEzxTQeGXHXRV9ISCSQ","spotifyId":"011S10yFs7e1kxzq1noZc4"},
+{"name":"SHONjii","spotifyId":"7uZP933HoAPmp5vYsuK6d1"},
+{"name":"SHUNÉ","channelId":"UC_iq5fspwCQfzUDztznSXVQ","spotifyId":"7DbLkdqZ8km640iDqL5BNn"},
+{"name":"Side Slips","channelId":"UC9GWDZhU1bkLPA25Wy3eCkA","spotifyId":"583HWrl2uUXchhX98BGzdR"},
+{"name":"Sienna Rose","channelId":"UCi5lJ9LflY1Pn05ArHyQxEA","spotifyId":"6wq8iklwcF2dj0jtMpPvOJ"},
+{"name":"Sierra Vale","channelId":"UCAaZL69_jvd-u1VgGwWfQ5w","spotifyId":"0YwiZqX8V16wonen2gbJt0"},
+{"name":"Silas Grime","channelId":"UCLBT94mK3whol71PfVw4ehg","spotifyId":"0jVfAolr2XgrdDmHyMfSpE"},
+{"name":"SilasCh","channelId":"UCNnTlqnYPfk0mdMqrCbqCFA","spotifyId":"4TJvSewMf7aIZ6VusU2uL2"},
+{"name":"Silent Echos","spotifyId":"6jRo29Is0FYP18emMb2dfe"},
+{"name":"Silk & Shadows","channelId":"UCA8pwDP_nxKk_lIvPGUq7bQ","spotifyId":"3pU2QppOzoRhIPzHhfBO9S"},
+{"name":"Sirens and Saints","channelId":"UCKvi9_jFDTfCEIa2aXA646Q","spotifyId":"4HdFv37euo50CcXtjcxZUo"},
+{"name":"SireWolf","channelId":"UCDISg_-XqMqvVZMXYs53QxA","spotifyId":"0xDqVY7j4jW3pnzU03N5m4"},
+{"name":"SISO Wave","channelId":"UClRxY7lEeNqc6oezxGSpkKA","spotifyId":"58QaqpkXN1fXiKBuEeatC3"},
+{"name":"Sithani","channelId":"UC2rDJJnfo44j-07ZLZIVz7A","spotifyId":"7Gy8IoTotLiDvjAwBqSyQz"},
+{"name":"Six Gun Siren","channelId":"UCXT3y6BGnkxvbzgyl-kgGdg","spotifyId":"4Lq6fpwHIzXN5Ji7V5bxVX"},
+{"name":"Skaldic Storm","channelId":"UCLbPqKt-iZUDX2QzK1mNI6A","spotifyId":"1KRSRZnFNCtljYNKxAJsD0"},
+{"name":"SKARS","channelId":"UCQaU-JGC1Rpk9EwcTCGdDLQ","spotifyId":"6tY1LHbUi3PpYgQocAF4tS"},
+{"name":"Skate Avenue","channelId":"UC6vzgXHaLVTo92sLpJLRiKA","spotifyId":"26UC3rF7JHAKJhYz1peqqI"},
+{"name":"Skavira","channelId":"UCc1en-GV2hMAWCmk-WE0-9A","spotifyId":"6kmWgpQc79YHb8v0tl1X77"},
+{"name":"SKorp Club","channelId":"UCRGUUoZVYENSz245NvSIorA","spotifyId":"3r6vgJGPRcnSSEpss9KU0Q"},
+{"name":"SkyCan","channelId":"UCMWStVcKYUjt-yECe9pm9KA","spotifyId":"0HcVQuIdyt5FuvI0LUzeGj"},
+{"name":"Skyebrows","channelId":"UCOmUKsehtfKMr-A1ki-3JzQ","spotifyId":"2mKV7sPvlBvzyPLeZhzT6q"},
+{"name":"Slick Krugers","channelId":"UCtxtxB8OoeJOzb_xHmaOItQ","spotifyId":"63gzNofrOyz1jWur3t6pLM"},
+{"name":"Slime Dot","channelId":"UCB5cx3LqK8W2uGZhR6spIqQ","spotifyId":"2LnFNK3k4zi3T48mrYdHmA"},
+{"name":"SLØWBREAKER","channelId":"UCVnBm3InQoxbduE7piAO4ig","spotifyId":"5D6W8bUUI4927rYQdov726"},
+{"name":"SLOWBURN","channelId":"UCBGSepF_tQ-Io97hxPSWTyg","spotifyId":"3f33w5RmmO0PJ2ktZi3L02"},
+{"name":"SLVMLORD","channelId":"UCSYhfLjU2kdGa3FYmLqst-g","spotifyId":"0tyJnPv3S8cSq7naRB6lOe"},
+{"name":"SMARTYR","channelId":"UCfKAy8tNNaGwbxqmyS059ig","spotifyId":"1LoaWjsg2xTdflZaxE3QjU"},
+{"name":"Smoke-Oh","channelId":"UCc1AydxXswf5waYCnPomc3w","spotifyId":"1JrGH8RlKN0GPr5CsOLKoS"},
+{"name":"Smokey September","channelId":"UCEqF7iXiy54t5mBDuaTswlg","spotifyId":"32PcXsAFr3ArYaHSYr8qGh"},
+{"name":"Smokey Silhouettes","channelId":"UCK1tWZHvEyUk2YtCBm2HG8g","spotifyId":"5p3DOIVqZlov30LraR8qtl"},
+{"name":"Smooth Syndicate","channelId":"UCS7GjFLtoRwr5650rmBkefQ","spotifyId":"3w47XPQMAdF84KHF9twJCH"},
+{"name":"SNOWBYTE","channelId":"UC3csUrrAauLxjOSp-EfV_Vw","spotifyId":"0vuR37QvfLSJmmRrbh0Gtz"},
+{"name":"So","channelId":"UCm-0DNclC6RdU_6rDZaK0bQ","spotifyId":"4t9YR7hufFHzGLkDxhKcTP"},
+{"name":"Soaring Metal Lords","channelId":"UClbm3hDmpm_b519qUPX033A","spotifyId":"3lAwrJ4xDxRcHECFBXrEtI"},
+{"name":"Sodikken","channelId":"UCGN-FnTnuisFbCEDWVfi9zQ","spotifyId":"0UgwIyebQ3EVoXOAtMgBu8"},
+{"name":"Soiya","channelId":"UCvcAB3anQ5JDoK-T-hBswhA","spotifyId":"5rZZPvK0j63mkkXkZVcxDR"},
+{"name":"Sol.","spotifyId":"06bsQwVfa3ysH7MH2b3N6p"},
+{"name":"SOL UMBRA","channelId":"UCAy0FOCn3QfkW2wgo-dbRYA","spotifyId":"18ej5S8e7A30yJ3AbM9ilp"},
+{"name":"SolarShard","channelId":"UCGIFgMN67R9YrRDx32ilLNA","spotifyId":"4sdaHYfDH8MwHc1gsIHOVI"},
+{"name":"Solé","channelId":"UCK6Wf-KvBpKeA6jQnAwfCuQ","spotifyId":"5Iiffmdr7S2pE8OHVGN1ep"},
+{"name":"Solitary Haze","channelId":"UCnG4_bENh5cKa3-Q-OwyVtA","spotifyId":"3erpEUCOMLOK61nHB3hoMV"},
+{"name":"Solomon Ray","channelId":"UC6izWLksJl3AOpwGq529jgw","spotifyId":"4QQMithHxRhyk69LgkMKEg"},
+{"name":"solplac","channelId":"UCJ00-8KRaulsF09TyvAdmDg","spotifyId":"3yETD7uC1x4MKyxuHX8E7I"},
+{"name":"Solpulse","channelId":"UCSTYHiukTrp_Rg9CZmwQ-Ew","spotifyId":"1MzpZHJLoy027EwN611ZV9"},
+{"name":"Solyn","channelId":"UCXTV0xbboQ7gSICPHNh_XyA","spotifyId":"3rlNwJiJhQuNpbTKYeSNvi"},
+{"name":"Sombras Del Cóndor","channelId":"UC-ARv9fWDyhfF87vRzAYA9w","spotifyId":"1oK5l008shwMBPe8gc9GAj"},
+{"name":"Something New","spotifyId":"3DeO6Ny3TcnJstgBwPZP6U"},
+{"name":"Son of the Dead Sun","channelId":"UC6blRMh9jg022vRotUVOJSQ","spotifyId":"4G98NlkANp6G8xA7YekcfT"},
+{"name":"Sonara","channelId":"UCbr45BufRuRSK-GfBLbTdLg","spotifyId":"4Vic5aPqZkamOsNfW4oee9"},
+{"name":"SongAlchemist","channelId":"UCerOxYjm9qPBgCnIaqzlLAg","spotifyId":"2ZQfrK9EyanwUjmJqBDziY"},
+{"name":"Songs of the North","channelId":"UChHVpSX3AX7Bluc_2N6nr9A","spotifyId":"7tMJwCUBHyN9MzXaQEezwU"},
+{"name":"Sons of Ashes","channelId":"UCjGZ68pz9zgvxtQz3_C22SA","spotifyId":"5Mi7UZZa3v6zZ1wbrij1Rj"},
+{"name":"Sonya Grace","channelId":"UCMjA4HZ3MEyn7eBpe170gDg","spotifyId":"509YlNv9WHJ6Ujcw4aHOuQ"},
+{"name":"Soul Cafe","channelId":"UCVccRmiLPePBoImWKXdIaAQ","spotifyId":"2sWjOfINK4Fl34BU9MLSQM"},
+{"name":"Soul'd Out","channelId":"UCOVgjMcWDA7LyBGk56niVwA","spotifyId":"4iUTPMxJudyRqEL8Xou0ND"},
+{"name":"Soul Palmer","channelId":"UCPJx8jcGTxX86ZE2NAuOVRw","spotifyId":"4D7uLzGfy4CUmdI7EPxYxD"},
+{"name":"Soul Trance Music","channelId":"UC8BxS14YvsvHqHR0-G7-2bg","spotifyId":"4oKiknCXLISgWbopXzplT0"},
+{"name":"Soulful Sounds Trio","channelId":"UCWfFj6ozWZJHVwfNi8zHMCg","spotifyId":"3piy636301G1jrxYZBCbN8"},
+{"name":"Soul's Cry","spotifyId":"6wkcDg1ZWTbCGW5cUPdZ4A"},
+{"name":"Souls Divided","channelId":"UCzekvoQrWFXw65uttM2lfvQ","spotifyId":"1N6y7GzUt4woDtRRYhvkaF"},
+{"name":"SoulStreet 70","channelId":"UCt2BzmBZ-UMRWUeUYGhRoZQ","spotifyId":"1w7oS6DdqdwxI2uKjMW3VH"},
+{"name":"Soulvox","channelId":"UCUyjk7mej14P2cdWf6BeZCQ","spotifyId":"1UroBxlP7n88bHQv6VYr6m"},
+{"name":"SoundsArtificial","channelId":"UC5HhPpTZL3QbEvaRYIRcN1g","spotifyId":"3Lehp0KvBE20AqZ33k0OyG"},
+{"name":"SoundsOfEnigma","channelId":"UCFsBvLzU4VARppfRbvtHoZQ","spotifyId":"4QcAAh9FC9Dk9QhJga0wsz"},
+{"name":"SoundVirtuoso","spotifyId":"4HttIE8v2Y7BzgLcm8DomY"},
+{"name":"Spaceship Encounter","channelId":"UCBwkKzblqUZHj4yugg5k-Lg","spotifyId":"298Cq9CCeZOLLSOd6lH5F3"},
+{"name":"Spade Of Sparta","channelId":"UCPfF8DWFzQLciXE6Xsa_KEA","spotifyId":"6ug4L6nKdx03Mrej6KLkjH"},
+{"name":"Spalexma","channelId":"UCiZ1fJxhR4RRiav7OHZy_YA","spotifyId":"0br7BhK6Vr2Bx8IEg0PEn3"},
+{"name":"Special Chill Label","channelId":"UCiUVdx98GiHSh5QFqfu4EKA","spotifyId":"2q6X1JXFtiJEt3Nl3MZfWC"},
+{"name":"Spiritual Workz","channelId":"UCos48AZ6YL810BWLUI1xICQ","spotifyId":"0UPowk5UmZw2ISNZfyRYAD"},
+{"name":"SpookyDoo","channelId":"UCsaXIWNCifveZFJvDia6Mbg","spotifyId":"267DKqpbxjxylBefdLHCEL"},
+{"name":"Starfreak FM","channelId":"UCJW8tM-PDDz2lfQvx21KFrg","spotifyId":"1HzexeRQd6gKNkdfk7VqlQ"},
+{"name":"Starwynd","channelId":"UCQ1tIxhgTPqLsnKFL7YWuxQ","spotifyId":"5qyoyaRsxcHKln2TxqoUgL"},
+{"name":"Static Violence","channelId":"UCa7DqzVOnPBI_t1YVx_A1Yw","spotifyId":"7KmyEvhk2SeL0XipUjOwJE"},
+{"name":"Steel Legion","channelId":"UCnfkKd-xvmpWkp4ehcEPY4A","spotifyId":"6TGRILNkRjenk3QbCeqYqQ"},
+{"name":"Stella Synth","channelId":"UCWqmEd-xtXwJJqCBLhcL8Ug","spotifyId":"6OUR7BqKNZoWPdWuNrB32O"},
+{"name":"Stellar Cruise","channelId":"UC29ydnpCEKKmYjy6nPMq8sw","spotifyId":"2R6kG4jQJoWlGEZVDKkx4z"},
+{"name":"Steph Stephens","channelId":"UC7qPQL70PHEIS_grfFvGfZw","spotifyId":"5d1D5NNYFbqUqm1XmnYg05"},
+{"name":"Storm Chant","channelId":"UCnb7TMFIX4V8ZHU1Ngai3OQ","spotifyId":"4kl77CEQby1Pb06oZmDrg1"},
+{"name":"Street Gospel Syndicate","channelId":"UCAZOvMMeQmTinidXD_CxDJg","spotifyId":"66Uw2ziyb3XVY7DtpmmAgC"},
+{"name":"StrikingBlue","spotifyId":"1I3eKTjPzfnTzUCiQVaAIZ"},
+{"name":"StyleShift AI","channelId":"UCXejACqxq25yqJfeKwnrNog","spotifyId":"2Js2JU4HPHcmvf45QkCkqH"},
+{"name":"Sublime Vocal","channelId":"UCeLx065p_10O3_dqKvDdZ3g","spotifyId":"07bdt2A9YDQmoL8MXnenHv"},
+{"name":"Sunday Night Low","channelId":"UConC_C6hmGeHmRzNBpULfYQ","spotifyId":"3E8vJy6ND5emzVHCGlyHp4"},
+{"name":"sunho974","channelId":"UCWdYoELTuoqymXgBAdbmGEA","spotifyId":"0qS1EtuA0bXifVAGog7i2F"},
+{"name":"Sunny Ray","channelId":"UC9hCndikNn1Kn3IN1ei-ecw","spotifyId":"6MAu0Z9K1Si5WxLMPkx1Rw"},
+{"name":"sunremo","channelId":"UCsoKCMQNX08FHsaxlLpa8nw","spotifyId":"0PifXQiTMFvQVmZRu3Skk5"},
+{"name":"Sunshine Girl","channelId":"UC2ag-8wDTY_nT1rWUCJEIqg","spotifyId":"5QAEXliAnfHRCE8QnLzrWl"},
+{"name":"Sunslain","channelId":"UCZXp6647ZpIn1g9YzlM7bwg","spotifyId":"2DuTUJnruYYnffbVH7JG8B"},
+{"name":"Superblack","channelId":"UCd2HIbEUQEy1-j83dBQacxA","spotifyId":"0Oc2WB1Dm822nGjH4OOBq4"},
+{"name":"surelynotsibi42","channelId":"UCPpsPchGZaGzhavVS-DzrCw","spotifyId":"6kQZyWgAMsM7U7vRlWLYd2"},
+{"name":"susumu.","channelId":"UCOXEBcEnuJUl7YGouVPCcHg","spotifyId":"1MNhL3vOZZu1179Z031OF5"},
+{"name":"Swing Stroller","channelId":"UCzSRsGlDlg7SEjk1uHE1d-g","spotifyId":"4mIuNN9GeW7eVpaCM5hGmC"},
+{"name":"Sybilanta","channelId":"UCDT2EZWOQW58QhtP0H-h4kA","spotifyId":"32kJyv7Ov7lVdqgSUXvmuU"},
+{"name":"Synaptic","channelId":"UCohvZoa5onBaAYdMz5ygisQ","spotifyId":"5r0wo7k5gWLEXouzxh1Ovk"},
+{"name":"SYNN","channelId":"UC4Dq_TCQFo67Aq5GmV01YmQ","spotifyId":"5wi8I7IEitST6CgqAwXYLc"},
+{"name":"Synthwave Siren","channelId":"UCMQrZ94OinZOmudTBVEl7xg","spotifyId":"60OoJBw3MDZs9insxzR97E"},
+{"name":"SyraxSoul","channelId":"UCHaxuPrur-VHEM2yW8fXNJg","spotifyId":"4P92vZ4X2JcidL7sp4n5rL"},
+{"name":"Szepty Starych Drzew","channelId":"UCcV-LykyAgydn3YwR884tbA","spotifyId":"2z69zmQamfL1uXC1HU9yqb"},
+{"name":"take your time","channelId":"UCyZ1u6-N26-qmJVslOz_14w","spotifyId":"21PAJwO0H94xCT4wStKtaE"},
+{"name":"Taku The Bard","channelId":"UCTyfR64htOL2rx9rT1BYKww","spotifyId":"5f4bcIL7lMyDutLcj3ifDN"},
+{"name":"Tales with Lora","channelId":"UC3VuEVgqMFQhowB6LjP_1hA","spotifyId":"1KMGaXlElfNtWy4H8CmR0x"},
+{"name":"Tanjuschka","channelId":"UC9xdnGoqHgd9sR3TNgu8giA","spotifyId":"5Nn6a0c1Ku41vuE2OT7Qeo"},
+{"name":"Tapas","spotifyId":"7MQmLVhtOlZH1g5F9Qpxyz"},
+{"name":"Taylor Lakes","channelId":"UC20eWOC50DEGlkfkeoUVJOg","spotifyId":"07cbHkh8aPS0DalFX97zdR"},
+{"name":"Teeth of Eden","channelId":"UCDAyq-FL4do8uJmEwRj-Mfg","spotifyId":"2XWjrO8v8JC923tN5Iz64v"},
+{"name":"Temple of Ash","spotifyId":"4x57vN6Q5KAyPEi9DVSJkQ"},
+{"name":"Tennessee Reaper","spotifyId":"1xZcle6S38C7fShUZIbEI5"},
+{"name":"Tess Mac Keen","channelId":"UCtvjHYsL5nGckco_8gMxs_w","spotifyId":"77mpUoVwkQ9qs9b4AQiDin"},
+{"name":"Texas Hollow Records","channelId":"UCHTY3WA53QpFh8K7yp6wBDQ","spotifyId":"66eTpwc3YLUBNYQIM4PO19"},
+{"name":"The 1924 Project","channelId":"UCw_YHPQNHyVdTng9HYq1BdQ","spotifyId":"4kDNMquYzurmpC7HSNgenw"},
+{"name":"The Athene Noctua","channelId":"UCG8TmZWiMTkCXCLHkeNCkEQ","spotifyId":"4l7Oh4d2nTRuPaYcGTfeE2"},
+{"name":"The Automatic Singer","channelId":"UC7OfO6rIVrjnmpKrpV1gaIg","spotifyId":"2iy6PKhhvtcPRMlgstQKz2"},
+{"name":"The Avalon Exotica Orchestra","channelId":"UCmPjoL2FVx0EJAhdWuXK3dA","spotifyId":"7s5rGNSN2Cu7YbbQHA33nX"},
+{"name":"The Backroad Collective","channelId":"UCftiC_NQUy84k0uV7MdB14A","spotifyId":"7BYlJ8veKCyEC1VDKgJMb7"},
+{"name":"The Band You Never Heard Of","channelId":"UCST9M7uHDC96_dOrHvAghLw","spotifyId":"7qE1sqCxb2DFi39JAzH3f8"},
+{"name":"The Bardic DM","channelId":"UCoBW7TQnbEh70NjWXhg8g7g","spotifyId":"0TVQlzIjzD4ToSVeXIB15H"},
+{"name":"The Bela Vibe","channelId":"UCk-RC_rOsMrzjcDSUhQfVsA","spotifyId":"2TWANvVhZQR737ucdoPCeD"},
+{"name":"The Black Mammoth","channelId":"UCcYmrwZgYf15JOUYaGssICw","spotifyId":"5o2MPh3juoeFPPpYpaNS4N"},
+{"name":"The Blackest Red","channelId":"UCql5QtnVAcICXF7pCZmBNgQ","spotifyId":"1qpdzgXMSdR1ffKNyOm8Ym"},
+{"name":"The Burning Curse","channelId":"UCRKhLnhxV_HIQrX_1eFzB7w","spotifyId":"6wiCz0jMZy8p8r0FMQLTWI"},
+{"name":"The Cheeky Celt","channelId":"UChHuJkdJNogfR1y192FH2ng","spotifyId":"4W6KaPHnsqR7AHcbZwSfYk"},
+{"name":"The Classic Soul Choir","channelId":"UCo6zAbg2fSS0vUT6I33mMdQ","spotifyId":"1bAH3VIvG8RXHqCzl3ZgAB"},
+{"name":"The Dad Bods Pop Punk","channelId":"UCerIKv1eXast20RZCVb4kVg","spotifyId":"4wVSmEjrheqRkOI4po2hhj"},
+{"name":"The Devil Inside","channelId":"UCEBw-Zotaj0-wGHKndLQLFQ","spotifyId":"7p9c2UBqYagnd5aoNEeupC"},
+{"name":"The Hollow","channelId":"UCrqM8q5kVYMeqjrRYtu4hLg","spotifyId":"1Q43bUUmvTTVi6Eue5MdJq"},
+{"name":"The Hollowed","channelId":"UC9KNVvjNy7s0trjz1ck_Sxg","spotifyId":"3V4PB8BUF6TIkz5IUYgJGA"},
+{"name":"The Hollows","channelId":"UCNlo5yOliogxzQgRyfIoyOw","spotifyId":"6SunRwBDRPd9ljGruF7ZvU"},
+{"name":"The Jazz House","channelId":"UCx1PM46FAmRafBvZu_Q6Yjg","spotifyId":"3CbvCwGzYuBmQStXktotC3"},
+{"name":"The King's Blues Club","channelId":"UCLmary6-GWJdKHq9ckbKvIw","spotifyId":"2E2GnOAftVb9iqA78aXSwt"},
+{"name":"The Last Spell","channelId":"UCqvNtp6o31Sry1VQQ3qerDQ","spotifyId":"25G9EpBYLrZlWoDWmkaVjx"},
+{"name":"The Love Algorithm","channelId":"UC5t_Al2kuT-CyanizyUfiKg","spotifyId":"2rpB7s24ldCil5WpSiu2CU"},
+{"name":"The Luna Lounge","channelId":"UCa2S6MZvaPop7W22vK3mBEg","spotifyId":"3MBWYwbrY4qoT2wMEHTzc5"},
+{"name":"The Mac Roger Project","channelId":"UCh_W3aF2jyk8UtlZ2tBkIpg","spotifyId":"2CPIpdDrqv3JMMzlpXn34K"},
+{"name":"The Medieval Inn","channelId":"UC_3MqMmAryYGhL057jJ01zw","spotifyId":"0WVhflO5EK9M4mNxftcepi"},
+{"name":"The Miracle Worker","channelId":"UCL3t2CsVbDNhDFWxIIGWTSg","spotifyId":"7EdQAEH830nrFK6pdrIAvp"},
+{"name":"THE MORA PROJECT","channelId":"UCHRaWOuVsYw6cl0MOmMdGhw","spotifyId":"5oQtv1x98JnQ4U3QgTZq3d"},
+{"name":"The Norths","channelId":"UCbfBDXITCPSuXcBtikSxpJQ","spotifyId":"1jgMclkag566QhUABYY987"},
+{"name":"The Obsoletes","spotifyId":"6sF6xkrFyEuy3j0OgHa7JZ"},
+{"name":"The Old Harbour","channelId":"UCzWsJOfEn6Mzuua5OVTDsrw","spotifyId":"2aKRkyYQqg8sXSid8t9q6J"},
+{"name":"The Old Tavern","channelId":"UCuLgJP896EsSalAjLRbOliQ","spotifyId":"6XyWL7jdA1UZp1mliV89G5"},
+{"name":"The Pirx","channelId":"UCzfTRcGmA8eKgrHf-MufK_A","spotifyId":"3o6wJqVxTuXPHkmLaBOg7I"},
+{"name":"The Pleasure Syndicate","channelId":"UC7cfvCKzCyxcF0qXhNF2GKA","spotifyId":"2NiaqOMULyeqbv3hgr6UzD"},
+{"name":"The Power Alchemist","channelId":"UCL3zgXTEC3efKu22C0EaMbg","spotifyId":"46sCYKkyoj8CIuFIfpmJ1R"},
+{"name":"\"The Professor\" Nick Harrison","channelId":"UCznkTZOoIkI9EVrbQBbYXpQ","spotifyId":"2ASUkH9fgw0WkVQYYZWP10"},
+{"name":"The redacted","channelId":"UCMmjwi259j4ROUZrtzXhe5g","spotifyId":"3uXq1Ajk5JaxCYqULqCbsA"},
+{"name":"The Relic Hunters","channelId":"UCLLVN1ErIkgaF8KZdzjmfaQ","spotifyId":"41yCT19LrJDvZ9ojVfDZl2"},
+{"name":"The RnB Exchange","channelId":"UCHH9GkH-ja-OsMKZ-vU3ncQ","spotifyId":"2p4sW1WQiNyZLn7X8kiVqP"},
+{"name":"The Roux","channelId":"UCvhZwm8SocRQu8EJAxNwURA","spotifyId":"7ehuDKDZRPA6GvsL44tz5r"},
+{"name":"The Shadow","spotifyId":"0zWBIYHW2tQuj2DUIShVZ8"},
+{"name":"The Singing Tavern","channelId":"UCziCRQ5KnYAn_RfLOcLyhaA","spotifyId":"3AGAEn9ANXY5pcvILQ7iNS"},
+{"name":"The Smoothies","channelId":"UC6nFvZkyBHjgXEJbDMlneTQ","spotifyId":"3lnkHMOJWmkPXk5weCf24a"},
+{"name":"The Softest Tones","channelId":"UCXiHVey8AlDcYbjaocAMahA","spotifyId":"7ruHjYqhIwhuE61M8AweG8"},
+{"name":"The Soulful Gentlemen","channelId":"UC9RPYcPuA1xP3p2cKD8zAeg","spotifyId":"3M6UgRvHTQPAjBZVYbDDzU"},
+{"name":"The Sowers","spotifyId":"0dYOdESA00EJVxrtE06vrG"},
+{"name":"The Speakeasy Rappers","channelId":"UCmZCf6J73KRsaG2aTpuLovA","spotifyId":"7goke1D4r198F9Y8lPt7lm"},
+{"name":"The Traveling Tankard","channelId":"UCWjZ8I61NOk7xLPm5aUPpzw","spotifyId":"3QMtcMpnJ6CKU14piJezZF"},
+{"name":"The Unbroken Kings","channelId":"UCOdzLVw5lltX8R8yfBOhOmw","spotifyId":"6kLht1Mn1TMDOlwwcZW7sm"},
+{"name":"The Unc's","spotifyId":"3xHUyxYpGd8HIUvCoSvlxp"},
+{"name":"THE VAMPIRES OF KOPENHAGEN","channelId":"UC7tkPC2ZZJ3tDfITFDFZrpg","spotifyId":"4Curt4KIEHtDoCoaghY9n8"},
+{"name":"The Velvet Sundown","channelId":"UCLeR-eGh2OFy9ydX7IUcOTw","spotifyId":"2GRtyAXWUiisGYub5SGMrb"},
+{"name":"The Velvet Sunrise","channelId":"UCfYZaizcKDwhCycJa4SeXFQ","spotifyId":"5XK6JWZScTSRIdn9yVEU8M"},
+{"name":"The Wandering Innkeeper","channelId":"UCnFcrTrBXxSvYk0td3Q9YWg","spotifyId":"4pXA4ngwZpbCZr5ZJzDrXI"},
+{"name":"The Whiskey Rebellions","channelId":"UC8pNTG6MlCzK15nUQTskB5w","spotifyId":"5DrU4gjcttPxvaciaJ5FZm"},
+{"name":"TheMidnightBlackout","channelId":"UC66nXM-eXp4m8fqq-mSbYwA","spotifyId":"1hQGQ512RxMvjhfZbrdFDu"},
+{"name":"TheSkeletonsLibrary","channelId":"UCLMbY1s9n-wnqpbwEyBZZnQ","spotifyId":"49yWNU05MepSpoYQTKADro"},
+{"name":"Thodins Path","channelId":"UCndaF7F3adYjrV9R5qaAGBA","spotifyId":"4kwIJcwSXak3yrULH4FKnE"},
+{"name":"Thronebreaker","channelId":"UCtOkSrZxm4S2xO7FTFKK8RA","spotifyId":"6YNSlQgxcIxVcFLziOh5qu"},
+{"name":"Thunderous Steel","channelId":"UCB1sSzrMwv9SYhrDe2knpgw","spotifyId":"7lUuk5mjGQVlikPcXjZoIo"},
+{"name":"Thyrmine","channelId":"UC0TPoidxwW1gJm1uDpcwWwA","spotifyId":"3H4z03ujvv9VgZot2Abd6i"},
+{"name":"TIMELESS 60 BIG BAND","channelId":"UCQV6I5CV6vBm83Vo-_-JOVw","spotifyId":"6H1q4liJLYZTqymvxG8WmG"},
+{"name":"Timeless Echoes of Middangeard","channelId":"UCnPJtFBjuzA0MYK9la3eA_g","spotifyId":"0c2KxtTjtUCRf6W4R9P1Bs"},
+{"name":"Timeless Hour","channelId":"UCH5nq8uHs9I2fgzTmlOa75g","spotifyId":"21SBzvBLZB09Z2iiyB4i44"},
+{"name":"Timeless Tone","channelId":"UC3rnEa4kVvpuhXGZVC4jqjA","spotifyId":"6AHZVwvK91KB7sAVXtdrzb"},
+{"name":"TitanChord","channelId":"UCRzf1L1tH0mYIRck-oTUyjg","spotifyId":"1kt2ZmgH8Lwvgp00i4X3Lu"},
+{"name":"Tokt","channelId":"UCKiQh-hp1vQZGP7FnxlnOMg","spotifyId":"01CEsyk6W2k8Pgw5TrEty0"},
+{"name":"TOKYO CHILL LAB","channelId":"UCfsmpGXkHvQzOLAhCPML91Q","spotifyId":"5KjACf3hRBih15vDJRwkU7"},
+{"name":"Tom Morgan","channelId":"UC7DK-e-z-0jfQygaH0-MCMw","spotifyId":"3O1tV7GESyriJiAnhjeR0c"},
+{"name":"Tomsen.dk","channelId":"UCZVZqEhsrjl7fo15fab4nwA","spotifyId":"5EhsZRezYpRpoNy2DZYGxu"},
+{"name":"Tõnu Meldre","channelId":"UC0xzgJTCR_vl8bxBaqd5YkQ","spotifyId":"44BSf8woVRh2HMwZBZpCV0"},
+{"name":"ToonFanatic","channelId":"UCFYiyhARC1n-fNKVaPQGPVg","spotifyId":"7orQQW5D3Ij2qIopUsdNVs"},
+{"name":"Tora Nightthorn","channelId":"UCxwJpnHFjNn3F9473Xi_CaA","spotifyId":"2K9mZuRjTkaGDCM71OhCI9"},
+{"name":"Toruc macto","channelId":"UCXEVGYR6_KJHNNWnGkf2IHA","spotifyId":"6o22D8Y9rYdhQ9VLkT4lY7"},
+{"name":"Total Metal Destruction","channelId":"UC3VEBtil9f7Ig-G4-JyvSEQ","spotifyId":"6kXvDQRAm20UUEq4SuBAzp"},
+{"name":"Toxic Chemistry","channelId":"UCHN35rYhCO-KSvod5x0hvbQ","spotifyId":"464z5C1gdBKZagXRcmBbHK"},
+{"name":"Tripstone Heathen","channelId":"UC7E_qc70Yvp2ZUB6rPiWgTQ","spotifyId":"3kxxjsmNatyES2mlYUCFRc"},
+{"name":"Trollvarg","channelId":"UCs4kagEDNzKXKvFaoGrsr7g","spotifyId":"3cfL1kXBNThhxLKBk5QKkX"},
+{"name":"TroubleMent","channelId":"UCA1z2cDDl_WkH2YrhKKkEng","spotifyId":"3gOjQmcHrU0weliyAXpk0L"},
+{"name":"True Funk Players","channelId":"UCe0L28dbn12qy-s79CWSFqg","spotifyId":"6Ew4EuuPyPEzVIq4pLhdVK"},
+{"name":"True Roots Blues","channelId":"UCOE1BsojEdzxciyJNKzg8yA","spotifyId":"19CiSTL0SVziGSG0yLYeGp"},
+{"name":"TRUTH:S3RUM","channelId":"UCTuHQO7JZ7FETty0gtKO1ig","spotifyId":"2bRCIbSmgAXitACxT5ZpQy"},
+{"name":"Tune Amok","channelId":"UCdgNjHMPwtw0grOsYuJaT9Q","spotifyId":"74hje5e4mNMxHqxqQbGZ8i"},
+{"name":"Tunes of the Future","channelId":"UCjIfY5pEGaWl3KLOC2qG60Q","spotifyId":"2GfgxK9cwdcQrL8S8SlACI"},
+{"name":"Twisted F8","channelId":"UCE9QY3Bhm02o1SbktCdCxuA","spotifyId":"3mYb8DMaOhT3fROy7YNKVO"},
+{"name":"Twisted Game Songs","channelId":"UCKtU5fP5sEsU-wOpioAzuYA","spotifyId":"22eUIsoURgq3GFNo6yAIUD"},
+{"name":"Twisted Reality","channelId":"UCuxqNs6B_rjD60__4xCb2Qg","spotifyId":"3maNvs0pgMKHVmyVkANxZE"},
+{"name":"Unbound Music","channelId":"UCCsspKBi_hXO4pOTSrU057g","spotifyId":"3ZDWbMcbqgqWDJDGfGxWQJ"},
+{"name":"Uncle Sams Blues","channelId":"UCPZz8RKc9-wYJgoUVBHVFYQ","spotifyId":"72ZoI2OBAiylPRNoyPSf5t"},
+{"name":"Underworld Vibes","channelId":"UCiqmS7Ix9oz3mBmSjPJY7og","spotifyId":"7xDFi8dW3QLrTiuP1OyZrm"},
+{"name":"UNFADΞ","channelId":"UCIZnMpsis9HTwA86I66pV_w","spotifyId":"5rrl9z7WtxC4GhU8GsBaqu"},
+{"name":"UNFINISH","channelId":"UC0CKcvRcOxAxl2qCwUYTrlA","spotifyId":"28aQQfMIOEPqjMzYg4DkBx"},
+{"name":"Unfound Records","channelId":"UCB5KJlx8TefLMOvo4Yu2DHw","spotifyId":"7H1CWHcjgqAuUaQl6kxPHM"},
+{"name":"Unlimited Motivation","channelId":"UCWAeVZCNvJ6ApLh-f90NZoQ","spotifyId":"55mo1HrZqinkTRV0gqUDvL"},
+{"name":"Until Nothing","channelId":"UCm5YA9fpTyJWieuHbhNhIRg","spotifyId":"6I3WXHs5Wty0NPyqQ8ob6c"},
+{"name":"Untraceable Records","channelId":"UCLZNjtE4co_uV2hdGyi5PEg","spotifyId":"4RAwm8d81hkoVYDguRyhxY"},
+{"name":"UWA: Unity Within Art","channelId":"UCqbQOwPkjVIMHyzk2oKVqOQ","spotifyId":"2WH08WrpAxLOazRlWOFeKR"},
+{"name":"V A E L O R A","channelId":"UCeyn0ezj77LBI-bWQaIIJrw","spotifyId":"7lqYypTTldmhoGJ693LN7b"},
+{"name":"VAELYN","channelId":"UC3C7PPDDSyIptbuId_y1SOw","spotifyId":"5AIdw9FiFk3ilgY4Mft1WN"},
+{"name":"Vahid Beats","channelId":"UC9UFtPC-I1TJ3HLwNXYSWvw","spotifyId":"71IxvOUJxeBpEtKiOLxLIm"},
+{"name":"Valebound","channelId":"UCB9PYnWok9wcTkAo3X17Y0A","spotifyId":"4D2m2nUkv8s2QSylZ1nLtQ"},
+{"name":"Valhalla Drums","channelId":"UCTbAFs44Hw-msu8pIwazmvQ","spotifyId":"6taLk4OqOfSdQUQQWGKIZO"},
+{"name":"Valkorai","channelId":"UCs6GbF7_PxXnkSvgwt-NEMQ","spotifyId":"5plnxQGfe4jfQE6wUETonC"},
+{"name":"Valkyrian","channelId":"UChhBLfmRYM9bt6LtDYENzsA","spotifyId":"6ajprg9ZH7If2grQMmQ8xQ"},
+{"name":"Valor Pulse","channelId":"UCuWocpjSHgm9kxYnAihc23w","spotifyId":"6YlXfzhdIBxVkwceCrKCTj"},
+{"name":"Vargnokturn","channelId":"UCEhQvo_e86ohWYJpU1TJs8A","spotifyId":"1QET3cQRvUF0zMMecvhEnp"},
+{"name":"Vargvegr","channelId":"UCV5n-2GK4GkSZBdoMyYxCKw","spotifyId":"4Bhqo7CDUZT8CW9hGRq7Yy"},
+{"name":"Varian Vel'Aryn","channelId":"UCRqUjEdp0jnxZRFiZwutGxg","spotifyId":"7n6Yui7bW9D88jRVNLTyXr"},
+{"name":"Varianz","channelId":"UCPCU9XlrT16RJXZkaVSSz4w","spotifyId":"5jhvSsGQtxrk7Un3XWSUVW"},
+{"name":"Vealdron","channelId":"UCCpK3JceSV8V-Dn12ifrBbQ","spotifyId":"0ErjzBZA5VKp8uZvQYj2WY"},
+{"name":"Veil & Verse","channelId":"UCh782e-nzcABL7gfqiVKZvg","spotifyId":"6qVrIHtQsRVZ3ufrMgfhBk"},
+{"name":"Veil of Doom","spotifyId":"0SZLZwOe5pA6l5wwbDKCG7"},
+{"name":"Veilr","channelId":"UCpL5jvcBYQzfGGTs_01eP0Q","spotifyId":"69LthtLk3BNDmSAmg3woYh"},
+{"name":"Veins of Gold","spotifyId":"09oIjGMYK71m6008hCzUlW"},
+{"name":"VELCHEVA VIBE","channelId":"UCyDntyiDcta8FUtjhP2s4YQ","spotifyId":"2YS32rdok3MAzXbgIlZzzl"},
+{"name":"Velora","channelId":"UC1Q95qs-ooisRjit2oaCeaA","spotifyId":"0BQUwUXQz2ujRlkitDU3Kq"},
+{"name":"Velour","channelId":"UC49bt7-NnbVkRTSs4mwIvsQ","spotifyId":"2gnFFtzPgBpwBepDNSPZO7"},
+{"name":"Velour Doom","spotifyId":"33X46wCiI1DUuqd8SmQ8LM"},
+{"name":"velvet desires","channelId":"UCpji-HG-cg18GTd2iwOTBJw","spotifyId":"5xTlKmwStlbbmASPg7u3zr"},
+{"name":"Velvet Funk","channelId":"UCX--empFSUT95M4hPPVOzzQ","spotifyId":"1oCgOGxyjqDexacJlm9Scu"},
+{"name":"Velvet Rae","channelId":"UCnjoj3vGOAeXPBSrS9s9jgQ","spotifyId":"4QVQb2hkAnexsROnMcB5qS"},
+{"name":"Velvet Rebellion","channelId":"UC6Lb02Y5YoZBGR_nAD_7rEA","spotifyId":"6bmHwapdVkl8LMts4cKBms"},
+{"name":"Velvet Signal","channelId":"UCdM_KRSLU2tnYmLaplBat0g","spotifyId":"7q9LMfLSgqAirZaCyGU92n"},
+{"name":"Velvet Swing Express","channelId":"UCe7Rgajc5uO3scVQGjPisgQ","spotifyId":"0xCGx1EWEzjOH6QkmVOF3h"},
+{"name":"VENGEFUL","channelId":"UCmga7AegiORoj6i2073HZLg","spotifyId":"3Z3VNM5xgRCE5zCzENrQEz"},
+{"name":"Vermouth IV","channelId":"UC3sXxiolJ3iRf17Odyplhxw","spotifyId":"53HbEuL3qejJsJHEKYfZE1"},
+{"name":"Veyna Ashford","channelId":"UC9MoaW-ig2q3ftE7p9_EbNw","spotifyId":"1GsWRG8DFVvi4xMUoAYB4h"},
+{"name":"Vibe4Soul","channelId":"UCesBBfOuoaf7Oa7JpPefR8w","spotifyId":"1ON5MMtWXq1XNoNwUzudWw"},
+{"name":"VibecraftTwo","channelId":"UCauEuCuG1URfc3dH8323jOQ","spotifyId":"4KHqA3gqU4VTR0N6x7VDXu"},
+{"name":"Vibes & Tones","channelId":"UCuJcSEa0W80XlDJ18NiHhMw","spotifyId":"19SpN03gAbcoeGfeKQChCE"},
+{"name":"Vibfy","channelId":"UCr0vGjpk4SlXWKSAIRzxsxQ","spotifyId":"4qqOOXMEHaEcoCQRctbmoU"},
+{"name":"Vibra Eterna","channelId":"UCjNuo_oE7bGnnEIuLw986RA","spotifyId":"76rWRaWwTuSdjNYE8aEbLw"},
+{"name":"ViceRend","channelId":"UCfZ6BLD3Nx5Xk1hEzI6CF1A","spotifyId":"0intK8pjQZK2VmRbe1RR10"},
+{"name":"Video Girl","channelId":"UC16U5xcHCdTMZqJGkQMgCig","spotifyId":"3M4lW4QlOqVOiaEpggbQwL"},
+{"name":"vidin","spotifyId":"1U0OTkYFnlnXIXVvgo8QSA"},
+{"name":"VikingEchoes","channelId":"UC4psA11KOn_ALhSOe7g24QA","spotifyId":"70WwZcGWh6qv8hAvyq2Ibe"},
+{"name":"Viktoria4ever","channelId":"UC2xjuAbYPqyToZDlUWjn-qw","spotifyId":"2g6QQ4aI9OmQGvjEbUZtwA"},
+{"name":"violete ephemerty","channelId":"UCDtfMyF9kcpwlZJqWFb2ZkQ","spotifyId":"07nbbiMrEk0ggpmy1cButc"},
+{"name":"Virelia","channelId":"UC4hnrFf9c0p9ksTlWRJC5kw","spotifyId":"4Rkn7txj59CVY5DRnIfmUM"},
+{"name":"Viviana Belle Rey","channelId":"UCNFJpmmHDOVrgH9RuIvJyKA","spotifyId":"0t7WSa37RxKriEdBrL4wf4"},
+{"name":"void","spotifyId":"5ySK6tR70ZunnmPEHCrCwF"},
+{"name":"Volkan Kuday","channelId":"UChRw_spujGS2HA05jHuCFrA","spotifyId":"2HS2WsC7uyF2oHmEpNDO65"},
+{"name":"VØLTEKAS","channelId":"UCCSRRIl8KVRybWpGaNNU2Vg","spotifyId":"2YwJK4ncNJvyhum41gPeOh"},
+{"name":"Vorpalraven","channelId":"UCRn6b13Ov2RZ8YlBv7rRKzw","spotifyId":"23Mu3XZLTD4ajxuVghHXhS"},
+{"name":"Vowless","channelId":"UCT80y8yCDaKG4uPj53s90QA","spotifyId":"7tySWxsUMoqeioehmcy0Ps"},
+{"name":"Voxen Soundworks","channelId":"UCNV-PT2JzRJGWzNTpWPwSYg","spotifyId":"4rqAQj8Im18ldiYOrp1kgK"},
+{"name":"Voxnaris","channelId":"UCS_Em3LMptD5ACd_xx0tXMA","spotifyId":"08UoIrS9YvVH0fS0CukKwN"},
+{"name":"Vurtist","channelId":"UC44XJWdUOeMZJgVInHFU7BQ","spotifyId":"09ak85WqX61k5hMxvHFitc"},
+{"name":"VYRA","spotifyId":"4BHd9tf16BDZSt1xmqZ6be"},
+{"name":"Wade Ward Music","channelId":"UC1KiNLfvoDwm2-8wx_yurPQ","spotifyId":"244KEtZRcV8GudfqXPxF3x"},
+{"name":"WAKE UP FALLING","channelId":"UCOCmEw8qvwde26SlgbnYX2g","spotifyId":"6us2N9JGcLCU1LnWJ3oNYf"},
+{"name":"Waking Up Christopher","channelId":"UC3mL0aV8jHIQp1Vnb9xP-uQ","spotifyId":"6zXR7U1CCkoAcC6njDikkd"},
+{"name":"Wander The Cosmos","channelId":"UCVkuXuPLgzj-DuwYchCjsbw","spotifyId":"2UZaJd4qQQxSi1rGsXMroQ"},
+{"name":"WARFORGE","spotifyId":"7IXQTNoZbXDYJlmf05dNXu"},
+{"name":"Warrior Shaman","channelId":"UCGdfTyDg_g0yTethTEu2pkA","spotifyId":"7iouR4tIpzEVTdJY0hkA43"},
+{"name":"WarthogSCL","channelId":"UCxrZOV4fKVgtF_sLlJHvbAw","spotifyId":"1zV38ouhyBDW46QqgAj0Wf"},
+{"name":"Waves Lost","channelId":"UCL0Jup9kEIJJf_zBqAl94iw","spotifyId":"1S6iW5MuRJyYlPjydRAaX8"},
+{"name":"We Are Jazz","channelId":"UCJHxym5FqcPPqSZTH4SeaeA","spotifyId":"7FaGU5ZdJWRnVhWJ4JiUvx"},
+{"name":"We Are Still Here","channelId":"UC-EIWr3hWJ7edXsePtkf57w","spotifyId":"2pvb7TYkq4qJZ4xOeZKKY8"},
+{"name":"We're All F*cked","channelId":"UCdrIlM0tIJyNkuEbtmtZzQg","spotifyId":"13A2rC7R5jSqmrxBnoW3YI"},
+{"name":"Western Plains Radio","channelId":"UCZhBhQ-UpmhlHA2Zyk7rdnQ","spotifyId":"2pq09iwmfVQDOok22Cubdk"},
+{"name":"What if music","channelId":"UCJUVohHF3t7kuCgBz9PkqCw","spotifyId":"5U0sBfTl2oFDEZZwOd6gXX"},
+{"name":"what is ?","channelId":"UCiFC9J14vnxFYR4HeyIoEEQ","spotifyId":"5PRMHOXRr1ePaWNuA8JJ8p"},
+{"name":"White Girl","channelId":"UC4BuevD8hFpRxdoZh39mQcQ","spotifyId":"3rGoJRnuqqkPP9Q84GxsAa"},
+{"name":"WHITEFIRE","channelId":"UCHObXNG_uhHEMc-YUftl9qQ","spotifyId":"1ULD5irz7neKqDD0DlWaGV"},
+{"name":"Wicked Eve","spotifyId":"750POEgGQSQpMJKpumjYh8"},
+{"name":"WickedAI","channelId":"UCpIAEw7BHxKoXczhL--km7w","spotifyId":"3djOfsXkWh9Nfaaqa4qdrk"},
+{"name":"Wild One","channelId":"UCT3BJIH6Q5fFa7pWRUYx6oQ","spotifyId":"03hIzISbf2KyoZDJW6YGCt"},
+{"name":"Winta","channelId":"UC546_voUGtgQr5LmtWV-4pQ","spotifyId":"7AaeiqBPoQF1QCfi6afA0l"},
+{"name":"Witch Ink","channelId":"UCg9Z_F2xld37fsnr9gXPdCw","spotifyId":"7Jm2NlnF4dceNY1j8KfUU2"},
+{"name":"witchsnook","channelId":"UCCg8FkhWT14-rm79SWDzP_w","spotifyId":"4uGW5ZxNbR2HSUFQElsjOB"},
+{"name":"Witchy Tips","channelId":"UCxYaMTWPwPGfRJ2XFIfYx7w","spotifyId":"2GriEOyt1ZtKOiI8ayaUOd"},
+{"name":"Within the Stars","channelId":"UCLek4sMECVo2VdgWQoTzb_Q","spotifyId":"3R7bTuluxU4fat3tLlqKkV"},
+{"name":"WizFlow Tunes","channelId":"UCV8ztb61k1gFHSZTginmGBw","spotifyId":"2k264MCe3C3D0rtUpKJdDw"},
+{"name":"World hive","channelId":"UCDEmxaGFOSvEWrc0rDPVdcg","spotifyId":"0aLZA5oaBb1vZYbvFRgvrr"},
+{"name":"WoyWoyBoy","channelId":"UCjXJ_HVGHPbj-po3FRChhHQ","spotifyId":"0FzX1vNyDhtncPq8NNK1Li"},
+{"name":"Wraith & Honey","channelId":"UCMJWjaRC8fzwMFEPNWCjmtg","spotifyId":"3NyrYY8YbIRqFzevCRjhJc"},
+{"name":"Wren and the Daughters of the Bear","channelId":"UCnT7xRmI4jojr-Z_9X1agrg","spotifyId":"4HUDgXXP7u2kzmwXZSUsaE"},
+{"name":"Wyatt Blueridge","channelId":"UCs6IwU_WTziRbnlg4HtAVyQ","spotifyId":"3rKhPVbAGfk9VssclwWAuy"},
+{"name":"Wyatt Creed","channelId":"UCOqLfrmiZHmgNB_H_2vrCfQ","spotifyId":"0ABEyDGsIK50UAUKRbFjCN"},
+{"name":"Wyrmship","channelId":"UC2gcznSaHbzaBtKuaEzX8lw","spotifyId":"1fNGfx13SYscLWdXyDxJ1m"},
+{"name":"Xania Monet","channelId":"UCb6ymSf0Tfhv4zxZ5kjsaKQ","spotifyId":"0YIEJNJUCsjzeWwj8Xh2LD"},
+{"name":"XiiiSu Music","channelId":"UCAfRf37YiziiTyRBH7EOl5g","spotifyId":"62lEm6GIEmvvoMCpTVTAUw"},
+{"name":"XioFabrY","channelId":"UCCFhWzOuueB5_SnkQ2QVxAQ","spotifyId":"4cCh733A8o07Tz1FaiVkzH"},
+{"name":"XmensiX","channelId":"UCv9g0GR9Vb1ClzHaI28tiUg","spotifyId":"3wSlp3qwdjdFIt8Ptvk7C6"},
+{"name":"XxCaveinxX","channelId":"UC_QC869wZh27W8eXH4clOgw","spotifyId":"72EItjrijR1v9f0Uz0rxOE"},
+{"name":"XXIOS","channelId":"UC9tJ8KzXjA4Z7mLnss9Jbkg","spotifyId":"6T1QA5576kgtyHsh2zShVF"},
+{"name":"Yakupova","spotifyId":"4IX75u1GN7wDF1Ej5kLx2c"},
+{"name":"Yanti Niels","channelId":"UCWPWyLt841DkZ1bYsL8o_SQ","spotifyId":"7GFKd0p7559tGHwVp91sEt"},
+{"name":"Yara Nocturne","channelId":"UCApNPEswP6shOmGhKqKk8cA","spotifyId":"1lw1HPAZyBZstXaxHukRte"},
+{"name":"YDream","channelId":"UCGSmbef0RQQVk4C8xmXsygg","spotifyId":"7L3Hq7KKhdirXqJ1HUuqPT"},
+{"name":"Yesterday Once Again","channelId":"UCCTdWNGfMLNRKRaPb7SvcNg","spotifyId":"3Nf07DN4afAPJh4wsfYuW2"},
+{"name":"Yiikes","channelId":"UCl5NJ01r9Brl6PKd6iYfhAg","spotifyId":"4hxEQaGymmj3a2kZm1ClMW"},
+{"name":"Yui","channelId":"UC20UUysw9eeGr6GpsE1DQLw","spotifyId":"30Q5sdvIeQyx1T3JaGQ8pD"},
+{"name":"Yunna Serene","channelId":"UCuZv5lg1eeO5FBWfxb9O5iw","spotifyId":"2cSG7qVtrHAKv6G9R4kQYm"},
+{"name":"Yvora","channelId":"UC7GXlGOw7kaQ7b1RkcXhW9A","spotifyId":"4CrBjHiL7JOGddLxUvkgKD"},
+{"name":"YVSK","channelId":"UCCo-FtwMDmXcjcaORfhZz_Q","spotifyId":"6dj6ebz0NaMbzb200vqArw"},
+{"name":"ZancrowStudio","channelId":"UCmkOHhd1spszyuxirwheKCw","spotifyId":"4zmP9hFN6enx7MB0DAqWqc"},
+{"name":"Zayen","channelId":"UCi-t-oP9Ct01F2Bnwy0vXag","spotifyId":"1U8rBGLGcsDcuc5O51Hb27"},
+{"name":"ZeLeo","channelId":"UCcLKkzr_L38VZv6CtAS914A","spotifyId":"2Ea8ROfDIm1M56E9aKGQrc"},
+{"name":"Zen Decoys","channelId":"UCOCraahynU7FAYk6O9V4UAw","spotifyId":"0zN1m4T77JxT1eqvi7EPBv"},
+{"name":"Zen Vibes Station","channelId":"UCGuKdstTnJ07JpfUKM5UItA","spotifyId":"2EIzLYKGqaNqpH33T0EJk4"},
+{"name":"Zero Code","channelId":"UCJrTm7GB5p7phTXaJu34lhg","spotifyId":"30NOquteSyafnk036kEghP"},
+{"name":"zeros_and_ones","channelId":"UCyMD-lxrhmk-VqV4oAhlwLw","spotifyId":"0NIfPkuUB9xLkFN0YDRhVg"},
+{"name":"Zetbit","channelId":"UCEBV00BbU1LDRqCR-Y0CcRQ","spotifyId":"05fIsJsPHtxsWUax408Klg"},
+{"name":"ZionRay","channelId":"UCG8oyPncAoZ1dqDDfbgCKxw","spotifyId":"3FhrihEyNnYtuoNTaYA1xG"},
+{"name":"ZionRoots","channelId":"UCTEuhhiwbVIqC7k_doaEWfA","spotifyId":"0IhaXHKAt34q7EWpFFGij3"},
+{"name":"ZrockPH","channelId":"UCugI-ipYnu7PEfGUvuGTyjw","spotifyId":"3zcyTHyUwQls9gJmwjRKau"},
+{"name":"ZUNRAID","channelId":"UCs8yemoRSmfBPHwF4D__q3A","spotifyId":"7ACR6q1laDn6SB6Geyrucp"}]}
