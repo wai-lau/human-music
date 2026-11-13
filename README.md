@@ -2,8 +2,9 @@
 
 <img src="extension/icons/icon128.png" alt="" width="64" align="right">
 
-A Chrome extension for [YouTube Music](https://music.youtube.com) that keeps
-your listening to music made by people.
+A browser extension for [YouTube Music](https://music.youtube.com) and the
+[Spotify web player](https://open.spotify.com) that keeps your listening to
+music made by people.
 
 **Status:** early. I use it loaded unpacked; it isn't on the Chrome Web
 Store.
@@ -18,9 +19,9 @@ Store.
 - Logs every song it removed, skipped or hid, with the list that caused it,
   so you can check its work.
 
-Everything happens inside the YouTube Music tab. It doesn't switch tabs or
+Everything happens inside the music tab. It doesn't switch tabs or
 take your keyboard focus, it holds off while you type, and if you have more
-than one YouTube Music tab open, only the one that's playing skips songs.
+than one music tab open, only the one that's playing skips songs.
 
 ## Why
 
@@ -37,9 +38,24 @@ song plays too.
 
 ## Install
 
+In Chrome:
+
 1. Download or clone this repository.
 2. Open `chrome://extensions` and switch on **Developer mode**.
 3. Click **Load unpacked** and pick the `extension` folder.
+
+In Firefox (121 or later), run `scripts/build-firefox.sh`, open
+`about:debugging`, choose This Firefox, then Load Temporary Add-on, and pick
+`dist/firefox/manifest.json`. Firefox support is new and hasn't been tried in
+Firefox itself yet.
+
+## Spotify
+
+On Spotify, Human Music matches listed artists by their Spotify ID, so a
+look-alike name never counts. It removes listed songs from your queue while
+the Queue panel is open (it never opens the panel for you), skips one that
+starts anyway, and hides listed artists' songs and albums on the home page
+and in search. Spotify has no dislike button, so auto-dislike only skips there.
 
 ## How it decides
 
