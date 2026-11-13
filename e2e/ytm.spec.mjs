@@ -117,3 +117,29 @@ test('an unpacked (development) copy still shows its status on the page', async 
   const page = await openSite(context, YTM, { songs: [{ title: 'Real Song', artist: PERSON }] });
   await expect.poll(() => page.evaluate(() => [...document.documentElement.attributes].some(a => a.name.startsWith('data-hm-status-'))), { timeout: 8000 }).toBe(true);
 });
+
+test('a playlist row by a listed artist looks unavailable, with the skip glyph', async ({ context, setState }) => {
+  await setState({ user: { artists: [AI] } });
+  const page = await openSite(context, 'https://music.youtube.com/playlist?list=e2e', {
+    songs: [{ title: 'Real Song', artist: PERSON }],
+    items: [{ title: 'Made Song', artist: AI }, { title: 'Real Song', artist: PERSON }],
+  });
+  const made = page.locator('[data-e2e="Made Song"]');
+  const real = page.locator('[data-e2e="Real Song"]');
+  await expect(made.locator('.hm-mark svg')).toBeVisible();
+  await expect(made.locator('ytmusic-thumbnail-renderer')).toBeHidden();
+  expect(await made.evaluate(e => getComputedStyle(e).opacity)).toBe('0.6');
+  await expect(real.locator('ytmusic-thumbnail-renderer')).toBeVisible();
+  await expect(real.locator('.hm-mark')).toHaveCount(0);
+  expect(await real.evaluate(e => getComputedStyle(e).opacity)).toBe('1');
+});
+
+test('the toolbar icon counts the songs skipped in the tab', async ({ context, setState, worker }) => {
+  await setState({ user: { artists: [AI] }, settings: { lookahead: 0 } });
+  const page = await openSite(context, YTM, { songs: [{ title: 'Made Song', artist: AI }, { title: 'Real Song', artist: PERSON }] });
+  await expect.poll(async () => nexts(await events(page)).length).toBe(1);
+  await expect.poll(() => worker.evaluate(async () => {
+    const [tab] = await chrome.tabs.query({ url: 'https://music.youtube.com/*' });
+    return tab ? chrome.action.getBadgeText({ tabId: tab.id }) : null;
+  })).toBe('1');
+});

@@ -16,6 +16,10 @@ Store.
 - Skips one if it plays anyway, moving on exactly one song.
 - Hides their songs, albums and playlists on the home page, Explore and
   search results.
+- Greys out their songs on playlist, album and artist pages, with a skip
+  sign where the cover would be, so you can see what will be skipped.
+- Shows on the toolbar icon how many songs it skipped or took out of the
+  queue in that tab.
 - Logs every song it removed, skipped or hid, with the list that caused it,
   so you can check its work.
 

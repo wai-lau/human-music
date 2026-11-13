@@ -292,7 +292,23 @@
       }
     });
 
+    // The toolbar count, per tab: songs skipped or removed from the queue there (Wai,
+    // 2026-11-13: "see how lastpass has this 1 symbol, show the same for human music").
+    const badge = chrome.action || chrome.browserAction;
+    try {
+      if (badge && badge.setBadgeBackgroundColor) badge.setBadgeBackgroundColor({ color: '#5f6368' });
+      if (badge && badge.setBadgeTextColor) badge.setBadgeTextColor({ color: '#ffffff' });
+    } catch (e) { /* cosmetic only */ }
+
     chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+      if (msg && msg.type === 'hm-count') {
+        const tabId = sender && sender.tab && sender.tab.id;
+        const n = Math.max(0, Math.floor(Number(msg.count) || 0));
+        if (typeof tabId === 'number' && badge && badge.setBadgeText) {
+          try { badge.setBadgeText({ tabId: tabId, text: n === 0 ? '' : n > 999 ? '999+' : String(n) }); } catch (e) { /* tab gone */ }
+        }
+        return false;
+      }
       if (msg && msg.type === 'dev-mode') {
         if (devMode !== null) { sendResponse(isDev()); return false; }
         waitDev(function(value) { sendResponse(value); });

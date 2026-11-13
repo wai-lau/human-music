@@ -214,9 +214,37 @@ Like an ad blocker, Human Music hides matching items so they never show.
   a day per item, so a wrongly hidden person can be found and put on Never
   skip. **(Claude's call)**
 
+### Marked rows (Wai, 2026-11-13)
+
+Wai: "in search results and playlists, wherever you can still see the song,
+make it look like this ... except instead of an exclamation mark just put
+the skip symbol" (pointing at YouTube Music's own unavailable rows).
+
+- **Where:** every song row still on the page (`ytmusic-responsive-list-item-renderer`
+  on playlist, album, artist and search pages; not the queue, not the player
+  page). Rows hidden by "Hiding on pages" stay hidden.
+- **Look:** as YouTube Music draws an unavailable row (checked live): the
+  row at opacity 0.6, the 48 px thumbnail (`.left-items
+  ytmusic-thumbnail-renderer`) hidden, and a 24 px `#aaa` disc centred in its
+  place, with the skip glyph cut out where YouTube Music puts "!".
+- **Rule:** the row would be skipped: it matches like a hidden item (`act`
+  lists, your lists, Never skip wins) and auto-skip is on and Human Music
+  isn't paused. Every pass looks at every row again, since YouTube Music
+  reuses a row element for another song. The row still plays if clicked;
+  auto-skip then moves on.
+- Rows without their artist on them (some album pages) stay as they are.
+
+### The toolbar count (Wai, 2026-11-13)
+
+Wai: "see how lastpass has this 1 symbol, show the same for human music,
+where 1 is the number of songs skipped or blocked". The Human Music icon
+shows, for each music tab, how many songs were skipped or removed from the
+queue there since the tab was opened (grey badge, white text, nothing at 0).
+
 ## Popup
 
-Three tabs (Wai's layout).
+Three tabs (Wai's layout). Log comes first and the popup opens on it (Wai,
+2026-11-13: "First Tab should be Log").
 
 ### 1. Lists
 

@@ -471,6 +471,92 @@
     } catch (e) { /* ignore */ }
   }
 
+  // --- Song rows that stay on the page (playlists, albums, artist pages, search) ---
+  // A row that will be skipped looks like YouTube Music's own unavailable rows: dimmed, its
+  // thumbnail swapped for a grey disc, with the skip glyph where YouTube Music puts "!"
+  // (Wai, 2026-11-13; checked live: the row at opacity 0.6, a 24 px #aaa disc centred in
+  // the 48 px thumbnail slot).
+
+  const LIST_ROW = 'ytmusic-responsive-list-item-renderer';
+  // A disc (r 11) with the skip glyph cut out: ring and slash scaled to 0.78, one even-odd path.
+  const MARK_PATH = 'M1 12a11 11 0 1 0 22 0a11 11 0 1 0-22 0ZM4.2 12a7.8 7.8 0 1 0 15.6 0a7.8 7.8 0 1 0-15.6 0Z' +
+    'M5.76 12a6.24 6.24 0 1 0 12.48 0a6.24 6.24 0 1 0-12.48 0ZM8.17 7.07 16.93 15.83 15.83 16.93 7.07 8.17Z';
+
+  function readListRows(doc) {
+    const rows = doc.querySelectorAll(LIST_ROW);
+    const result = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (row.closest('ytmusic-player-page') || row.closest('#queue') || row.hasAttribute('data-hm-hidden')) continue;
+      result.push({ ...extractPageItem(row, doc), el: row });
+    }
+    return result;
+  }
+
+  // Inline and !important, so the page's own CSS can't undo it; null takes it off again.
+  function setStyle(el, prop, value) {
+    try {
+      if (!el || !el.style) return;
+      if (typeof el.style.setProperty === 'function') {
+        if (value == null) el.style.removeProperty(prop);
+        else el.style.setProperty(prop, value, 'important');
+      } else if (value == null) delete el.style[prop];
+      else el.style[prop] = value;
+    } catch (e) { /* cosmetic only */ }
+  }
+
+  function markGlyph(doc) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const make = tag => (doc.createElementNS ? doc.createElementNS(NS, tag) : doc.createElement(tag));
+    const svg = make('svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '24');
+    svg.setAttribute('height', '24');
+    svg.setAttribute('fill', 'currentColor');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = make('path');
+    path.setAttribute('d', MARK_PATH);
+    path.setAttribute('fill-rule', 'evenodd');
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function markRow(row, doc = row && row.ownerDocument) {
+    try {
+      row.setAttribute('data-hm-marked', '');
+      setStyle(row, 'opacity', '0.6');
+      const left = row.querySelector('.left-items');
+      if (!left) return;
+      const thumb = left.querySelector('ytmusic-thumbnail-renderer');
+      if (thumb) setStyle(thumb, 'display', 'none');
+      if (left.querySelector('.hm-mark')) return;
+      const mark = doc.createElement('span');
+      mark.setAttribute('class', 'hm-mark');
+      for (const [prop, value] of [['display', 'flex'], ['align-items', 'center'], ['justify-content', 'center'],
+        ['width', '48px'], ['height', '48px'], ['color', '#aaa'], ['pointer-events', 'none']]) setStyle(mark, prop, value);
+      mark.appendChild(markGlyph(doc));
+      left.appendChild(mark);
+    } catch (e) { /* cosmetic only */ }
+  }
+
+  function unmarkRow(row) {
+    try {
+      row.removeAttribute('data-hm-marked');
+      setStyle(row, 'opacity', null);
+      const thumb = row.querySelector('.left-items ytmusic-thumbnail-renderer');
+      if (thumb) setStyle(thumb, 'display', null);
+      const mark = row.querySelector('.hm-mark');
+      if (mark) mark.remove();
+    } catch (e) { /* cosmetic only */ }
+  }
+
+  function unmarkAll(doc) {
+    try {
+      const rows = doc.querySelectorAll('[data-hm-marked]');
+      for (let i = 0; i < rows.length; i++) unmarkRow(rows[i]);
+    } catch (e) { /* ignore */ }
+  }
+
   HM.ytm = {
     SEL,
     REMOVE_ICON,
@@ -488,5 +574,9 @@
     readPageItems,
     hideItem,
     unhideAll,
+    readListRows,
+    markRow,
+    unmarkRow,
+    unmarkAll,
   };
 })();

@@ -35,7 +35,7 @@
     };
   }
 
-  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc) }) {
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {} }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -56,7 +56,13 @@
       return writes;
     }
 
+    // The toolbar count: songs skipped or removed from the queue in this tab (Wai,
+    // 2026-11-13: "where 1 is the number of songs skipped or blocked").
+    const COUNTED = new Set(['skipped', 'disliked', 'removed']);
+    let count = 0;
+
     function log(event, song, match, { oncePerDay = false } = {}) {
+      if (COUNTED.has(event)) { count++; safe(() => onCount(count)); }
       const entry = HM.log.makeEntry({ event, song, match, at: now() });
       return queueWrite(async () => {
         const stored = await storage.get('hm.log');
@@ -205,6 +211,20 @@
       }
     }
 
+    // Song rows that stay on the page and would be skipped look unavailable, with the skip
+    // glyph. Every pass looks at every row: YouTube Music reuses a row for another song.
+    function markPass() {
+      if (!site.readListRows || !site.markRow || !site.unmarkRow) return;
+      const on = !state.settings.paused && state.settings.autoSkip && !!state.index;
+      for (const item of safe(() => site.readListRows(doc), [])) {
+        const match = on ? safe(() => HM.match.matchItem(state.index, item), null) : null;
+        const should = !!(match && match.mode === 'act');
+        const is = safe(() => item.el.hasAttribute('data-hm-marked'), false);
+        if (should && !is) safe(() => site.markRow(item.el, doc));
+        else if (!should && is) safe(() => site.unmarkRow(item.el));
+      }
+    }
+
     // --- player buttons -----------------------------------------------------------------
 
     function block(kind) {
@@ -263,6 +283,7 @@
       safe(checkPlaying);
       safe(() => runLookahead().catch(() => {}));
       safe(hidePass);
+      safe(markPass);
       safe(playerButtons);
     }
 
@@ -271,6 +292,7 @@
     }
 
     async function start() {
+      safe(() => onCount(0));
       try { await reload(); } catch (e) { /* no lists yet: nothing matches */ }
       state.skipper = HM.skipper.createSkipper({
         page: pageFor(site, doc),
@@ -324,6 +346,13 @@
       },
       now: () => Date.now(),
       alive: () => !!(chrome.runtime && chrome.runtime.id),
+      // The worker puts this tab's count on the toolbar icon.
+      onCount: count => {
+        try {
+          const sent = chrome.runtime.sendMessage({ type: 'hm-count', count });
+          if (sent && typeof sent.catch === 'function') sent.catch(() => {});
+        } catch (e) { /* cut off */ }
+      },
     });
     HM.app.start().catch(() => {});
     // The service worker pings open tabs when it starts; a tab that answers has a live copy.

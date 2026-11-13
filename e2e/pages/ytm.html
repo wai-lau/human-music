@@ -104,11 +104,16 @@
   });
   $('button[aria-label="Next"]').addEventListener('click', () => next('next-button'));
 
-  // Search results: an item per setup.items, artist linked by channel like the real page.
-  if (location.pathname.startsWith('/search')) {
+  // Search results and playlist rows: an item per setup.items, artist linked by channel and
+  // the thumbnail in .left-items, like the real page.
+  if (location.pathname.startsWith('/search') || location.pathname.startsWith('/playlist')) {
     for (const it of setup.items || []) {
       const item = make('ytmusic-responsive-list-item-renderer', { 'data-e2e': it.title });
-      item.append(make('div', { class: 'title' }, it.title));
+      const left = make('div', { class: 'left-items' });
+      const thumb = make('ytmusic-thumbnail-renderer', { class: 'thumbnail' });
+      thumb.append(make('img', { width: '48', height: '48', alt: '' }));
+      left.append(thumb);
+      item.append(left, make('div', { class: 'title' }, it.title));
       const credit = make('div', { class: 'secondary-flex-columns' });
       credit.append(document.createTextNode('Song • '), make('a', { href: 'channel/' + (it.channel || 'UC0000000000000000000000') }, it.artist));
       item.append(credit);
