@@ -4,3 +4,4 @@
 /.claude/worktrees/
 /.mates/
 node_modules/
+/dist/
