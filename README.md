@@ -91,11 +91,32 @@ souloverai.com, used under
 ## Development
 
 Plain JavaScript with no build step and no dependencies. The `extension`
-folder is the whole extension. Run the tests with Node 18 or later:
+folder is the whole extension, loaded as it is. The unit tests need Node 18
+or later and nothing installed:
 
 ```sh
-for f in tests/*.test.mjs; do node "$f" || exit 1; done
+npm test
 ```
+
+The linter and the end-to-end tests use a few dev tools listed in
+`package.json`; none of them ship with the extension. Install them once:
+
+```sh
+npm install
+npx playwright install chromium
+```
+
+Then:
+
+```sh
+npm run lint   # ESLint over the extension, tests and e2e
+npm run e2e    # Chromium with the extension loaded, on stand-in pages
+```
+
+The end-to-end tests stay offline. Each one starts Chromium with a fresh
+profile and the extension unpacked, and serves small stand-in pages in place
+of music.youtube.com and open.spotify.com, built from the page selectors in
+the spec. Set `HM_E2E_HEADED=1` to watch them run.
 
 ## License
 

@@ -33,8 +33,14 @@ categorically different (not inferior)".
 ## Working here
 
 - Plain JavaScript, Manifest V3, no build step, no dependencies. Each file
-  in `extension/` is an IIFE that sets `globalThis.HM.<name>`.
-- Tests: `for f in tests/*.test.mjs; do node "$f" || exit 1; done`. Each
+  in `extension/` is an IIFE that sets `globalThis.HM.<name>`. Dev tools
+  only (ESLint 9.39, Playwright 1.61; the last lines on this machine's
+  Node 18) live in the root `package.json`; never add one to `extension/`.
+- Lint: `npm run lint`. End-to-end: `npm run e2e` (`e2e/`, real Chromium
+  with the unpacked extension, stand-in pages served by `context.route`,
+  no network; `HM_E2E_EXT=<dir>` runs another copy). A change to a page
+  selector updates the stand-in page in `e2e/pages/` too.
+- Tests: `npm test` (same as `for f in tests/*.test.mjs; do node "$f" || exit 1; done`). Each
   prints `N/N pass` and exits 1 on failure. `tests/dom.mjs` is a small DOM
   (no dependencies); `tests/contract-*.check.mjs` are the lead's contract
   checks, written from the plan apart from each module's own tests, run by
