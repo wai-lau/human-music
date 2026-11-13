@@ -111,3 +111,9 @@ test('a hidden item comes back when its artist leaves your list', async ({ conte
   });
   await expect(page.locator('[data-e2e="Made Song"]')).toBeVisible();
 });
+
+test('an unpacked (development) copy still shows its status on the page', async ({ context, setState }) => {
+  await setState();
+  const page = await openSite(context, YTM, { songs: [{ title: 'Real Song', artist: PERSON }] });
+  await expect.poll(() => page.evaluate(() => [...document.documentElement.attributes].some(a => a.name.startsWith('data-hm-status-'))), { timeout: 8000 }).toBe(true);
+});

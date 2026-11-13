@@ -327,10 +327,12 @@
       return false;
     });
     // Ask the worker whether this is a development install; page aids are added only on true.
+    // A cut-off copy's sendMessage throws, and a worker that can't answer leaves lastError:
+    // both mean no aids.
     const askDev = () => new Promise(resolve => {
-      const result = chrome.runtime.sendMessage({ type: 'dev-mode' }, reply => { resolve(!!reply); });
-      if (result && typeof result.then === 'function') { result.then(r => resolve(!!r)).catch(() => resolve(false)); }
-    });
+      const result = chrome.runtime.sendMessage({ type: 'dev-mode' }, reply => { void chrome.runtime.lastError; resolve(reply === true); });
+      if (result && typeof result.then === 'function') { result.then(r => resolve(r === true)).catch(() => resolve(false)); }
+    }).catch(() => false);
     askDev().then(dev => {
       if (!dev) return;
       // Development only: copy the service worker's notes onto the page so a test can read them.
