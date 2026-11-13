@@ -1,6 +1,6 @@
 // Contract check for the Spotify page adapter (HM.spotify), against page facts checked live
 // on open.spotify.com (spec, "Spotify page facts"). Run from the repo root:
-//   node tests/wip-contract-spotify.check.mjs   (becomes contract-spotify.check.mjs once it passes)
+//   node tests/contract-spotify.check.mjs   (tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
 const { spotify } = load(['src/core/text.js', 'src/page/spotify.js'], { setTimeout, clearTimeout }).HM;

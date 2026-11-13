@@ -183,6 +183,8 @@ export class Element extends EventTarget {
   get parentElement() { return this.parentNode && this.parentNode.nodeType === 1 ? this.parentNode : null; }
   get firstElementChild() { return this.children[0] || null; }
   get lastElementChild() { const c = this.children; return c[c.length - 1] || null; }
+  get previousElementSibling() { if (!this.parentNode) return null; const k = this.parentNode.children; return k[k.indexOf(this) - 1] || null; }
+  get nextElementSibling() { if (!this.parentNode) return null; const k = this.parentNode.children; return k[k.indexOf(this) + 1] || null; }
   get nextSibling() { if (!this.parentNode) return null; const k = this.parentNode.childNodes; return k[k.indexOf(this) + 1] || null; }
   // A copy without listeners, like the DOM's.
   cloneNode(deep = false) {
