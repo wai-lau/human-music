@@ -311,6 +311,10 @@ run([
   }],
   // Each entry matches its own kind of field (Wai, 2026-11-13: "match correct fields in
   // general, e.g. album to album, artist to artist"): keywords never hit the album or year.
+  ['leadCredit: the part before the first " • "', () =>
+    text.leadCredit('A & B • Album • 2025') === 'A & B' && text.leadCredit(null) === '' && text.leadCredit(' Solo ') === 'Solo'],
+  ['splitNames: on ", ", " & " and " feat." in any case, empties dropped', () =>
+    JSON.stringify(text.splitNames('A, B & C FEAT. D')) === '["A","B","C","D"]' && JSON.stringify(text.splitNames('')) === '[]'],
   ['keyword in the album or year of the artist line: the song plays', () => {
     const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [], keywords: ['echoes', '2025'], neverSkip: [] } });
     return match.matchSong(idx, { title: 'Real Song', artistLine: 'Real Person • Floating on Echoes • 2025' }) === null;

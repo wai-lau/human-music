@@ -212,7 +212,7 @@
   // --- Log tab --------------------------------------------------------------------------
 
   const SHOWN = 200;
-  const creditOf = entry => String(entry.artistLine || '').split(' • ')[0].trim();
+  const creditOf = entry => HM.text.leadCredit(entry.artistLine);
 
   function renderLog() {
     const ul = $('log-entries');

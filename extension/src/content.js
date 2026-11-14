@@ -239,7 +239,7 @@
     function block(kind) {
       const song = safe(() => site.readSong(doc), null);
       if (!song) return;
-      const credit = song.artistLine.split(' • ')[0].trim();
+      const credit = HM.text.leadCredit(song.artistLine);
       const N = HM.text.normalize;
       queueWrite(async () => {
         const stored = await storage.get('hm.user');
@@ -248,7 +248,7 @@
           if (!credit || user.artists.some(a => N(a) === N(credit))) return;
           user.artists = [...user.artists, credit];
         } else {
-          const artist = credit.split(/, | & | feat\. /i)[0].trim() || null;
+          const artist = HM.text.splitNames(credit)[0] || null;
           if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return;
           user.songs = [...user.songs, { title: song.title, artist }];
         }

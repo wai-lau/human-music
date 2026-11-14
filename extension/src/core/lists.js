@@ -131,7 +131,7 @@
         } else if (entry && typeof entry === 'object' && typeof entry.title === 'string' && entry.title !== '') {
           let artist = null;
           if (typeof entry.artist === 'string' && entry.artist !== 'Manual Entry' && entry.artist.trim() !== '') {
-            artist = entry.artist.split(' • ')[0].trim();
+            artist = globalThis.HM.text.leadCredit(entry.artist);
             if (artist === '') artist = null;
           }
           songs.push({ title: entry.title, artist: artist });
@@ -185,7 +185,7 @@
     function songKey(entry) {
       let artist = entry.artist;
       if (typeof artist === 'string') {
-        artist = artist.split(' • ')[0].trim();
+        artist = globalThis.HM.text.leadCredit(artist);
       }
       return globalThis.HM.text.normalize(entry.title) + '|' + globalThis.HM.text.normalize(artist || '');
     }

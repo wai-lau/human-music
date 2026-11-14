@@ -288,12 +288,6 @@
     return out;
   }
 
-  function splitNames(text) {
-    // Split on ', ', ' & ', ' feat. ' (case-insensitive)
-    const parts = text.split(/, | & | feat\. /i);
-    return parts.map(p => p.trim()).filter(Boolean);
-  }
-
   function extractPageItem(itemEl, doc) {
     try {
       // Title
@@ -363,7 +357,7 @@
       }
 
       const creditText = creditParts[0];
-      const split = splitNames(creditText);
+      const split = HM.text.splitNames(creditText);
       // Credits: whole text first, then split parts
       const allCredits = [creditText, ...split].filter(Boolean);
       const uniqueCredits = dedupe(allCredits);
