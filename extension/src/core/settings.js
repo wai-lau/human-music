@@ -16,6 +16,7 @@
       return { ...DEFAULTS };
     }
     const out = {};
+    // A number, or text that reads as one ('4' from a form field); anything else is the default.
     const n = typeof obj.lookahead === 'number' ? obj.lookahead
       : typeof obj.lookahead === 'string' && obj.lookahead.trim() !== '' ? Number(obj.lookahead) : NaN;
     if (Number.isFinite(n)) {

@@ -195,6 +195,11 @@
     return { artists, songs, keywords, neverSkip };
   }
 
+  // Apply an imported backup (the result of importBackup) to the current state.
+  // Your lists are merged (a union); settings in the backup replace those keys;
+  // known filter lists take the backup's on/off and mode, and lists the state
+  // doesn't have arrive switched off.
+  // Returns a new { user, settings, filterLists }; the inputs are not changed.
   function applyBackup(current, imported) {
     const emptyUser = { artists: [], songs: [], keywords: [], neverSkip: [] };
     const user = mergeUser({ ...emptyUser, ...(current.user || {}) }, { ...emptyUser, ...(imported.user || {}) });
@@ -215,6 +220,8 @@
     return { user, settings, filterLists: lists };
   }
 
+  // A short, stable fingerprint of a text (FNV-1a, 32 bit), to tell whether a
+  // bundled list file changed since it was last imported.
   function fingerprint(text) {
     let h = 0x811c9dc5;
     for (let i = 0; i < text.length; i++) {

@@ -33,6 +33,7 @@
 
     const userArtists = (user.artists || []).map(a => ({ key: normalize(a), name: a }));
     const userSongs = (user.songs || []).map(s => ({ title: normalize(s.title), artist: s.artist ? normalize(s.artist) : null, original: s }));
+    // An empty keyword would match every song, so empties are dropped.
     const userKeywords = (user.keywords || []).filter(k => normalize(k)).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
     const neverSkip = new Set((user.neverSkip || []).map(a => normalize(a)));
 
@@ -42,6 +43,10 @@
     };
   }
 
+  // The rules in order, after Never skip: your songs, your artists, your keywords, then act
+  // lists (name, then channel ID), then watch lists. Each rule tests only its own field (Wai,
+  // 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist"):
+  // keywords see the title and the credited artists, never the album or year.
   function matchChain(index, title, normalizedCreditedArtists, channelIds) {
     for (const songEntry of index.userSongs) {
       if (normalize(title) === songEntry.title) {
@@ -121,6 +126,9 @@
       if (index.neverSkip.has(credit)) return null;
     }
 
+    // A mix card (featured artists) matches only when every credit is listed: one person in
+    // the mix keeps it. It acts only if every credit is on your artists or an act list;
+    // otherwise (some only on watch lists) it is a watch match.
     if (featured) {
       if (normalizedCredits.length === 0) return null;
       const found = [];
