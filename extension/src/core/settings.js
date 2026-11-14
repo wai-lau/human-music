@@ -16,7 +16,6 @@
       return { ...DEFAULTS };
     }
     const out = {};
-    // A number, or text that reads as one ('4' from a form field); anything else is the default.
     const n = typeof obj.lookahead === 'number' ? obj.lookahead
       : typeof obj.lookahead === 'string' && obj.lookahead.trim() !== '' ? Number(obj.lookahead) : NaN;
     if (Number.isFinite(n)) {
@@ -24,11 +23,14 @@
     } else {
       out.lookahead = DEFAULTS.lookahead;
     }
-    if (typeof obj.autoSkip === 'boolean') { out.autoSkip = obj.autoSkip; } else { out.autoSkip = DEFAULTS.autoSkip; }
-    if (typeof obj.autoDislike === 'boolean') { out.autoDislike = obj.autoDislike; } else { out.autoDislike = DEFAULTS.autoDislike; }
-    if (typeof obj.hidePageItems === 'boolean') { out.hidePageItems = obj.hidePageItems; } else { out.hidePageItems = DEFAULTS.hidePageItems; }
-    if (typeof obj.playerButtons === 'boolean') { out.playerButtons = obj.playerButtons; } else { out.playerButtons = DEFAULTS.playerButtons; }
-    if (typeof obj.paused === 'boolean') { out.paused = obj.paused; } else { out.paused = DEFAULTS.paused; }
+    const booleans = ['autoSkip', 'autoDislike', 'hidePageItems', 'playerButtons', 'paused'];
+    for (const name of booleans) {
+      if (typeof obj[name] === 'boolean') {
+        out[name] = obj[name];
+      } else {
+        out[name] = DEFAULTS[name];
+      }
+    }
     if (typeof obj.refresh === 'string' &&
         typeof globalThis.HM.lists !== 'undefined' &&
         Object.prototype.hasOwnProperty.call(globalThis.HM.lists.FREQUENCIES, obj.refresh)) {

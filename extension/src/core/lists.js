@@ -70,6 +70,18 @@
     return now - lastRefresh >= interval;
   }
 
+  function filterStrings(arr) {
+    const result = [];
+    if (Array.isArray(arr)) {
+      for (const entry of arr) {
+        if (typeof entry === 'string' && entry !== '') {
+          result.push(entry);
+        }
+      }
+    }
+    return result;
+  }
+
   function importBackup(data) {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       throw new Error('Not a Human Music or YTM blocker backup');
@@ -79,16 +91,9 @@
         throw new Error('Unsupported Human Music backup version');
       }
       const rawUser = data.user || {};
-      const settings = data.settings || {};
-      const filterLists = Array.isArray(data.filterLists) ? data.filterLists : [];
-      const artists = [];
-      if (Array.isArray(rawUser.artists)) {
-        for (const entry of rawUser.artists) {
-          if (typeof entry === 'string' && entry !== '') {
-            artists.push(entry);
-          }
-        }
-      }
+      const artists = filterStrings(rawUser.artists);
+      const keywords = filterStrings(rawUser.keywords);
+      const neverSkip = filterStrings(rawUser.neverSkip);
       const songs = [];
       if (Array.isArray(rawUser.songs)) {
         for (const entry of rawUser.songs) {
@@ -97,26 +102,10 @@
           }
         }
       }
-      const keywords = [];
-      if (Array.isArray(rawUser.keywords)) {
-        for (const entry of rawUser.keywords) {
-          if (typeof entry === 'string' && entry !== '') {
-            keywords.push(entry);
-          }
-        }
-      }
-      const neverSkip = [];
-      if (Array.isArray(rawUser.neverSkip)) {
-        for (const entry of rawUser.neverSkip) {
-          if (typeof entry === 'string' && entry !== '') {
-            neverSkip.push(entry);
-          }
-        }
-      }
       return {
         user: { artists, songs, keywords, neverSkip },
-        settings: settings,
-        filterLists: filterLists
+        settings: data.settings || {},
+        filterLists: Array.isArray(data.filterLists) ? data.filterLists : []
       };
     }
     const oldStyle = (Array.isArray(data.blockedArtists) ||
@@ -133,14 +122,7 @@
         }
       }
     }
-    const keywords = [];
-    if (Array.isArray(data.blockedKeywords)) {
-      for (const entry of data.blockedKeywords) {
-        if (typeof entry === 'string' && entry !== '') {
-          keywords.push(entry);
-        }
-      }
-    }
+    const keywords = filterStrings(data.blockedKeywords);
     const songs = [];
     if (Array.isArray(data.blockedTracks)) {
       for (const entry of data.blockedTracks) {
@@ -185,24 +167,21 @@
     };
   }
 
-  function mergeUser(a, b) {
-    const artists = [];
-    const seenArtists = new Set();
-    for (const entry of a.artists) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenArtists.has(n)) {
-        seenArtists.add(n);
-        artists.push(entry);
+  function dedupe(arr, keyFn) {
+    const seen = new Set();
+    const result = [];
+    for (const entry of arr) {
+      const key = keyFn(entry);
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(entry);
       }
     }
-    for (const entry of b.artists) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenArtists.has(n)) {
-        seenArtists.add(n);
-        artists.push(entry);
-      }
-    }
+    return result;
+  }
 
+  function mergeUser(a, b) {
+    const artists = dedupe([...a.artists, ...b.artists], x => globalThis.HM.text.normalize(x));
     function songKey(entry) {
       let artist = entry.artist;
       if (typeof artist === 'string') {
@@ -210,65 +189,12 @@
       }
       return globalThis.HM.text.normalize(entry.title) + '|' + globalThis.HM.text.normalize(artist || '');
     }
-    const songs = [];
-    const seenSongs = new Set();
-    for (const entry of a.songs) {
-      const n = songKey(entry);
-      if (!seenSongs.has(n)) {
-        seenSongs.add(n);
-        songs.push(entry);
-      }
-    }
-    for (const entry of b.songs) {
-      const n = songKey(entry);
-      if (!seenSongs.has(n)) {
-        seenSongs.add(n);
-        songs.push(entry);
-      }
-    }
-
-    const keywords = [];
-    const seenKeywords = new Set();
-    for (const entry of a.keywords) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenKeywords.has(n)) {
-        seenKeywords.add(n);
-        keywords.push(entry);
-      }
-    }
-    for (const entry of b.keywords) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenKeywords.has(n)) {
-        seenKeywords.add(n);
-        keywords.push(entry);
-      }
-    }
-
-    const neverSkip = [];
-    const seenNeverSkip = new Set();
-    for (const entry of a.neverSkip) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenNeverSkip.has(n)) {
-        seenNeverSkip.add(n);
-        neverSkip.push(entry);
-      }
-    }
-    for (const entry of b.neverSkip) {
-      const n = globalThis.HM.text.normalize(entry);
-      if (!seenNeverSkip.has(n)) {
-        seenNeverSkip.add(n);
-        neverSkip.push(entry);
-      }
-    }
-
-    return { artists: artists, songs: songs, keywords: keywords, neverSkip: neverSkip };
+    const songs = dedupe([...a.songs, ...b.songs], songKey);
+    const keywords = dedupe([...a.keywords, ...b.keywords], x => globalThis.HM.text.normalize(x));
+    const neverSkip = dedupe([...a.neverSkip, ...b.neverSkip], x => globalThis.HM.text.normalize(x));
+    return { artists, songs, keywords, neverSkip };
   }
 
-  // Apply an imported backup (the result of importBackup) to the current state.
-  // Your lists are merged (a union); settings in the backup replace those keys;
-  // known filter lists take the backup's on/off and mode, and lists the state
-  // doesn't have arrive switched off (turning one on asks Chrome for its site).
-  // Returns a new { user, settings, filterLists }; the inputs are not changed.
   function applyBackup(current, imported) {
     const emptyUser = { artists: [], songs: [], keywords: [], neverSkip: [] };
     const user = mergeUser({ ...emptyUser, ...(current.user || {}) }, { ...emptyUser, ...(imported.user || {}) });
@@ -289,8 +215,6 @@
     return { user, settings, filterLists: lists };
   }
 
-  // A short, stable fingerprint of a text (FNV-1a, 32 bit), to tell whether a
-  // bundled list file changed since it was last imported.
   function fingerprint(text) {
     let h = 0x811c9dc5;
     for (let i = 0; i < text.length; i++) {

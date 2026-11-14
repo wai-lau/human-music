@@ -2,6 +2,10 @@
   globalThis.HM = globalThis.HM || {};
   const { normalize, credits, wholeWord } = globalThis.HM.text;
 
+  function result(listId, listName, rule, entry, mode) {
+    return { listId, listName, rule, entry, mode };
+  }
+
   function buildIndex({ filterLists, user }) {
     const actArtists = new Map();
     const actChannels = new Map();
@@ -14,22 +18,21 @@
       for (const a of artists) {
         if (!a || typeof a.name !== 'string' || !normalize(a.name)) continue;
         const key = normalize(a.name);
-        if (a.channelId) {
-          if (list.mode === 'act') actChannels.set(a.channelId, { listId: list.id, listName: list.name, entry: a.name });
-          else watchChannels.set(a.channelId, { listId: list.id, listName: list.name, entry: a.name });
+        const entry = { listId: list.id, listName: list.name, entry: a.name };
+        if (list.mode === 'act') {
+          if (a.channelId) actChannels.set(a.channelId, entry);
+          if (a.spotifyId) actChannels.set(a.spotifyId, entry);
+          actArtists.set(key, entry);
+        } else {
+          if (a.channelId) watchChannels.set(a.channelId, entry);
+          if (a.spotifyId) watchChannels.set(a.spotifyId, entry);
+          watchArtists.set(key, entry);
         }
-        if (a.spotifyId) {
-          if (list.mode === 'act') actChannels.set(a.spotifyId, { listId: list.id, listName: list.name, entry: a.name });
-          else watchChannels.set(a.spotifyId, { listId: list.id, listName: list.name, entry: a.name });
-        }
-        if (list.mode === 'act') actArtists.set(key, { listId: list.id, listName: list.name, entry: a.name });
-        else watchArtists.set(key, { listId: list.id, listName: list.name, entry: a.name });
       }
     }
 
     const userArtists = (user.artists || []).map(a => ({ key: normalize(a), name: a }));
     const userSongs = (user.songs || []).map(s => ({ title: normalize(s.title), artist: s.artist ? normalize(s.artist) : null, original: s }));
-    // An empty keyword would match every song, so empties are dropped.
     const userKeywords = (user.keywords || []).filter(k => normalize(k)).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
     const neverSkip = new Set((user.neverSkip || []).map(a => normalize(a)));
 
@@ -39,69 +42,71 @@
     };
   }
 
-  function matchSong(index, song) {
-    const s = song || {};
-    const title = s.title || '';
-    const artistLine = s.artistLine || '';
-    const channelIds = s.channelIds || [];
-    const songCredits = credits(artistLine);
-
-    for (const credit of songCredits) {
-      if (index.neverSkip.has(credit)) return null;
-    }
-
+  function matchChain(index, title, normalizedCreditedArtists, channelIds) {
     for (const songEntry of index.userSongs) {
       if (normalize(title) === songEntry.title) {
         if (songEntry.artist) {
-          if (songCredits.includes(songEntry.artist)) {
-            return { listId: 'user:songs', listName: 'Your songs', rule: 'song', entry: songEntry.original.title, mode: 'act' };
+          if (normalizedCreditedArtists.includes(songEntry.artist)) {
+            return result('user:songs', 'Your songs', 'song', songEntry.original.title, 'act');
           }
         } else {
-          return { listId: 'user:songs', listName: 'Your songs', rule: 'song', entry: songEntry.original.title, mode: 'act' };
+          return result('user:songs', 'Your songs', 'song', songEntry.original.title, 'act');
         }
       }
     }
 
     for (const artistEntry of index.userArtists) {
-      if (songCredits.includes(artistEntry.key)) {
-        return { listId: 'user:artists', listName: 'Your artists', rule: 'artist', entry: artistEntry.name, mode: 'act' };
+      if (normalizedCreditedArtists.includes(artistEntry.key)) {
+        return result('user:artists', 'Your artists', 'artist', artistEntry.name, 'act');
       }
     }
 
-    // The title and the credited artists only, never the album or year after them (Wai,
-    // 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist").
     for (const kw of index.userKeywords) {
-      if (kw.regex.test(normalize(title)) || songCredits.some(c => kw.regex.test(c))) {
-        return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
+      if (kw.regex.test(normalize(title)) || normalizedCreditedArtists.some(c => kw.regex.test(c))) {
+        return result('user:keywords', 'Your keywords', 'keyword', kw.name, 'act');
       }
     }
 
-    for (const credit of songCredits) {
+    for (const credit of normalizedCreditedArtists) {
       if (index.actArtists.has(credit)) {
         const act = index.actArtists.get(credit);
-        return { listId: act.listId, listName: act.listName, rule: 'artist', entry: act.entry, mode: 'act' };
+        return result(act.listId, act.listName, 'artist', act.entry, 'act');
       }
     }
     for (const ch of channelIds) {
       if (index.actChannels.has(ch)) {
         const act = index.actChannels.get(ch);
-        return { listId: act.listId, listName: act.listName, rule: 'channel', entry: act.entry, mode: 'act' };
+        return result(act.listId, act.listName, 'channel', act.entry, 'act');
       }
     }
-    for (const credit of songCredits) {
+    for (const credit of normalizedCreditedArtists) {
       if (index.watchArtists.has(credit)) {
         const watch = index.watchArtists.get(credit);
-        return { listId: watch.listId, listName: watch.listName, rule: 'artist', entry: watch.entry, mode: 'watch' };
+        return result(watch.listId, watch.listName, 'artist', watch.entry, 'watch');
       }
     }
     for (const ch of channelIds) {
       if (index.watchChannels.has(ch)) {
         const watch = index.watchChannels.get(ch);
-        return { listId: watch.listId, listName: watch.listName, rule: 'channel', entry: watch.entry, mode: 'watch' };
+        return result(watch.listId, watch.listName, 'channel', watch.entry, 'watch');
       }
     }
 
     return null;
+  }
+
+  function matchSong(index, song) {
+    const s = song || {};
+    const title = s.title || '';
+    const artistLine = s.artistLine || '';
+    const channelIds = s.channelIds || [];
+    const normalizedCreditedArtists = credits(artistLine);
+
+    for (const credit of normalizedCreditedArtists) {
+      if (index.neverSkip.has(credit)) return null;
+    }
+
+    return matchChain(index, title, normalizedCreditedArtists, channelIds);
   }
 
   function matchItem(index, item) {
@@ -110,79 +115,33 @@
     const creditsList = i.credits || [];
     const channelIds = i.channelIds || [];
     const featured = i.featured;
+    const normalizedCredits = creditsList.map(normalize);
 
-    const normCredits = creditsList.map(normalize);
-
-    for (const credit of normCredits) {
+    for (const credit of normalizedCredits) {
       if (index.neverSkip.has(credit)) return null;
     }
 
-    // A mix card (featured artists) matches only when every credit is listed: one
-    // person in the mix keeps it. It acts only if every credit is on your artists
-    // or an act list; otherwise (some only on watch lists) it is a watch match.
     if (featured) {
-      if (normCredits.length === 0) return null;
+      if (normalizedCredits.length === 0) return null;
       const found = [];
-      for (const credit of normCredits) {
+      for (const credit of normalizedCredits) {
         const mine = index.userArtists.find(a => a.key === credit);
-        if (mine) found.push({ listId: 'user:artists', listName: 'Your artists', entry: mine.name, mode: 'act' });
-        else if (index.actArtists.has(credit)) found.push({ ...index.actArtists.get(credit), mode: 'act' });
-        else if (index.watchArtists.has(credit)) found.push({ ...index.watchArtists.get(credit), mode: 'watch' });
+        if (mine) found.push(result('user:artists', 'Your artists', 'artist', mine.name, 'act'));
+        else if (index.actArtists.has(credit)) {
+          const act = index.actArtists.get(credit);
+          found.push(result(act.listId, act.listName, 'artist', act.entry, 'act'));
+        }
+        else if (index.watchArtists.has(credit)) {
+          const watch = index.watchArtists.get(credit);
+          found.push(result(watch.listId, watch.listName, 'artist', watch.entry, 'watch'));
+        }
         else return null;
       }
       const first = found.every(f => f.mode === 'act') ? found[0] : found.find(f => f.mode === 'watch');
-      return { listId: first.listId, listName: first.listName, rule: 'artist', entry: first.entry, mode: first.mode };
+      return result(first.listId, first.listName, 'artist', first.entry, first.mode);
     }
 
-    for (const songEntry of index.userSongs) {
-      if (normalize(title) === songEntry.title) {
-        if (songEntry.artist) {
-          if (normCredits.includes(songEntry.artist)) {
-            return { listId: 'user:songs', listName: 'Your songs', rule: 'song', entry: songEntry.original.title, mode: 'act' };
-          }
-        } else {
-          return { listId: 'user:songs', listName: 'Your songs', rule: 'song', entry: songEntry.original.title, mode: 'act' };
-        }
-      }
-    }
-
-    for (const credit of normCredits) {
-      for (const artistEntry of index.userArtists) {
-        if (credit === artistEntry.key) {
-          return { listId: 'user:artists', listName: 'Your artists', rule: 'artist', entry: artistEntry.name, mode: 'act' };
-        }
-      }
-    }
-
-    for (const kw of index.userKeywords) {
-      if (kw.regex.test(normalize(title))) {
-        return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
-      }
-      for (const credit of normCredits) {
-        if (kw.regex.test(credit)) {
-          return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
-        }
-      }
-    }
-
-    for (const credit of normCredits) {
-      const act = index.actArtists.get(credit);
-      if (act) return { listId: act.listId, listName: act.listName, rule: 'artist', entry: act.entry, mode: 'act' };
-    }
-    for (const ch of channelIds) {
-      const act = index.actChannels.get(ch);
-      if (act) return { listId: act.listId, listName: act.listName, rule: 'channel', entry: act.entry, mode: 'act' };
-    }
-    for (const credit of normCredits) {
-      const watch = index.watchArtists.get(credit);
-      if (watch) return { listId: watch.listId, listName: watch.listName, rule: 'artist', entry: watch.entry, mode: 'watch' };
-    }
-    for (const ch of channelIds) {
-      const watch = index.watchChannels.get(ch);
-      if (watch) return { listId: watch.listId, listName: watch.listName, rule: 'channel', entry: watch.entry, mode: 'watch' };
-    }
-
-    return null;
+    return matchChain(index, title, normalizedCredits, channelIds);
   }
 
   globalThis.HM.match = { buildIndex, matchSong, matchItem };
