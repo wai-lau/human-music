@@ -61,7 +61,7 @@
   function isRefreshDue(lastRefresh, frequency, now) {
     if (lastRefresh == null) return true;
     let interval = undefined;
-    if (FREQUENCIES.hasOwnProperty(frequency)) {
+    if (Object.prototype.hasOwnProperty.call(FREQUENCIES, frequency)) {
       interval = FREQUENCIES[frequency];
     }
     if (interval === undefined) {

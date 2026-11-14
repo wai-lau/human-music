@@ -4,14 +4,14 @@
   if (typeof importScripts === 'function') importScripts('core/text.js', 'core/lists.js', 'core/settings.js');
 
   function createRefresher(opts) {
-    var storage = opts.storage;
-    var fetchFn = opts.fetch;
-    var nowFn = opts.now;
-    var timeoutMs = typeof opts.timeoutMs === 'number' ? opts.timeoutMs : 15000;
-    var maxBytes = typeof opts.maxBytes === 'number' ? opts.maxBytes : 5000000;
+    const storage = opts.storage;
+    const fetchFn = opts.fetch;
+    const nowFn = opts.now;
+    const timeoutMs = typeof opts.timeoutMs === 'number' ? opts.timeoutMs : 15000;
+    const maxBytes = typeof opts.maxBytes === 'number' ? opts.maxBytes : 5000000;
 
     async function install() {
-      var stored = await storage.get(['hm.filterLists', 'hm.user', 'hm.settings']);
+      const stored = await storage.get(['hm.filterLists', 'hm.user', 'hm.settings']);
 
       if (!stored['hm.filterLists']) {
         await storage.set({
@@ -42,46 +42,46 @@
     // your lists. kind 'filter-list' with an id: fills that list only while it has
     // no downloaded copy. A broken file is skipped; resolves to the files imported.
     async function importBundled() {
-      var done = [];
+      const done = [];
       if (typeof opts.assetUrl !== 'function') return done;
-      var HM = globalThis.HM;
-      var index;
+      const HM = globalThis.HM;
+      let index;
       try {
         index = JSON.parse(await (await fetchFn(opts.assetUrl('lists/index.json'))).text());
       } catch (e) {
         return done;
       }
-      var files = index && Array.isArray(index.files) ? index.files : [];
-      var seen = (await storage.get('hm.bundled'))['hm.bundled'] || {};
-      for (var i = 0; i < files.length; i++) {
-        var f = files[i];
+      const files = index && Array.isArray(index.files) ? index.files : [];
+      const seen = (await storage.get('hm.bundled'))['hm.bundled'] || {};
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
         try {
           if (!f || typeof f.file !== 'string' || !/^[\w.-]+\.json$/.test(f.file)) continue;
-          var text = await (await fetchFn(opts.assetUrl('lists/' + f.file))).text();
-          var print = HM.lists.fingerprint(text);
+          const text = await (await fetchFn(opts.assetUrl('lists/' + f.file))).text();
+          const print = HM.lists.fingerprint(text);
           if (seen[f.file] === print) continue;
-          var data = JSON.parse(text);
+          const data = JSON.parse(text);
           if (f.kind === 'backup') {
-            var imported = HM.lists.importBackup(data);
-            var cur = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
-            var next = HM.lists.applyBackup({
+            const imported = HM.lists.importBackup(data);
+            const cur = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
+            const next = HM.lists.applyBackup({
               user: cur['hm.user'], settings: cur['hm.settings'],
               filterLists: cur['hm.filterLists'] || [{ ...HM.lists.SOUL_OVER_AI }]
             }, imported);
-            var write = { 'hm.user': next.user };
+            const write = { 'hm.user': next.user };
             if (imported.settings) write['hm.settings'] = HM.settings.sanitize(next.settings);
             if (imported.filterLists) write['hm.filterLists'] = next.filterLists;
             await storage.set(write);
           } else if (f.kind === 'filter-list' && typeof f.id === 'string') {
-            var parsed = HM.lists.parseFilterList(data);
+            const parsed = HM.lists.parseFilterList(data);
             if (!parsed) continue;
-            var key = 'hm.list.' + f.id;
-            var have = (await storage.get(key))[key];
+            const key = 'hm.list.' + f.id;
+            const have = (await storage.get(key))[key];
             if (!have || !Array.isArray(have.artists) || have.artists.length === 0) {
-              var setObj = {};
+              const setObj = {};
               setObj[key] = parsed;
               await storage.set(setObj);
-              var metas = (await storage.get('hm.filterLists'))['hm.filterLists'] || [];
+              const metas = (await storage.get('hm.filterLists'))['hm.filterLists'] || [];
               await storage.set({ 'hm.filterLists': metas.map(function (m) {
                 return m.id === f.id ? Object.assign({}, m, { count: parsed.artists.length }) : m;
               }) });
@@ -101,12 +101,12 @@
 
     async function refreshOne(id) {
       try {
-        var lists = await storage.get('hm.filterLists');
+        let lists = await storage.get('hm.filterLists');
         if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
           return false;
         }
-        var list = null;
-        for (var i = 0; i < lists['hm.filterLists'].length; i++) {
+        let list = null;
+        for (let i = 0; i < lists['hm.filterLists'].length; i++) {
           if (lists['hm.filterLists'][i].id === id) {
             list = lists['hm.filterLists'][i];
             break;
@@ -121,9 +121,9 @@
           return false;
         }
 
-        var controller = null;
-        var signal = null;
-        var timeoutHandle = null;
+        let controller = null;
+        let signal = null;
+        let timeoutHandle = null;
         if (typeof AbortController !== 'undefined') {
           controller = new AbortController();
           signal = controller.signal;
@@ -132,15 +132,15 @@
           timeoutHandle = setTimeout(function() { controller.abort(); }, timeoutMs);
         }
 
-        var opts = { redirect: 'error' };
+        const opts = { redirect: 'error' };
         if (signal) opts.signal = signal;
 
-        var fetchPromise = fetchFn(list.url, opts);
+        const fetchPromise = fetchFn(list.url, opts);
 
-        var resp;
+        let resp;
         try {
           if (typeof setTimeout !== 'undefined') {
-            var timeoutPromise = new Promise(function(_, reject) {
+            const timeoutPromise = new Promise(function(_, reject) {
               setTimeout(function() { reject(new Error('Timeout')); }, timeoutMs);
             });
             resp = await Promise.race([fetchPromise, timeoutPromise]);
@@ -159,7 +159,7 @@
         }
 
         if (resp.headers && typeof resp.headers.get === 'function') {
-          var cl = resp.headers.get('content-length');
+          const cl = resp.headers.get('content-length');
           if (cl !== null && Number(cl) > maxBytes) {
             if (timeoutHandle !== null) clearTimeout(timeoutHandle);
             await recordFailure(id, 'Content-Length over ' + maxBytes + ' bytes');
@@ -167,11 +167,11 @@
           }
         }
 
-        var textPromise = resp.text();
-        var text;
+        const textPromise = resp.text();
+        let text;
         try {
           if (typeof setTimeout !== 'undefined') {
-            var textTimeout = new Promise(function(_, reject) {
+            const textTimeout = new Promise(function(_, reject) {
               setTimeout(function() { reject(new Error('Timeout')); }, timeoutMs);
             });
             text = await Promise.race([textPromise, textTimeout]);
@@ -190,20 +190,20 @@
           return false;
         }
 
-        var parsed = JSON.parse(text);
-        var listData = globalThis.HM.lists.parseFilterList(parsed);
+        const parsed = JSON.parse(text);
+        const listData = globalThis.HM.lists.parseFilterList(parsed);
 
         if (listData === null) {
           await recordFailure(id, 'Not a filter list');
           return false;
         }
 
-        var setObj = {};
+        const setObj = {};
         setObj['hm.list.' + id] = listData;
         await storage.set(setObj);
 
         lists = await storage.get('hm.filterLists');
-        for (var j = 0; j < lists['hm.filterLists'].length; j++) {
+        for (let j = 0; j < lists['hm.filterLists'].length; j++) {
           if (lists['hm.filterLists'][j].id === id) {
             lists['hm.filterLists'][j].count = listData.artists.length;
             lists['hm.filterLists'][j].lastRefresh = nowFn();
@@ -224,41 +224,40 @@
     }
 
     async function recordFailure(id, message) {
-      var lists = await storage.get('hm.filterLists');
+      const lists = await storage.get('hm.filterLists');
       if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
         return;
       }
-      for (var i = 0; i < lists['hm.filterLists'].length; i++) {
+      for (let i = 0; i < lists['hm.filterLists'].length; i++) {
         if (lists['hm.filterLists'][i].id === id) {
           lists['hm.filterLists'][i].lastError = message;
           break;
         }
       }
-      var setObj = {};
+      const setObj = {};
       setObj['hm.filterLists'] = lists['hm.filterLists'];
       await storage.set(setObj);
 
-      var listKey = 'hm.list.' + id;
-      var stored = await storage.get(listKey);
+      const listKey = 'hm.list.' + id;
+      const stored = await storage.get(listKey);
       if (!stored[listKey]) {
-        var emptyList = {};
+        const emptyList = {};
         emptyList[listKey] = { artists: [] };
         await storage.set(emptyList);
       }
     }
 
     async function refreshDue() {
-      var lists = await storage.get('hm.filterLists');
+      const lists = await storage.get('hm.filterLists');
       if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
         return [];
       }
-      var settings = await storage.get('hm.settings');
-      var settings = globalThis.HM.settings.sanitize(settings['hm.settings']);
-      var now = nowFn();
-      var refreshed = [];
+      const settings = globalThis.HM.settings.sanitize((await storage.get('hm.settings'))['hm.settings']);
+      const now = nowFn();
+      const refreshed = [];
 
-      for (var i = 0; i < lists['hm.filterLists'].length; i++) {
-        var list = lists['hm.filterLists'][i];
+      for (let i = 0; i < lists['hm.filterLists'].length; i++) {
+        const list = lists['hm.filterLists'][i];
         if (!list.enabled) {
           continue;
         }
@@ -278,7 +277,7 @@
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
-    var api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
+    const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
     globalThis.HM.refresher = globalThis.HM.createRefresher({
       storage: api.storage.local,
       fetch: function (url) { return fetch(url); },
@@ -288,18 +287,18 @@
 
     // Development mode: only true when management.getSelf() reports installType 'development'
     // (unpacked Chrome extension or temporary Firefox add-on). Cached after first answer.
-    var devMode = null;
-    var devCallbacks = [];
+    let devMode = null;
+    let devCallbacks = [];
     function setDevMode(value) {
       devMode = value;
-      for (var i = 0; i < devCallbacks.length; i++) devCallbacks[i](value);
+      for (let i = 0; i < devCallbacks.length; i++) devCallbacks[i](value);
       devCallbacks = [];
     }
     (function determineDevMode() {
-      var m = chrome.management || {};
+      const m = chrome.management || {};
       if (!m.getSelf) { setDevMode(false); return; }
       try {
-        var result = m.getSelf(function(info) { setDevMode(info && info.installType === 'development'); });
+        const result = m.getSelf(function(info) { setDevMode(info && info.installType === 'development'); });
         if (result && typeof result.then === 'function') {
           result.then(function(info) { setDevMode(info && info.installType === 'development'); }).catch(function() { setDevMode(false); });
         }
@@ -309,7 +308,7 @@
     function waitDev(callback) { if (devMode !== null) callback(devMode); else devCallbacks.push(callback); }
     function devNote(key, value) {
       if (!isDev()) return;
-      try { var o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); api.storage.local.set(o); } catch (e) { /* diagnostics only */ }
+      try { const o = {}; o['hm.dev.' + key] = Object.assign({ at: Date.now() }, value); api.storage.local.set(o); } catch (e) { /* diagnostics only */ }
     }
 
     chrome.runtime.onInstalled.addListener(function (details) {
@@ -329,22 +328,22 @@
 
     // One content_scripts entry: its sites' open tabs get its files where no copy answers.
     function ensureEntry(matches, files) {
-      var site = String(matches[0]).replace(/^https:\/\//, '').replace(/\/\*$/, '');
-      var note = function (value) { devNote('inject.' + site, value); };
+      const site = String(matches[0]).replace(/^https:\/\//, '').replace(/\/\*$/, '');
+      const note = function (value) { devNote('inject.' + site, value); };
       try {
-        var notes = [];
+        const notes = [];
         chrome.tabs.query({ url: matches }, function (tabs) {
           note({ tabs: (tabs || []).length, scripting: !!chrome.scripting });
           (tabs || []).forEach(function (tab) {
             try {
               chrome.tabs.sendMessage(tab.id, { type: 'hm-ping' }, function (reply) {
-                var err = chrome.runtime.lastError;
-                var missing = err || reply !== true;
+                const err = chrome.runtime.lastError;
+                const missing = err || reply !== true;
                 notes.push({ tab: tab.id, reply: reply === true, err: err ? String(err.message) : null });
                 note({ tabs: tabs.length, scripting: !!chrome.scripting, notes: notes });
                 if (!missing) return;
                 try {
-                  var done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
+                  const done = chrome.scripting.executeScript({ target: { tabId: tab.id }, files: files });
                   if (done && done.then) done.then(function () { notes.push({ tab: tab.id, injected: true }); note({ tabs: tabs.length, notes: notes }); },
                     function (e) { notes.push({ tab: tab.id, injectError: String(e && e.message) }); note({ tabs: tabs.length, notes: notes }); });
                 } catch (e) { notes.push({ tab: tab.id, injectThrew: String(e && e.message) }); note({ notes: notes }); }

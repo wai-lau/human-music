@@ -31,7 +31,7 @@
     if (typeof obj.paused === 'boolean') { out.paused = obj.paused; } else { out.paused = DEFAULTS.paused; }
     if (typeof obj.refresh === 'string' &&
         typeof globalThis.HM.lists !== 'undefined' &&
-        globalThis.HM.lists.FREQUENCIES.hasOwnProperty(obj.refresh)) {
+        Object.prototype.hasOwnProperty.call(globalThis.HM.lists.FREQUENCIES, obj.refresh)) {
       out.refresh = obj.refresh;
     } else {
       out.refresh = DEFAULTS.refresh;
