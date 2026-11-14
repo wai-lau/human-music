@@ -45,6 +45,9 @@ test('a Queue panel the person closes stays closed', async ({ context, setState 
   await setState({ settings: { lookahead: 3 } });
   const page = await openSite(context, PLAYER, { songs: [{ title: 'Now Playing', ...PERSON }, { title: 'Later', ...PERSON }] });
   await expect(page.locator('aside[aria-label="Queue"]')).toBeVisible();
+  // A person takes longer than Human Music's next pass (about 50 ms) to close it; closing it
+  // within the same moment read as "not opened yet" and made the test flaky under load.
+  await page.waitForTimeout(300);
   await page.locator('[data-testid="control-button-queue"]').click();
   await page.waitForTimeout(5000); // past every retry Human Music would make
   await expect(page.locator('aside[aria-label="Queue"]')).toHaveCount(0);
