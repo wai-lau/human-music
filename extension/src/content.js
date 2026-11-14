@@ -45,6 +45,15 @@
       skipper: null,
       observer: null,
       stopped: false,
+      passes: 0, // passes run so far (shown in development status)
+      // Sites that draw their queue only in a panel (Spotify):
+      queueSeenOpen: false, // the panel was seen open at least once
+      queueRefused: false, // seen open, then found closed: the person closed it; leave it
+      queueTries: 0, // clicks on the queue button so far (at most 3)
+      queueTriedAt: -Infinity, // when the last click was
+      checkedFor: '', // the song whose upcoming rows lookahead has seen
+      lastChanceFor: '', // the song the near-the-end check already opened the panel for
+      closeAfterCheck: false, // close the panel again once its rows were seen
     };
     let writes = Promise.resolve();
 
@@ -138,8 +147,8 @@
       if (state.queueSeenOpen) { state.queueRefused = true; return; } // closed by the person
       if (!safe(() => site.readSong(doc), null)) return;
       const t = now();
-      if (state.queueTries >= 3 || t - (state.queueTriedAt || -Infinity) < 2000) return;
-      state.queueTries = (state.queueTries || 0) + 1;
+      if (state.queueTries >= 3 || t - state.queueTriedAt < 2000) return;
+      state.queueTries += 1;
       state.queueTriedAt = t;
       safe(() => site.openQueue(doc));
       timers.setTimeout(schedule, 2100); // look again once the next try is allowed
@@ -277,7 +286,7 @@
 
     function pass() {
       state.passTimer = null;
-      state.passes = (state.passes || 0) + 1;
+      state.passes += 1;
       if (state.stopped) return;
       if (!safe(alive, false)) { standDown(); return; }
       safe(checkPlaying);
@@ -324,7 +333,7 @@
 
     // Development aid: a small summary of this copy's state.
     function status() {
-      return { passes: state.passes || 0, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
+      return { passes: state.passes, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
     }
 
     return { start, checkPlaying, runLookahead, flush, status };
