@@ -15,7 +15,7 @@ async function open(initial = {}, { grant = true } = {}) {
     permissions: { request: (q, cb) => { calls.permissions.push(q); cb(grant); }, remove: (q, cb) => { calls.removed = (calls.removed || []).concat([q]); if (cb) cb(true); } },
     runtime: { sendMessage: (m, cb) => { calls.messages.push(m); if (cb) cb(true); } },
   };
-  load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js', 'popup/popup.js'],
+  load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js', 'popup/popup.js'],
     { document: doc, chrome, URL, Blob, setTimeout, clearTimeout });
   await settle();
   const $ = id => doc.getElementById(id);

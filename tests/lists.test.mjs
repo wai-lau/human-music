@@ -1,6 +1,6 @@
 import { load, run } from './load.mjs';
 
-const ctx = load(['src/core/text.js', 'src/core/lists.js']);
+const ctx = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js']);
 const { parseFilterList, isRefreshDue, importBackup, exportBackup, mergeUser, SOUL_OVER_AI } = ctx.HM.lists;
 
 function deepEqual(a, b) {

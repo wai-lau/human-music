@@ -2,7 +2,7 @@
 //   node tests/contract-popup.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
-const { popup, lists } = load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js'], { URL }).HM;
+const { popup, lists } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js'], { URL }).HM;
 const fails = [];
 const sortKeys = v => Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortKeys(v[k])])) : v;
 const J = v => JSON.stringify(sortKeys(v));
@@ -48,7 +48,7 @@ const html = readFileSync(process.cwd() + '/extension/popup/popup.html', 'utf8')
 for (const label of ['Lists', 'Behaviour', 'Log']) t(`tab ${label}`, () => new RegExp(`<button[^>]*>\\s*${label}\\s*</button>`).test(html) || 'no tab button');
 t('credit line', () => html.includes('Soul Over AI list by souloverai.com, CC BY 4.0.') || 'missing');
 const srcs = [...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map(m => m[1]);
-eq('script order', srcs, ['../src/core/text.js', '../src/core/lists.js', '../src/core/settings.js', '../src/core/log.js', 'model.js', 'popup.js']);
+eq('script order', srcs, ['../src/core/text.js', '../src/core/store.js', '../src/core/lists.js', '../src/core/settings.js', '../src/core/log.js', 'model.js', 'popup.js']);
 t('no inline script', () => !/<script(?![^>]*\bsrc=)[^>]*>\s*\S/.test(html) || 'inline script');
 t('popup.js and css exist', () => { readFileSync(process.cwd() + '/extension/popup/popup.js'); readFileSync(process.cwd() + '/extension/popup/popup.css'); return true; });
 

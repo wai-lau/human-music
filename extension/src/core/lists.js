@@ -201,8 +201,7 @@
   // doesn't have arrive switched off.
   // Returns a new { user, settings, filterLists }; the inputs are not changed.
   function applyBackup(current, imported) {
-    const emptyUser = { artists: [], songs: [], keywords: [], neverSkip: [] };
-    const user = mergeUser({ ...emptyUser, ...(current.user || {}) }, { ...emptyUser, ...(imported.user || {}) });
+    const user = mergeUser({ ...HM.store.emptyUser(), ...(current.user || {}) }, { ...HM.store.emptyUser(), ...(imported.user || {}) });
     const settings = imported.settings ? { ...(current.settings || {}), ...imported.settings } : { ...(current.settings || {}) };
     let lists = (current.filterLists || []).map(l => ({ ...l }));
     if (Array.isArray(imported.filterLists)) {

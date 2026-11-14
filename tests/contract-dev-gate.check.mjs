@@ -103,7 +103,7 @@ await t('worker: refresh messages still work in a normal install', async () => {
 
 // --- content script ------------------------------------------------------------------------
 
-const CORE = ['src/core/text.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js',
+const CORE = ['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js',
   'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/content.js'];
 
 function content(devAnswer) {

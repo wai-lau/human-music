@@ -10,7 +10,7 @@ function popupHtml() {
   return readFileSync(join(EXT, 'popup/popup.html'), 'utf8');
 }
 
-const ctx = load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js'], { URL: URL });
+const ctx = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js'], { URL: URL });
 const HM = ctx.HM;
 
 function emptyUser() {

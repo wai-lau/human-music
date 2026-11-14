@@ -29,6 +29,7 @@
       ],
       "js": [
         "src/core/text.js",
+        "src/core/store.js",
         "src/core/match.js",
         "src/core/lists.js",
         "src/core/settings.js",
@@ -46,6 +47,7 @@
       ],
       "js": [
         "src/core/text.js",
+        "src/core/store.js",
         "src/core/match.js",
         "src/core/lists.js",
         "src/core/settings.js",

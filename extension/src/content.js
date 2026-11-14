@@ -6,8 +6,7 @@
   'use strict';
   const HM = (globalThis.HM = globalThis.HM || {});
 
-  const emptyUser = () => ({ artists: [], songs: [], keywords: [], neverSkip: [] });
-  const rebuilds = key => key === 'hm.user' || key === 'hm.settings' || key === 'hm.filterLists' || key.startsWith('hm.list.');
+  const rebuilds = key => key === HM.store.KEYS.user || key === HM.store.KEYS.settings || key === HM.store.KEYS.filterLists || key.startsWith(HM.store.listPrefix);
   const rowKey = row => `${row.title}\n${row.artistLine}`;
   const safe = (fn, fallback) => { try { return fn(); } catch (e) { return fallback; } };
 
@@ -74,22 +73,22 @@
       if (COUNTED.has(event)) { count++; safe(() => onCount(count)); }
       const entry = HM.log.makeEntry({ event, song, match, at: now() });
       return queueWrite(async () => {
-        const stored = await storage.get('hm.log');
-        const entries = Array.isArray(stored['hm.log']) ? stored['hm.log'] : [];
+        const stored = await storage.get(HM.store.KEYS.log);
+        const entries = Array.isArray(stored[HM.store.KEYS.log]) ? stored[HM.store.KEYS.log] : [];
         if (oncePerDay && HM.log.seenRecently(entries, entry, entry.at)) return;
-        await storage.set({ 'hm.log': HM.log.append(entries, entry, 1000) });
+        await storage.set({ [HM.store.KEYS.log]: HM.log.append(entries, entry, 1000) });
       });
     }
 
     async function reload() {
-      const stored = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
-      state.settings = HM.settings.sanitize(stored['hm.settings']);
-      const user = { ...emptyUser(), ...(stored['hm.user'] || {}) };
-      const lists = Array.isArray(stored['hm.filterLists']) ? stored['hm.filterLists'] : [];
-      const keys = lists.map(l => `hm.list.${l.id}`);
+      const stored = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
+      state.settings = HM.settings.sanitize(stored[HM.store.KEYS.settings]);
+      const user = { ...HM.store.emptyUser(), ...(stored[HM.store.KEYS.user] || {}) };
+      const lists = Array.isArray(stored[HM.store.KEYS.filterLists]) ? stored[HM.store.KEYS.filterLists] : [];
+      const keys = lists.map(l => HM.store.listKey(l.id));
       const data = keys.length ? await storage.get(keys) : {};
       state.index = HM.match.buildIndex({
-        filterLists: lists.map(l => ({ ...l, artists: (data[`hm.list.${l.id}`] || {}).artists || [] })),
+        filterLists: lists.map(l => ({ ...l, artists: (data[HM.store.listKey(l.id)] || {}).artists || [] })),
         user,
       });
     }
@@ -242,8 +241,8 @@
       const credit = HM.text.leadCredit(song.artistLine);
       const N = HM.text.normalize;
       queueWrite(async () => {
-        const stored = await storage.get('hm.user');
-        const user = { ...emptyUser(), ...(stored['hm.user'] || {}) };
+        const stored = await storage.get(HM.store.KEYS.user);
+        const user = { ...HM.store.emptyUser(), ...(stored[HM.store.KEYS.user] || {}) };
         if (kind === 'artist') {
           if (!credit || user.artists.some(a => N(a) === N(credit))) return;
           user.artists = [...user.artists, credit];
@@ -252,7 +251,7 @@
           if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return;
           user.songs = [...user.songs, { title: song.title, artist }];
         }
-        await storage.set({ 'hm.user': user });
+        await storage.set({ [HM.store.KEYS.user]: user });
       });
     }
 
@@ -342,8 +341,7 @@
   HM.createApp = createApp;
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local && !HM.app) {
-    // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
-    const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
+    const api = HM.store.api();
     HM.app = createApp({
       doc: document,
       storage: api.storage.local,

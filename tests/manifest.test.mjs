@@ -34,6 +34,7 @@ const cases = [
   ['content_scripts js', () =>
     deepEqual(manifest.content_scripts[0].js, [
       'src/core/text.js',
+      'src/core/store.js',
       'src/core/match.js',
       'src/core/lists.js',
       'src/core/settings.js',

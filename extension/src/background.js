@@ -1,7 +1,7 @@
 (function () {
   globalThis.HM = globalThis.HM || {};
   // The service worker loads only this file; the helpers come in here (paths relative to src/).
-  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/lists.js', 'core/settings.js');
+  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js');
 
   function createRefresher(opts) {
     const storage = opts.storage;
@@ -11,23 +11,23 @@
     const maxBytes = typeof opts.maxBytes === 'number' ? opts.maxBytes : 5000000;
 
     async function install() {
-      const stored = await storage.get(['hm.filterLists', 'hm.user', 'hm.settings']);
+      const stored = await storage.get([HM.store.KEYS.filterLists, HM.store.KEYS.user, HM.store.KEYS.settings]);
 
-      if (!stored['hm.filterLists']) {
+      if (!stored[HM.store.KEYS.filterLists]) {
         await storage.set({
-          'hm.filterLists': [{ ...globalThis.HM.lists.SOUL_OVER_AI }]
+          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }]
         });
       }
 
-      if (!stored['hm.user']) {
+      if (!stored[HM.store.KEYS.user]) {
         await storage.set({
-          'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [] }
+          [HM.store.KEYS.user]: HM.store.emptyUser()
         });
       }
 
-      if (!stored['hm.settings']) {
+      if (!stored[HM.store.KEYS.settings]) {
         await storage.set({
-          'hm.settings': globalThis.HM.settings.DEFAULTS
+          [HM.store.KEYS.settings]: globalThis.HM.settings.DEFAULTS
         });
       }
 
@@ -52,7 +52,7 @@
         return done;
       }
       const files = index && Array.isArray(index.files) ? index.files : [];
-      const seen = (await storage.get('hm.bundled'))['hm.bundled'] || {};
+      const seen = (await storage.get(HM.store.KEYS.bundled))[HM.store.KEYS.bundled] || {};
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         try {
@@ -63,26 +63,26 @@
           const data = JSON.parse(text);
           if (f.kind === 'backup') {
             const imported = HM.lists.importBackup(data);
-            const cur = await storage.get(['hm.user', 'hm.settings', 'hm.filterLists']);
+            const cur = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
             const next = HM.lists.applyBackup({
-              user: cur['hm.user'], settings: cur['hm.settings'],
-              filterLists: cur['hm.filterLists'] || [{ ...HM.lists.SOUL_OVER_AI }]
+              user: cur[HM.store.KEYS.user], settings: cur[HM.store.KEYS.settings],
+              filterLists: cur[HM.store.KEYS.filterLists] || [{ ...HM.lists.SOUL_OVER_AI }]
             }, imported);
-            const write = { 'hm.user': next.user };
-            if (imported.settings) write['hm.settings'] = HM.settings.sanitize(next.settings);
-            if (imported.filterLists) write['hm.filterLists'] = next.filterLists;
+            const write = { [HM.store.KEYS.user]: next.user };
+            if (imported.settings) write[HM.store.KEYS.settings] = HM.settings.sanitize(next.settings);
+            if (imported.filterLists) write[HM.store.KEYS.filterLists] = next.filterLists;
             await storage.set(write);
           } else if (f.kind === 'filter-list' && typeof f.id === 'string') {
             const parsed = HM.lists.parseFilterList(data);
             if (!parsed) continue;
-            const key = 'hm.list.' + f.id;
+            const key = HM.store.listKey(f.id);
             const have = (await storage.get(key))[key];
             if (!have || !Array.isArray(have.artists) || have.artists.length === 0) {
               const setObj = {};
               setObj[key] = parsed;
               await storage.set(setObj);
-              const metas = (await storage.get('hm.filterLists'))['hm.filterLists'] || [];
-              await storage.set({ 'hm.filterLists': metas.map(function (m) {
+              const metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists] || [];
+              await storage.set({ [HM.store.KEYS.filterLists]: metas.map(function (m) {
                 return m.id === f.id ? Object.assign({}, m, { count: parsed.artists.length }) : m;
               }) });
             }
@@ -90,7 +90,7 @@
             continue;
           }
           seen[f.file] = print;
-          await storage.set({ 'hm.bundled': seen });
+          await storage.set({ [HM.store.KEYS.bundled]: seen });
           done.push(f.file);
         } catch (e) {
           // skip this file; the others still import
@@ -101,14 +101,14 @@
 
     async function refreshOne(id) {
       try {
-        let lists = await storage.get('hm.filterLists');
-        if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+        let lists = await storage.get(HM.store.KEYS.filterLists);
+if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
           return false;
         }
         let list = null;
-        for (let i = 0; i < lists['hm.filterLists'].length; i++) {
-          if (lists['hm.filterLists'][i].id === id) {
-            list = lists['hm.filterLists'][i];
+for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
+if (lists[HM.store.KEYS.filterLists][i].id === id) {
+list = lists[HM.store.KEYS.filterLists][i];
             break;
           }
         }
@@ -199,19 +199,19 @@
         }
 
         const setObj = {};
-        setObj['hm.list.' + id] = listData;
+        setObj[HM.store.listKey(id)] = listData;
         await storage.set(setObj);
 
-        lists = await storage.get('hm.filterLists');
-        for (let j = 0; j < lists['hm.filterLists'].length; j++) {
-          if (lists['hm.filterLists'][j].id === id) {
-            lists['hm.filterLists'][j].count = listData.artists.length;
-            lists['hm.filterLists'][j].lastRefresh = nowFn();
-            lists['hm.filterLists'][j].lastError = null;
+        lists = await storage.get(HM.store.KEYS.filterLists);
+        for (let j = 0; j < lists[HM.store.KEYS.filterLists].length; j++) {
+          if (lists[HM.store.KEYS.filterLists][j].id === id) {
+            lists[HM.store.KEYS.filterLists][j].count = listData.artists.length;
+            lists[HM.store.KEYS.filterLists][j].lastRefresh = nowFn();
+            lists[HM.store.KEYS.filterLists][j].lastError = null;
             break;
           }
         }
-        await storage.set({ 'hm.filterLists': lists['hm.filterLists'] });
+        await storage.set({ [HM.store.KEYS.filterLists]: lists[HM.store.KEYS.filterLists] });
         return true;
       } catch (e) {
         try {
@@ -224,21 +224,21 @@
     }
 
     async function recordFailure(id, message) {
-      const lists = await storage.get('hm.filterLists');
-      if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+      const lists = await storage.get(HM.store.KEYS.filterLists);
+      if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
         return;
       }
-      for (let i = 0; i < lists['hm.filterLists'].length; i++) {
-        if (lists['hm.filterLists'][i].id === id) {
-          lists['hm.filterLists'][i].lastError = message;
+      for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
+        if (lists[HM.store.KEYS.filterLists][i].id === id) {
+          lists[HM.store.KEYS.filterLists][i].lastError = message;
           break;
         }
       }
       const setObj = {};
-      setObj['hm.filterLists'] = lists['hm.filterLists'];
+      setObj[HM.store.KEYS.filterLists] = lists[HM.store.KEYS.filterLists];
       await storage.set(setObj);
 
-      const listKey = 'hm.list.' + id;
+      const listKey = HM.store.listKey(id);
       const stored = await storage.get(listKey);
       if (!stored[listKey]) {
         const emptyList = {};
@@ -248,16 +248,16 @@
     }
 
     async function refreshDue() {
-      const lists = await storage.get('hm.filterLists');
-      if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+      const lists = await storage.get(HM.store.KEYS.filterLists);
+      if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
         return [];
       }
-      const settings = globalThis.HM.settings.sanitize((await storage.get('hm.settings'))['hm.settings']);
+      const settings = globalThis.HM.settings.sanitize((await storage.get(HM.store.KEYS.settings))[HM.store.KEYS.settings]);
       const now = nowFn();
       const refreshed = [];
 
-      for (let i = 0; i < lists['hm.filterLists'].length; i++) {
-        const list = lists['hm.filterLists'][i];
+      for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
+        const list = lists[HM.store.KEYS.filterLists][i];
         if (!list.enabled) {
           continue;
         }
@@ -277,7 +277,7 @@
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
-    const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
+    const api = HM.store.api();
     globalThis.HM.refresher = globalThis.HM.createRefresher({
       storage: api.storage.local,
       fetch: function (url) { return fetch(url); },

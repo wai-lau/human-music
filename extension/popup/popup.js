@@ -3,15 +3,13 @@
 (function () {
   'use strict';
   const HM = globalThis.HM;
-  // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
-  const api = typeof browser !== 'undefined' && browser.storage ? browser : chrome;
+  const api = HM.store.api();
   const store = api.storage.local;
   const $ = id => document.getElementById(id);
-  const emptyUser = () => ({ artists: [], songs: [], keywords: [], neverSkip: [] });
 
   // Latest copies, kept so click handlers can act synchronously (Chrome only grants
   // a host permission from inside the click itself).
-  const state = { user: emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [] };
+  const state = { user: HM.store.emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [] };
 
   function status(text) { const el = $('status'); if (el) el.textContent = text || ''; }
 
@@ -32,16 +30,16 @@
     try { return (await store.get(keys)) || {}; } catch (e) { return {}; }
   }
   async function load() {
-    const r = await read(['hm.user', 'hm.settings', 'hm.filterLists', 'hm.log']);
-    state.user = { ...emptyUser(), ...(r['hm.user'] || {}) };
-    state.settings = HM.settings.sanitize(r['hm.settings']);
-    const lists = Array.isArray(r['hm.filterLists']) ? r['hm.filterLists'] : [];
+    const r = await read([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log]);
+    state.user = { ...HM.store.emptyUser(), ...(r[HM.store.KEYS.user] || {}) };
+    state.settings = HM.settings.sanitize(r[HM.store.KEYS.settings]);
+    const lists = Array.isArray(r[HM.store.KEYS.filterLists]) ? r[HM.store.KEYS.filterLists] : [];
     state.lists = lists.some(l => l.id === HM.lists.SOUL_OVER_AI.id) ? lists : [{ ...HM.lists.SOUL_OVER_AI }, ...lists];
-    state.log = Array.isArray(r['hm.log']) ? r['hm.log'] : [];
+    state.log = Array.isArray(r[HM.store.KEYS.log]) ? r[HM.store.KEYS.log] : [];
   }
-  const saveUser = user => { state.user = user; return store.set({ 'hm.user': user }); };
-  const saveSettings = s => { state.settings = HM.settings.sanitize(s); return store.set({ 'hm.settings': state.settings }); };
-  const saveLists = lists => { state.lists = lists; return store.set({ 'hm.filterLists': lists }); };
+  const saveUser = user => { state.user = user; return store.set({ [HM.store.KEYS.user]: user }); };
+  const saveSettings = s => { state.settings = HM.settings.sanitize(s); return store.set({ [HM.store.KEYS.settings]: state.settings }); };
+  const saveLists = lists => { state.lists = lists; return store.set({ [HM.store.KEYS.filterLists]: lists }); };
 
   // --- tabs --------------------------------------------------------------------
 
@@ -232,7 +230,7 @@
     if (state.log.length > SHOWN) ul.append(node('li', { class: 'log-more', textContent: `${state.log.length - SHOWN} older entries are in Export log.` }));
   }
 
-  $('clear-log').addEventListener('click', () => store.set({ 'hm.log': [] }));
+  $('clear-log').addEventListener('click', () => store.set({ [HM.store.KEYS.log]: [] }));
   $('export-log').addEventListener('click', () => {
     const lines = state.log.map(e => [when(e.at), HM.log.describe(e), e.title, e.artistLine, e.entry ? `entry: ${e.entry}` : ''].filter(Boolean).join('\t'));
     download('human-music-log.txt', 'text/plain', lines.join('\n') + '\n');

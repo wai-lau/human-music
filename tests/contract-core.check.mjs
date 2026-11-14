@@ -1,7 +1,7 @@
 // Contract check for Task 5 (settings, log, lookahead). Run from the repo root:
 //   node tests/contract-core.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
-const { settings, log, lookahead } = load(['src/core/text.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js']).HM;
+const { settings, log, lookahead } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js']).HM;
 const fails = [];
 const sortKeys = v => Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortKeys(v[k])])) : v;
 const J = v => JSON.stringify(sortKeys(v));
