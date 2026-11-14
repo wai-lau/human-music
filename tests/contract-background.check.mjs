@@ -86,17 +86,20 @@ else {
   });
 }
 
-// chrome wiring
-await t('chrome hooks registered', async () => {
-  const seen = {};
+// chrome wiring: no alarms (Wai, 2026-11-13: "minimize required permissions"); a due list is
+// refreshed whenever the worker starts, which a music tab or the popup makes happen.
+await t('chrome hooks registered; due lists refreshed when the worker starts, no alarms', async () => {
+  const seen = { fetched: [] };
   const ev = name => ({ addListener: fn => { seen[name] = fn; } });
-  const chrome = { storage: { local: fakeStorage({}) }, runtime: { onInstalled: ev('installed'), onMessage: ev('message') },
-    alarms: { create: (n, o) => { seen.alarm = [n, o]; }, onAlarm: ev('onAlarm') } };
-  const c2 = load([], { chrome, importScripts: (...f) => { for (const x of f) runInContext(readFileSync(process.cwd() + '/extension/src/' + x, 'utf8'), c2); }, fetch: ok(['A']) });
+  const storage = fakeStorage({ 'hm.filterLists': [{ ...SOA(), lastRefresh: 1 }], 'hm.settings': { refresh: 'daily' } });
+  const chrome = { storage: { local: storage }, runtime: { onInstalled: ev('installed'), onMessage: ev('message') } };
+  const fetchSpy = (url, opts) => { seen.fetched.push(url); return ok(['A'])(url, opts); };
+  const c2 = load([], { chrome, importScripts: (...f) => { for (const x of f) runInContext(readFileSync(process.cwd() + '/extension/src/' + x, 'utf8'), c2); }, fetch: fetchSpy, setTimeout, clearTimeout, AbortController });
   runInContext(readFileSync(process.cwd() + '/extension/src/background.js', 'utf8'), c2);
+  for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
   const kept = seen.message && seen.message({ type: 'refresh', id: 'soul-over-ai' }, {}, () => {});
-  return (typeof seen.installed === 'function' && typeof seen.alarm === 'object' && seen.alarm[0] === 'hm-refresh' && seen.alarm[1].periodInMinutes === 60
-    && typeof seen.onAlarm === 'function' && kept === true && typeof c2.HM.refresher === 'object') || J({ keys: Object.keys(seen), kept });
+  return (typeof seen.installed === 'function' && kept === true && typeof c2.HM.refresher === 'object' && seen.fetched.length >= 1)
+    || J({ keys: Object.keys(seen), kept, fetched: seen.fetched });
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

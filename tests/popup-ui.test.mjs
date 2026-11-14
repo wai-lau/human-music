@@ -99,13 +99,15 @@ run([
     const after = p.doc.querySelector('#log-entries li button');
     return (ok && JSON.stringify(data(p, 'hm.user').neverSkip) === '["The Velvet Sundown"]' && after === null) || li.textContent;
   }],
-  ['add a list by URL asks Chrome for that site, then refreshes it', async () => {
+  // No site permission any more (Wai, 2026-11-13: "minimize required permissions"): a list
+  // server must allow any origin (GitHub raw files do), or its refresh fails visibly.
+  ['add a list by URL asks Chrome for nothing and refreshes it', async () => {
     const p = await open();
     p.$('list-url').value = 'https://example.org/ai.json';
     p.$('list-name').value = 'Community list';
     await p.click(p.$('add-list-btn'));
     const lists = data(p, 'hm.filterLists');
-    return (JSON.stringify(p.calls.permissions) === '[{"origins":["https://example.org/*"]}]' && lists.length === 2 && lists[1].id === 'community-list'
+    return (p.calls.permissions.length === 0 && lists.length === 2 && lists[1].id === 'community-list'
       && p.calls.messages.some(m => m.type === 'refresh' && m.id === 'community-list')) || JSON.stringify({ c: p.calls, lists });
   }],
   ['a list added by URL starts in Watch only (Wai, 2026-11-13); "Act at once" makes it act', async () => {
@@ -121,19 +123,13 @@ run([
     return (first.mode === 'watch' && /Watch only/.test(said) && second.mode === 'act' && p.$('list-act-now').checked === false)
       || JSON.stringify({ first: first.mode, said, second: second && second.mode, box: p.$('list-act-now').checked });
   }],
-  ['site access refused: list not added', async () => {
-    const p = await open({}, { grant: false });
-    p.$('list-url').value = 'https://example.org/ai.json';
-    await p.click(p.$('add-list-btn'));
-    return (data(p, 'hm.filterLists') === undefined && p.$('status').textContent.includes("didn't allow")) || p.$('status').textContent;
-  }],
-  ['http list address refused before asking Chrome', async () => {
+  ['http list address refused', async () => {
     const p = await open();
     p.$('list-url').value = 'http://example.org/ai.json';
     await p.click(p.$('add-list-btn'));
     return (p.calls.permissions.length === 0 && p.$('status').textContent === 'Use an https:// address') || p.$('status').textContent;
   }],
-  ['removing a list gives its site back once no other list uses it', async () => {
+  ['removing lists asks Chrome for nothing', async () => {
     const mk = (id, url) => ({ id, name: id, url, enabled: true, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
     const soa = { id: 'soul-over-ai', name: 'Soul Over AI', url: 'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: null, count: 0, lastError: null };
     const p = await open({ 'hm.filterLists': [soa, mk('a', 'https://lists.example/a.json'), mk('b', 'https://lists.example/b.json'), mk('c', 'https://other.example/c.json')] });
@@ -143,7 +139,7 @@ run([
     await p.click(removeBtn('c'));
     await p.click(removeBtn('b'));
     const ids = data(p, 'hm.filterLists').map(l => l.id).join(',');
-    return (afterA === '[]' && JSON.stringify(p.calls.removed) === '[{"origins":["https://other.example/*"]},{"origins":["https://lists.example/*"]}]' && ids === 'soul-over-ai')
+    return (afterA === '[]' && p.calls.removed === undefined && ids === 'soul-over-ai')
       || JSON.stringify({ afterA, removed: p.calls.removed, ids });
   }],
   ['watch-only switch saves mode', async () => {

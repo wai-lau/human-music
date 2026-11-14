@@ -189,11 +189,15 @@ async function runTests() {
       refreshedUrls.push(url);
       return { ok: true, status: 200, text: async () => JSON.stringify([{ name: 'X', removed: false }]) };
     }, () => nowMs);
+    // The worker refreshes due lists as it starts (no alarms since 2026-11-13); a second
+    // call then finds nothing due.
+    for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
+    const atStart = refreshedUrls.slice();
     await refresher.refreshDue();
-    if (refreshedUrls.length !== 2) {
-      throw new Error('wrong number of fetches: ' + refreshedUrls.length);
+    if (atStart.length !== 2 || refreshedUrls.length !== 2) {
+      throw new Error('wrong number of fetches: ' + atStart.length + ' at start, ' + refreshedUrls.length + ' after');
     }
-    if (refreshedUrls[0] !== 'http://a.json' || refreshedUrls[1] !== 'http://b.json') {
+    if (atStart[0] !== 'http://a.json' || atStart[1] !== 'http://b.json') {
       throw new Error('wrong lists refreshed');
     }
   });

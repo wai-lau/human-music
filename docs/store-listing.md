@@ -62,16 +62,17 @@ Upload the zip. Name, version and icon come from `manifest.json`.
 > skipping, removing from the queue, hiding and greying out songs by artists
 > on lists the user chooses.
 
-**Permission justifications:**
+**Permission justifications** (the dashboard asks for one box per
+permission, and one for all hosts):
 
-| Permission | Justification |
+| Box | Text |
 |---|---|
-| storage | Saves the user's lists, settings and log on their computer. |
-| alarms | Checks the subscribed lists for updates on a schedule (daily by default). |
-| scripting | After install or update, adds Human Music to YouTube Music and Spotify tabs that are already open, so the user doesn't have to reload them. |
-| Host: music.youtube.com, open.spotify.com | Reads the playing song, the queue and the songs on the page to compare them with the lists; presses Next, removes listed songs from the queue, hides or greys out listed items. |
-| Host: raw.githubusercontent.com/xoundbyte/soul-over-ai/* | Downloads the Soul Over AI list of AI-generated artists. |
-| Optional host: https://*/* | Asked only when the user subscribes to another list by its web address, and only for that list's site. |
+| storage | Saves the user's lists, settings and log on their own computer. Nothing is sent anywhere. |
+| scripting | When Human Music is installed or updated, YouTube Music and Spotify tabs that are already open don't have it yet. scripting adds it to those tabs, so music keeps being checked without the user reloading the page. It only ever adds Human Music's own packaged files, and only on those two sites. |
+| Host permission | Human Music works only on music.youtube.com and open.spotify.com. On those pages it reads the playing song, the queue and the songs shown, compares them with the user's lists, and then presses Next, removes a listed song from the queue, or hides or greys out a listed item. It asks for no other site. |
+
+The list download (raw.githubusercontent.com) needs no permission: GitHub
+allows any site to read its raw files.
 
 **Remote code:** No. The lists it downloads are JSON data; all code is in
 the package.

@@ -284,13 +284,10 @@
       });
     }
 
-    chrome.alarms.create('hm-refresh', { periodInMinutes: 60 });
-
-    chrome.alarms.onAlarm.addListener(function (alarm) {
-      if (alarm.name === 'hm-refresh') {
-        globalThis.HM.refresher.refreshDue();
-      }
-    });
+    // No alarms (Wai, 2026-11-13: "minimize required permissions"): the worker starts whenever
+    // a music tab opens or talks to it (and when the popup asks), and each start refreshes
+    // the lists that are due.
+    Promise.resolve().then(function () { return globalThis.HM.refresher.refreshDue(); }).catch(function () { /* next start tries again */ });
 
     // The toolbar count, per tab: songs skipped or removed from the queue there (Wai,
     // 2026-11-13: "see how lastpass has this 1 symbol, show the same for human music").

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Human Music",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keeps your YouTube Music and Spotify listening to music made by people.",
   "icons": {
     "16": "icons/icon16.png",
@@ -9,17 +9,12 @@
     "128": "icons/icon128.png"
   },
   "permissions": [
-    "alarms",
     "scripting",
     "storage"
   ],
   "host_permissions": [
     "https://music.youtube.com/*",
-    "https://open.spotify.com/*",
-    "https://raw.githubusercontent.com/xoundbyte/soul-over-ai/*"
-  ],
-  "optional_host_permissions": [
-    "https://*/*"
+    "https://open.spotify.com/*"
   ],
   "background": {
     "service_worker": "src/background.js"

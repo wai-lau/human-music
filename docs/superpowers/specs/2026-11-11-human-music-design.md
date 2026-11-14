@@ -350,14 +350,24 @@ without notice, so selectors belong in one place in the code.
   `INDIFFERENT`).
 - The layout switch happened in 2026; keep both layouts working.
 
+## Permissions (Wai, 2026-11-13: "minimize required permissions")
+
+Only `storage`, `scripting` and the two music sites. No `alarms`: the worker
+refreshes due lists each time it starts (a music tab opening or talking to
+it, or the popup), which is often enough for a daily default. No host
+permission for list downloads and no optional `https://*/*`: GitHub's raw
+files allow any origin, and a list server that doesn't fails its refresh
+with the error shown in the popup. `scripting` stays: without it, music tabs
+already open when Human Music is installed or updated would do nothing until
+reloaded.
+
 ## Constraints
 
 - Chrome Manifest V3, plain JavaScript, no build step, no dependencies.
   The `extension/` folder is loaded unpacked as is and is the whole
   package.
-- Permissions: `storage`; hosts `https://music.youtube.com/*` and the Soul
-  Over AI list URL; other list hosts as optional permissions, asked for
-  when a list is added.
+- Permissions: `storage` and `scripting`; hosts `https://music.youtube.com/*`
+  and `https://open.spotify.com/*` only (see "Permissions" above).
 - Matching and skip logic live in plain modules with no page access, so
   Node tests can load them without a browser. Tests are `tests/*.test.mjs`,
   run with `node`, printing `N/N pass` and exiting 1 on any failure.

@@ -73,26 +73,6 @@
     } catch (e) { status('Could not refresh that list; the last good copy is kept.'); }
   }
 
-  // Lists other than the built-in one need their site allowed before they can be fetched.
-  function withAccess(list, then) {
-    if (list.builtIn) { then(true); return; }
-    let origin;
-    try { origin = new URL(list.url).origin; } catch (e) { then(false); return; }
-    try {
-      chrome.permissions.request({ origins: [origin + '/*'] }, granted => then(!!granted));
-    } catch (e) { then(false); }
-  }
-
-  // A removed list's site access goes back to Chrome once no other list uses that site.
-  function releaseAccess(list, rest) {
-    const originOf = url => { try { return new URL(url).origin; } catch (e) { return null; } };
-    const origin = originOf(list.url);
-    if (!origin || rest.some(l => originOf(l.url) === origin)) return;
-    try {
-      chrome.permissions.remove({ origins: [origin + '/*'] }, () => void chrome.runtime.lastError);
-    } catch (e) { /* nothing to give back */ }
-  }
-
   function renderFilterLists() {
     const ul = $('filter-lists');
     clear(ul);
@@ -101,10 +81,8 @@
         type: 'checkbox', checked: !!list.enabled, title: 'On or off',
         onchange: () => {
           if (!on.checked) { updateList(list.id, { enabled: false }); return; }
-          withAccess(list, granted => {
-            if (granted) { updateList(list.id, { enabled: true }); refreshList(list.id); }
-            else { on.checked = false; status("Chrome didn't allow access to that list's site, so it stays off."); }
-          });
+          updateList(list.id, { enabled: true });
+          refreshList(list.id);
         },
       });
       const watch = node('input', { type: 'checkbox', checked: list.mode === 'watch', onchange: () => updateList(list.id, { mode: watch.checked ? 'watch' : 'act' }) });
@@ -121,7 +99,6 @@
               let rest;
               try { rest = HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
               saveLists(rest);
-              releaseAccess(list, rest);
             },
           }))));
     }
@@ -134,16 +111,13 @@
     const act = !!$('list-act-now').checked;
     try { lists = HM.popup.addFilterList(state.lists, $('list-url').value.trim(), $('list-name').value, { act }); } catch (e) { status(e.message); return; }
     const added = lists[lists.length - 1];
-    withAccess(added, granted => {
-      if (!granted) { status("Chrome didn't allow access to that site, so the list wasn't added."); return; }
-      const said = act ? `Added ${added.name}. It acts at once.`
-        : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
-      saveLists(lists).then(() => refreshList(added.id, said));
-      $('list-url').value = '';
-      $('list-name').value = '';
-      $('list-act-now').checked = false;
-      status(said);
-    });
+    const said = act ? `Added ${added.name}. It acts at once.`
+      : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
+    saveLists(lists).then(() => refreshList(added.id, said));
+    $('list-url').value = '';
+    $('list-name').value = '';
+    $('list-act-now').checked = false;
+    status(said);
   });
 
   $('refresh-frequency').addEventListener('change', e => saveSettings({ ...state.settings, refresh: e.target.value }));

@@ -21,12 +21,12 @@ const cases = [
   ['name', () => manifest.name === 'Human Music'],
   // scripting: put the content script into YouTube Music tabs already open when the
   // extension installs or reloads (Chrome does not, and cut-off copies stop working).
-  ['permissions', () => JSON.stringify(manifest.permissions.sort()) === '["alarms","scripting","storage"]'],
-  ['host_permissions', () =>
-    manifest.host_permissions.includes('https://music.youtube.com/*') &&
-    manifest.host_permissions.includes('https://raw.githubusercontent.com/xoundbyte/soul-over-ai/*')],
-  ['optional_host_permissions', () =>
-    deepEqual(manifest.optional_host_permissions, ['https://*/*'])],
+  // As few as the job needs (Wai, 2026-11-13: "minimize required permissions"): storage for
+  // the lists, scripting to reach music tabs already open after an update, the two sites.
+  ['permissions', () => JSON.stringify(manifest.permissions.slice().sort()) === '["scripting","storage"]'],
+  ['host_permissions: the two music sites only', () =>
+    JSON.stringify(manifest.host_permissions.slice().sort()) === '["https://music.youtube.com/*","https://open.spotify.com/*"]'],
+  ['no optional host permissions', () => !('optional_host_permissions' in manifest)],
   ['background', () => manifest.background.service_worker === 'src/background.js'],
   ['action', () => manifest.action.default_popup === 'popup/popup.html'],
   ['content_scripts matches', () =>
