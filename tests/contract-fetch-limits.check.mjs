@@ -148,5 +148,19 @@ await t('isRefreshDue treats an inherited key as daily', async () => {
   return (HM.lists.isRefreshDue(NOW - day - 1, 'toString', NOW) === true && HM.lists.isRefreshDue(NOW - 1000, 'toString', NOW) === false) || 'toString not treated as daily';
 });
 
+// A download that finishes in time leaves nothing behind: no timer that later rejects a
+// promise nobody waits for (Chrome lists each one as an error on the extension's page).
+await t('a quick download leaves no timer that rejects later', async () => {
+  const stray = [];
+  const onStray = e => stray.push(String(e && e.message || e));
+  process.on('unhandledRejection', onStray);
+  try {
+    const { r } = mk('https://lists.example/a.json', async () => body(JSON.stringify(GOOD)), { timeoutMs: 30 });
+    const res = await r.refreshOne('x');
+    await new Promise(done => setTimeout(done, 120));
+    return (res === true && stray.length === 0) || J({ res, stray });
+  } finally { process.off('unhandledRejection', onStray); }
+});
+
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);
