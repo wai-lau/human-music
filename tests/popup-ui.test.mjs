@@ -108,6 +108,19 @@ run([
     return (JSON.stringify(p.calls.permissions) === '[{"origins":["https://example.org/*"]}]' && lists.length === 2 && lists[1].id === 'community-list'
       && p.calls.messages.some(m => m.type === 'refresh' && m.id === 'community-list')) || JSON.stringify({ c: p.calls, lists });
   }],
+  ['a list added by URL starts in Watch only (Wai, 2026-11-13); "Act at once" makes it act', async () => {
+    const p = await open();
+    p.$('list-url').value = 'https://example.org/ai.json';
+    await p.click(p.$('add-list-btn'));
+    const first = data(p, 'hm.filterLists')[1];
+    const said = p.$('status').textContent;
+    p.$('list-url').value = 'https://example.org/other.json';
+    p.$('list-act-now').checked = true;
+    await p.click(p.$('add-list-btn'));
+    const second = data(p, 'hm.filterLists')[2];
+    return (first.mode === 'watch' && /Watch only/.test(said) && second.mode === 'act' && p.$('list-act-now').checked === false)
+      || JSON.stringify({ first: first.mode, said, second: second && second.mode, box: p.$('list-act-now').checked });
+  }],
   ['site access refused: list not added', async () => {
     const p = await open({}, { grant: false });
     p.$('list-url').value = 'https://example.org/ai.json';

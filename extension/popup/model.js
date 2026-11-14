@@ -75,7 +75,7 @@
       .replace(/^-+|-+$/g, '');
   }
 
-  function addFilterList(lists, url, name) {
+  function addFilterList(lists, url, name, options) {
     let parsedUrl;
     try {
       parsedUrl = new URL(url);
@@ -117,7 +117,9 @@
       name: listName,
       url: url,
       enabled: true,
-      mode: 'act',
+      // Watch only until the person has seen what it matches, unless they chose to act at
+      // once (Wai, 2026-11-13).
+      mode: options && options.act ? 'act' : 'watch',
       builtIn: false,
       lastRefresh: null,
       count: 0,

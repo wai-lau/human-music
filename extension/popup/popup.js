@@ -63,11 +63,12 @@
     return saveLists(state.lists.map(l => (l.id === id ? { ...l, ...change } : l)));
   }
 
-  function refreshList(id) {
+  // after: what to say once the refresh worked (a newly added list says how it starts).
+  function refreshList(id, after = 'List refreshed.') {
     status('Refreshing…');
     try {
       chrome.runtime.sendMessage({ type: 'refresh', id }, ok => {
-        status(ok ? 'List refreshed.' : 'Could not refresh that list; the last good copy is kept.');
+        status(ok ? after : 'Could not refresh that list; the last good copy is kept.');
       });
     } catch (e) { status('Could not refresh that list; the last good copy is kept.'); }
   }
@@ -130,14 +131,18 @@
 
   $('add-list-btn').addEventListener('click', () => {
     let lists;
-    try { lists = HM.popup.addFilterList(state.lists, $('list-url').value.trim(), $('list-name').value); } catch (e) { status(e.message); return; }
+    const act = !!$('list-act-now').checked;
+    try { lists = HM.popup.addFilterList(state.lists, $('list-url').value.trim(), $('list-name').value, { act }); } catch (e) { status(e.message); return; }
     const added = lists[lists.length - 1];
     withAccess(added, granted => {
       if (!granted) { status("Chrome didn't allow access to that site, so the list wasn't added."); return; }
-      saveLists(lists).then(() => refreshList(added.id));
+      const said = act ? `Added ${added.name}. It acts at once.`
+        : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
+      saveLists(lists).then(() => refreshList(added.id, said));
       $('list-url').value = '';
       $('list-name').value = '';
-      status(`Added ${added.name}.`);
+      $('list-act-now').checked = false;
+      status(said);
     });
   });
 

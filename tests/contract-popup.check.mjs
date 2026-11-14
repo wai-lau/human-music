@@ -30,7 +30,9 @@ eq('removeEntry out of range', popup.removeEntry(U({ keywords: ['a'] }), 'keywor
 const base = [{ ...lists.SOUL_OVER_AI }];
 const baseJ = J(base);
 const l1 = popup.addFilterList(base, 'https://example.org/list.json', ' My List ');
-eq('added list', l1[1], { id: 'my-list', name: 'My List', url: 'https://example.org/list.json', enabled: true, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
+// A list added by URL starts in Watch only, with the option to act at once (Wai, 2026-11-13).
+eq('added list', l1[1], { id: 'my-list', name: 'My List', url: 'https://example.org/list.json', enabled: true, mode: 'watch', builtIn: false, lastRefresh: null, count: 0, lastError: null });
+eq('added list, act at once', popup.addFilterList(base, 'https://example.org/list.json', 'X', { act: true })[1].mode, 'act');
 t('lists unchanged', () => J(base) === baseJ || 'mutated');
 eq('id made unique', popup.addFilterList(popup.addFilterList(l1, 'https://b.org/x', 'My list!'), 'https://c.org/y', 'my  LIST').map(l => l.id), ['soul-over-ai', 'my-list', 'my-list-2', 'my-list-3']);
 eq('empty name -> hostname', popup.addFilterList(base, 'https://lists.example.net/a.json', '  ')[1].name, 'lists.example.net');

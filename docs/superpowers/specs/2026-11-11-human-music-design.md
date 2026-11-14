@@ -254,7 +254,10 @@ Three tabs (Wai's layout). Log comes first and the popup opens on it (Wai,
 - **Filter lists**, one row each: name, artist count, last refresh, on/off
   toggle, watch-mode toggle, "Refresh now". Soul Over AI is built in.
   "Add list by URL" adds another (for Wai's future public list); Chrome asks
-  the user to allow that host. **(Claude's call)**
+  the user to allow that host. **(Claude's call)** A new list starts in
+  Watch only, so its matches show in the log before it acts; "Act at once"
+  next to the button skips that step (Wai, 2026-11-13: Watch only first,
+  with the option to act at once).
 - **Refresh frequency**, one setting for all lists: every 6 h, 12 h, daily
   (default), weekly, or manual. **(Claude's call)** A failed refresh keeps
   the last good copy.

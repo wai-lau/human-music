@@ -148,7 +148,7 @@ run([
   ['addFilterList new list has correct defaults', () => {
     const lists = HM.popup.addFilterList([], 'https://example.com/list.json', 'Test');
     const list = lists[0];
-    return list.enabled === true && list.mode === 'act' && list.builtIn === false &&
+    return list.enabled === true && list.mode === 'watch' && list.builtIn === false && // Watch only first (Wai, 2026-11-13)
       list.lastRefresh === null && list.count === 0 && list.lastError === null;
   }],
   // removeFilterList
