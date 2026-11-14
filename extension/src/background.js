@@ -7,6 +7,8 @@
     var storage = opts.storage;
     var fetchFn = opts.fetch;
     var nowFn = opts.now;
+    var timeoutMs = typeof opts.timeoutMs === 'number' ? opts.timeoutMs : 15000;
+    var maxBytes = typeof opts.maxBytes === 'number' ? opts.maxBytes : 5000000;
 
     async function install() {
       var stored = await storage.get(['hm.filterLists', 'hm.user', 'hm.settings']);
@@ -100,6 +102,9 @@
     async function refreshOne(id) {
       try {
         var lists = await storage.get('hm.filterLists');
+        if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+          return false;
+        }
         var list = null;
         for (var i = 0; i < lists['hm.filterLists'].length; i++) {
           if (lists['hm.filterLists'][i].id === id) {
@@ -111,13 +116,80 @@
           return false;
         }
 
-        var resp = await fetchFn(list.url);
+        if (typeof list.url !== 'string' || !list.url.startsWith('https://')) {
+          await recordFailure(id, 'Not an https:// URL');
+          return false;
+        }
+
+        var controller = null;
+        var signal = null;
+        var timeoutHandle = null;
+        if (typeof AbortController !== 'undefined') {
+          controller = new AbortController();
+          signal = controller.signal;
+        }
+        if (typeof setTimeout !== 'undefined' && signal) {
+          timeoutHandle = setTimeout(function() { controller.abort(); }, timeoutMs);
+        }
+
+        var opts = { redirect: 'error' };
+        if (signal) opts.signal = signal;
+
+        var fetchPromise = fetchFn(list.url, opts);
+
+        var resp;
+        try {
+          if (typeof setTimeout !== 'undefined') {
+            var timeoutPromise = new Promise(function(_, reject) {
+              setTimeout(function() { reject(new Error('Timeout')); }, timeoutMs);
+            });
+            resp = await Promise.race([fetchPromise, timeoutPromise]);
+          } else {
+            resp = await fetchPromise;
+          }
+        } catch (e) {
+          if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+          throw e;
+        }
+
         if (!resp.ok) {
+          if (timeoutHandle !== null) clearTimeout(timeoutHandle);
           await recordFailure(id, 'HTTP ' + resp.status);
           return false;
         }
 
-        var text = await resp.text();
+        if (resp.headers && typeof resp.headers.get === 'function') {
+          var cl = resp.headers.get('content-length');
+          if (cl !== null && Number(cl) > maxBytes) {
+            if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+            await recordFailure(id, 'Content-Length over ' + maxBytes + ' bytes');
+            return false;
+          }
+        }
+
+        var textPromise = resp.text();
+        var text;
+        try {
+          if (typeof setTimeout !== 'undefined') {
+            var textTimeout = new Promise(function(_, reject) {
+              setTimeout(function() { reject(new Error('Timeout')); }, timeoutMs);
+            });
+            text = await Promise.race([textPromise, textTimeout]);
+          } else {
+            text = await textPromise;
+          }
+        } catch (e) {
+          if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+          throw e;
+        }
+
+        if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+
+        if (text.length > maxBytes) {
+          await recordFailure(id, 'Body over ' + maxBytes + ' bytes');
+          return false;
+        }
+
         var parsed = JSON.parse(text);
         var listData = globalThis.HM.lists.parseFilterList(parsed);
 
@@ -130,12 +202,12 @@
         setObj['hm.list.' + id] = listData;
         await storage.set(setObj);
 
-        var lists = await storage.get('hm.filterLists');
-        for (var i = 0; i < lists['hm.filterLists'].length; i++) {
-          if (lists['hm.filterLists'][i].id === id) {
-            lists['hm.filterLists'][i].count = listData.artists.length;
-            lists['hm.filterLists'][i].lastRefresh = nowFn();
-            lists['hm.filterLists'][i].lastError = null;
+        lists = await storage.get('hm.filterLists');
+        for (var j = 0; j < lists['hm.filterLists'].length; j++) {
+          if (lists['hm.filterLists'][j].id === id) {
+            lists['hm.filterLists'][j].count = listData.artists.length;
+            lists['hm.filterLists'][j].lastRefresh = nowFn();
+            lists['hm.filterLists'][j].lastError = null;
             break;
           }
         }
@@ -153,6 +225,9 @@
 
     async function recordFailure(id, message) {
       var lists = await storage.get('hm.filterLists');
+      if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+        return;
+      }
       for (var i = 0; i < lists['hm.filterLists'].length; i++) {
         if (lists['hm.filterLists'][i].id === id) {
           lists['hm.filterLists'][i].lastError = message;
@@ -174,6 +249,9 @@
 
     async function refreshDue() {
       var lists = await storage.get('hm.filterLists');
+      if (!lists['hm.filterLists'] || lists['hm.filterLists'].length === 0) {
+        return [];
+      }
       var settings = await storage.get('hm.settings');
       var settings = globalThis.HM.settings.sanitize(settings['hm.settings']);
       var now = nowFn();

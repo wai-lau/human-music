@@ -175,9 +175,9 @@ async function runTests() {
   // Case 6: refreshDue
   await test('refreshDue only refreshes due lists', async () => {
     const lists = [
-      { id: 'soul-over-ai', name: 'Soul Over AI', url: 'http://a.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: null, count: 0, lastError: null },
-      { id: 'old-list', name: 'Old', url: 'http://b.json', enabled: true, mode: 'act', builtIn: false, lastRefresh: 100, count: 0, lastError: null },
-      { id: 'disabled-list', name: 'Disabled', url: 'http://c.json', enabled: false, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null }
+      { id: 'soul-over-ai', name: 'Soul Over AI', url: 'https://a.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: null, count: 0, lastError: null },
+      { id: 'old-list', name: 'Old', url: 'https://b.json', enabled: true, mode: 'act', builtIn: false, lastRefresh: 100, count: 0, lastError: null },
+      { id: 'disabled-list', name: 'Disabled', url: 'https://c.json', enabled: false, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null }
     ];
     const storage = fakeStorage({
       'hm.filterLists': lists,
@@ -197,7 +197,7 @@ async function runTests() {
     if (atStart.length !== 2 || refreshedUrls.length !== 2) {
       throw new Error('wrong number of fetches: ' + atStart.length + ' at start, ' + refreshedUrls.length + ' after');
     }
-    if (atStart[0] !== 'http://a.json' || atStart[1] !== 'http://b.json') {
+    if (atStart[0] !== 'https://a.json' || atStart[1] !== 'https://b.json') {
       throw new Error('wrong lists refreshed');
     }
   });

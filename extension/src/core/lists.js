@@ -60,7 +60,10 @@
 
   function isRefreshDue(lastRefresh, frequency, now) {
     if (lastRefresh == null) return true;
-    const interval = FREQUENCIES[frequency];
+    let interval = undefined;
+    if (FREQUENCIES.hasOwnProperty(frequency)) {
+      interval = FREQUENCIES[frequency];
+    }
     if (interval === undefined) {
       return now - lastRefresh >= FREQUENCIES.daily;
     }
