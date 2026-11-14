@@ -233,27 +233,12 @@
     }, []);
   }
 
-  // Hidden twice over, as in ytm.js: the attribute, and an inline display:none that the
-  // site's own CSS can't beat.
-  function setDisplayNone(el, on) {
-    safe(() => {
-      if (typeof el.style.setProperty === 'function') {
-        if (on) el.style.setProperty('display', 'none', 'important');
-        else el.style.removeProperty('display');
-      } else if (on) el.style.display = 'none';
-      else delete el.style.display;
-    });
-  }
-
   function hideItem(el) {
-    safe(() => { el.hidden = true; el.setAttribute('data-hm-hidden', ''); });
-    setDisplayNone(el, true);
+    PC.hideItem(el);
   }
 
   function unhideAll(doc) {
-    safe(() => {
-      for (const el of doc.querySelectorAll('[data-hm-hidden]')) { el.hidden = false; el.removeAttribute('data-hm-hidden'); setDisplayNone(el, false); }
-    });
+    PC.unhideAll(doc);
   }
 
   HM.spotify = {

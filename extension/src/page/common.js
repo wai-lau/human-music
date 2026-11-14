@@ -28,6 +28,8 @@
     return svg;
   }
 
+  // Hidden twice over: the attribute, and an inline display:none that page CSS can't beat
+  // (any site rule that sets display, like :host { display: flex }, wins over the attribute).
   function setDisplayNone(el, on) {
     try {
       if (typeof el.style.setProperty === 'function') {
