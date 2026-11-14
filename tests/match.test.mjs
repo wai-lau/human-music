@@ -308,5 +308,17 @@ run([
       { id: 'w', name: 'W', enabled: true, mode: 'watch', artists: [{ name: 'B' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] } });
     return match.matchItem(idx, { title: 'Mix', credits: ['A', 'B'], channelIds: [], featured: true })?.mode === 'watch';
+  }],
+  // Each entry matches its own kind of field (Wai, 2026-11-13: "match correct fields in
+  // general, e.g. album to album, artist to artist"): keywords never hit the album or year.
+  ['keyword in the album or year of the artist line: the song plays', () => {
+    const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [], keywords: ['echoes', '2025'], neverSkip: [] } });
+    return match.matchSong(idx, { title: 'Real Song', artistLine: 'Real Person • Floating on Echoes • 2025' }) === null;
+  }],
+  ['keyword in the title or a credited artist still matches', () => {
+    const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [], keywords: ['echoes'], neverSkip: [] } });
+    const t = match.matchSong(idx, { title: 'Echoes of Rain', artistLine: 'Real Person • Album • 2025' });
+    const a = match.matchSong(idx, { title: 'Song', artistLine: 'Echoes Band & Friend • Album • 2025' });
+    return (t?.rule === 'keyword' && a?.rule === 'keyword') || JSON.stringify({ t, a });
   }]
 ]);

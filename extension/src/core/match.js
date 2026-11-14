@@ -68,8 +68,10 @@
       }
     }
 
+    // The title and the credited artists only, never the album or year after them (Wai,
+    // 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist").
     for (const kw of index.userKeywords) {
-      if (kw.regex.test(normalize(title)) || kw.regex.test(normalize(artistLine))) {
+      if (kw.regex.test(normalize(title)) || songCredits.some(c => kw.regex.test(c))) {
         return { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword', entry: kw.name, mode: 'act' };
       }
     }

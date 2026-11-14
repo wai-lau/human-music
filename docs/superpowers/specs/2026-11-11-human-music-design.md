@@ -108,7 +108,7 @@ flowchart TD
 | Filter list artists (Soul Over AI, others) | a credited artist is that name, or the artist's channel ID is listed |
 | Your artists | a credited artist is that name |
 | Your songs | the title is that title, by that artist (title only when the entry has no artist) |
-| Your keywords | the word appears as a whole word in the title or the artist line |
+| Your keywords | the word appears as a whole word in the title or a credited artist; never the album or year (Wai, 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist") |
 | Never skip | overrides all of the above for that artist |
 
 - **Credited artists** come from the artist line before the first " • "
