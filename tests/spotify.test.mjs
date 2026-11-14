@@ -5,7 +5,7 @@ import { el, makeDocument } from './dom.mjs';
 import { fakeStorage, fakeClock } from './fakes.mjs';
 
 const FILES = ['src/core/text.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js',
-  'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/ytm.js', 'src/page/spotify.js', 'src/content.js'];
+  'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/page/spotify.js', 'src/content.js'];
 const LISTED = '5ExXpwxyFXhwPKYKx6ItaN';
 const settle = async (clock, ms = 0) => { for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); if (ms) clock.tick(ms); for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); };
 

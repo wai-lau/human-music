@@ -2,7 +2,7 @@ import { load } from './load.mjs';
 import { fakeYtm } from './fakes.mjs';
 import { KeyboardEvent } from './dom.mjs';
 
-const ctx = load(['src/core/text.js', 'src/page/ytm.js'], { setTimeout, clearTimeout, KeyboardEvent });
+const ctx = load(['src/core/text.js', 'src/page/common.js', 'src/page/ytm.js'], { setTimeout, clearTimeout, KeyboardEvent });
 const ytm = ctx.HM.ytm;
 
 const cases = [

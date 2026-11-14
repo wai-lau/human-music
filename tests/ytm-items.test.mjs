@@ -2,7 +2,7 @@ import { load } from './load.mjs';
 import { run } from './load.mjs';
 import { el, makeDocument } from './dom.mjs';
 
-const ctx = load(['src/core/text.js', 'src/page/ytm.js'], { setTimeout, clearTimeout });
+const ctx = load(['src/core/text.js', 'src/page/common.js', 'src/page/ytm.js'], { setTimeout, clearTimeout });
 const ytm = ctx.HM.ytm;
 
 await run([

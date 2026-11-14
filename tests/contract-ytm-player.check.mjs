@@ -2,7 +2,7 @@
 //   node tests/contract-ytm-player.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
-const { ytm } = load(['src/core/text.js', 'src/page/ytm.js'], { setTimeout, clearTimeout }).HM;
+const { ytm } = load(['src/core/text.js', 'src/page/common.js', 'src/page/ytm.js'], { setTimeout, clearTimeout }).HM;
 const fails = [];
 const J = v => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e.message}`); } };

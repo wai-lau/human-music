@@ -6,7 +6,7 @@ const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mj
 const fails = [];
 const J = v => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e && e.stack || e}`); } };
-const CORE = ['src/core/text.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/ytm.js', 'src/content.js'];
+const CORE = ['src/core/text.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/content.js'];
 const settle = async (clock, ms = 0) => { for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); if (ms) clock.tick(ms); for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); };
 
 function boot({ settings = {}, user = {}, artists = ['The Velvet Sundown', '1950 SoulClub', '10mm'], mode = 'act' } = {}) {

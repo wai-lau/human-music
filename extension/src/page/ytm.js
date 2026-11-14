@@ -2,6 +2,7 @@
   'use strict';
 
   const HM = globalThis.HM;
+  const PC = HM.pageCommon;
 
   const REMOVE_ICON = 'M9 .75a8.25 8.25 0 100 16.5A8.25 8.25 0 009 .75Zm0 1.5a6.75 6.75 0 110 13.5 6.75 6.75 0 010-13.5Zm3 6H6a.75.75 0 000 1.5h6a.75.75 0 100-1.5Z';
 
@@ -129,15 +130,8 @@
     return video.duration;
   }
 
-  // { time, paused } of the playing video, or null when there is none.
   function videoState(doc) {
-    try {
-      const video = doc.querySelector('video');
-      if (!video) return null;
-      return { time: Number(video.currentTime) || 0, paused: !!video.paused };
-    } catch (e) {
-      return null;
-    }
+    return PC.videoState(doc);
   }
 
   function seekTo(doc, seconds) {
@@ -150,15 +144,7 @@
   // Opening a row's menu moves keyboard focus into the menu, and closing it leaves focus
   // on some other control (checked live). Put focus back where the person had it.
   async function removeQueueRow(doc, row) {
-    let before = null;
-    try { before = doc.activeElement; } catch (e) { /* no page */ }
-    try {
-      return await removeQueueRowInner(doc, row);
-    } finally {
-      try {
-        if (before && before !== doc.body && before.isConnected && doc.activeElement !== before) before.focus({ preventScroll: true });
-      } catch (e) { /* focus is a courtesy */ }
-    }
+    return PC.removeQueueRowWrap(doc, row, removeQueueRowInner.bind(null, doc));
   }
 
   async function removeQueueRowInner(doc, row) {
@@ -170,26 +156,19 @@
       } else {
         // Rows YouTube Music adds itself (its up-next radio) have no menu button until the
         // queue panel is drawn; a right-click on the row opens the same menu (checked live).
-        const View = (doc.defaultView && doc.defaultView.MouseEvent) || MouseEvent;
-        row.el.dispatchEvent(new View('contextmenu', { bubbles: true, cancelable: true, composed: true, button: 2 }));
+        PC.rightClickFallback(doc, row.el);
       }
 
       // Wait for menu popup (up to 1500 ms)
-      let popup = null;
-      const start = Date.now();
-      while (Date.now() - start < 1500) {
+      const popup = await PC.waitFor(() => {
         const popups = doc.querySelectorAll(SEL.menuPopup);
         for (let i = 0; i < popups.length; i++) {
-          if (popups[i].offsetParent !== null) {
-            popup = popups[i];
-            break;
-          }
+          if (popups[i].offsetParent !== null) return popups[i];
         }
-        if (popup) break;
-        await new Promise(r => setTimeout(r, 50));
-      }
+        return null;
+      }, 1500, 50);
       if (!popup) {
-        dispatchEscape(doc);
+        PC.dispatchEscape(doc);
         return false;
       }
 
@@ -200,51 +179,20 @@
         if (svg && svg.getAttribute('d') === REMOVE_ICON) {
           items[i].click();
           // Wait for row to be removed (up to 1500 ms)
-          const start2 = Date.now();
-          while (Date.now() - start2 < 1500) {
-            if (!row.el.isConnected) return true;
-            await new Promise(r => setTimeout(r, 50));
-          }
-          return false;
+          await PC.waitFor(() => !row.el.isConnected, 1500, 50);
+          return !row.el.isConnected;
         }
       }
 
-      dispatchEscape(doc);
+      PC.dispatchEscape(doc);
       return false;
     } catch (e) {
       return false;
     }
   }
 
-  function dispatchEscape(doc) {
-    const ev = new doc.defaultView.KeyboardEvent('keydown', {
-      key: 'Escape',
-      bubbles: true
-    });
-    doc.dispatchEvent(ev);
-  }
-
-  // The "skip" glyph (a circle with a slash, as on an UNO skip card), drawn for Human Music.
-  const BLOCK_GLYPH = [
-    { d: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0ZM4 12a8 8 0 1 0 16 0a8 8 0 1 0-16 0Z', rule: 'evenodd' },
-    { d: 'M7.05 5.63 18.37 16.95 16.95 18.37 5.63 7.05Z' },
-  ];
-
   function glyph(doc) {
-    const NS = 'http://www.w3.org/2000/svg';
-    const svg = doc.createElementNS ? doc.createElementNS(NS, 'svg') : doc.createElement('svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '24');
-    svg.setAttribute('height', '24');
-    svg.setAttribute('fill', 'currentColor');
-    svg.setAttribute('aria-hidden', 'true');
-    for (const part of BLOCK_GLYPH) {
-      const path = doc.createElementNS ? doc.createElementNS(NS, 'path') : doc.createElement('path');
-      path.setAttribute('d', part.d);
-      if (part.rule) path.setAttribute('fill-rule', part.rule);
-      svg.appendChild(path);
-    }
-    return svg;
+    return PC.glyph(doc);
   }
 
   // The player's repeat button: found by its label, else the last of the main controls.
@@ -442,33 +390,15 @@
   // Hidden twice over: the attribute, and an inline display:none that page CSS can't beat
   // (any site rule that sets display, like :host { display: flex }, wins over the attribute).
   function setDisplayNone(el, on) {
-    try {
-      if (!el.style) return;
-      if (typeof el.style.setProperty === 'function') {
-        if (on) el.style.setProperty('display', 'none', 'important');
-        else el.style.removeProperty('display');
-      } else if (on) el.style.display = 'none';
-      else delete el.style.display;
-    } catch (e) { /* the attribute still hides it */ }
+    HM.pageCommon.setDisplayNone(el, on);
   }
 
   function hideItem(el) {
-    try {
-      el.hidden = true;
-      el.setAttribute('data-hm-hidden', '');
-    } catch (e) { /* ignore */ }
-    setDisplayNone(el, true);
+    HM.pageCommon.hideItem(el);
   }
 
   function unhideAll(doc) {
-    try {
-      const hidden = doc.querySelectorAll('[data-hm-hidden]');
-      for (let i = 0; i < hidden.length; i++) {
-        hidden[i].hidden = false;
-        hidden[i].removeAttribute('data-hm-hidden');
-        setDisplayNone(hidden[i], false);
-      }
-    } catch (e) { /* ignore */ }
+    HM.pageCommon.unhideAll(doc);
   }
 
   // --- Song rows that stay on the page (playlists, albums, artist pages, search) ---

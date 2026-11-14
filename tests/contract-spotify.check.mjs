@@ -3,7 +3,7 @@
 //   node tests/contract-spotify.check.mjs   (tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
-const { spotify } = load(['src/core/text.js', 'src/page/spotify.js'], { setTimeout, clearTimeout }).HM;
+const { spotify } = load(['src/core/text.js', 'src/page/common.js', 'src/page/spotify.js'], { setTimeout, clearTimeout }).HM;
 const fails = [];
 const J = v => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e && e.message}`); } };

@@ -4,6 +4,7 @@
 (function () {
   'use strict';
   const HM = (globalThis.HM = globalThis.HM || {});
+  const PC = HM.pageCommon;
 
   const SEL = {
     widget: '[data-testid="now-playing-widget-v2"], [data-testid="now-playing-widget"]',
@@ -130,11 +131,7 @@
   }
 
   function videoState(doc) {
-    return safe(() => {
-      const video = doc.querySelector('video');
-      if (!video) return null;
-      return { time: Number(video.currentTime) || 0, paused: !!video.paused };
-    }, null);
+    return PC.videoState(doc);
   }
 
   // Seek through the progress bar (its value is in milliseconds).
@@ -157,17 +154,7 @@
   // Open the row's menu, press "Remove from queue" (exact icon), and resolve true once the
   // row is gone. No such item: Escape, click nothing else, false. Focus goes back after.
   async function removeQueueRow(doc, row) {
-    let before = null;
-    try { before = doc.activeElement; } catch (e) { /* no page */ }
-    try {
-      return await removeInner(doc, row);
-    } catch (e) {
-      return false;
-    } finally {
-      try {
-        if (before && before !== doc.body && before.isConnected && doc.activeElement !== before) before.focus({ preventScroll: true });
-      } catch (e) { /* focus is a courtesy */ }
-    }
+    return PC.removeQueueRowWrap(doc, row, removeInner.bind(null, doc));
   }
 
   async function removeInner(doc, row) {
@@ -175,8 +162,7 @@
     const more = row.el.querySelector(SEL.more);
     if (more) more.click();
     else {
-      const View = (doc.defaultView && doc.defaultView.MouseEvent) || MouseEvent;
-      row.el.dispatchEvent(new View('contextmenu', { bubbles: true, cancelable: true, composed: true, button: 2 }));
+      PC.rightClickFallback(doc, row.el);
     }
     let menu = null;
     for (let t = 0; t < 1500 && !menu; t += 50) {
@@ -188,8 +174,7 @@
       return path && path.getAttribute('d') === REMOVE_ICON;
     });
     if (!item) {
-      const View = (doc.defaultView && doc.defaultView.KeyboardEvent) || KeyboardEvent;
-      doc.dispatchEvent(new View('keydown', { key: 'Escape', code: 'Escape', bubbles: true }));
+      PC.dispatchEscape(doc);
       return false;
     }
     item.click();
@@ -200,20 +185,7 @@
     return !row.el.isConnected;
   }
 
-  // The "skip" glyph (a circle with a slash, as on an UNO skip card), as in ytm.js.
-  function glyph(doc) {
-    const NS = 'http://www.w3.org/2000/svg';
-    const make = tag => (doc.createElementNS ? doc.createElementNS(NS, tag) : doc.createElement(tag));
-    const svg = make('svg');
-    for (const [k, v] of Object.entries({ viewBox: '0 0 24 24', width: '16', height: '16', fill: 'currentColor', 'aria-hidden': 'true' })) svg.setAttribute(k, v);
-    for (const [d, rule] of [['M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0ZM4 12a8 8 0 1 0 16 0a8 8 0 1 0-16 0Z', 'evenodd'], ['M7.05 5.63 18.37 16.95 16.95 18.37 5.63 7.05Z', null]]) {
-      const p = make('path');
-      p.setAttribute('d', d);
-      if (rule) p.setAttribute('fill-rule', rule);
-      svg.appendChild(p);
-    }
-    return svg;
-  }
+
 
   // One "Block artist" button right of Spotify's repeat button: a copy of it (same size and
   // colours) in a display:contents box, so the controls' own spacing applies.
@@ -230,8 +202,8 @@
       button.setAttribute('aria-label', 'Block artist');
       button.setAttribute('title', 'Block artist');
       const icon = button.querySelector('svg');
-      if (icon && icon.parentNode) icon.parentNode.replaceChild(glyph(doc), icon);
-      else button.appendChild(glyph(doc));
+      if (icon && icon.parentNode) icon.parentNode.replaceChild(PC.glyph(doc, '16'), icon);
+      else button.appendChild(PC.glyph(doc, '16'));
       button.addEventListener('click', e => {
         safe(() => { e.preventDefault(); e.stopPropagation(); });
         safe(() => handlers && handlers.onBlockArtist && handlers.onBlockArtist());

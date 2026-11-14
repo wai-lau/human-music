@@ -40,6 +40,7 @@ const cases = [
       'src/core/log.js',
       'src/core/lookahead.js',
       'src/core/skipper.js',
+      'src/page/common.js',
       'src/page/ytm.js',
       'src/content.js'
     ])],
