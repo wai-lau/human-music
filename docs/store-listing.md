@@ -88,3 +88,30 @@ GitHub repo is private, so it can't host one yet).
 
 Visibility: Public, Unlisted (only people with the link) or Private
 (chosen testers). Regions: all.
+
+## Releasing from the terminal
+
+After the first upload in the dashboard, every release goes through
+`scripts/release.mjs` (Chrome Web Store API v2, a service account):
+
+1. Bump `version` in `extension/manifest.json` and commit.
+2. `node scripts/release.mjs publish`: packs the signed `.crx` from git HEAD
+   (`scripts/pack-crx.sh`), uploads it, and submits it for review. It goes
+   live with the item's current visibility once Google approves it.
+   `status` shows the published and submitted versions; `upload` stops
+   before submitting.
+
+One-time setup (Wai):
+
+1. Google Cloud console: create a project, search "Chrome Web Store API",
+   enable it.
+2. IAM, Service accounts (console.cloud.google.com/iam-admin/serviceaccounts):
+   create one (no roles needed), then Keys, Add key, JSON. Save the file as
+   `~/.keys/human-music-cws-sa.json` and `chmod 600` it.
+3. Developer Dashboard, Account: add the service account's email (one per
+   publisher). The publishing Google account needs 2-step verification.
+4. Write `~/.keys/human-music-cws.json`:
+   `{ "publisherId": "<Publisher, Settings>", "itemId": "<32 letters, Package tab>", "serviceAccountKey": "~/.keys/human-music-cws-sa.json" }`
+
+Neither file goes in the repo. If the visibility is changed by hand in the
+dashboard, publish once by hand before the API can publish again.
