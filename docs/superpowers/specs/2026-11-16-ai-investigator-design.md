@@ -257,11 +257,31 @@ verdicts are published but the Optimal and Aggressive stops say "not ready".
     droplet service; then calibration; then Optimal on.
 11. **The droplet** (Wai's answer needed): see the open question.
 
-## Left to the builder
+## The droplet (looked at read-only, 2026-11-16)
 
-- What the droplet already runs (web server, TLS, OS), found by a read-only
-  look first; the service fits in behind it under `/human-music/`.
-- The service's language (Python or Node standard library, no frameworks).
+| What | Found |
+|---|---|
+| System | Ubuntu 24.04, 2 CPUs, 2 GB memory (about 1.1 GB free), 54 GB disk free |
+
+**Setup steps (each needs Wai's yes before it runs):**
+
+1. A system user `human-music` (no login), its data in `/var/lib/human-music`.
+2. The service code from this repo's `research/investigator/` in
+   `/opt/human-music-investigator`, Node 22 standard library only (Node is
+   there and matches the repo's tooling).
+3. `/etc/human-music/env` (owner root, group human-music, mode 640) with the
+   investigator token and `CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token`
+   that Wai runs once.
+4. A systemd unit `human-music-investigator.service`: `User=human-music`,
+   listening on `127.0.0.1:8140`, with `ProtectSystem=strict`,
+   `ReadWritePaths=/var/lib/human-music`, `NoNewPrivileges=yes`,
+   `PrivateTmp=yes`, a memory cap of 600 MB (exec-fn shares the machine).
+5. In `/etc/nginx/sites-enabled/default`, a `location /human-music/` block
+   proxying to `127.0.0.1:8140`, placed before `location /`; then `nginx -t`
+   and a reload. exec-fn's rules stay as they are.
+
+
+
 - The exact prompt and JSON schema for `claude -p`.
 - Where the "known people" calibration sample comes from.
 - The popup look of the slider and the investigator section (it follows the
