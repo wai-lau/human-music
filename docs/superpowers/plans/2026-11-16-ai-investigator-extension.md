@@ -16,7 +16,7 @@
 - Unsure means play: any error, missing list, malformed entry or slow network leaves songs playing.
 - Never skip beats every verdict; people and unsure verdicts never unblock anything a list blocks.
 - Thresholds: optimal blocks `verdict: "ai"` with `confidence >= 95`; aggressive with `confidence >= 60`; list-only and no filtering ignore verdicts.
-- Verdict list: id `hm-verdicts`, name `Human Music verdicts`, URL on raw.githubusercontent.com in the public list repo (Wai's correction, 2026-11-16: the droplet never serves it; the exact URL follows the repo choice), built in, mode `act`.
+- Verdict list: id `hm-verdicts`, name `Human Music verdicts`, URL `https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json` (this repo, public since 2026-11-16; the droplet never serves it), built in, mode `act`.
 - Investigator: `POST https://wai-lau.net/human-music/api/investigate`, header `Authorization: Bearer <token>`; only when a token is set; each artist at most once a day per copy.
 - Default mode `lists` (List-only) until the verdict list says `"calibrated": true`; Optimal and Aggressive stops are "not ready" until then.
 - Wording rule: neutral words only ("made by people", "AI-generated"); `tests/wording.test.mjs` enforces it.
@@ -67,7 +67,7 @@ eq('a chosen mode stays', settings.effectiveMode(settings.sanitize({ mode: 'list
 - Test: `tests/contract-verdicts.check.mjs` (new, lead-written)
 
 **Interfaces:**
-- Produces: `HM.lists.HM_VERDICTS` (the Global Constraints values plus the usual list fields); `parseFilterList(data) -> { artists, calibrated }` where each artist may carry `verdict` (`'ai' | 'human' | 'unsure'`) and `confidence` (integer 0-100) and `calibrated` is `data.calibrated === true`; list meta in `hm.filterLists` gains `calibrated: boolean` after a refresh.
+- Produces: `HM.lists.HM_VERDICTS` (the Global Constraints values plus the usual list fields); `parseFilterList(data) -> { artists, calibrated }` where each artist may carry `verdict` (`'ai' | 'human' | 'unsure'`) and `confidence` (integer 0-100) and `calibrated` is present only when the list states it (`data.calibrated` is a boolean); list meta in `hm.filterLists` gains `calibrated: boolean` after a refresh.
 
 - [ ] **Step 1: Write the failing contract:**
 

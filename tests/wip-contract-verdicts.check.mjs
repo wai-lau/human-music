@@ -19,7 +19,7 @@ const pick = (v, name) => v.artists.find(a => a.name === name);
 
 await t('HM_VERDICTS is the built-in verdict list', () => {
   const v = HM.lists.HM_VERDICTS || {};
-  return (v.id === 'hm-verdicts' && v.name === 'Human Music verdicts' && v.url === 'https://wai-lau.net/human-music/verdicts.json'
+  return (v.id === 'hm-verdicts' && v.name === 'Human Music verdicts' && v.url === 'https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json'
     && v.builtIn === true && v.mode === 'act' && v.enabled === true) || J(v);
 });
 await t('verdict fields parsed', () => {
@@ -31,6 +31,7 @@ await t('verdict fields parsed', () => {
   eq('unknown verdict word dropped', pick(v, 'Odd Word').verdict, undefined);
   eq('calibrated flag', v.calibrated, false);
   eq('calibrated true', HM.lists.parseFilterList({ calibrated: true, artists: [] }).calibrated, true);
+  eq('no calibrated key when the list states none', 'calibrated' in HM.lists.parseFilterList({ artists: [{ name: 'A' }] }), false);
   eq('negative clamped to 0', HM.lists.parseFilterList({ artists: [{ name: 'N', verdict: 'ai', confidence: -5 }] }).artists[0].confidence, 0);
   eq('plain lists unchanged', HM.lists.parseFilterList([{ name: 'A' }]).artists, [{ name: 'A' }]);
   return true;
