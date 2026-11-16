@@ -289,9 +289,9 @@ verdicts are published but the Optimal and Aggressive stops say "not ready".
 
 ## The droplet (looked at read-only, 2026-11-16)
 
-| What | Found |
-|---|---|
-| System | Ubuntu 24.04, 2 CPUs, 2 GB memory (about 1.1 GB free), 54 GB disk free |
+Ubuntu 24.04 with nginx (TLS for wai-lau.net), Node 22 and Claude Code.
+Access details and the other services on it are kept out of this public
+repo.
 
 **Setup steps (each needs Wai's yes before it runs):**
 
