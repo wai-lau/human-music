@@ -1,0 +1,6 @@
+! Title: Cevval YouTube AI Music Blocklist (sample for tests)
+! Last modified: 2026-10-05
+youtube.com##:is(ytd-video-renderer, ytd-grid-video-renderer):has(a[href*="UCIE9zgCYFKd-GLQX5jwhceA"])
+youtube.com##:is(ytd-video-renderer, ytd-grid-video-renderer):has(a[href*="@AnatolianLab"])
+youtube.com##:is(ytd-video-renderer, ytd-grid-video-renderer):has(a[href*="UCfEyz1qa5934AyDOxYGEmBA"])
+youtube.com##:is(ytd-video-renderer, ytd-grid-video-renderer):has(a[href*="UCfEyz1qa5934AyDOxYGEmBA"])
