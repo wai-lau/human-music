@@ -39,7 +39,7 @@
 - Test: `tests/contract-mode.check.mjs` (new, lead-written, red on base)
 
 **Interfaces:**
-- Produces: `HM.settings.MODES = ['off', 'lists', 'optimal', 'aggressive']`; `HM.settings.DEFAULTS.mode === 'lists'`; `HM.settings.threshold(mode) -> number | null` (95, 60, else null); `sanitize(obj).mode` always one of MODES; `sanitize(obj).paused === (mode === 'off')`; `sanitize` keeps booleans `modeChosen` (the person moved the slider) and `investigate` (default false); `HM.settings.effectiveMode(settings, calibrated) -> mode`: the chosen mode when `modeChosen`, else `'optimal'` when the verdict list is calibrated and `'lists'` when not (the design: store copies default to Optimal once calibration passes).
+- Produces: `HM.settings.MODES = ['off', 'lists', 'optimal', 'aggressive']`; `HM.settings.DEFAULTS.mode === 'lists'`; `HM.settings.threshold(mode) -> number | null` (95, 60, else null); `sanitize(obj).mode` always one of MODES; `sanitize(obj).paused === (mode === 'off')`; a stored `paused: true` always gives mode `'off'` (the Pause switch and older settings); `sanitize` keeps booleans `modeChosen` (the person moved the slider) and `investigate` (default false); `HM.settings.effectiveMode(settings, calibrated) -> mode`: the chosen mode when `modeChosen`, else `'optimal'` when the verdict list is calibrated and `'lists'` when not (the design: store copies default to Optimal once calibration passes).
 
 - [ ] **Step 1: Write the failing contract** `tests/contract-mode.check.mjs`:
 
@@ -181,7 +181,7 @@ eq('fresh verdicts: start refreshes hm-verdicts after a recent send', refreshedI
 
 **Interfaces:**
 - Consumes: `settings.mode`, list meta `calibrated`, `hm.investigator`.
-- Produces: header slider `#mode` (`input type="range"`, 0-3 for MODES) with `#mode-label`; moving it saves `mode` and `modeChosen: true`; the Pause switch `#paused` is removed. Behaviour gains an "Investigator" section: `#investigator-token` (password field), `#investigator-save`, `#investigator-status` (last sent, last error); saving a token also sets `settings.investigate = true`, clearing it sets false.
+- Produces: header slider `#mode` (`input type="range"`, 0-3 for MODES) with `#mode-label`; moving it saves `mode`, `modeChosen: true` and `paused: mode === 'off'` (a stored `paused: true` always means No filtering, so leaving 'off' must clear it); the Pause switch `#paused` is removed. Behaviour gains an "Investigator" section: `#investigator-token` (password field), `#investigator-save`, `#investigator-status` (last sent, last error); saving a token also sets `settings.investigate = true`, clearing it sets false.
 
 - [ ] **Step 1: Write the failing tests** (popup-ui): the slider shows the mode and saves it; with `calibrated: false`, choosing Optimal snaps back to List-only and the status says Optimal isn't ready yet; a verdict log line reads `AI-generated · Human Music verdicts · 97%`; saving a token stores it under `hm.investigator` and sets `investigate`; the token never appears in `hm.settings`.
 - [ ] **Step 2:** Run `node tests/popup-ui.test.mjs`; expect FAIL.
