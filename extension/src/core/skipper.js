@@ -129,7 +129,7 @@
             giveUpTimeout = null;
             // Still the same song, plainly read, after 10 s: the skip didn't take. Report it
             // (the log's Errors section); a song that can't be read counts as moved on.
-            let stuck = false;
+            let stuck;
             try {
               const now = page.readSong();
               stuck = !!(busy && skipSong && now && now.title === skipSong.title && now.artistLine === skipSong.artistLine);

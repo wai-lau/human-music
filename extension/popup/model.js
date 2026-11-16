@@ -80,7 +80,7 @@
     try {
       parsedUrl = new URL(url);
     } catch (e) {
-      throw new Error('Use an https:// address');
+      throw new Error('Use an https:// address', { cause: e });
     }
     if (parsedUrl.protocol !== 'https:') {
       throw new Error('Use an https:// address');

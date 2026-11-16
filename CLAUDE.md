@@ -34,8 +34,9 @@ categorically different (not inferior)".
 
 - Plain JavaScript, Manifest V3, no build step, no dependencies. Each file
   in `extension/` is an IIFE that sets `globalThis.HM.<name>`. Dev tools
-  only (ESLint 9.39, Playwright 1.61; the last lines on this machine's
-  Node 18) live in the root `package.json`; never add one to `extension/`.
+  only (ESLint 10.14, Playwright 1.64; they need Node 20.19 or newer, the
+  nvm default is v26 while `/usr/bin/node` is 18) live in the root
+  `package.json`; never add one to `extension/`.
 - Lint: `npm run lint`. End-to-end: `npm run e2e` (`e2e/`, real Chromium
   with the unpacked extension, stand-in pages served by `context.route`,
   no network; `HM_E2E_EXT=<dir>` runs another copy). A change to a page
