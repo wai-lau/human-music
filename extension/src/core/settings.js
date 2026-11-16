@@ -8,8 +8,14 @@
     hidePageItems: true,
     playerButtons: true,
     paused: false,
-    refresh: 'daily'
+    refresh: 'daily',
+    mode: 'lists',
+    modeChosen: false,
+    investigate: false
   };
+
+  const MODES = ['off', 'lists', 'optimal', 'aggressive'];
+  const THRESHOLDS = { optimal: 95, aggressive: 60 };
 
   function sanitize(obj) {
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
@@ -24,7 +30,7 @@
     } else {
       out.lookahead = DEFAULTS.lookahead;
     }
-    const booleans = ['autoSkip', 'autoDislike', 'hidePageItems', 'playerButtons', 'paused'];
+    const booleans = ['autoSkip', 'autoDislike', 'hidePageItems', 'playerButtons'];
     for (const name of booleans) {
       if (typeof obj[name] === 'boolean') {
         out[name] = obj[name];
@@ -39,8 +45,47 @@
     } else {
       out.refresh = DEFAULTS.refresh;
     }
+    // Mode: paused: true always means 'off' (even if a mode is stored); paused: false keeps the stored mode.
+    // Old paused:true with no valid mode migrates to 'off'. Valid mode wins otherwise.
+    if (typeof obj.paused === 'boolean' && obj.paused) {
+      out.mode = 'off';
+    } else if (typeof obj.mode === 'string' &&
+      MODES.includes(obj.mode) &&
+      Object.prototype.hasOwnProperty.call(obj, 'mode')) {
+      out.mode = obj.mode;
+    } else {
+      out.mode = DEFAULTS.mode;
+    }
+    out.paused = out.mode === 'off';
+    if (typeof obj.modeChosen === 'boolean') {
+      out.modeChosen = obj.modeChosen;
+    } else {
+      out.modeChosen = DEFAULTS.modeChosen;
+    }
+    if (typeof obj.investigate === 'boolean') {
+      out.investigate = obj.investigate;
+    } else {
+      out.investigate = DEFAULTS.investigate;
+    }
     return out;
   }
 
-  globalThis.HM.settings = { DEFAULTS, sanitize };
+  function threshold(mode) {
+    if (typeof mode === 'string' && Object.prototype.hasOwnProperty.call(THRESHOLDS, mode)) {
+      return THRESHOLDS[mode];
+    }
+    return null;
+  }
+
+  function effectiveMode(settings, calibrated) {
+    if (settings.modeChosen) {
+      return settings.mode;
+    }
+    if (calibrated) {
+      return 'optimal';
+    }
+    return 'lists';
+  }
+
+  globalThis.HM.settings = { DEFAULTS, MODES, sanitize, threshold, effectiveMode };
 })();

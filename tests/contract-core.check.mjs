@@ -8,14 +8,14 @@ const J = v => JSON.stringify(sortKeys(v));
 const eq = (label, got, want) => { if (J(got) !== J(want)) fails.push(`${label}: got ${J(got)} want ${J(want)}`); };
 const t = (label, fn) => { try { const r = fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e.message}`); } };
 
-const D = { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, paused: false, refresh: 'daily' };
+const D = { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false };
 eq('DEFAULTS', settings.DEFAULTS, D);
 eq('sanitize {}', settings.sanitize({}), D);
 eq('sanitize null', settings.sanitize(null), D);
 t('sanitize returns a copy', () => settings.sanitize({}) !== settings.DEFAULTS || 'same object');
 eq('lookahead clamp', [99, -1, '4', 4.7, 'x', NaN, null, '', ' 5 ', Infinity].map(v => settings.sanitize({ lookahead: v }).lookahead), [10, 0, 4, 4, 3, 3, 3, 3, 5, 3]);
 eq('refresh', [settings.sanitize({ refresh: 'hourly' }).refresh, settings.sanitize({ refresh: 'weekly' }).refresh], ['daily', 'weekly']);
-eq('booleans', settings.sanitize({ autoSkip: false, paused: true, autoDislike: 'yes' }), { ...D, autoSkip: false, paused: true });
+eq('booleans', settings.sanitize({ autoSkip: false, paused: true, autoDislike: 'yes' }), { ...D, autoSkip: false, paused: true, mode: 'off' });
 eq('unknown keys dropped', Object.keys(settings.sanitize({ bogus: 1 })).sort(), Object.keys(D).sort());
 
 const song = { title: 'Dust on the Wind', artistLine: 'The Velvet Sundown • Floating • 2025' };
