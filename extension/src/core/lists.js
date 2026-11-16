@@ -13,6 +13,18 @@
     lastError: null
   };
 
+  const HM_VERDICTS = {
+    id: 'hm-verdicts',
+    name: 'Human Music verdicts',
+    url: 'https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json',
+    enabled: true,
+    mode: 'act',
+    builtIn: true,
+    lastRefresh: null,
+    count: 0,
+    lastError: null
+  };
+
   const FREQUENCIES = {
     '6h': 21600000,
     '12h': 43200000,
@@ -29,7 +41,11 @@
       return { artists: parseEntries(data) };
     }
     if (data && typeof data === 'object' && data.artists && Array.isArray(data.artists)) {
-      return { artists: parseEntries(data.artists) };
+      const out = { artists: parseEntries(data.artists) };
+      if (typeof data.calibrated === 'boolean') {
+        out.calibrated = data.calibrated;
+      }
+      return out;
     }
     return null;
   }
@@ -51,6 +67,13 @@
           artist.spotifyId = entry.spotifyId;
         } else if (typeof entry.spotify === 'string' && SPOTIFY_ID_RE.test(entry.spotify)) {
           artist.spotifyId = entry.spotify;
+        }
+        if (entry.verdict === 'ai' || entry.verdict === 'human' || entry.verdict === 'unsure') {
+          artist.verdict = entry.verdict;
+        }
+        if (typeof entry.confidence === 'number' && isFinite(entry.confidence)) {
+          const c = Math.round(entry.confidence);
+          artist.confidence = Math.max(0, Math.min(100, c));
         }
         artists.push(artist);
       }
@@ -232,6 +255,7 @@
 
   globalThis.HM.lists = {
     SOUL_OVER_AI: SOUL_OVER_AI,
+    HM_VERDICTS: HM_VERDICTS,
     FREQUENCIES: FREQUENCIES,
     parseFilterList: parseFilterList,
     isRefreshDue: isRefreshDue,

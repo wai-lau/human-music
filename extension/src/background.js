@@ -15,7 +15,7 @@
 
       if (!stored[HM.store.KEYS.filterLists]) {
         await storage.set({
-          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }]
+          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }]
         });
       }
 
@@ -95,6 +95,12 @@
         } catch (e) {
           // skip this file; the others still import
         }
+      }
+      // Ensure the built-in verdict list is always present after bundled import
+      let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
+      if (!metas.some(m => m.id === 'hm-verdicts')) {
+        metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
+        await storage.set({ [HM.store.KEYS.filterLists]: metas });
       }
       return done;
     }
@@ -208,6 +214,7 @@ list = lists[HM.store.KEYS.filterLists][i];
             lists[HM.store.KEYS.filterLists][j].count = listData.artists.length;
             lists[HM.store.KEYS.filterLists][j].lastRefresh = nowFn();
             lists[HM.store.KEYS.filterLists][j].lastError = null;
+            lists[HM.store.KEYS.filterLists][j].calibrated = listData.calibrated;
             break;
           }
         }

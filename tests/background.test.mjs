@@ -67,8 +67,8 @@ async function runTests() {
     const { refresher } = loadBackground(storage, () => { throw new Error('should not fetch'); }, () => 100);
     await refresher.install();
     const lists = await storage.get('hm.filterLists');
-    if (lists['hm.filterLists'].length !== 1 || lists['hm.filterLists'][0].id !== 'soul-over-ai') {
-      throw new Error('filterLists not installed');
+    if (lists['hm.filterLists'].length !== 2 || lists['hm.filterLists'][0].id !== 'soul-over-ai' || lists['hm.filterLists'][1].id !== 'hm-verdicts') {
+      throw new Error('filterLists not installed: ' + JSON.stringify(lists['hm.filterLists']));
     }
     const settings = await storage.get('hm.settings');
     if (!deepEqual(settings['hm.settings'], { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false })) {
