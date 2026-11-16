@@ -1,6 +1,6 @@
 # AI investigator: design
 
-Status: draft for Wai's approval (2026-11-16).
+Status: approved by Wai 2026-11-16 ("Looks good / Go").
 
 ## Why
 
@@ -178,6 +178,11 @@ Human Music's list format plus the verdict fields:
 Reasons and sources stay on the droplet (shown at
 `/verdicts/<key>` for anyone who wants to check a verdict); the list carries
 only what extensions need, to keep it small.
+
+### Test cases (Wai, 2026-11-16)
+
+Forrest Rose and The Broken Radios are AI-generated and on no list: the first
+live run must find both as AI. They also join the calibration's known-AI set.
 
 ### Calibration
 
