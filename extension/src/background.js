@@ -283,6 +283,140 @@ list = lists[HM.store.KEYS.filterLists][i];
 
   globalThis.HM.createRefresher = createRefresher;
 
+  function createInvestigator(opts) {
+    const storage = opts.storage;
+    const fetchFn = opts.fetch;
+    const nowFn = opts.now;
+    let state = null;
+    let loading = null;
+
+    async function loadState() {
+      const key = HM.store.KEYS.investigator;
+      const existing = (await storage.get(key))[key];
+      if (existing && typeof existing === 'object') {
+        state = existing;
+        if (typeof state.token !== 'string') state.token = '';
+        if (typeof state.base !== 'string') state.base = 'https://wai-lau.net/human-music';
+        if (!state.sent || typeof state.sent !== 'object') state.sent = {};
+      } else {
+        state = { token: '', base: 'https://wai-lau.net/human-music', sent: {} };
+      }
+      return state;
+    }
+
+    async function saveState() {
+      const key = HM.store.KEYS.investigator;
+      const obj = {};
+      obj[key] = state;
+      await storage.set(obj);
+    }
+
+    async function send(items) {
+      if (!items || items.length === 0) return { sent: 0, skipped: 0 };
+
+      if (loading) await loading;
+      loading = loadState();
+      await loading;
+      loading = null;
+
+      if (!state.token || state.token.length === 0) {
+        return { sent: 0, skipped: items.length };
+      }
+
+      const today = new Date(nowFn()).toISOString().slice(0, 10);
+
+      // Prune sent entries older than 7 days
+      for (const k in state.sent) {
+        if (state.sent[k] && state.sent[k].length === 10) {
+          try {
+            if (nowFn() - new Date(state.sent[k] + 'T00:00:00Z').getTime() > 7 * 24 * 3600 * 1000) {
+              delete state.sent[k];
+            }
+          } catch (e) {
+            delete state.sent[k];
+          }
+        }
+      }
+
+      let sentCount = 0;
+      let skippedCount = 0;
+      const toSend = [];
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let key = HM.text.normalize(item.artistLine).trim();
+        if (item.channelIds && item.channelIds.length > 0) {
+          for (let j = 0; j < item.channelIds.length; j++) {
+            if (item.channelIds[j]) {
+              key += '|' + item.channelIds[j];
+              break;
+            }
+          }
+        }
+        if (!key) key = 'unknown';
+
+        if (state.sent[key] && state.sent[key] === today) {
+          skippedCount++;
+        } else {
+          toSend.push({ key: key, item: item });
+        }
+      }
+
+      if (toSend.length === 0) {
+        return { sent: 0, skipped: skippedCount };
+      }
+
+      const payload = {
+        items: toSend.map(function (t) {
+          return t.item;
+        })
+      };
+
+      try {
+        const url = state.base + '/api/investigate';
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + state.token
+        };
+        const resp = await fetchFn(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          state.lastError = 'HTTP ' + resp.status;
+        }
+
+        // Mark all sent for today regardless of response
+        for (let i = 0; i < toSend.length; i++) {
+          state.sent[toSend[i].key] = today;
+        }
+        state.lastSentAt = nowFn();
+        sentCount = toSend.length;
+      } catch (e) {
+        state.lastError = e.message;
+        // Still mark as sent to prevent retry storm
+        for (let i = 0; i < toSend.length; i++) {
+          state.sent[toSend[i].key] = today;
+        }
+        sentCount = 0;
+      }
+
+      try {
+        await saveState();
+      } catch (e) {
+        // storage failure is acceptable
+      }
+
+      return { sent: sentCount, skipped: skippedCount };
+    }
+
+    return { send: send };
+  }
+
+  globalThis.HM.createInvestigator = createInvestigator;
+
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
     const api = HM.store.api();

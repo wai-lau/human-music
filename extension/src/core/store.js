@@ -10,7 +10,8 @@
       settings: 'hm.settings',
       filterLists: 'hm.filterLists',
       log: 'hm.log',
-      bundled: 'hm.bundled'
+      bundled: 'hm.bundled',
+      investigator: 'hm.investigator'
     },
     listPrefix: 'hm.list.',
     listKey: function (id) {
