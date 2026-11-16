@@ -122,10 +122,13 @@ flowchart TD
 - **Fresh verdicts.** While it has artists waiting, Wai's copy re-reads the
   verdict list every few minutes instead of waiting for the daily refresh, so
   a verdict can act on the next song by that artist.
-- **The token** is set in the popup (Behaviour, under "Investigator"), stored
-  with `chrome.storage.local.setAccessLevel` limited to extension pages so
-  content scripts and pages can't read it. The worker does the sending, not
-  the content script.
+- **The token** is set in the popup (Behaviour, under "Investigator") and
+  kept in its own storage key that only the worker and the popup read; the
+  content script sees only an on/off setting (`investigate`). (Correction,
+  Claude's call while planning: `setAccessLevel` limits the whole local
+  storage area, which the content scripts must keep reading, so it can't
+  shield one key. Pages can't read extension storage either way.) The worker
+  does the sending, not the content script.
 
 ### On the droplet
 

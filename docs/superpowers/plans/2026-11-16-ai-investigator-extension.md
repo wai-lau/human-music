@@ -39,7 +39,7 @@
 - Test: `tests/contract-mode.check.mjs` (new, lead-written, red on base)
 
 **Interfaces:**
-- Produces: `HM.settings.MODES = ['off', 'lists', 'optimal', 'aggressive']`; `HM.settings.DEFAULTS.mode === 'lists'`; `HM.settings.threshold(mode) -> number | null` (95, 60, else null); `sanitize(obj).mode` always one of MODES; `sanitize(obj).paused === (mode === 'off')`.
+- Produces: `HM.settings.MODES = ['off', 'lists', 'optimal', 'aggressive']`; `HM.settings.DEFAULTS.mode === 'lists'`; `HM.settings.threshold(mode) -> number | null` (95, 60, else null); `sanitize(obj).mode` always one of MODES; `sanitize(obj).paused === (mode === 'off')`; `sanitize` keeps booleans `modeChosen` (the person moved the slider) and `investigate` (default false); `HM.settings.effectiveMode(settings, calibrated) -> mode`: the chosen mode when `modeChosen`, else `'optimal'` when the verdict list is calibrated and `'lists'` when not (the design: store copies default to Optimal once calibration passes).
 
 - [ ] **Step 1: Write the failing contract** `tests/contract-mode.check.mjs`:
 
@@ -50,6 +50,8 @@ eq('mode wins over paused', settings.sanitize({ paused: true, mode: 'optimal' })
 eq('paused follows mode', [settings.sanitize({ mode: 'off' }).paused, settings.sanitize({ mode: 'aggressive' }).paused], [true, false]);
 eq('junk mode', settings.sanitize({ mode: 'turbo' }).mode, 'lists');
 eq('thresholds', ['off', 'lists', 'optimal', 'aggressive'].map(settings.threshold), [null, null, 95, 60]);
+eq('default follows calibration', [settings.effectiveMode(settings.sanitize({}), false), settings.effectiveMode(settings.sanitize({}), true)], ['lists', 'optimal']);
+eq('a chosen mode stays', settings.effectiveMode(settings.sanitize({ mode: 'lists', modeChosen: true }), true), 'lists');
 ```
 
 - [ ] **Step 2:** Run `node tests/contract-mode.check.mjs`; expect `PROBE FAIL`.
@@ -140,7 +142,7 @@ eq('mode change rebuilds: optimal to lists unmarks a 97 verdict row', await mode
 ```
 
 - [ ] **Step 2:** Run it; expect `PROBE FAIL`.
-- [ ] **Step 3:** Implement: a `reported` Set of normalised credits; `onUnknown` fires from `checkPlaying` (no match) and the lookahead loop (rows not known), batched per pass. The Chrome block wires `onUnknown` to `chrome.runtime.sendMessage({ type: 'hm-investigate', items })` with the same catch as `onCount`. The playing song's album comes from the artist line's second part, and its art URL from the player's thumbnail image when the adapter offers `readArt(doc)` (optional; absent means none).
+- [ ] **Step 3:** Implement: a `reported` Set of normalised credits; `onUnknown` fires from `checkPlaying` (no match) and the lookahead loop (rows not known), batched per pass. The Chrome block wires `onUnknown` to `chrome.runtime.sendMessage({ type: 'hm-investigate', items })` with the same catch as `onCount`. The playing song's album comes from the artist line's second part, and its art URL from the player's thumbnail image when the adapter offers `readArt(doc)` (optional; absent means none). `reload()` uses `HM.settings.effectiveMode(settings, verdictList.calibrated)`. `HM.ytm.readSong` fills `channelIds` from the player byline's `a[href*="channel/"]` links (today it returns `[]`), so ID-only lists can skip, not only hide.
 - [ ] **Step 4:** Run `npm test`; expect all pass.
 - [ ] **Step 5:** Commit `feat: unknown artists are reported for investigation (when enabled)`.
 
@@ -179,7 +181,7 @@ eq('fresh verdicts: start refreshes hm-verdicts after a recent send', refreshedI
 
 **Interfaces:**
 - Consumes: `settings.mode`, list meta `calibrated`, `hm.investigator`.
-- Produces: header slider `#mode` (`input type="range"`, 0-3 for MODES) with `#mode-label`; the Pause switch `#paused` is removed. Behaviour gains an "Investigator" section: `#investigator-token` (password field), `#investigator-save`, `#investigator-status` (last sent, last error); saving a token also sets `settings.investigate = true`, clearing it sets false.
+- Produces: header slider `#mode` (`input type="range"`, 0-3 for MODES) with `#mode-label`; moving it saves `mode` and `modeChosen: true`; the Pause switch `#paused` is removed. Behaviour gains an "Investigator" section: `#investigator-token` (password field), `#investigator-save`, `#investigator-status` (last sent, last error); saving a token also sets `settings.investigate = true`, clearing it sets false.
 
 - [ ] **Step 1: Write the failing tests** (popup-ui): the slider shows the mode and saves it; with `calibrated: false`, choosing Optimal snaps back to List-only and the status says Optimal isn't ready yet; a verdict log line reads `AI-generated · Human Music verdicts · 97%`; saving a token stores it under `hm.investigator` and sets `investigate`; the token never appears in `hm.settings`.
 - [ ] **Step 2:** Run `node tests/popup-ui.test.mjs`; expect FAIL.
