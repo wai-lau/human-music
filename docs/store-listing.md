@@ -31,15 +31,17 @@ Upload the zip. Name, version and icon come from `manifest.json`.
 > - Their songs, albums and playlists are hidden on the home page, Explore
 >   and search results.
 > - On playlist, album and artist pages their songs are greyed out, with a
->   skip sign where the cover would be.
+>   skip sign where the cover would be, and can't be clicked.
 > - The toolbar icon shows how many songs it skipped or took out of the
 >   queue in that tab.
-> - A log shows every song it skipped, removed or hid, and which list caused
->   it. One click there tells it never to skip that artist again.
+> - A log groups everything by artist: what it kept from playing, what it
+>   skipped, and anything that didn't work, with the list that caused it.
+>   If an artist is there by mistake, one switch keeps them playing.
 >
 > You choose the lists. It comes with the Soul Over AI list of AI-generated
 > artists (CC BY 4.0), and you can add your own artists, songs and keywords
-> or subscribe to other lists by web address.
+> or subscribe to other lists by web address. A new list only watches, and
+> shows in the log what it would skip, until you let it act.
 >
 > It never switches your tab or takes your keyboard focus, holds off while
 > you type, and only the tab that is playing skips songs. When it isn't sure,
@@ -51,8 +53,16 @@ Upload the zip. Name, version and icon come from `manifest.json`.
 
 **Category:** Entertainment. **Language:** English.
 
-**Screenshots:** at least one, 1280x800 or 640x400. **Small promo tile**
-(440x280): optional.
+**Screenshots** (1280x800, in this order; files in `~/store-shots/`):
+
+1. `1-greyed-out.png`: songs by listed artists greyed out on a playlist.
+2. `2-blocked.png`: the log's Blocked section.
+3. `3-actions.png`: the log's Actions section.
+4. `4-behaviour.png`: the Behaviour settings.
+
+The popup shots show the redesigned popup (after 0.1.2) and the Pause
+switch; retake 2-4 when the filtering-mode slider ships. **Small promo
+tile** (440x280): optional.
 
 ## Privacy tab
 
