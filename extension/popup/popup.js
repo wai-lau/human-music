@@ -85,7 +85,6 @@
           refreshList(list.id);
         },
       });
-      const watch = node('input', { type: 'checkbox', checked: list.mode === 'watch', onchange: () => updateList(list.id, { mode: watch.checked ? 'watch' : 'act' }) });
       const count = (list.count || 0).toLocaleString('en');
       const updated = list.lastRefresh ? `updated ${HM.popup.timeLabel(list.lastRefresh, now)}` : 'not updated yet';
       ul.append(node('li', { class: 'list-row' },
@@ -94,7 +93,6 @@
         node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
           list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${list.lastError}` }) : null),
         node('div', { class: 'list-actions' },
-          node('label', { class: 'watch', title: 'Log what it matches, never act' }, watch, 'Watch only'),
           node('button', { class: 'link', textContent: 'Refresh', onclick: () => refreshList(list.id) }),
           list.builtIn ? null : node('button', {
             class: 'link', textContent: 'Remove',
@@ -107,6 +105,25 @@
     }
     const freq = $('refresh-frequency');
     if (freq) freq.value = state.settings.refresh;
+    renderWatchLists();
+  }
+
+  // Watch only, per filter list, under Behaviour (Wai, 2026-11-16: "watch only should go under
+  // behaviour, not lists"): a list in Watch only logs what it would skip and never acts.
+  function renderWatchLists() {
+    const ul = $('watch-lists');
+    if (!ul) return;
+    clear(ul);
+    for (const list of state.lists) {
+      ul.append(node('li', { class: 'setting' },
+        node('div', { class: 'setting-text' }, node('span', { class: 'watch-name', textContent: list.name })),
+        node('label', { class: 'switch' },
+          node('input', {
+            type: 'checkbox', checked: list.mode === 'watch', 'aria-label': `Watch only: ${list.name}`,
+            onchange: e => updateList(list.id, { mode: e.target.checked ? 'watch' : 'act' }),
+          }),
+          node('span', { class: 'track', 'aria-hidden': 'true' }))));
+    }
   }
 
   $('add-list-btn').addEventListener('click', () => {
@@ -224,6 +241,7 @@
   const EMPTY = { blocks: 'Nothing blocked yet.', actions: 'Nothing done yet.', errors: 'No errors.' };
   const SHOWN = 60; // artist groups shown; Export log has everything
   let section = null; // chosen section; until then, the section of the newest entry
+  const expanded = new Set(); // artist groups unfolded in this popup
 
   function listErrors() {
     return state.lists.filter(l => l.enabled && l.lastError);
@@ -268,8 +286,12 @@
       ul.append(node('li', { class: 'log-empty', textContent: EMPTY[section] }));
       return;
     }
+    // The switches' heading, once (each switch also names its artist for screen readers).
+    if (section !== 'errors' && groups.length) ul.append(node('li', { class: 'log-cols', 'aria-hidden': 'true' }, node('span', { textContent: 'Always show' })));
     for (const g of groups.slice(0, SHOWN)) {
-      const items = node('ul', { class: 'log-items' });
+      const key = `${section}|${g.artist}|${g.reason}`;
+      const open = expanded.has(key);
+      const items = node('ul', { class: 'log-items', hidden: !open });
       for (const it of g.items) {
         items.append(node('li', { class: 'log-item' },
           node('span', { class: 'log-title', textContent: it.title || '(untitled)' }),
@@ -277,17 +299,33 @@
           node('span', { class: section === 'errors' ? 'tag error' : 'tag', textContent: it.action }),
           node('span', { class: 'log-time', textContent: HM.popup.timeLabel(it.at, now) })));
       }
-      const always = section === 'errors' ? null : g.onNeverSkip
-        ? node('span', { class: 'done', textContent: 'On Never skip' })
-        : node('button', {
-          class: 'link', textContent: 'Always play', title: 'Wrong? Put this artist on Never skip', 'aria-label': `Always play ${g.artist}`,
-          onclick: () => { saveUser(HM.popup.addEntry(state.user, 'neverSkip', g.artist)); status(`${g.artist} will always play.`); },
-        });
-      const songs = g.items.length > 1 ? `${g.items.length} songs` : '';
-      const why = [g.reason, songs].filter(Boolean).join(' · ');
-      ul.append(node('li', { class: 'log-group' },
-        node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: g.artist }), always),
-        why ? node('div', { class: 'log-reason', textContent: why }) : null,
+      const toggle = node('button', {
+        class: 'log-toggle', 'aria-expanded': String(open), title: open ? 'Hide songs' : 'Show songs',
+        onclick: () => { if (expanded.has(key)) expanded.delete(key); else expanded.add(key); renderLog(); },
+      }, node('span', { class: 'chev', 'aria-hidden': 'true' }),
+        node('span', { class: 'log-artist', textContent: g.artist }),
+        node('span', { class: 'log-sum', textContent: String(g.total) }));
+      // "Always show" (Wai, 2026-11-16: a toggle, not a link): on puts the artist on Never skip,
+      // off takes them off again.
+      const always = section === 'errors' ? null : node('label', { class: 'switch always', title: 'Never skip or hide this artist' },
+        node('input', {
+          type: 'checkbox', checked: g.onNeverSkip, 'aria-label': `Always show ${g.artist}`,
+          onchange: e => {
+            if (e.target.checked) {
+              saveUser(HM.popup.addEntry(state.user, 'neverSkip', g.artist));
+              status(`${g.artist} will always show.`);
+            } else {
+              const N = HM.text.normalize;
+              const i = (state.user.neverSkip || []).findIndex(n => N(n) === N(g.artist));
+              if (i >= 0) saveUser(HM.popup.removeEntry(state.user, 'neverSkip', i));
+              status(`${g.artist} follows the lists again.`);
+            }
+          },
+        }),
+        node('span', { class: 'track', 'aria-hidden': 'true' }));
+      ul.append(node('li', { class: open ? 'log-group open' : 'log-group' },
+        node('div', { class: 'log-head' }, toggle, always),
+        g.reason ? node('div', { class: 'log-reason', textContent: g.reason }) : null,
         items));
     }
     if (groups.length > SHOWN) ul.append(node('li', { class: 'log-more', textContent: `${groups.length - SHOWN} more artists are in Export log.` }));

@@ -89,21 +89,27 @@ run([
     await q.click(q.$('import-btn'));
     return (JSON.parse(text).format === 'human-music-backup' && JSON.stringify(data(q, 'hm.user').neverSkip) === '["N"]' && data(q, 'hm.settings').lookahead === 7) || text;
   }],
-  ['log: the artist and reason once, the song with its tag; "Always play" puts the artist on Never skip', async () => {
+  // Wai, 2026-11-16: "for the logs collapse and sum each artist / Always play button should be
+  // 'always show' and it should be a toggle, not a link".
+  ['log: each artist collapsed with its sum; unfolds to its songs; "Always show" switches Never skip on and off', async () => {
     const entry = { at: Date.now(), event: 'skipped', title: 'Dust on the Wind', artistLine: 'The Velvet Sundown • Floating • 2025',
       listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'The Velvet Sundown' };
-    const p = await open({ 'hm.log': [entry, { ...entry, at: entry.at - 1000, title: 'Drift' }] });
-    const active = p.doc.querySelector('.seg-btn.active');
-    const g = p.doc.querySelector('#log-entries .log-group');
-    const ok = active.dataset.section === 'actions' && g.querySelector('.log-artist').textContent === 'The Velvet Sundown'
-      && g.querySelector('.log-reason').textContent === 'AI-generated · Soul Over AI · 2 songs'
-      && [...g.querySelectorAll('.log-title')].map(x => x.textContent).join() === 'Dust on the Wind,Drift'
-      && [...g.querySelectorAll('.tag')].every(x => x.textContent === 'Skipped')
-      && !g.textContent.includes('Floating') && g.querySelectorAll('button').length === 1;
-    await p.click(g.querySelector('button'));
-    const after = p.doc.querySelector('#log-entries .log-group');
-    return (ok && JSON.stringify(data(p, 'hm.user').neverSkip) === '["The Velvet Sundown"]' && !after.querySelector('button') && !!after.querySelector('.done'))
-      || JSON.stringify({ ok, sec: active && active.dataset.section, artist: g && g.querySelector('.log-artist') && g.querySelector('.log-artist').textContent, reason: g && g.querySelector('.log-reason') && g.querySelector('.log-reason').textContent, titles: g && [...g.querySelectorAll('.log-title')].map(x => x.textContent), tags: g && [...g.querySelectorAll('.tag')].map(x => x.textContent), buttons: g && g.querySelectorAll('button').length, never: data(p, 'hm.user') && data(p, 'hm.user').neverSkip, after: !!after });
+    const p = await open({ 'hm.log': [entry, { ...entry, at: entry.at - 1000, title: 'Drift' }, { ...entry, at: entry.at - 2000, title: 'Drift' }] });
+    const g = () => p.doc.querySelector('#log-entries .log-group');
+    const items = () => g().querySelector('.log-items');
+    const collapsed = items().hidden === true && g().querySelector('.log-toggle').getAttribute('aria-expanded') === 'false';
+    const head = g().querySelector('.log-artist').textContent === 'The Velvet Sundown' && g().querySelector('.log-sum').textContent === '3'
+      && g().querySelector('.log-reason').textContent === 'AI-generated · Soul Over AI' && !g().textContent.includes('Floating');
+    await p.click(g().querySelector('.log-toggle'));
+    const open1 = items().hidden === false && [...g().querySelectorAll('.log-title')].map(x => x.textContent).join() === 'Dust on the Wind,Drift'
+      && g().querySelectorAll('button.link').length === 0;
+    const sw = () => g().querySelector('input');
+    const label = sw().getAttribute('aria-label') === 'Always show The Velvet Sundown' && sw().checked === false;
+    sw().checked = true; sw().dispatchEvent(new Event('change')); await settle();
+    const on = JSON.stringify(data(p, 'hm.user').neverSkip) === '["The Velvet Sundown"]' && sw().checked === true && items().hidden === false;
+    sw().checked = false; sw().dispatchEvent(new Event('change')); await settle();
+    const off = JSON.stringify(data(p, 'hm.user').neverSkip) === '[]';
+    return (collapsed && head && open1 && label && on && off) || JSON.stringify({ collapsed, head, open1, label, on, off });
   }],
   ['log sections: Blocked, Actions, Errors with counts; list update failures show under Errors', async () => {
     const at = Date.now();
@@ -160,9 +166,10 @@ run([
     return (afterA === '[]' && p.calls.removed === undefined && ids === 'soul-over-ai')
       || JSON.stringify({ afterA, removed: p.calls.removed, ids });
   }],
-  ['watch-only switch saves mode', async () => {
+  ['watch-only switches live under Behaviour, one per list, and save the mode (Wai, 2026-11-16)', async () => {
     const p = await open();
-    const box = p.doc.querySelector('#filter-lists .watch input');
+    if (p.doc.querySelector('#filter-lists .watch')) return 'still on the list card';
+    const box = p.doc.querySelector('#watch-lists input');
     box.checked = true; box.dispatchEvent(new Event('change')); await settle();
     return data(p, 'hm.filterLists')[0].mode === 'watch' || JSON.stringify(data(p, 'hm.filterLists'));
   }],

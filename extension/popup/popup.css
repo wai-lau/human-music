@@ -121,7 +121,16 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .section-hint { margin: 8px 2px 4px; }
 
 .log-group { padding: 10px 0; border-bottom: 1px solid var(--line); }
-.log-head { display: flex; align-items: baseline; gap: 8px; }
+.log-head { display: flex; align-items: center; gap: 8px; }
+.log-toggle { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 2px 0; text-align: left; }
+.log-toggle:hover .log-artist { text-decoration: underline; }
+.chev { flex: none; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; margin: 0 2px; }
+.log-group.open .chev { transform: rotate(45deg); }
+.log-sum { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; background: var(--chip); color: var(--muted); }
+.log-group .log-reason { padding-left: 17px; }
+.log-group .log-items { padding-left: 17px; }
+.log-items[hidden] { display: none; }
+.log-cols { display: flex; justify-content: flex-end; font-size: 11px; color: var(--muted); padding: 6px 0 0; }
 .log-artist { font-weight: 650; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .log-reason { color: var(--muted); font-size: 12px; margin-top: 1px; }
 .log-reason.error { color: var(--danger); }
@@ -132,8 +141,6 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--muted); white-space: nowrap; }
 .tag.error { color: var(--danger); }
 .log-time { font-size: 11px; color: var(--muted); white-space: nowrap; min-width: 58px; text-align: right; }
-.log-head .done { font-size: 12px; color: var(--muted); }
-.log-head button.link { font-size: 12px; }
 .log-empty, .log-more { color: var(--muted); padding: 14px 0; text-align: center; }
 .log-controls { display: flex; justify-content: flex-end; gap: 14px; margin-top: 8px; }
 
@@ -146,7 +153,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .list-info { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .list-info .error { color: var(--danger); display: block; }
 .list-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
-.list-actions .watch { flex: 1; display: flex; align-items: center; gap: 6px; }
+.list-actions { justify-content: flex-end; }
 
 .add-list { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
 .add-list .row { display: flex; gap: 6px; }
@@ -169,6 +176,8 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 
 .setting { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .setting:last-child { border-bottom: 0; }
+#watch-lists .setting { padding: 7px 0; }
+.watch-name { font-weight: 550; }
 .setting-text { flex: 1; min-width: 0; }
 .setting-text label { font-weight: 550; }
 .setting input[type="number"] { width: 56px; text-align: center; }

@@ -33,15 +33,16 @@ test('an artist added in the popup is skipped in an open tab', async ({ context,
   await expect.poll(async () => (await readLog()).map(e => e.event)).toEqual(['skipped']);
 });
 
-test('"Always play" in the log protects the artist', async ({ context, extensionId, setState, readStore }) => {
+test('"Always show" in the log protects the artist', async ({ context, extensionId, setState, readStore }) => {
   await setState({ user: { artists: [AI] }, settings: { lookahead: 0 } });
   const page = await openSite(context, YTM, { songs: [{ title: 'Made Song', artist: AI }, { title: 'After', artist: PERSON }] });
   await expect.poll(async () => (await events(page)).filter(e => e.type === 'key-j').length).toBe(1);
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
   await expect(popup.locator('#log-entries .log-reason')).toHaveText(['Your artists']);
+  await popup.locator('#log-entries .log-toggle').click();
   await expect(popup.locator('#log-entries .tag')).toHaveText(['Skipped']);
-  await popup.getByRole('button', { name: `Always play ${AI}` }).click();
+  await popup.getByRole('checkbox', { name: `Always show ${AI}` }).check();
   await expect.poll(async () => (await readStore('hm.user')).neverSkip).toEqual([AI]);
 });
 

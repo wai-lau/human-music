@@ -301,13 +301,19 @@ list".
     auto-skip still catches it if it plays.
   The popup opens on the section of the newest entry.
 - Grouped by artist (Wai: "grouping should be done by artist") so nothing
-  repeats (Wai: "avoid repeating text in logs"): each artist once, with the
-  reason once ("AI-generated · Soul Over AI", "Your artists", 'Keyword
-  "x"') and one "Always play" link that adds them to Never skip. Under it
-  each song once, newest first, with a short tag (Removed, Hidden, Skipped,
-  Disliked, Would skip, Played, Couldn't skip, Couldn't remove), a count when
-  it repeats, and a time ("5 min ago", today's time, "Yesterday", "Nov 12").
-  The album and year aren't shown.
+  repeats (Wai: "avoid repeating text in logs"). Each artist is one
+  collapsed row (Wai, 2026-11-16: "collapse and sum each artist", "add
+  chevron to expand artists"): a chevron, the name, the total, and an
+  "Always show" switch ("a toggle, not a link") that puts the artist on
+  Never skip and takes them off again; the switches' heading shows once.
+  The reason sits under the name ("AI-generated · Soul Over AI", "Your
+  artists", 'Keyword "x"'). Unfolded: each song once, newest first, with a
+  short tag (Removed, Hidden, Skipped, Disliked, Would skip, Played,
+  Couldn't skip, Couldn't remove), a count when it repeats, and a time ("5
+  min ago", today's time, "Yesterday", "Nov 12"). The album and year aren't
+  shown.
+- Watch only is set per list under Behaviour (Wai, 2026-11-16: "watch only
+  should go under behaviour, not lists"), not on the list cards.
 - The header says what happened today ("3 skipped · 2 removed today", or
   "Paused") and holds the Pause switch.
 - Keeps the last 1000 entries; "Clear log" and "Export log" (one full line
