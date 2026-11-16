@@ -296,7 +296,9 @@ list".
     from Watch only lists; "Played" with auto-skip off).
   - **Errors**: a skip that didn't take (same song 10 s later), a queue row
     that couldn't be removed (once a day per song), a list update that
-    failed. The song plays on in every case.
+    failed. The song plays on in every case. A row whose removal failed is
+    tried at most twice, 10 s apart, so its menu doesn't open on every check;
+    auto-skip still catches it if it plays.
   The popup opens on the section of the newest entry.
 - Grouped by artist (Wai: "grouping should be done by artist") so nothing
   repeats (Wai: "avoid repeating text in logs"): each artist once, with the

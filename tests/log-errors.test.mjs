@@ -58,6 +58,20 @@ run([
     await app.flush();
     return !log().some(e => e.event === 'skip-failed') || J(log().map(e => e.event));
   }],
+  ['a row that can’t be removed is tried at most twice, 10 s apart, not on every check', async () => {
+    const queue = [{ ...PERSON, selected: true }, { title: 'Let it Burn', artistLine: 'The Velvet Sundown • Dust and Silence', selected: false }];
+    const f = fakeSite({ song: PERSON, queue, removes: false });
+    const { app, clock } = await start(f.site);
+    const first = f.calls.remove;
+    for (let i = 0; i < 5; i++) await app.runLookahead(); // checks in quick succession
+    const quick = f.calls.remove;
+    await settle(clock, 11000);
+    for (let i = 0; i < 5; i++) await app.runLookahead();
+    const later = f.calls.remove;
+    await settle(clock, 60000);
+    for (let i = 0; i < 5; i++) await app.runLookahead();
+    return (first === 1 && quick === 1 && later === 2 && f.calls.remove === 2) || J({ first, quick, later, end: f.calls.remove });
+  }],
   ['a queue row that can’t be removed is logged as remove-failed, once a day', async () => {
     const queue = [{ ...PERSON, selected: true }, { title: 'Let it Burn', artistLine: 'The Velvet Sundown • Dust and Silence', selected: false }];
     const f = fakeSite({ song: PERSON, queue, removes: false });

@@ -54,6 +54,7 @@
       lastChanceFor: '', // the song the near-the-end check already opened the panel for
       closeAfterCheck: false, // close the panel again once its rows were seen
       skipMatch: null, // the match behind the skip in progress (for a skip-failed log line)
+      removeFailures: new Map(), // queue rows whose removal failed: rowKey -> { tries, at }
     };
     let writes = Promise.resolve();
 
@@ -181,21 +182,31 @@
       showQueue();
       lastChance();
       state.lookaheadRunning = true;
-      const failed = new Set();
+      // A row whose removal failed is remembered across checks (a check runs on every page
+      // update, about once a second while music plays): tried at most twice, 10 s apart, so
+      // its menu doesn't open again and again. Auto-skip still catches it if it plays.
+      const resting = row => {
+        const f = state.removeFailures.get(rowKey(row));
+        return !!f && (f.tries >= 2 || now() - f.at < 10000);
+      };
       try {
         for (let guard = 0; guard < 50; guard++) {
           // Re-read every time: removing a row shifts the rows after it.
           const rows = safe(() => site.readQueue(doc), []);
           if (rows.length > 1) state.checkedFor = songKey(rows.find(r => r.selected) || null) || state.checkedFor;
           const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
-            row => (failed.has(rowKey(row)) ? null : matchSong(row)));
+            row => (resting(row) ? null : matchSong(row)));
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
           if (!remove.length || typing()) break;
           const row = rows[remove[0]];
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
           if (removed) log('removed', row, match);
-          else { failed.add(rowKey(row)); log('remove-failed', row, match, { oncePerDay: true }); }
+          else {
+            const f = state.removeFailures.get(rowKey(row)) || { tries: 0, at: 0 };
+            state.removeFailures.set(rowKey(row), { tries: f.tries + 1, at: now() });
+            log('remove-failed', row, match, { oncePerDay: true });
+          }
         }
       } finally {
         state.lookaheadRunning = false;
