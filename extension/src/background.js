@@ -97,8 +97,9 @@
         }
       }
       // Ensure the built-in verdict list is always present after bundled import
+      // (no list meta yet means install has not run: leave the storage to it)
       let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
-      if (!metas.some(m => m.id === 'hm-verdicts')) {
+      if (Array.isArray(metas) && !metas.some(m => m.id === 'hm-verdicts')) {
         metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
         await storage.set({ [HM.store.KEYS.filterLists]: metas });
       }
