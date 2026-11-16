@@ -13,7 +13,11 @@ tryEq('modes', () => settings.MODES, ['off', 'lists', 'optimal', 'aggressive']);
 tryEq('default', () => settings.sanitize({}).mode, 'lists');
 tryEq('defaults object', () => settings.DEFAULTS.mode, 'lists');
 tryEq('old paused migrates', () => settings.sanitize({ paused: true }).mode, 'off');
-tryEq('mode wins over paused', () => settings.sanitize({ paused: true, mode: 'optimal' }).mode, 'optimal');
+// paused: true (the Pause switch, and settings written before modes existed) always means No filtering;
+// the mode slider writes paused: false whenever it leaves 'off'.
+tryEq('paused wins: off', () => settings.sanitize({ paused: true, mode: 'optimal' }).mode, 'off');
+tryEq('paused with defaults spread in: off', () => settings.sanitize({ ...settings.DEFAULTS, paused: true }).mode, 'off');
+tryEq('paused false keeps the mode', () => settings.sanitize({ paused: false, mode: 'optimal' }).mode, 'optimal');
 tryEq('paused follows mode', () => [settings.sanitize({ mode: 'off' }).paused, settings.sanitize({ mode: 'aggressive' }).paused], [true, false]);
 tryEq('junk mode', () => settings.sanitize({ mode: 'turbo' }).mode, 'lists');
 tryEq('inherited key is junk', () => settings.sanitize({ mode: 'toString' }).mode, 'lists');
