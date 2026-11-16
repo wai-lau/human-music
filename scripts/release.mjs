@@ -5,12 +5,16 @@
 //   node scripts/release.mjs status    published and submitted versions, review state
 //   node scripts/release.mjs upload    pack the signed .crx from git HEAD and upload it
 //   node scripts/release.mjs publish   upload, then submit it for review (goes live on approval)
+//   node scripts/release.mjs release [patch|minor|major]   (npm run release) the whole release:
+//       refuses on a dirty tree, off main, behind GitHub or while a version waits for review;
+//       runs unit tests, lint and end-to-end tests; bumps the version, commits, tags v<version>
+//       and pushes; packs the signed .crx, uploads it and submits it for review
 //
 // Config, kept outside the repo like the signing key: ~/.keys/human-music-cws.json
 //   { "publisherId": "...", "itemId": "...", "serviceAccountKey": "~/.keys/<service account>.json" }
 // ($HM_CWS_CONFIG points elsewhere.) The service account's JSON key is Google's own file.
 // Nothing here prints a key or a token.
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { createSign } from 'crypto';
 import { execFileSync } from 'child_process';
 import { homedir } from 'os';
@@ -113,6 +117,54 @@ export function createClient({ config, serviceAccount, fetch, now = () => Date.n
   return { status, upload, publish };
 }
 
+// 0.1.2 -> 0.1.3 (patch), 0.2.0 (minor), 1.0.0 (major).
+export function bump(version, kind = 'patch') {
+  const [major = 0, minor = 0, patch = 0] = String(version).split('.').map(Number);
+  if (kind === 'major') return `${major + 1}.0.0`;
+  if (kind === 'minor') return `${major}.${minor + 1}.0`;
+  if (kind === 'patch') return `${major}.${minor}.${patch + 1}`;
+  throw new Error(`unknown release kind ${kind}: use patch, minor or major`);
+}
+
+// The whole release, with every outside step passed in (so tests can watch the order).
+// git(args) returns stdout; run(cmd, args) throws when the command fails.
+export async function runRelease({ kind = 'patch', git, run, client, readVersion, writeVersion, readCrx, log = console.log }) {
+  if (git(['status', '--porcelain', '--untracked-files=no']).trim()) throw new Error('uncommitted changes: commit or stash them first');
+  const branch = git(['rev-parse', '--abbrev-ref', 'HEAD']).trim();
+  if (branch !== 'main') throw new Error(`on ${branch}: releases go from main`);
+  git(['fetch', '--quiet', 'origin', 'main']);
+  if (Number(git(['rev-list', '--count', 'HEAD..origin/main']).trim()) > 0) throw new Error('main is behind GitHub: pull first');
+
+  const before = await client.status();
+  log(describe(before));
+  if (before.submittedItemRevisionStatus) {
+    throw new Error(`a version is still waiting for review (${knownVersions({ publishedItemRevisionStatus: before.submittedItemRevisionStatus }).join(', ') || 'unknown'}): release again once it is through`);
+  }
+
+  for (const [cmd, args] of [['npm', ['test']], ['npm', ['run', 'lint']], ['npm', ['run', 'e2e']]]) {
+    log(`checking: ${cmd} ${args.join(' ')}`);
+    run(cmd, args);
+  }
+
+  const held = [readVersion(), ...knownVersions(before)];
+  const top = held.reduce((a, b) => (newer(b, a) ? b : a));
+  const version = bump(top, kind);
+  writeVersion(version);
+  git(['commit', '-q', '-m', `release: ${version}`, '--', 'extension/manifest.json']);
+  git(['tag', `v${version}`]);
+  git(['push', '-q', 'origin', 'main', `v${version}`]);
+  log(`committed and pushed ${version}`);
+
+  run('scripts/pack-crx.sh');
+  const name = `human-music-${version}.crx`;
+  const up = await client.upload(readCrx(version), name);
+  log(`uploaded ${up.crxVersion || version} (${up.uploadState})`);
+  const pub = await client.publish();
+  log(`submitted ${version} for review: ${pub.state}`);
+  for (const w of (pub.warningInfo && pub.warningInfo.warnings) || []) log(`warning: ${w.reason} ${w.description || ''}`);
+  return { version, state: pub.state };
+}
+
 function loadConfig() {
   const path = home(process.env.HM_CWS_CONFIG || '~/.keys/human-music-cws.json');
   let config;
@@ -129,10 +181,24 @@ function describe(st) {
     st.takenDown ? 'TAKEN DOWN' : null, st.warned ? 'warned' : null].filter(Boolean).join('\n');
 }
 
-async function main(cmd) {
-  if (!['status', 'upload', 'publish'].includes(cmd)) { console.error('usage: node scripts/release.mjs status|upload|publish'); process.exit(2); }
+async function main(cmd, arg) {
+  if (!['status', 'upload', 'publish', 'release'].includes(cmd)) { console.error('usage: node scripts/release.mjs status|upload|publish|release [patch|minor|major]'); process.exit(2); }
   const { config, serviceAccount } = loadConfig();
   const client = createClient({ config, serviceAccount, fetch: globalThis.fetch });
+  if (cmd === 'release') {
+    const manifest = join(repo, 'extension', 'manifest.json');
+    const { version } = await runRelease({
+      kind: arg || 'patch',
+      git: args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }),
+      run: (c, args = []) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit' }),
+      client,
+      readVersion: () => JSON.parse(readFileSync(manifest, 'utf8')).version,
+      writeVersion: v => writeFileSync(manifest, readFileSync(manifest, 'utf8').replace(/"version": "[^"]*"/, `"version": "${v}"`)),
+      readCrx: v => readFileSync(join(repo, 'dist', `human-music-${v}.crx`)),
+    });
+    console.log(`done: ${version} is in Google's review queue; it goes live once approved`);
+    return;
+  }
   const before = await client.status();
   console.log(describe(before));
   if (cmd === 'status') return;
@@ -152,5 +218,5 @@ async function main(cmd) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main(process.argv[2]).catch(e => { console.error(String(e && e.message || e)); process.exit(1); });
+  main(process.argv[2], process.argv[3]).catch(e => { console.error(String(e && e.message || e)); process.exit(1); });
 }

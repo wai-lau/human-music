@@ -122,6 +122,9 @@ profile and the extension unpacked, and serves small stand-in pages in place
 of music.youtube.com and open.spotify.com, built from the page selectors in
 the spec. Set `HM_E2E_HEADED=1` to watch them run.
 
+Release to the Chrome Web Store: `npm run release` (see `docs/store-listing.md`;
+needs the signing key and the store credentials in `~/.keys`).
+
 ## License
 
 MIT, copyright wai-lau. See [LICENSE](LICENSE).

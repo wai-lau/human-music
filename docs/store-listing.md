@@ -91,17 +91,22 @@ Visibility: Public, Unlisted (only people with the link) or Private
 
 ## Releasing from the terminal
 
-After the first upload in the dashboard, every release goes through
-`scripts/release.mjs` (Chrome Web Store API v2, a service account):
+After the first upload in the dashboard, every release is one command:
 
-1. Bump `version` in `extension/manifest.json` and commit.
-2. `node scripts/release.mjs publish`: packs the signed `.crx` from git HEAD
-   (`scripts/pack-crx.sh`), uploads it, and submits it for review. It goes
-   live with the item's current visibility once Google approves it.
-   `status` shows the published and submitted versions; `upload` stops
-   before submitting.
+    npm run release            (or: npm run release -- minor / major)
 
-One-time setup (Wai):
+It refuses on uncommitted changes, off `main`, behind GitHub, or while a
+version still waits for review. Then it runs the unit tests, lint and the
+end-to-end tests, bumps the version above everything the store holds,
+commits `release: <version>`, tags `v<version>`, pushes, packs the signed
+`.crx` (`scripts/pack-crx.sh`), uploads it and submits it for review. It
+goes live with the item's current visibility once Google approves it.
+
+`node scripts/release.mjs status` shows the published and submitted
+versions. If an upload fails after the push, `node scripts/release.mjs
+publish` uploads and submits the version at HEAD without bumping again.
+
+One-time setup (Wai; done 2026-11-15):
 
 1. Google Cloud console: create a project, search "Chrome Web Store API",
    enable it.

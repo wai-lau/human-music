@@ -2,7 +2,7 @@
 // Store API calls (signed .crx upload headers, polling, publish), and the version guard.
 import { generateKeyPairSync, createVerify } from 'crypto';
 import { run } from './load.mjs';
-import { makeJwt, newer, knownVersions, createClient } from '../scripts/release.mjs';
+import { makeJwt, newer, knownVersions, createClient, bump, runRelease } from '../scripts/release.mjs';
 
 const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const SA = { client_email: 'releaser@example.iam.gserviceaccount.com', private_key: privateKey.export({ type: 'pkcs8', format: 'pem' }) };
@@ -24,7 +24,7 @@ function fakeFetch(answers) {
 }
 const token = { status: 200, body: { access_token: 'tok-123', expires_in: 3600 } };
 
-run([
+const basics = [
   ['makeJwt: RS256, signed by the service account, claims for the Web Store scope', () => {
     const jwt = makeJwt(SA, 1000);
     const [h, c, sig] = jwt.split('.');
@@ -72,5 +72,70 @@ run([
     const f = fakeFetch({ 'oauth2.googleapis.com/token': token, ':fetchStatus': { status: 403, body: { error: { message: 'forbidden' } } } });
     const client = createClient({ config: CONFIG, serviceAccount: SA, fetch: f.fetch });
     try { await client.status(); return 'did not throw'; } catch (e) { return (/403/.test(e.message) && /fetchStatus/.test(e.message) && !/tok-123/.test(e.message)) || e.message; }
+  }],
+];
+
+// The whole release (npm run release): refusals first, then checks, bump, commit, push,
+// pack, upload, publish, in that order. Every step is a fake that records itself.
+
+function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.2' }] } },
+  head = '0.1.2', dirty = '', branch = 'main', behind = '0', failing = null } = {}) {
+  const steps = [];
+  let version = head;
+  const git = args => {
+    steps.push('git ' + args.join(' '));
+    if (args[0] === 'status') return dirty;
+    if (args[0] === 'rev-parse' && args.includes('--abbrev-ref')) return branch + '\n';
+    if (args[0] === 'rev-list') return behind + '\n';
+    return '';
+  };
+  const run = (cmd, args = []) => { const s = [cmd, ...args].join(' '); steps.push('run ' + s); if (failing && s.includes(failing)) throw new Error(s + ' failed'); };
+  const client = {
+    status: async () => { steps.push('status'); return status; },
+    upload: async (bytes, name) => { steps.push('upload ' + name); return { uploadState: 'SUCCEEDED', crxVersion: version }; },
+    publish: async () => { steps.push('publish'); return { state: 'PENDING_REVIEW' }; },
+  };
+  const deps = { git, run, client, readVersion: () => version, writeVersion: v => { steps.push('version ' + v); version = v; },
+    readCrx: v => { steps.push('read crx ' + v); return Buffer.from('crx'); }, log: () => {} };
+  return { steps, deps };
+}
+
+await run([
+  ...basics,
+  ['bump: patch, minor, major', () => bump('0.1.2', 'patch') === '0.1.3' && bump('0.1.2', 'minor') === '0.2.0' && bump('0.1.2', 'major') === '1.0.0' && bump('1.2', 'patch') === '1.2.1'],
+  ['a release runs checks, then bumps, commits, tags, pushes, packs, uploads and submits, in order', async () => {
+    const { steps, deps } = fakes();
+    const res = await runRelease({ kind: 'patch', ...deps });
+    const order = ['status', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'git tag v0.1.3', 'git push', 'run scripts/pack-crx.sh', 'read crx 0.1.3', 'upload human-music-0.1.3.crx', 'publish'];
+    let at = -1;
+    const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
+    return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
+  }],
+  ['the new version is above everything the store holds, not just HEAD', async () => {
+    const { deps } = fakes({ head: '0.1.2', status: { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.5' }] } } });
+    const res = await runRelease({ kind: 'patch', ...deps });
+    return res.version === '0.1.6' || res.version;
+  }],
+  ['refused while a version waits for review: nothing changed', async () => {
+    const { steps, deps } = fakes({ status: { submittedItemRevisionStatus: { state: 'PENDING_REVIEW', distributionChannels: [{ crxVersion: '0.1.2' }] } } });
+    try { await runRelease({ kind: 'patch', ...deps }); return 'did not refuse'; } catch (e) {
+      return (/review/i.test(e.message) && !steps.some(s => /^version|^git commit|^upload|^publish/.test(s))) || e.message + ' ' + JSON.stringify(steps);
+    }
+  }],
+  ['refused with uncommitted changes, off main, or behind GitHub', async () => {
+    const out = [];
+    for (const f of [{ dirty: ' M extension/src/content.js\n' }, { branch: 'feature' }, { behind: '2' }]) {
+      const { steps, deps } = fakes(f);
+      try { await runRelease({ kind: 'patch', ...deps }); out.push('did not refuse ' + JSON.stringify(f)); } catch (e) {
+        if (steps.some(s => /^version|^upload|^run npm/.test(s))) out.push('went too far ' + JSON.stringify(f));
+      }
+    }
+    return out.length === 0 || out.join('; ');
+  }],
+  ['a failing check stops before the version changes', async () => {
+    const { steps, deps } = fakes({ failing: 'npm run e2e' });
+    try { await runRelease({ kind: 'patch', ...deps }); return 'did not stop'; } catch (e) {
+      return !steps.some(s => /^version|^git commit|^upload/.test(s)) || JSON.stringify(steps);
+    }
   }],
 ]);
