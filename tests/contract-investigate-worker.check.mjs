@@ -111,6 +111,24 @@ await t('items with missing fields never throw', async () => {
   const res = await r.inv.send([{}, null, { credits: [null, 'Forrest Rose'] }]);
   return (typeof res.sent === 'number' && typeof res.skipped === 'number') || J(res);
 });
+await t('fresh verdicts: a start refreshes hm-verdicts only after a recent send, at most every 5 minutes', () => {
+  const due = HM.verdictsRefreshDue;
+  if (typeof due !== 'function') return 'HM.verdictsRefreshDue missing';
+  const MIN = 60000;
+  const lists = lastRefresh => [{ id: 'soul-over-ai', lastRefresh: null }, { id: 'hm-verdicts', enabled: true, lastRefresh }];
+  const cases = [
+    [due({ lastSentAt: NOON - 10 * MIN }, lists(NOON - 6 * MIN), NOON), true],
+    [due({ lastSentAt: NOON - 10 * MIN }, lists(null), NOON), true],
+    [due({ lastSentAt: NOON - 10 * MIN }, lists(NOON - 4 * MIN), NOON), false],
+    [due({ lastSentAt: NOON - 31 * MIN }, lists(NOON - 60 * MIN), NOON), false],
+    [due({}, lists(null), NOON), false],
+    [due(undefined, lists(null), NOON), false],
+    [due({ lastSentAt: NOON - MIN }, [{ id: 'hm-verdicts', enabled: false, lastRefresh: null }], NOON), false],
+    [due({ lastSentAt: NOON - MIN }, undefined, NOON), false],
+  ];
+  const bad = cases.map(([got, want], i) => got === want ? null : i).filter(i => i !== null);
+  return bad.length === 0 || 'wrong for cases ' + J(bad);
+});
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);

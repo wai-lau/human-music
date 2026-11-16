@@ -427,6 +427,18 @@ list = lists[HM.store.KEYS.filterLists][i];
 
   globalThis.HM.createInvestigator = createInvestigator;
 
+  // Fresh verdicts (investigator plan, Task 5): for 30 minutes after a send, each worker
+  // start refreshes the verdict list when its copy is more than 5 minutes old, so new
+  // verdicts arrive soon after the investigator writes them.
+  function verdictsRefreshDue(investigator, filterLists, now) {
+    if (!investigator || typeof investigator.lastSentAt !== 'number') return false;
+    if (now - investigator.lastSentAt > 30 * 60000) return false;
+    const meta = Array.isArray(filterLists) ? filterLists.find(function (l) { return l && l.id === 'hm-verdicts'; }) : null;
+    if (!meta || meta.enabled === false) return false;
+    return typeof meta.lastRefresh !== 'number' || now - meta.lastRefresh > 5 * 60000;
+  }
+  globalThis.HM.verdictsRefreshDue = verdictsRefreshDue;
+
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     // Firefox's browser.* always returns promises (its chrome.* may not); Chrome has no browser.
     const api = HM.store.api();
@@ -435,6 +447,11 @@ list = lists[HM.store.KEYS.filterLists][i];
       fetch: function (url) { return fetch(url); },
       now: function () { return Date.now(); },
       assetUrl: function (path) { return chrome.runtime.getURL(path); }
+    });
+    globalThis.HM.investigator = globalThis.HM.createInvestigator({
+      storage: api.storage.local,
+      fetch: function (url, init) { return fetch(url, init); },
+      now: function () { return Date.now(); }
     });
 
     // Development mode: only true when management.getSelf() reports installType 'development'
@@ -516,7 +533,14 @@ list = lists[HM.store.KEYS.filterLists][i];
     // No alarms (Wai, 2026-11-13: "minimize required permissions"): the worker starts whenever
     // a music tab opens or talks to it (and when the popup asks), and each start refreshes
     // the lists that are due.
-    Promise.resolve().then(function () { return globalThis.HM.refresher.refreshDue(); }).catch(function () { /* next start tries again */ });
+    Promise.resolve().then(function () { return globalThis.HM.refresher.refreshDue(); })
+      .then(function () { return api.storage.local.get([HM.store.KEYS.investigator, HM.store.KEYS.filterLists]); })
+      .then(function (got) {
+        if (verdictsRefreshDue(got[HM.store.KEYS.investigator], got[HM.store.KEYS.filterLists], Date.now())) {
+          return globalThis.HM.refresher.refreshOne('hm-verdicts');
+        }
+      })
+      .catch(function () { /* next start tries again */ });
 
     // The toolbar count, per tab: songs skipped or removed from the queue there (Wai,
     // 2026-11-13: "see how lastpass has this 1 symbol, show the same for human music").
@@ -542,6 +566,15 @@ list = lists[HM.store.KEYS.filterLists][i];
       }
       if (msg && msg.type === 'dev-reload') {
         if (isDev()) chrome.runtime.reload();
+        return false;
+      }
+      // Unknown artists for the investigator. Only a development copy ever sends (Wai,
+      // 2026-11-16: "my developer copy is the only one that calls the investigator"),
+      // and only with the key she pasted into it.
+      if (msg && msg.type === 'hm-investigate' && Array.isArray(msg.items)) {
+        waitDev(function (dev) {
+          if (dev) globalThis.HM.investigator.send(msg.items.slice(0, 50)).catch(function () { /* recorded as lastError */ });
+        });
         return false;
       }
       if (msg && msg.type === 'refresh' && typeof msg.id === 'string') {
