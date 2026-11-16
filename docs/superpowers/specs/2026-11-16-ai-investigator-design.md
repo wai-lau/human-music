@@ -1,6 +1,6 @@
 # AI investigator: design
 
-Status: approved by Wai 2026-11-16 ("Looks good / Go").
+Status: approved by Wai 2026-11-16 ("Looks good / Go"); corrected the same day: the verdict list is published on GitHub, not served by the droplet (below).
 
 ## Why
 
@@ -32,6 +32,28 @@ outside the extension.
   confidence level".
 - Who sends: "only my copy". Every other copy only reads the published list.
 - Where: "on the droplet" (wai-lau.net), which also serves the list.
+
+## Correction (Wai, 2026-11-16)
+
+Wai: "my developer copy is the only one that calls the investigator / The
+investigator should update something in a public repo (this one) / The
+extension will download from GH once in a while to keep the lists in sync".
+
+- The droplet runs the investigator only; it no longer serves
+  `verdicts.json`. Only Wai's copy ever contacts it.
+- After each verdict, the investigator commits the updated
+  `verdicts.json` to a public GitHub repo (which one is an open question:
+  this repo is private today).
+- Every Human Music downloads the list from GitHub on its normal refresh
+  schedule, like Soul Over AI; GitHub raw files allow any origin, so no
+  permission changes, and no ordinary user ever reaches Wai's server (no
+  visitor IP addresses in her logs; the store's "collects no data" answer
+  stays true).
+- The droplet needs a write credential for that one repo (a deploy key),
+  set up with Wai's yes like the other setup steps.
+
+Where the text below still says the droplet serves the list, this
+correction wins.
 
 ## Goals
 

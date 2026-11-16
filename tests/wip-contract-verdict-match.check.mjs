@@ -2,7 +2,7 @@
 //   node tests/wip-contract-verdict-match.check.mjs
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
-const { match, log, lists } = load(['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js']).HM;
+const { match, log } = load(['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js']).HM;
 const fails = [];
 const J = v => JSON.stringify(v);
 const eq = (label, got, want) => { if (J(got) !== J(want)) fails.push(`${label}: got ${J(got)} want ${J(want)}`); };
