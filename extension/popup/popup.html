@@ -6,105 +6,146 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="header">Human Music</div>
+  <header class="top">
+    <img class="logo" src="../icons/icon48.png" alt="">
+    <div class="title">
+      <div class="name">Human Music</div>
+      <div id="today" class="today"></div>
+    </div>
+    <label class="switch pause" title="Pause Human Music everywhere">
+      <span class="switch-label">Pause</span>
+      <input type="checkbox" id="paused">
+      <span class="track" aria-hidden="true"></span>
+    </label>
+  </header>
 
-  <div class="tabs">
+  <nav class="tabs">
     <button class="tab active" data-tab="log">Log</button>
     <button class="tab" data-tab="lists">Lists</button>
     <button class="tab" data-tab="behaviour">Behaviour</button>
-  </div>
+  </nav>
   <div id="status" class="status" role="status"></div>
 
-  <div class="content">
-    <div id="tab-lists" class="tab-content">
+  <main class="content">
+    <section id="tab-log" class="tab-content active">
+      <div class="seg" role="group" aria-label="Log section">
+        <button class="seg-btn" data-section="blocks">Blocked <span class="n"></span></button>
+        <button class="seg-btn" data-section="actions">Actions <span class="n"></span></button>
+        <button class="seg-btn" data-section="errors">Errors <span class="n"></span></button>
+      </div>
+      <p id="section-hint" class="hint section-hint"></p>
+      <ul id="log-entries"></ul>
+      <div class="log-controls">
+        <button id="export-log" class="link">Export log</button>
+        <button id="clear-log" class="link">Clear log</button>
+      </div>
+    </section>
+
+    <section id="tab-lists" class="tab-content">
       <h3>Filter lists</h3>
       <ul id="filter-lists"></ul>
       <div class="add-list">
-        <input type="url" id="list-url" placeholder="https://">
-        <input type="text" id="list-name" placeholder="Name (optional)">
-        <button id="add-list-btn">Add list by URL</button>
+        <input type="url" id="list-url" placeholder="List address (https://…)">
+        <div class="row">
+          <input type="text" id="list-name" placeholder="Name (optional)">
+          <button id="add-list-btn" class="primary">Add list</button>
+        </div>
+        <label class="check"><input type="checkbox" id="list-act-now"> Act at once</label>
+        <p class="hint">Otherwise a new list starts in Watch only, so you can check its matches in the log first.</p>
       </div>
-      <label class="act-now"><input type="checkbox" id="list-act-now"> Act at once (otherwise a new list starts in Watch only, so you can check its matches in the log first)</label>
       <div class="refresh-settings">
-        <label for="refresh-frequency">Refresh all lists:</label>
+        <label for="refresh-frequency">Update lists</label>
         <select id="refresh-frequency">
           <option value="6h">Every 6 hours</option>
           <option value="12h">Every 12 hours</option>
           <option value="daily" selected>Daily</option>
           <option value="weekly">Weekly</option>
-          <option value="manual">Manual only</option>
+          <option value="manual">Only when I ask</option>
         </select>
       </div>
-      <h3>Your artists</h3>
-      <div class="entry-form">
-        <input type="text" id="artist-input" placeholder="Artist name">
-        <button data-kind="artists" class="add-entry-btn">Add</button>
-      </div>
-      <ul id="artists"></ul>
-      <h3>Your songs</h3>
-      <div class="entry-form">
-        <input type="text" id="song-title" placeholder="Song title">
-        <input type="text" id="song-artist" placeholder="Artist (optional)">
-        <button id="add-song-btn">Add</button>
-      </div>
-      <ul id="songs"></ul>
-      <h3>Your keywords</h3>
-      <div class="entry-form">
-        <input type="text" id="keyword-input" placeholder="Keyword (whole word)">
-        <button data-kind="keywords" class="add-entry-btn">Add</button>
-      </div>
-      <ul id="keywords"></ul>
-      <h3>Never skip</h3>
-      <div class="entry-form">
-        <input type="text" id="never-skip-input" placeholder="Artist to always play">
-        <button data-kind="neverSkip" class="add-entry-btn">Add</button>
-      </div>
-      <ul id="never-skip"></ul>
-      <h3>Backup</h3>
-      <div class="backup-controls">
-        <button id="export-btn">Export</button>
-        <input type="file" id="import-file" accept=".json">
-        <button id="import-btn">Import</button>
-      </div>
-      <div class="credit">Soul Over AI list by souloverai.com, CC BY 4.0.</div>
-    </div>
 
-    <div id="tab-behaviour" class="tab-content">
+      <div class="block">
+        <h3>Your artists</h3>
+        <div class="entry-form">
+          <input type="text" id="artist-input" placeholder="Artist name">
+          <button data-kind="artists" class="add-entry-btn">Add</button>
+        </div>
+        <ul id="artists" class="entries"></ul>
+      </div>
+      <div class="block">
+        <h3>Your songs</h3>
+        <div class="entry-form">
+          <input type="text" id="song-title" placeholder="Song title">
+          <input type="text" id="song-artist" placeholder="Artist (optional)">
+          <button id="add-song-btn">Add</button>
+        </div>
+        <ul id="songs" class="entries"></ul>
+      </div>
+      <div class="block">
+        <h3>Your keywords</h3>
+        <div class="entry-form">
+          <input type="text" id="keyword-input" placeholder="Whole word, in a title or artist name">
+          <button data-kind="keywords" class="add-entry-btn">Add</button>
+        </div>
+        <ul id="keywords" class="entries"></ul>
+      </div>
+      <div class="block">
+        <h3>Never skip</h3>
+        <div class="entry-form">
+          <input type="text" id="never-skip-input" placeholder="Artist to always play">
+          <button data-kind="neverSkip" class="add-entry-btn">Add</button>
+        </div>
+        <ul id="never-skip" class="entries"></ul>
+      </div>
+      <div class="block">
+        <h3>Backup</h3>
+        <div class="backup-controls">
+          <button id="export-btn">Export</button>
+          <input type="file" id="import-file" accept=".json">
+          <button id="import-btn">Import</button>
+        </div>
+      </div>
+      <p class="credit">Soul Over AI list by souloverai.com, CC BY 4.0.</p>
+    </section>
+
+    <section id="tab-behaviour" class="tab-content">
       <div class="setting">
-        <label for="lookahead">Lookahead distance (songs ahead to remove):</label>
+        <div class="setting-text">
+          <label for="lookahead">Check songs ahead in the queue</label>
+          <p class="hint">Listed songs are removed before they play. 0 turns this off.</p>
+        </div>
         <input type="number" id="lookahead" min="0" max="10">
-        <span class="hint">0 turns lookahead off</span>
       </div>
       <div class="setting">
-        <label for="auto-skip">Auto-skip a playing match:</label>
-        <input type="checkbox" id="auto-skip">
+        <div class="setting-text">
+          <label for="auto-skip">Skip a listed song that starts</label>
+          <p class="hint">Moves on by exactly one song. Its rows on pages look greyed out.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="auto-skip"><span class="track" aria-hidden="true"></span></label>
       </div>
       <div class="setting">
-        <label for="auto-dislike">Auto-dislike:</label>
-        <input type="checkbox" id="auto-dislike">
+        <div class="setting-text">
+          <label for="auto-dislike">Also dislike it</label>
+          <p class="hint">YouTube Music only. On Spotify it just skips.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="auto-dislike"><span class="track" aria-hidden="true"></span></label>
       </div>
       <div class="setting">
-        <label for="hide-items">Hide listed artists on pages:</label>
-        <input type="checkbox" id="hide-items">
+        <div class="setting-text">
+          <label for="hide-items">Hide listed artists on pages</label>
+          <p class="hint">Home, Explore and search results.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="hide-items"><span class="track" aria-hidden="true"></span></label>
       </div>
       <div class="setting">
-        <label for="player-buttons">Player buttons:</label>
-        <input type="checkbox" id="player-buttons">
+        <div class="setting-text">
+          <label for="player-buttons">Block artist button on the player</label>
+          <p class="hint">Next to Repeat: adds the playing artist to your list and skips.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="player-buttons"><span class="track" aria-hidden="true"></span></label>
       </div>
-      <div class="setting">
-        <label for="paused">Pause Human Music:</label>
-        <input type="checkbox" id="paused">
-      </div>
-    </div>
-
-    <div id="tab-log" class="tab-content active">
-      <div class="log-controls">
-        <button id="clear-log">Clear log</button>
-        <button id="export-log">Export log</button>
-      </div>
-      <ul id="log-entries"></ul>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="../src/core/text.js"></script>
   <script src="../src/core/store.js"></script>

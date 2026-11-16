@@ -13,8 +13,9 @@ test('the built-in Soul Over AI list shows its bundled artists', async ({ contex
   await popup.locator('.tab[data-tab="lists"]').click(); // the popup opens on Log
   const row = popup.locator('#filter-lists .list-row').filter({ hasText: 'Soul Over AI' });
   await expect(row).toHaveCount(1);
-  await expect(row.locator('.list-name')).toHaveText('Soul Over AI (built in)');
-  await expect(row.locator('.list-info')).toContainText(/^[1-9]\d* artists/);
+  await expect(row.locator('.list-name')).toHaveText('Soul Over AI');
+  await expect(row.locator('.chip')).toHaveText('Built in');
+  await expect(row.locator('.list-info')).toContainText(/^[1-9][\d,]* artists/);
   await expect(row.getByRole('button', { name: 'Remove' })).toHaveCount(0);
 });
 
@@ -32,14 +33,15 @@ test('an artist added in the popup is skipped in an open tab', async ({ context,
   await expect.poll(async () => (await readLog()).map(e => e.event)).toEqual(['skipped']);
 });
 
-test('"Wrong: never skip this artist" in the log protects the artist', async ({ context, extensionId, setState, readStore }) => {
+test('"Always play" in the log protects the artist', async ({ context, extensionId, setState, readStore }) => {
   await setState({ user: { artists: [AI] }, settings: { lookahead: 0 } });
   const page = await openSite(context, YTM, { songs: [{ title: 'Made Song', artist: AI }, { title: 'After', artist: PERSON }] });
   await expect.poll(async () => (await events(page)).filter(e => e.type === 'key-j').length).toBe(1);
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
-  await expect(popup.locator('#log-entries .log-desc')).toHaveText(['Skipped: on your artists list']);
-  await popup.getByRole('button', { name: 'Wrong: never skip this artist' }).click();
+  await expect(popup.locator('#log-entries .log-reason')).toHaveText(['Your artists']);
+  await expect(popup.locator('#log-entries .tag')).toHaveText(['Skipped']);
+  await popup.getByRole('button', { name: `Always play ${AI}` }).click();
   await expect.poll(async () => (await readStore('hm.user')).neverSkip).toEqual([AI]);
 });
 

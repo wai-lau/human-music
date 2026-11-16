@@ -53,6 +53,7 @@
       checkedFor: '', // the song whose upcoming rows lookahead has seen
       lastChanceFor: '', // the song the near-the-end check already opened the panel for
       closeAfterCheck: false, // close the panel again once its rows were seen
+      skipMatch: null, // the match behind the skip in progress (for a skip-failed log line)
     };
     let writes = Promise.resolve();
 
@@ -119,6 +120,7 @@
       if (!match) return;
       if (match.mode === 'watch') { log('watched', song, match); return; }
       if (!state.settings.autoSkip) { log('seen', song, match); return; }
+      state.skipMatch = match; // named in the log if this skip doesn't take
       safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
       log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
     }
@@ -193,7 +195,7 @@
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
           if (removed) log('removed', row, match);
-          else failed.add(rowKey(row));
+          else { failed.add(rowKey(row)); log('remove-failed', row, match, { oncePerDay: true }); }
         }
       } finally {
         state.lookaheadRunning = false;
@@ -306,6 +308,7 @@
         page: pageFor(site, doc),
         setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout,
         setInterval: timers.setInterval, clearInterval: timers.clearInterval,
+        onGiveUp: song => log('skip-failed', song, state.skipMatch),
       });
       storage.onChanged.addListener((changes, area) => {
         if (area && area !== 'local') return;

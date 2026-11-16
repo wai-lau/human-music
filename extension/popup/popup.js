@@ -19,6 +19,7 @@
       if (k === 'class') e.className = v;
       else if (k === 'onclick') e.addEventListener('click', v);
       else if (k === 'onchange') e.addEventListener('change', v);
+      else if (k.includes('-')) e.setAttribute(k, v);
       else e[k] = v;
     }
     for (const c of children) if (c != null) e.append(c);
@@ -74,9 +75,10 @@
   function renderFilterLists() {
     const ul = $('filter-lists');
     clear(ul);
+    const now = Date.now();
     for (const list of state.lists) {
       const on = node('input', {
-        type: 'checkbox', checked: !!list.enabled, title: 'On or off',
+        type: 'checkbox', checked: !!list.enabled, title: 'On or off', 'aria-label': `${list.name} on`,
         onchange: () => {
           if (!on.checked) { updateList(list.id, { enabled: false }); return; }
           updateList(list.id, { enabled: true });
@@ -84,15 +86,18 @@
         },
       });
       const watch = node('input', { type: 'checkbox', checked: list.mode === 'watch', onchange: () => updateList(list.id, { mode: watch.checked ? 'watch' : 'act' }) });
-      const info = `${list.count || 0} ${list.count === 1 ? 'artist' : 'artists'}, refreshed ${when(list.lastRefresh)}`;
+      const count = (list.count || 0).toLocaleString('en');
+      const updated = list.lastRefresh ? `updated ${HM.popup.timeLabel(list.lastRefresh, now)}` : 'not updated yet';
       ul.append(node('li', { class: 'list-row' },
-        node('div', { class: 'list-main' }, on, node('span', { class: 'list-name', textContent: list.name + (list.builtIn ? ' (built in)' : '') })),
-        node('div', { class: 'list-info', textContent: info + (list.lastError ? ` (last try failed: ${list.lastError})` : '') }),
+        node('div', { class: 'list-main' }, on, node('span', { class: 'list-name', textContent: list.name }),
+          list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null),
+        node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
+          list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${list.lastError}` }) : null),
         node('div', { class: 'list-actions' },
-          node('label', { class: 'watch' }, watch, ' Watch only (log, never act)'),
-          node('button', { textContent: 'Refresh now', onclick: () => refreshList(list.id) }),
+          node('label', { class: 'watch', title: 'Log what it matches, never act' }, watch, 'Watch only'),
+          node('button', { class: 'link', textContent: 'Refresh', onclick: () => refreshList(list.id) }),
           list.builtIn ? null : node('button', {
-            textContent: 'Remove',
+            class: 'link', textContent: 'Remove',
             onclick: () => {
               let rest;
               try { rest = HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
@@ -209,25 +214,87 @@
 
   // --- Log tab --------------------------------------------------------------------------
 
-  const SHOWN = 200;
-  const creditOf = entry => HM.text.leadCredit(entry.artistLine);
+  // Three sections (Wai, 2026-11-15): Blocked, Actions, Errors; grouped by artist so the
+  // artist, the reason and "Always play" each show once.
+  const SECTION_HINTS = {
+    blocks: 'Kept from playing: taken out of the queue or hidden on a page.',
+    actions: 'Done while a song played: skipped or disliked, and what Watch only lists would skip.',
+    errors: 'What didn’t work. The song played on.',
+  };
+  const EMPTY = { blocks: 'Nothing blocked yet.', actions: 'Nothing done yet.', errors: 'No errors.' };
+  const SHOWN = 60; // artist groups shown; Export log has everything
+  let section = null; // chosen section; until then, the section of the newest entry
+
+  function listErrors() {
+    return state.lists.filter(l => l.enabled && l.lastError);
+  }
+
+  function renderToday() {
+    const el = $('today');
+    if (!el) return;
+    if (state.settings.paused) { el.textContent = 'Paused'; el.classList.add('paused'); return; }
+    el.classList.remove('paused');
+    const t = HM.popup.todaySummary(state.log, Date.now());
+    const parts = [];
+    if (t.skipped) parts.push(`${t.skipped} skipped`);
+    if (t.removed) parts.push(`${t.removed} removed`);
+    el.textContent = parts.length ? `${parts.join(' · ')} today` : 'Nothing skipped today';
+  }
 
   function renderLog() {
+    const counts = HM.popup.sectionCounts(state.log);
+    counts.errors += listErrors().length;
+    if (!section) section = state.log.length ? HM.log.section(state.log[0].event) : (counts.errors ? 'errors' : 'blocks');
+    for (const btn of document.querySelectorAll('.seg-btn')) {
+      const k = btn.dataset.section;
+      btn.classList.toggle('active', k === section);
+      btn.classList.toggle('has', counts[k] > 0);
+      btn.querySelector('.n').textContent = counts[k] ? String(counts[k]) : '';
+    }
+    $('section-hint').textContent = SECTION_HINTS[section];
+
     const ul = $('log-entries');
     clear(ul);
-    if (!state.log.length) { ul.append(node('li', { class: 'log-empty', textContent: 'Nothing yet.' })); return; }
-    for (const entry of state.log.slice(0, SHOWN)) {
-      const credit = creditOf(entry);
-      const onNever = (state.user.neverSkip || []).some(n => HM.text.normalize(n) === HM.text.normalize(credit));
-      ul.append(node('li', {},
-        node('div', { class: 'log-desc', textContent: HM.log.describe(entry) }),
-        node('div', { class: 'log-meta', textContent: `${when(entry.at)} · ${entry.title || ''}${entry.artistLine ? ' · ' + entry.artistLine : ''}` }),
-        credit && !onNever ? node('button', {
-          textContent: 'Wrong: never skip this artist',
-          onclick: () => { saveUser(HM.popup.addEntry(state.user, 'neverSkip', credit)); status(`${credit} will always play.`); },
-        }) : null));
+    const now = Date.now();
+    if (section === 'errors') {
+      for (const l of listErrors()) {
+        ul.append(node('li', { class: 'log-group' },
+          node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: l.name }), node('span', { class: 'log-time', textContent: l.lastRefresh ? `last good ${HM.popup.timeLabel(l.lastRefresh, now)}` : '' })),
+          node('div', { class: 'log-reason error', textContent: `List update failed: ${l.lastError}` })));
+      }
     }
-    if (state.log.length > SHOWN) ul.append(node('li', { class: 'log-more', textContent: `${state.log.length - SHOWN} older entries are in Export log.` }));
+    const groups = HM.popup.groupLog(state.log, { now, section, neverSkip: state.user.neverSkip });
+    if (!groups.length && !(section === 'errors' && listErrors().length)) {
+      ul.append(node('li', { class: 'log-empty', textContent: EMPTY[section] }));
+      return;
+    }
+    for (const g of groups.slice(0, SHOWN)) {
+      const items = node('ul', { class: 'log-items' });
+      for (const it of g.items) {
+        items.append(node('li', { class: 'log-item' },
+          node('span', { class: 'log-title', textContent: it.title || '(untitled)' }),
+          it.count > 1 ? node('span', { class: 'log-count', textContent: `×${it.count}` }) : null,
+          node('span', { class: section === 'errors' ? 'tag error' : 'tag', textContent: it.action }),
+          node('span', { class: 'log-time', textContent: HM.popup.timeLabel(it.at, now) })));
+      }
+      const always = section === 'errors' ? null : g.onNeverSkip
+        ? node('span', { class: 'done', textContent: 'On Never skip' })
+        : node('button', {
+          class: 'link', textContent: 'Always play', title: 'Wrong? Put this artist on Never skip', 'aria-label': `Always play ${g.artist}`,
+          onclick: () => { saveUser(HM.popup.addEntry(state.user, 'neverSkip', g.artist)); status(`${g.artist} will always play.`); },
+        });
+      const songs = g.items.length > 1 ? `${g.items.length} songs` : '';
+      const why = [g.reason, songs].filter(Boolean).join(' · ');
+      ul.append(node('li', { class: 'log-group' },
+        node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: g.artist }), always),
+        why ? node('div', { class: 'log-reason', textContent: why }) : null,
+        items));
+    }
+    if (groups.length > SHOWN) ul.append(node('li', { class: 'log-more', textContent: `${groups.length - SHOWN} more artists are in Export log.` }));
+  }
+
+  for (const btn of document.querySelectorAll('.seg-btn')) {
+    btn.addEventListener('click', () => { section = btn.dataset.section; renderLog(); });
   }
 
   $('clear-log').addEventListener('click', () => store.set({ [HM.store.KEYS.log]: [] }));
@@ -238,7 +305,7 @@
 
   // --- start and live updates -------------------------------------------------------------
 
-  function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderLog(); }
+  function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderToday(); renderLog(); }
 
   const onChanged = (api.storage && api.storage.onChanged) || store.onChanged;
   if (onChanged) {

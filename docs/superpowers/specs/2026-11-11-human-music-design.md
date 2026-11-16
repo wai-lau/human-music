@@ -288,13 +288,28 @@ Player buttons and Pause are **Claude's calls** (Wai asked "more?"); hiding is W
 Wai: "a clear log of every song that was skipped with details and source
 list".
 
-- One line per event, newest first: time, title, artist line, what happened
-  (removed from queue, skipped, disliked, hidden on a page, seen with
-  auto-skip off, seen in watch mode), the list and the entry that matched.
-- Each line has "Wrong: never skip this artist", which adds the artist to
-  Never skip. **(Claude's call)**
-- Keeps the last 1000 lines; "Clear log" and "Export log". **(Claude's
-  call)**
+- Three sections (Wai, 2026-11-15: "blocks: things that were 'adblocked' /
+  actions: actions taken on behalf of the user, skip, dislike / errors"),
+  switched at the top with a count each:
+  - **Blocked**: kept from playing (removed from the queue, hidden on a page).
+  - **Actions**: done while a song played (skipped, disliked; "Would skip"
+    from Watch only lists; "Played" with auto-skip off).
+  - **Errors**: a skip that didn't take (same song 10 s later), a queue row
+    that couldn't be removed (once a day per song), a list update that
+    failed. The song plays on in every case.
+  The popup opens on the section of the newest entry.
+- Grouped by artist (Wai: "grouping should be done by artist") so nothing
+  repeats (Wai: "avoid repeating text in logs"): each artist once, with the
+  reason once ("AI-generated · Soul Over AI", "Your artists", 'Keyword
+  "x"') and one "Always play" link that adds them to Never skip. Under it
+  each song once, newest first, with a short tag (Removed, Hidden, Skipped,
+  Disliked, Would skip, Played, Couldn't skip, Couldn't remove), a count when
+  it repeats, and a time ("5 min ago", today's time, "Yesterday", "Nov 12").
+  The album and year aren't shown.
+- The header says what happened today ("3 skipped · 2 removed today", or
+  "Paused") and holds the Pause switch.
+- Keeps the last 1000 entries; "Clear log" and "Export log" (one full line
+  per entry). **(Claude's call)**
 
 ## YouTube Music page facts (checked live 2026-11-11)
 

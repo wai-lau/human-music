@@ -36,8 +36,8 @@ run([
   ['built-in list shows with its count and refresh time', async () => {
     const p = await open();
     const row = p.doc.querySelector('#filter-lists li');
-    return (row.querySelector('.list-name').textContent === 'Soul Over AI (built in)'
-      && row.querySelector('.list-info').textContent === '0 artists, refreshed never'
+    return (row.querySelector('.list-name').textContent === 'Soul Over AI' && row.querySelector('.chip').textContent === 'Built in'
+      && row.querySelector('.list-info').textContent === '0 artists · not updated yet'
       && !row.textContent.includes('Remove')) || row.textContent;
   }],
   ['behaviour switches save the right settings', async () => {
@@ -89,15 +89,33 @@ run([
     await q.click(q.$('import-btn'));
     return (JSON.parse(text).format === 'human-music-backup' && JSON.stringify(data(q, 'hm.user').neverSkip) === '["N"]' && data(q, 'hm.settings').lookahead === 7) || text;
   }],
-  ['log line reads plainly, and "Wrong" puts the artist on never skip', async () => {
+  ['log: the artist and reason once, the song with its tag; "Always play" puts the artist on Never skip', async () => {
     const entry = { at: Date.now(), event: 'skipped', title: 'Dust on the Wind', artistLine: 'The Velvet Sundown • Floating • 2025',
       listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'The Velvet Sundown' };
-    const p = await open({ 'hm.log': [entry] });
-    const li = p.doc.querySelector('#log-entries li');
-    const ok = li.querySelector('.log-desc').textContent === 'Skipped: AI-generated (Soul Over AI)' && li.textContent.includes('Dust on the Wind');
-    await p.click(li.querySelector('button'));
-    const after = p.doc.querySelector('#log-entries li button');
-    return (ok && JSON.stringify(data(p, 'hm.user').neverSkip) === '["The Velvet Sundown"]' && after === null) || li.textContent;
+    const p = await open({ 'hm.log': [entry, { ...entry, at: entry.at - 1000, title: 'Drift' }] });
+    const active = p.doc.querySelector('.seg-btn.active');
+    const g = p.doc.querySelector('#log-entries .log-group');
+    const ok = active.dataset.section === 'actions' && g.querySelector('.log-artist').textContent === 'The Velvet Sundown'
+      && g.querySelector('.log-reason').textContent === 'AI-generated · Soul Over AI · 2 songs'
+      && [...g.querySelectorAll('.log-title')].map(x => x.textContent).join() === 'Dust on the Wind,Drift'
+      && [...g.querySelectorAll('.tag')].every(x => x.textContent === 'Skipped')
+      && !g.textContent.includes('Floating') && g.querySelectorAll('button').length === 1;
+    await p.click(g.querySelector('button'));
+    const after = p.doc.querySelector('#log-entries .log-group');
+    return (ok && JSON.stringify(data(p, 'hm.user').neverSkip) === '["The Velvet Sundown"]' && !after.querySelector('button') && !!after.querySelector('.done'))
+      || JSON.stringify({ ok, sec: active && active.dataset.section, artist: g && g.querySelector('.log-artist') && g.querySelector('.log-artist').textContent, reason: g && g.querySelector('.log-reason') && g.querySelector('.log-reason').textContent, titles: g && [...g.querySelectorAll('.log-title')].map(x => x.textContent), tags: g && [...g.querySelectorAll('.tag')].map(x => x.textContent), buttons: g && g.querySelectorAll('button').length, never: data(p, 'hm.user') && data(p, 'hm.user').neverSkip, after: !!after });
+  }],
+  ['log sections: Blocked, Actions, Errors with counts; list update failures show under Errors', async () => {
+    const at = Date.now();
+    const base = { artistLine: 'The Velvet Sundown', listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'The Velvet Sundown' };
+    const soa = { id: 'soul-over-ai', name: 'Soul Over AI', url: 'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: 1, count: 3, lastError: 'HTTP 500' };
+    const p = await open({ 'hm.filterLists': [soa], 'hm.log': [{ ...base, at, event: 'removed', title: 'A' }, { ...base, at: at - 1, event: 'hidden', title: 'B' }, { ...base, at: at - 2, event: 'skip-failed', title: 'C' }] });
+    const n = k => p.doc.querySelector(`.seg-btn[data-section="${k}"] .n`).textContent;
+    const blocked = [...p.doc.querySelectorAll('#log-entries .log-title')].map(x => x.textContent).join();
+    await p.click(p.doc.querySelector('.seg-btn[data-section="errors"]'));
+    const errs = p.doc.querySelector('#log-entries').textContent;
+    return (n('blocks') === '2' && n('actions') === '' && n('errors') === '2' && blocked === 'A,B'
+      && errs.includes('List update failed: HTTP 500') && errs.includes('Couldn’t skip')) || JSON.stringify({ n: [n('blocks'), n('actions'), n('errors')], blocked, errs });
   }],
   // No site permission any more (Wai, 2026-11-13: "minimize required permissions"): a list
   // server must allow any origin (GitHub raw files do), or its refresh fails visibly.

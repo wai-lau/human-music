@@ -23,6 +23,8 @@
       case 'seen': action = 'Played (auto-skip off)'; break;
       case 'watched': action = 'Watch mode, left alone'; break;
       case 'hidden': action = 'Hidden on page'; break;
+      case 'skip-failed': action = 'Couldn\'t skip (still playing after 10 s)'; break;
+      case 'remove-failed': action = 'Couldn\'t remove from queue'; break;
       default: action = entry.event; break;
     }
 
@@ -40,6 +42,32 @@
     }
 
     return action + ': ' + reason;
+  }
+
+  // The popup's three sections (Wai, 2026-11-15): blocks are what never reached the person
+  // ("adblocked"), actions what was done for them while playing, errors what didn't work.
+  const SECTIONS = {
+    removed: 'blocks', hidden: 'blocks',
+    skipped: 'actions', disliked: 'actions', seen: 'actions', watched: 'actions',
+    'skip-failed': 'errors', 'remove-failed': 'errors',
+  };
+  function section(event) { return SECTIONS[event] || 'actions'; }
+
+  // One or two words for a log line's tag; the artist and reason are shown once per group.
+  const ACTIONS = {
+    removed: 'Removed', hidden: 'Hidden', skipped: 'Skipped', disliked: 'Disliked', seen: 'Played',
+    watched: 'Would skip', 'skip-failed': 'Couldn’t skip', 'remove-failed': 'Couldn’t remove',
+  };
+  function action(event) { return ACTIONS[event] || String(event || ''); }
+
+  // Why it matched, in a few words.
+  function reason(entry) {
+    const e = entry || {};
+    if (e.listId === 'user:artists') return 'Your artists';
+    if (e.listId === 'user:songs') return 'Your songs';
+    if (e.listId === 'user:keywords') return 'Keyword “' + (e.entry || '') + '”';
+    if (e.listName) return 'AI-generated · ' + e.listName;
+    return '';
   }
 
   function append(entries, entry, cap) {
@@ -65,5 +93,5 @@
     return false;
   }
 
-  globalThis.HM.log = { makeEntry, describe, append, seenRecently };
+  globalThis.HM.log = { makeEntry, describe, section, action, reason, append, seenRecently };
 })();

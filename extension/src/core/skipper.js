@@ -2,7 +2,7 @@
   globalThis.HM = globalThis.HM || {};
 
   globalThis.HM.skipper = {
-    createSkipper({ page, setTimeout, clearTimeout, setInterval, clearInterval }) {
+    createSkipper({ page, setTimeout, clearTimeout, setInterval, clearInterval, onGiveUp }) {
       let busy = false;
       let skipSong = null;
       let pollInterval = null;
@@ -127,7 +127,16 @@
 
           giveUpTimeout = setTimeout(() => {
             giveUpTimeout = null;
+            // Still the same song, plainly read, after 10 s: the skip didn't take. Report it
+            // (the log's Errors section); a song that can't be read counts as moved on.
+            let stuck = false;
+            try {
+              const now = page.readSong();
+              stuck = !!(busy && skipSong && now && now.title === skipSong.title && now.artistLine === skipSong.artistLine);
+            } catch (e) { stuck = false; }
+            const song = skipSong;
             skipDone();
+            if (stuck && onGiveUp) { try { onGiveUp(song); } catch (e) { /* reporting only */ } }
           }, 10000);
 
           pollInterval = setInterval(handlePoll, 100);
