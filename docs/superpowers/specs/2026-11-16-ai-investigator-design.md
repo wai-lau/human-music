@@ -55,6 +55,20 @@ extension will download from GH once in a while to keep the lists in sync".
 Where the text below still says the droplet serves the list, this
 correction wins.
 
+## The key (Wai, 2026-11-16)
+
+Wai: "ensure that the endpoint for running the investigator is gated by my
+wai-lau.net admin keys", then chose a key derived from the admin key. The
+investigator answers at its public address (Wai's choice) but accepts only
+`Authorization: Bearer <key>` where key is
+`sha256("human-music-investigator:" + API_KEY)` in hex, API_KEY being
+exec-fn's admin key (exec-fn derives its login cookie the same way). The
+service reads API_KEY when it starts and compares with `hmac.compare_digest`
+or its Node equivalent; a small CLI on the droplet prints the derived key
+for Wai to paste into her developer copy once. A leaked key opens only the
+investigator; changing the admin key changes it. Wherever this document
+says "token", it means this key.
+
 ## Goals
 
 1. Wai's copy sends every upcoming song whose artist no list and no verdict
