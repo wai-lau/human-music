@@ -1,5 +1,5 @@
 // Contract check for the investigator plan, Task 5 (the worker sends unknown artists). Run from the repo root:
-//   node tests/wip-contract-investigate-worker.check.mjs
+//   node tests/contract-investigate-worker.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
@@ -82,6 +82,34 @@ await t('the token is never written anywhere else', async () => {
   await r.inv.send(items);
   const elsewhere = Object.entries(r.storage.data).filter(([k]) => k !== 'hm.investigator').some(([, v]) => J(v).includes('t0k'));
   return !elsewhere || 'token copied';
+});
+await t('one artist on two albums the same day: sent once (keys come from the credits)', async () => {
+  const r = rig();
+  await r.inv.send([items[0]]);
+  const other = { ...items[0], title: 'Glass', artistLine: 'Forrest Rose • Second Album', album: 'Second Album' };
+  const res = await r.inv.send([other]);
+  return (res.sent === 0 && res.skipped === 1 && r.calls.length === 1) || J({ res, calls: r.calls.length });
+});
+await t('a later success clears the last error', async () => {
+  let status = 503;
+  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  let clock = NOON;
+  const inv = HM.createInvestigator({ storage, fetch: async () => ({ ok: status < 400, status, headers: { get: () => null }, text: async () => '{}' }), now: () => clock });
+  await inv.send(items);
+  status = 202; clock += DAY;
+  await inv.send(items);
+  const st = storage.data['hm.investigator'];
+  return (st.lastError === null || st.lastError === undefined) || J(st);
+});
+await t('the token never goes to a plain http address', async () => {
+  const r = rig({ stored: { base: 'http://example.test/hm' } });
+  const res = await r.inv.send(items);
+  return (r.calls.length === 0 && res.sent === 0 && typeof r.storage.data['hm.investigator'].lastError === 'string') || J({ res, calls: r.calls.map(c => c.url) });
+});
+await t('items with missing fields never throw', async () => {
+  const r = rig();
+  const res = await r.inv.send([{}, null, { credits: [null, 'Forrest Rose'] }]);
+  return (typeof res.sent === 'number' && typeof res.skipped === 'number') || J(res);
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

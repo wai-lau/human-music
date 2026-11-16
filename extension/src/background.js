@@ -312,7 +312,8 @@ list = lists[HM.store.KEYS.filterLists][i];
     }
 
     async function send(items) {
-      if (!items || items.length === 0) return { sent: 0, skipped: 0 };
+      if (!Array.isArray(items) || items.length === 0) return { sent: 0, skipped: 0 };
+      items = items.filter(function (it) { return it && typeof it === 'object'; });
 
       if (loading) await loading;
       loading = loadState();
@@ -320,6 +321,13 @@ list = lists[HM.store.KEYS.filterLists][i];
       loading = null;
 
       if (!state.token || state.token.length === 0) {
+        return { sent: 0, skipped: items.length };
+      }
+
+      // The token only ever travels over https.
+      if (!/^https:\/\//.test(state.base)) {
+        state.lastError = 'The investigator address must start with https://';
+        try { await saveState(); } catch (e) { /* storage failure is acceptable */ }
         return { sent: 0, skipped: items.length };
       }
 
@@ -338,13 +346,17 @@ list = lists[HM.store.KEYS.filterLists][i];
         }
       }
 
-      let sentCount = 0;
+      let sentCount;
       let skippedCount = 0;
       const toSend = [];
 
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        let key = HM.text.normalize(item.artistLine).trim();
+        // Keyed by the credited artists (not the artist line, which names the
+        // album on YouTube Music), so one artist is sent once a day.
+        const credits = Array.isArray(item.credits) ? item.credits.filter(function (c) { return typeof c === 'string'; }) : [];
+        let key = credits.map(function (c) { return HM.text.normalize(c).trim(); }).filter(Boolean).sort().join(',');
+        if (!key && typeof item.artistLine === 'string') key = HM.text.normalize(item.artistLine).trim();
         if (item.channelIds && item.channelIds.length > 0) {
           for (let j = 0; j < item.channelIds.length; j++) {
             if (item.channelIds[j]) {
@@ -384,9 +396,7 @@ list = lists[HM.store.KEYS.filterLists][i];
           body: JSON.stringify(payload)
         });
 
-        if (!resp.ok) {
-          state.lastError = 'HTTP ' + resp.status;
-        }
+        state.lastError = resp.ok ? null : 'HTTP ' + resp.status;
 
         // Mark all sent for today regardless of response
         for (let i = 0; i < toSend.length; i++) {

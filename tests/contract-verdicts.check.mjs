@@ -1,5 +1,5 @@
 // Contract check for the investigator plan, Task 2 (the verdict list). Run from the repo root:
-//   node tests/wip-contract-verdicts.check.mjs
+//   node tests/contract-verdicts.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
