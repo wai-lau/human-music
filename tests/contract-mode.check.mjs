@@ -25,6 +25,7 @@ tryEq('thresholds', () => ['off', 'lists', 'optimal', 'aggressive'].map(m => set
 tryEq('modeChosen and investigate kept, default false', () => [settings.sanitize({}).modeChosen, settings.sanitize({}).investigate, settings.sanitize({ modeChosen: true, investigate: true }).investigate], [false, false, true]);
 tryEq('default follows calibration', () => [settings.effectiveMode(settings.sanitize({}), false), settings.effectiveMode(settings.sanitize({}), true)], ['lists', 'optimal']);
 tryEq('a chosen mode stays', () => settings.effectiveMode(settings.sanitize({ mode: 'lists', modeChosen: true }), true), 'lists');
+tryEq('paused without a chosen mode is off', () => settings.effectiveMode(settings.sanitize({ paused: true }), true), 'off');
 tryEq('chosen off stays off', () => settings.effectiveMode(settings.sanitize({ mode: 'off', modeChosen: true }), true), 'off');
 tryEq('other settings unchanged', () => { const s = settings.sanitize({ lookahead: 4, autoSkip: false }); return [s.lookahead, s.autoSkip, s.refresh]; }, [4, false, 'daily']);
 

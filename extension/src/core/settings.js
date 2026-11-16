@@ -77,7 +77,10 @@
     return null;
   }
 
+  // The mode in force: off whenever paused; the chosen mode once the person moved the slider;
+  // otherwise Optimal once the verdict list is calibrated (the design), else List-only.
   function effectiveMode(settings, calibrated) {
+    if (settings.mode === 'off') return 'off';
     if (settings.modeChosen) {
       return settings.mode;
     }
