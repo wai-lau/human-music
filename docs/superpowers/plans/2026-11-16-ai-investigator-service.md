@@ -17,7 +17,7 @@ flowchart TD
     R --> S
     R --> H[SH Labs scores, droplet only]
     H --> S
-    S --> P["publish(listJson): verdicts branch"]
+    S --> P["publish(listJson): human-music-verdicts repo"]
 ```
 
 **Tech Stack:** Node 22 (the droplet's), standard library only (`node:http`, `node:crypto`, `node:sqlite`, `node:child_process`), tests run with plain `node` and print `N/N pass`.
@@ -248,6 +248,29 @@ Listed once here, run only in Task 18. Each is its own step with its own approva
 - [ ] **Step 3c:** `decide` caps an `ai` verdict resting only on weak signals at 94 (`WEAK_AI_CAP`, the lead's reading: Optimal at 95 needs a strong signal). Keep it unless calibration shows it hides real AI artists from Optimal.
 - [ ] **Step 4:** Commit `fix(investigator): argv and prompt checked against the real claude`.
 
+### Task 7b: Album art: fetch and look (Wai, 2026-11-17: covers as designed)
+
+Design: "Album art, safely" in the design doc. No Claude process gets a file tool; the call that looks at the cover is not the one that searches the web.
+
+**Files:**
+- Create: `research/investigator/src/art.mjs`, `research/investigator/tests/art.test.mjs`
+- Modify: `research/investigator/src/worker.mjs`, `research/investigator/tests/worker.test.mjs`
+
+**Interfaces:**
+- `ART_HOSTS`: exactly `lh3.googleusercontent.com`, `yt3.ggpht.com`, `i.ytimg.com`, `i.scdn.co`, `mosaic.scdn.co`, `image-cdn-ak.spotifycdn.com`, `image-cdn-fa.spotifycdn.com`.
+- `fetchArt(url, { fetch, timeoutMs = 10000, maxBytes = 1048576 }): Promise<{ ok: true, mediaType: 'image/jpeg' | 'image/png' | 'image/webp', base64: string } | { ok: false, why: string }>`: https only, host in `ART_HOSTS` (exact match), `redirect: 'error'`, body read as a stream and cut off past `maxBytes` (then `ok: false`), media type from the bytes' signature (JPEG `FF D8 FF`, PNG `89 50 4E 47 0D 0A 1A 0A`, WebP `RIFF....WEBP`), never from the header; never throws; never writes a file.
+- `buildArtArgv(): string[]`, exactly: `['-p', '--input-format', 'stream-json', '--output-format', 'json', '--json-schema', JSON.stringify(ART_SCHEMA), '--tools', '', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '2', '--no-session-persistence', '--append-system-prompt', ART_PROMPT]` with `ART_SCHEMA` = `{ type: 'object', additionalProperties: false, required: ['look'], properties: { look: { enum: ['ai', 'not_ai', 'unclear'] } } }`.
+- `lookArt(image, { spawn, env, timeoutMs = 120000 }): Promise<{ ok: true, look: 'ai' | 'not_ai' | 'unclear' } | { ok: false, kind, detail }>`: spawns `claude` with `buildArtArgv()` and `childEnv(env)` from claude.mjs; writes one stream-json user message to stdin whose content is `[{ type: 'image', source: { type: 'base64', media_type, data } }, { type: 'text', text: <fixed question> }]`; reads the result entry (a list of messages or one object, as `claude.mjs` does) and accepts only the exact schema.
+- Worker: for an artist whose songs carry an `artUrl`, after the research answer and before `decide`: `fetchArt` then `lookArt`; only `look: 'ai'` adds `ai_style_art` to the signals; anything else or any failure adds nothing. The look and the art address are stored with the verdict, never in `listPublishable`. The research call's prompt never includes the image or the look.
+
+- [ ] **Step 1: Write the failing tests:** `art`: each host outside `ART_HOSTS` (including `lh3.googleusercontent.com.evil.test`, `http://i.scdn.co/...`, an IP literal) gives `ok: false` with no fetch; a redirect status gives `ok: false`; 1 MB + 1 byte gives `ok: false`; a PNG body served as `text/html` gives `image/png`; an HTML body served as `image/jpeg` gives `ok: false`; `buildArtArgv` equals the pinned list, `--tools` is `''`, `--strict-mcp-config` is present; `lookArt` writes the image block and the question to stdin (fake spawn), accepts `{"look":"ai"}`, rejects `{"look":"AI"}`, `{"look":"ai","why":"x"}` and free text; the child env drops `HM_KEY_HASH` and `SHLABS_API_KEY`. `worker`: `look: ai` adds `ai_style_art` once; `not_ai`, `unclear`, a fetch failure and a look failure add nothing; art alone never makes `ai` (decide's rule); the research prompt has no image data.
+- [ ] **Step 2:** Run; expect FAIL.
+- [ ] **Step 3:** Implement.
+- [ ] **Step 4:** Run; expect pass. Then, on Wai's machine (Claude), one live look at a real cover through `lookArt`.
+- [ ] **Step 5:** Commit `feat(investigator): album art fetch and tool-less look`.
+
+The extension side (`readArt` for the YouTube Music and Spotify players, so `artUrl` is filled) is one of Task 4's leftovers on the extension plan, done by Claude with the stand-in pages updated.
+
 ### Task 8: SQLite store (Qwen)
 
 **Files:**
@@ -319,35 +342,34 @@ Listed once here, run only in Task 18. Each is its own step with its own approva
 - [ ] **Step 4:** Run; expect pass.
 - [ ] **Step 5:** Commit `feat(investigator): SH Labs client (scores stay on the droplet)`.
 
-### Task 12: Publishing: `publish(listJson)` (Qwen) — pending Wai's answer
+### Task 12: Publishing: `publish(listJson)` (Qwen)
 
-The open question for Wai: where may the write key write? This task is written for **A** (recommended): a `verdicts` branch holding only `verdicts.json`, with a GitHub rule that only Wai may update `main`. **B** (a separate verdicts repo) or **C** (pull requests she merges) replace only this task's implementation and the one constant in Task 13; nothing else imports git.
+Wai, 2026-11-17: the verdict list lives in its own public repo, `wai-lau/human-music-verdicts` (a deploy key for it can't reach the extension's code). The publisher pushes `verdicts.json` at that repo's root, on `main`. It refuses any remote other than the one configured, and nothing else in the service imports git.
 
 **Files:**
 - Create: `research/investigator/src/listjson.mjs`, `research/investigator/src/publish.mjs`, `research/investigator/tests/listjson.test.mjs`, `research/investigator/tests/publish.test.mjs`
 
 **Interfaces:**
 - Produces (`listjson.mjs`): `buildList(verdicts: Verdict[], { now: Date, calibrated: boolean, mapping }): string`, pretty JSON (2 spaces, trailing newline), `{ name: 'Human Music verdicts', updated: ISO, calibrated, artists }` sorted by normalised name; each artist has `name`, `verdict`, `confidence` (the mapped confidence, integer 0-100), `checked`, and `spotifyId` / `channelId` only when valid; no reasons, sources, signals or SH Labs fields; `source: 'calibration'` rows never included. Every entry must pass `HM.lists.parseFilterList` unchanged (the test loads `extension/src/core/lists.js` through `tests/load.mjs`'s approach and compares).
-- Produces (`publish.mjs`): `createPublisher({ repoDir, remote, branch: 'verdicts', path: 'verdicts.json', sshKeyPath, runGit, now }): { publish(listJson: string): Promise<{ ok: true, changed: boolean, commit?: string } | { ok: false, error: string }> }`. It keeps a local clone (created on first use; an empty remote gets an orphan `verdicts` branch), writes only `verdicts.json`, commits only when the text changed apart from `updated`, pushes with `GIT_SSH_COMMAND='ssh -i <key> -o IdentitiesOnly=yes'`, and refuses any other branch name (a `branch` of `main` or `master` throws at creation). The git author is a fixed generic name and address. A failed push returns `ok: false` and leaves the clone ready to retry.
+- Produces (`publish.mjs`): `createPublisher({ repoDir, remote, branch: 'main', path: 'verdicts.json', sshKeyPath, runGit, now }): { publish(listJson: string): Promise<{ ok: true, changed: boolean, commit?: string } | { ok: false, error: string }> }`. It keeps a local clone (created on first use; an empty remote gets a first commit on `main`), writes only `verdicts.json`, commits only when the text changed apart from `updated`, pushes with `GIT_SSH_COMMAND='ssh -i <key> -o IdentitiesOnly=yes'`, and refuses any remote other than the configured one. The git author is a fixed generic name and address. A failed push returns `ok: false` and leaves the clone ready to retry.
 
-- [ ] **Step 1: Write the failing tests:** `listjson`: sorting, field whitelist, `calibrated` passthrough, invalid IDs dropped, the output parses with the extension's `parseFilterList` to the same names and confidences. `publish`: against a temp bare repo as `remote` (real `git`): first publish creates the `verdicts` branch holding exactly one file `verdicts.json`; a second publish with identical content (different `updated`) makes no commit (`changed: false`); a changed list makes one commit; the repo's `main` ref never moves (a `main` branch seeded in the bare repo keeps its hash); `branch: 'main'` throws; an unreachable remote returns `ok: false` and a later publish to a working remote succeeds; no commit contains any file but `verdicts.json`.
+- [ ] **Step 1: Write the failing tests:** `listjson`: sorting, field whitelist, `calibrated` passthrough, invalid IDs dropped, the output parses with the extension's `parseFilterList` to the same names and confidences. `publish`: against a temp bare repo as `remote` (real `git`): first publish creates `main` holding exactly one file `verdicts.json`; a second publish with identical content (different `updated`) makes no commit (`changed: false`); a changed list makes one commit; the repo's `main` ref never moves (a `main` branch seeded in the bare repo keeps its hash); `branch: 'main'` throws; an unreachable remote returns `ok: false` and a later publish to a working remote succeeds; no commit contains any file but `verdicts.json`.
 - [ ] **Step 2:** Run; expect FAIL.
 - [ ] **Step 3:** Implement with `node:child_process` `execFile('git', ...)`; `runGit` injectable.
 - [ ] **Step 4:** Run; expect pass.
-- [ ] **Step 5:** Commit `feat(investigator): verdict list and branch publisher`.
+- [ ] **Step 5:** Commit `feat(investigator): verdict list and publisher`.
 
-### Task 13: Point the extension at the verdicts branch (Qwen) — pending Wai's answer (A only)
+### Task 13: Point the extension at the verdicts repo (Claude, after Cevval merges: both touch lists.js)
 
-The extension's built-in list URL today is `https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json`. Under A the file lives on the `verdicts` branch at its root, so the URL becomes `https://raw.githubusercontent.com/wai-lau/human-music/verdicts/verdicts.json`. Under B it is the other repo's URL; under C nothing changes.
+The built-in list URL today is `https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json`; it becomes `https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/verdicts.json`.
 
 **Files:**
-- Modify: `extension/src/core/lists.js` (`HM_VERDICTS.url`), `tests/contract-verdicts.check.mjs` (the pinned URL), `verdicts/README.md`
-- Test: the same contract
+- Modify: `extension/src/core/lists.js` (`HM_VERDICTS.url`), `extension/src/background.js` (start), `tests/contract-verdicts.check.mjs` (the pinned URL), `tests/contract-background.check.mjs`; remove `verdicts/` from this repo once the new repo serves the file.
 
-- [ ] **Step 1:** Edit the pinned URL in `tests/contract-verdicts.check.mjs`; run it; expect FAIL.
-- [ ] **Step 2:** Change `HM_VERDICTS.url` in `lists.js`; add a one-time migration in `background.js` start: a stored `hm-verdicts` list with the old URL gets the new URL (the built-in's other fields kept). Add that case to `tests/contract-background.check.mjs` and expect FAIL before the change.
-- [ ] **Step 3:** Run `npm test` and `npm run lint`; expect all pass.
-- [ ] **Step 4:** Commit `fix: verdict list lives on the verdicts branch`.
+- [ ] **Step 1:** Edit the pinned URL in the contract and add a contract case: a stored built-in list whose name or URL differs from the code's constant takes the code's (the built-in's enabled, mode, count and lastRefresh kept). Run; expect FAIL.
+- [ ] **Step 2:** Change the URL; at start, built-in metas take `name` and `url` from the code (general, so later moves need no migration).
+- [ ] **Step 3:** `npm test`, `npm run lint`, `npm run e2e`; expect all pass.
+- [ ] **Step 4:** Commit `fix: verdict list lives in its own repo`.
 
 ### Task 14: Calibration (Qwen: the mapping; Claude: the run)
 
@@ -418,7 +440,7 @@ Nothing here runs without Wai's explicit yes to that step; no step is run by a h
 - [ ] **D2** Copy `research/investigator/` to its folder; run `npm test` there; expect every file `N/N pass` (this also confirms `node:sqlite` works on the droplet's Node; if it does not, stop and report).
 - [ ] **D3** Wai runs `grep '^API_KEY=' <exec-fn env file> | cut -d= -f2- | node tools/make-key.mjs <envfile>` herself (the admin key never appears on a command line or in shell history) and pastes the printed derived key into her developer copy's token field. Check: the env file holds a single `HM_KEY_HASH` line and no 64-hex string equals the admin key.
 - [ ] **D4** Create `/etc/human-music/env` (root, group the service user, mode 640) with the three values; Wai runs `claude setup-token` and pastes the token herself.
-- [ ] **D5** (pending Wai's answer) GitHub: Wai creates the rule that only she may update `main` and adds the deploy key with write access; an approved test pushes a throwaway commit to `main` with the key and expects refusal, then publishes to `verdicts` and expects success.
+- [ ] **D5** GitHub: the `wai-lau/human-music-verdicts` repo exists (public, holding `verdicts.json`); Wai adds the droplet's public key as a deploy key with write access to that repo only. Check: a push from the droplet to `wai-lau/human-music` is refused.
 - [ ] **D6** Install the unit; `systemctl start`; check `systemctl status` and the log show no key.
 - [ ] **D7** Add the nginx block; `nginx -t`; reload only after Wai's yes.
 - [ ] **D8** Smoke test: `GET /api/status` with no key is 401; with the derived key it is 200; a one-item `POST` queues; the extension's token field accepts it and a preflight from the extension origin works.
@@ -430,7 +452,7 @@ Gate and key (Tasks 1, 2, 15b, D3); locked-down Claude (6, 7); strict answer and
 
 ## Design gaps this plan had to settle
 
-1. **List URL.** The extension reads `main/verdicts/verdicts.json`; plan A puts the file on a `verdicts` branch. Task 13 changes the URL and migrates stored copies. B or C need a different change or none.
+1. **List URL.** Settled 2026-11-17 (Wai: a separate repo): Task 13 points the extension at `wai-lau/human-music-verdicts`.
 2. **"Playing song first."** The request has no playing flag; the plan treats an item with an album or art link as the playing song (the extension sends those only for it).
 3. **Art.** The design lets Claude read art through a scratch folder, but the requirement is no file tools. Claude works from web search and fetch only; the "AI-style art" signal is available only from what the web says. The service downloads no art in this plan.
 4. **SH Labs needs track IDs the extension does not send.** The answer schema carries up to two Spotify track IDs Claude finds; SH Labs is skipped when there are none.

@@ -1,6 +1,6 @@
 # AI investigator: design
 
-Status: approved by Wai 2026-11-16 ("Looks good / Go"); corrected the same day: the verdict list is published on GitHub, not served by the droplet (below).
+Status: approved by Wai 2026-11-16 ("Looks good / Go"); covers and the separate verdicts repo approved 2026-11-17; corrected the same day: the verdict list is published on GitHub, not served by the droplet (below).
 
 ## Why
 
@@ -51,6 +51,11 @@ extension will download from GH once in a while to keep the lists in sync".
   stays true).
 - The droplet needs a write credential for that one repo (a deploy key),
   set up with Wai's yes like the other setup steps.
+- **Which repo (Wai, 2026-11-17): a separate one, `wai-lau/human-music-verdicts`.**
+  A deploy key on this repo could write the extension's code, and the
+  investigator feeds strangers' text to Claude; a key for a repo that holds
+  only `verdicts.json` can't reach the code at all. The extension reads
+  `https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/verdicts.json`.
 
 Where the text below still says the droplet serves the list, this
 correction wins.
