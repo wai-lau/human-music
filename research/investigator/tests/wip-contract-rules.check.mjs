@@ -20,6 +20,11 @@ t('a 95+ ai verdict needs sources on two different sites', () => {
   const two = decide(ok({}));
   return (one.verdict === 'ai' && one.confidence <= 94 && two.confidence === 98) || J({ one: one.confidence, two: two.confidence });
 });
+t('without a strong signal an ai verdict stays at 94 or below, even with two sites', () => {
+  const d = decide(ok({ confidence: 100, signals: ['no_human_footprint', 'short_heavy_catalogue'] }));
+  return (d.verdict === 'ai' && d.confidence <= 94) || J({ verdict: d.verdict, confidence: d.confidence });
+});
+t('the five-albums flag is called a flag, not a strong one (it is a weak signal)', () => !/strong flag/i.test(SYSTEM_PROMPT) || 'the prompt calls it a strong flag');
 t('each contradicting source lowers the confidence by 20', () => {
   const c1 = decide(ok({ contradictions: ['https://c.test/x'] }));
   const c2 = decide(ok({ contradictions: ['https://c.test/x', 'https://d.test/y'] }));
