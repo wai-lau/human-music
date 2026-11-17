@@ -2,7 +2,7 @@
 // "Remove from queue" in a menu that belongs to another row. With a menu already open (the
 // person is about to pick "Play next" on a person's song), removal does nothing and returns
 // false; a later pass tries again. Both sites draw the clicked row's menu a moment after the
-// click, as the real pages do. Run from the repo root: node tests/wip-contract-queue-menu.check.mjs
+// click, as the real pages do. Run from the repo root: node tests/contract-queue-menu.check.mjs
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
 const HM = load(['src/core/text.js', 'src/page/common.js', 'src/page/ytm.js', 'src/page/spotify.js'], { setTimeout, clearTimeout }).HM;
