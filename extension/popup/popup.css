@@ -70,8 +70,27 @@ button, input, select { font: inherit; color: inherit; }
 .switch input:checked + .track { background: var(--accent); }
 .switch input:checked + .track::after { transform: translateX(14px); }
 .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
-.switch-label { font-size: 12px; color: var(--muted); }
-.pause input:checked + .track { background: var(--danger); }
+
+/* --- filtering mode slider: one track, four stops --- */
+
+[hidden] { display: none !important; }
+.mode { padding: 8px 14px 6px; border-bottom: 1px solid var(--line); }
+.mode input[type="range"] {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 22px; margin: 0;
+  background: transparent; cursor: pointer;
+}
+.mode input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px; border-radius: 4px;
+  background:
+    radial-gradient(circle at 50% 50%, var(--muted) 0 3px, transparent 3.5px) 0 0 / 33.34% 8px repeat-x,
+    linear-gradient(var(--switch-off), var(--switch-off)) 0 50% / 100% 4px no-repeat;
+}
+.mode input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-top: -5px;
+  border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent);
+}
+.mode input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mode-label { width: max-content; font-size: 12px; font-weight: 600; margin-top: 2px; }
 
 /* --- tabs ------------------------------------------------------------------------- */
 
@@ -106,7 +125,7 @@ button:hover { border-color: var(--muted); }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 button.link { border: 0; background: none; padding: 2px 0; color: var(--accent); }
 button.link:hover { text-decoration: underline; }
-input[type="text"], input[type="url"], input[type="number"], select {
+input[type="text"], input[type="url"], input[type="number"], input[type="password"], select {
   padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); min-width: 0;
 }
 input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -179,5 +198,6 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 #watch-lists .setting { padding: 7px 0; }
 .watch-name { font-weight: 550; }
 .setting-text { flex: 1; min-width: 0; }
+.investigator .hint { margin: 4px 0; }
 .setting-text label { font-weight: 550; }
 .setting input[type="number"] { width: 56px; text-align: center; }

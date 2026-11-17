@@ -95,3 +95,47 @@ test('the run stays offline: the list download fails and the bundled copy is kep
   expect(soa.lastError).toBeTruthy();
   expect((await readStore('hm.list.soul-over-ai')).artists.length).toBeGreaterThan(1000);
 });
+
+test('the filtering mode slider saves the mode and snaps back while the verdict list is not ready', async ({ context, extensionId, setState, readStore }) => {
+  await setState();
+  const popup = await context.newPage();
+  await popup.goto(popupUrl(extensionId));
+  const slider = popup.getByRole('slider', { name: 'Filtering mode' });
+  await expect(popup.locator('#mode-label')).toHaveText('List only');
+  await slider.focus();
+  await slider.press('ArrowRight'); // Optimal: not ready, lands on List only
+  await expect(popup.locator('#status')).toContainText('not ready yet');
+  await expect(popup.locator('#mode-label')).toHaveText('List only');
+  await slider.press('Home');
+  await expect(popup.locator('#mode-label')).toHaveText('No filtering');
+  await expect.poll(async () => { const s = await readStore('hm.settings'); return [s.mode, s.modeChosen, s.paused]; }).toEqual(['off', true, true]);
+  await slider.press('ArrowRight');
+  await expect.poll(async () => { const s = await readStore('hm.settings'); return [s.mode, s.paused]; }).toEqual(['lists', false]);
+});
+
+test('the investigator key section shows in this development copy and never shows the key back', async ({ context, extensionId, setState, readStore }) => {
+  await setState();
+  const popup = await context.newPage();
+  await popup.goto(popupUrl(extensionId));
+  await popup.getByRole('button', { name: 'Behaviour' }).click();
+  await expect(popup.locator('#investigator')).toBeVisible();
+  await popup.locator('#investigator-token').fill('e2e-secret-key');
+  await popup.locator('#investigator-save').click();
+  await expect(popup.locator('#investigator-token')).toHaveValue('');
+  await expect(popup.locator('#investigator-status')).toContainText('A key is saved');
+  await expect.poll(async () => (await readStore('hm.investigator')).token).toBe('e2e-secret-key');
+  expect((await readStore('hm.settings')).investigate).toBe(true);
+});
+
+for (const scheme of ['light', 'dark']) {
+  test(`popup screenshot, ${scheme}`, async ({ context, extensionId, setState }) => {
+    await setState();
+    const popup = await context.newPage();
+    await popup.emulateMedia({ colorScheme: scheme });
+    await popup.setViewportSize({ width: 400, height: 640 });
+    await popup.goto(popupUrl(extensionId));
+    await popup.getByRole('button', { name: 'Behaviour' }).click();
+    await popup.locator('#investigator').scrollIntoViewIfNeeded();
+    await popup.screenshot({ path: `e2e/.results/popup-${scheme}.png` });
+  });
+}

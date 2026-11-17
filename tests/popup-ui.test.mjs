@@ -6,14 +6,14 @@ import { fakeStorage } from './fakes.mjs';
 
 const settle = async () => { for (let i = 0; i < 8; i++) await new Promise(r => setTimeout(r, 0)); };
 
-async function open(initial = {}, { grant = true } = {}) {
+async function open(initial = {}, { grant = true, dev = true } = {}) {
   const doc = parseHTML(readFileSync(new URL('../extension/popup/popup.html', import.meta.url), 'utf8'));
   const storage = fakeStorage(initial);
   const calls = { permissions: [], messages: [] };
   const chrome = {
     storage: { local: storage, onChanged: storage.onChanged },
     permissions: { request: (q, cb) => { calls.permissions.push(q); cb(grant); }, remove: (q, cb) => { calls.removed = (calls.removed || []).concat([q]); if (cb) cb(true); } },
-    runtime: { sendMessage: (m, cb) => { calls.messages.push(m); if (cb) cb(true); } },
+    runtime: { sendMessage: (m, cb) => { calls.messages.push(m); if (dev === 'throw' && m.type === 'dev-mode') throw new Error('no worker'); if (cb) cb(m.type === 'dev-mode' ? dev === true : true); } },
   };
   load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js', 'popup/popup.js'],
     { document: doc, chrome, URL, Blob, setTimeout, clearTimeout });
@@ -172,5 +172,52 @@ run([
     const box = p.doc.querySelector('#watch-lists input');
     box.checked = true; box.dispatchEvent(new Event('change')); await settle();
     return data(p, 'hm.filterLists')[0].mode === 'watch' || JSON.stringify(data(p, 'hm.filterLists'));
+  }],
+  // Filtering mode (investigator plan, Task 6).
+  ['the slider shows the mode and saves it; leaving No filtering clears paused', async () => {
+    const p = await open({ 'hm.settings': { mode: 'off', paused: true }, 'hm.filterLists': [{ id: 'hm-verdicts', name: 'Human Music verdicts', url: 'https://x.example/v.json', enabled: true, mode: 'act', builtIn: true, calibrated: true, count: 1 }] });
+    const shown = p.$('mode').value === '0' && p.$('mode-label').textContent === 'No filtering' && p.$('paused') === null;
+    await p.change('mode', e => { e.value = '3'; });
+    const s = data(p, 'hm.settings');
+    return (shown && s.mode === 'aggressive' && s.modeChosen === true && s.paused === false && p.$('mode-label').textContent === 'Aggressive') || JSON.stringify({ shown, s });
+  }],
+  ['moving to No filtering saves paused', async () => {
+    const p = await open();
+    await p.change('mode', e => { e.value = '0'; });
+    const s = data(p, 'hm.settings');
+    return (s.mode === 'off' && s.paused === true && s.modeChosen === true) || JSON.stringify(s);
+  }],
+  ['until the verdict list is calibrated, Optimal and Aggressive snap back to List only and say so', async () => {
+    const p = await open();
+    await p.change('mode', e => { e.value = '2'; });
+    const s = data(p, 'hm.settings');
+    const said = p.$('status').textContent;
+    return (s.mode === 'lists' && p.$('mode').value === '1' && p.$('mode-label').textContent === 'List only' && /Optimal is not ready yet/.test(said)) || JSON.stringify({ s, said });
+  }],
+  ['a verdict log line reads AI-generated · Human Music verdicts · 97%', async () => {
+    const p = await open({ 'hm.log': [{ at: Date.now(), event: 'removed', title: 'T', artistLine: 'Forrest Rose', listId: 'hm-verdicts', listName: 'Human Music verdicts', rule: 'artist', entry: 'Forrest Rose', confidence: 97 }] });
+    return p.doc.querySelector('#log-entries .log-reason').textContent === 'AI-generated · Human Music verdicts · 97%' || p.doc.querySelector('#log-entries').textContent;
+  }],
+  ['investigator: saving a key stores it apart from settings, sets investigate, empties the field; clearing turns it off', async () => {
+    const p = await open();
+    const type = p.$('investigator-token').getAttribute('type') === 'password' && p.$('investigator').hidden === false;
+    p.$('investigator-token').value = 'secret-key-123';
+    await p.click(p.$('investigator-save'));
+    const inv = data(p, 'hm.investigator');
+    const saved = inv.token === 'secret-key-123' && data(p, 'hm.settings').investigate === true && p.$('investigator-token').value === ''
+      && !JSON.stringify(data(p, 'hm.settings')).includes('secret-key') && !p.doc.body.textContent.includes('secret-key') && /key is saved/.test(p.$('investigator-status').textContent);
+    await p.click(p.$('investigator-save'));
+    const cleared = data(p, 'hm.investigator').token === '' && data(p, 'hm.settings').investigate === false;
+    return (type && saved && cleared) || JSON.stringify({ type, saved, cleared, inv });
+  }],
+  ['investigator status shows last sent and last error', async () => {
+    const p = await open({ 'hm.investigator': { token: 'k', base: 'https://wai-lau.net/human-music', sent: {}, lastSentAt: Date.now() - 60000, lastError: 'HTTP 401' } });
+    const t = p.$('investigator-status').textContent;
+    return (/Last sent/.test(t) && t.includes('Last error: HTTP 401')) || t;
+  }],
+  ['investigator section stays hidden unless the worker says development copy', async () => {
+    const no = await open({}, { dev: false });
+    const fail = await open({}, { dev: 'throw' });
+    return (no.$('investigator').hidden === true && fail.$('investigator').hidden === true) || 'shown';
   }],
 ]);

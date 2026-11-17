@@ -12,12 +12,12 @@
       <div class="name">Human Music</div>
       <div id="today" class="today"></div>
     </div>
-    <label class="switch pause" title="Pause Human Music everywhere">
-      <span class="switch-label">Pause</span>
-      <input type="checkbox" id="paused">
-      <span class="track" aria-hidden="true"></span>
-    </label>
   </header>
+
+  <div class="mode">
+    <input type="range" id="mode" min="0" max="3" step="1" value="1" aria-label="Filtering mode" aria-valuetext="List only">
+    <div id="mode-label" class="mode-label">List only</div>
+  </div>
 
   <nav class="tabs">
     <button class="tab active" data-tab="log">Log</button>
@@ -147,6 +147,17 @@
       <h3>Watch only</h3>
       <p class="hint">A list in Watch only logs what it would skip and never acts.</p>
       <ul id="watch-lists"></ul>
+
+      <div id="investigator" class="investigator" hidden>
+        <h3>Investigator</h3>
+        <p class="hint">Development copy only. Artists on no list are sent to the investigator, which checks whether their music is AI-generated.</p>
+        <div class="entry-form">
+          <input type="password" id="investigator-token" placeholder="Investigator key" aria-label="Investigator key" autocomplete="off">
+          <button id="investigator-save" class="primary">Save</button>
+        </div>
+        <p class="hint">Saving an empty field removes the key.</p>
+        <p id="investigator-status" class="hint investigator-status"></p>
+      </div>
     </section>
   </main>
 

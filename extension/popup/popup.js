@@ -9,7 +9,7 @@
 
   // Latest copies, kept so click handlers can act synchronously (Chrome only grants
   // a host permission from inside the click itself).
-  const state = { user: HM.store.emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [] };
+  const state = { user: HM.store.emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [], investigator: {} };
 
   function status(text) { const el = $('status'); if (el) el.textContent = text || ''; }
 
@@ -31,12 +31,14 @@
     try { return (await store.get(keys)) || {}; } catch (e) { return {}; }
   }
   async function load() {
-    const r = await read([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log]);
+    const r = await read([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log, HM.store.KEYS.investigator]);
     state.user = { ...HM.store.emptyUser(), ...(r[HM.store.KEYS.user] || {}) };
     state.settings = HM.settings.sanitize(r[HM.store.KEYS.settings]);
     const lists = Array.isArray(r[HM.store.KEYS.filterLists]) ? r[HM.store.KEYS.filterLists] : [];
     state.lists = lists.some(l => l.id === HM.lists.SOUL_OVER_AI.id) ? lists : [{ ...HM.lists.SOUL_OVER_AI }, ...lists];
     state.log = Array.isArray(r[HM.store.KEYS.log]) ? r[HM.store.KEYS.log] : [];
+    const inv = r[HM.store.KEYS.investigator];
+    state.investigator = inv && typeof inv === 'object' ? inv : {};
   }
   const saveUser = user => { state.user = user; return store.set({ [HM.store.KEYS.user]: user }); };
   const saveSettings = s => { state.settings = HM.settings.sanitize(s); return store.set({ [HM.store.KEYS.settings]: state.settings }); };
@@ -217,12 +219,83 @@
 
   // --- Behaviour tab ------------------------------------------------------------------
 
-  const TOGGLES = { 'auto-skip': 'autoSkip', 'auto-dislike': 'autoDislike', 'hide-items': 'hidePageItems', 'player-buttons': 'playerButtons', paused: 'paused' };
+  const TOGGLES = { 'auto-skip': 'autoSkip', 'auto-dislike': 'autoDislike', 'hide-items': 'hidePageItems', 'player-buttons': 'playerButtons' };
 
   function renderSettings() {
     $('lookahead').value = String(state.settings.lookahead);
     for (const [id, key] of Object.entries(TOGGLES)) $(id).checked = !!state.settings[key];
   }
+
+  // --- Filtering mode slider (header) ---------------------------------------------------------
+  // Four stops on one track, like uBlock Origin's blocking-mode slider. Optimal and Aggressive
+  // need a calibrated verdict list; until then a move to either lands on List only.
+
+  const MODE_NAMES = { off: 'No filtering', lists: 'List only', optimal: 'Optimal', aggressive: 'Aggressive' };
+  const verdictsCalibrated = () => state.lists.some(l => l.id === 'hm-verdicts' && l.calibrated === true);
+
+  function showMode(mode) {
+    const i = HM.settings.MODES.indexOf(mode);
+    const slider = $('mode');
+    slider.value = String(i);
+    slider.setAttribute('aria-valuetext', MODE_NAMES[mode]);
+    const label = $('mode-label');
+    label.textContent = MODE_NAMES[mode];
+    // The name sits under its stop but never runs past the popup's edge.
+    label.style.marginLeft = `${(i / 3) * 100}%`;
+    label.style.transform = `translateX(-${(i / 3) * 100}%)`;
+  }
+
+  function renderMode() {
+    showMode(HM.settings.effectiveMode(state.settings, verdictsCalibrated()));
+  }
+
+  $('mode').addEventListener('input', e => {
+    const m = HM.settings.MODES[Number(e.target.value)];
+    if (m) showMode(m);
+  });
+  $('mode').addEventListener('change', e => {
+    let mode = HM.settings.MODES[Number(e.target.value)] || 'lists';
+    if (HM.settings.threshold(mode) !== null && !verdictsCalibrated()) {
+      status(`${MODE_NAMES[mode]} is not ready yet, so List only stays on until the verdict list is checked.`);
+      mode = 'lists';
+    } else {
+      status('');
+    }
+    showMode(mode);
+    saveSettings({ ...state.settings, mode, modeChosen: true, paused: mode === 'off' });
+  });
+
+  // --- Investigator (development copies only) ---------------------------------------------------
+  // Hidden unless the worker says this is a development install; store copies never show it.
+
+  function renderInvestigator() {
+    const inv = state.investigator;
+    const bits = [inv.token ? 'A key is saved.' : 'No key saved.'];
+    if (typeof inv.lastSentAt === 'number') bits.push(`Last sent ${HM.popup.timeLabel(inv.lastSentAt, Date.now())}.`);
+    if (inv.lastError) bits.push(`Last error: ${inv.lastError}`);
+    const el = $('investigator-status');
+    if (el) el.textContent = bits.join(' ');
+  }
+
+  try {
+    chrome.runtime.sendMessage({ type: 'dev-mode' }, answer => {
+      void chrome.runtime.lastError;
+      if (answer === true) $('investigator').hidden = false;
+    });
+  } catch (e) { /* stays hidden */ }
+
+  $('investigator-save').addEventListener('click', () => {
+    const field = $('investigator-token');
+    const token = field.value.trim();
+    field.value = '';
+    const cur = state.investigator;
+    const next = { ...cur, token, base: typeof cur.base === 'string' ? cur.base : 'https://wai-lau.net/human-music', sent: cur.sent && typeof cur.sent === 'object' ? cur.sent : {} };
+    state.investigator = next;
+    status(token ? 'A key is saved.' : 'The key is removed.');
+    store.set({ [HM.store.KEYS.investigator]: next });
+    saveSettings({ ...state.settings, investigate: !!token });
+    renderInvestigator();
+  });
 
   $('lookahead').addEventListener('change', e => saveSettings({ ...state.settings, lookahead: e.target.value }));
   for (const [id, key] of Object.entries(TOGGLES)) {
@@ -343,7 +416,7 @@
 
   // --- start and live updates -------------------------------------------------------------
 
-  function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderToday(); renderLog(); }
+  function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderMode(); renderInvestigator(); renderToday(); renderLog(); }
 
   const onChanged = (api.storage && api.storage.onChanged) || store.onChanged;
   if (onChanged) {
