@@ -1,6 +1,6 @@
 // Contract check: Cevval's list as a built-in (Wai, 2026-11-16: Cevval only, of ytm-deslop's lists).
 // A plain-text list of YouTube channel IDs, public domain (Unlicense). Run from the repo root:
-//   node tests/wip-contract-cevval.check.mjs
+//   node tests/contract-cevval.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
