@@ -37,4 +37,11 @@ await run([
   ['human passes unchanged', () => { const d = decide({ ...good, verdict: 'human', signals: [], confidence: 90 }); return d.verdict === 'human' && d.confidence === 90 && !d.downgraded; }],
   ['unsure passes unchanged', () => { const d = decide({ ...good, verdict: 'unsure', signals: [], confidence: 80 }); return d.verdict === 'unsure' && d.confidence === 80 && !d.downgraded; }],
   ['a downgraded low-confidence answer is not raised', () => decide({ ...good, signals: [], confidence: 10 }).confidence === 10],
+  // Review 2026-11-17: sites are counted by domain, not by raw host.
+  ['www and bare forms of one domain, or a junk source, are one site: stays at 94', () => {
+    const a = decide({ ...good, signals: ['deezer_ai_label'], confidence: 99, sources: ['https://www.deezer.com/a', 'https://deezer.com/b'] });
+    const b = decide({ ...good, signals: ['deezer_ai_label'], confidence: 99, sources: ['https://deezer.com/a', 'https://x'] });
+    const c = decide({ ...good, signals: ['deezer_ai_label'], confidence: 99, sources: ['https://deezer.com/a', 'https://open.spotify.com/b'] });
+    return (a.confidence === 94 && b.confidence === 94 && c.confidence === 99) || JSON.stringify([a.confidence, b.confidence, c.confidence]);
+  }],
 ]);

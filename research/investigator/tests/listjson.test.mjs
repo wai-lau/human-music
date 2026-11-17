@@ -55,9 +55,17 @@ await run([
     return (l.artists.length === 1 && l.artists[0].name === 'b') || JSON.stringify(l.artists);
   }],
   ['ai confidence is mapped from the raw value; not ready caps at 94', () => {
-    const mapped = build([v({ rawConfidence: 90 })], { mapping: MAP }).artists[0].confidence;
-    const capped = build([v({ rawConfidence: 100 })], { mapping: null }).artists[0].confidence;
+    const strong = { signals: ['deezer_ai_label'], sources: ['https://www.deezer.com/a/1', 'https://open.spotify.com/a/2'] };
+    const mapped = build([v({ rawConfidence: 90, ...strong })], { mapping: MAP }).artists[0].confidence;
+    const capped = build([v({ rawConfidence: 100, ...strong })], { mapping: null }).artists[0].confidence;
     return (mapped === 95 && capped === 94) || `${mapped} ${capped}`;
+  }],
+  // Review 2026-11-17: the mapping must not lift a verdict that didn't meet the rule (a strong
+  // signal from two different sites) past 94, whatever the fit says.
+  ['a fit never lifts a weak-signal or one-site ai verdict past 94', () => {
+    const weak = build([v({ rawConfidence: 90, signals: ['short_heavy_catalogue', 'no_human_footprint'], sources: ['https://a.test/1', 'https://b.test/2'] })], { mapping: MAP }).artists[0].confidence;
+    const oneSite = build([v({ rawConfidence: 90, signals: ['deezer_ai_label'], sources: ['https://www.deezer.com/a/1', 'https://deezer.com/a/2'] })], { mapping: MAP }).artists[0].confidence;
+    return (weak <= 94 && oneSite <= 94) || `${weak} ${oneSite}`;
   }],
   ['human and unsure confidences pass unchanged', () => {
     const l = build([v({ name: 'h', verdict: 'human', confidence: 97, rawConfidence: 97 }), v({ name: 'u', verdict: 'unsure', confidence: 40, rawConfidence: 40 })], { mapping: null });

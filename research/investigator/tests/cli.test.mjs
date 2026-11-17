@@ -91,7 +91,7 @@ await run([
     } finally { t.done(); }
   }],
   ['accept-calibration stores the mapping, sets calibrated: true, and buildList then publishes it', async () => {
-    const t = setup((s) => { s.setState('calibration.samples', goodSamples()); s.putVerdict(verdict('Alpha Band', { rawConfidence: 90, confidence: 60 })); });
+    const t = setup((s) => { s.setState('calibration.samples', goodSamples()); s.putVerdict(verdict('Alpha Band', { rawConfidence: 90, confidence: 60, signals: ['deezer_ai_label'], sources: ['https://www.deezer.com/a/1', 'https://open.spotify.com/a/2'] })); });
     try {
       await t.call('calibrate');
       const r = await t.call('accept-calibration');

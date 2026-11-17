@@ -2,6 +2,7 @@
 // plus `checked` (ignored by the extension). Reasons, sources, signals and SH Labs data stay home.
 
 import { applyMapping } from './calibrate.mjs';
+import { mayPass94 } from './answer.mjs';
 import { normalizeName } from './names.mjs';
 
 const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
@@ -19,6 +20,8 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
     if (v.verdict === 'ai') {
       const raw = Number.isFinite(v.rawConfidence) ? v.rawConfidence : v.confidence;
       confidence = applyMapping(mapping, raw);
+      // A verdict that didn't meet the rule stays under Optimal, whatever the fit says.
+      if (!mayPass94(v)) confidence = Math.min(confidence, 94);
     } else {
       confidence = Number.isFinite(v.confidence) ? clampInt(v.confidence) : 0;
     }

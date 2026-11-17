@@ -93,15 +93,29 @@ export function decide(answer) {
   }
   const distinct = new Set(signals);
   const strong = signals.some((s) => STRONG.includes(s));
-  const differentHosts = new Set(sources.map((s) => {
-    let u;
-    try { u = new URL(s); } catch { return ''; }
-    return u.host;
-  }));
   if (!strong && distinct.size < 2) {
     return { ...result, verdict: 'unsure', confidence: Math.min(effConf, DOWNGRADE_CAP), downgraded: true };
   }
-  const canExceedCap = strong && differentHosts.size >= 2;
+  const canExceedCap = mayPass94(answer);
   const cap = canExceedCap ? Infinity : WEAK_AI_CAP;
   return { ...result, confidence: Math.min(effConf, cap) };
+}
+
+// A site, for counting "two different sites": the host without www., m., open. or music.
+// prefixes, lowercased; '' for anything that doesn't parse or has no dot (review 2026-11-17:
+// www.deezer.com and deezer.com were two sites, and junk like https://x counted as one).
+export function siteOf(url) {
+  let host;
+  try { host = new URL(url).hostname.toLowerCase(); } catch { return ''; }
+  host = host.replace(/^(www|m|open|music)\./, '');
+  return host.includes('.') ? host : '';
+}
+
+// The rule a verdict must meet to stand at 95 or more (Wai, 2026-11-17): a strong signal and
+// sources on at least two different sites. decide caps at 94 without it, and a calibration
+// mapping may not lift past 94 without it either (listjson.mjs, worker.mjs).
+export function mayPass94({ signals = [], sources = [] } = {}) {
+  const strong = Array.isArray(signals) && signals.some((s) => STRONG.includes(s));
+  const sites = new Set((Array.isArray(sources) ? sources : []).map(siteOf).filter(Boolean));
+  return strong && sites.size >= 2;
 }

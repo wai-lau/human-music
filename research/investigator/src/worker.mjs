@@ -1,7 +1,7 @@
 // The worker: one artist from the queue to a stored verdict. Cheap pass first, then one
 // locked-down `claude -p`, then the decision rule (decide() is the final word), then the
 // calibration mapping. Unsure means play: any failure leaves no verdict rather than a wrong one.
-import { decide } from './answer.mjs';
+import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
@@ -117,7 +117,8 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
       const d = decide(answer);
       store.bump(today);
       const raw = d.confidence;
-      const shown = d.verdict === 'ai' ? applyMapping(mapping, raw) : raw;
+      // A verdict that didn't meet the rule stays under Optimal, whatever the fit says.
+      const shown = d.verdict === 'ai' ? (mayPass94(d) ? applyMapping(mapping, raw) : Math.min(applyMapping(mapping, raw), 94)) : raw;
       const id = save(artist, res.answer, {
         verdict: d.verdict,
         confidence: shown,
