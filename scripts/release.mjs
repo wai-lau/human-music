@@ -218,7 +218,8 @@ function loadConfig() {
   let config;
   try { config = JSON.parse(readFileSync(path, 'utf8')); } catch (e) { throw new Error(`no config at ${path} (see the top of scripts/release.mjs)`); }
   for (const k of ['publisherId', 'itemId', 'serviceAccountKey']) if (!config[k]) throw new Error(`${path} has no ${k}`);
-  const serviceAccount = JSON.parse(readFileSync(home(config.serviceAccountKey), 'utf8'));
+  // scripts/with-release-keys.sh unlocks the key for one run and points HM_CWS_SA_KEY at it.
+  const serviceAccount = JSON.parse(readFileSync(process.env.HM_CWS_SA_KEY || home(config.serviceAccountKey), 'utf8'));
   if (!serviceAccount.client_email || !serviceAccount.private_key) throw new Error('the service account key file has no client_email or private_key');
   return { config, serviceAccount };
 }

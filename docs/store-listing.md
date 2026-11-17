@@ -105,6 +105,14 @@ After the first upload in the dashboard, every release is one command:
 
     npm run release            (or: npm run release -- minor / major)
 
+Only Wai releases (2026-11-17). The two keys it needs are locked behind a
+passphrase: run `scripts/lock-release-keys.sh` once, in your own terminal, and
+from then on the release asks for the passphrase, unlocks the keys into
+memory-backed temp space for that run only, and shreds them when it ends. Back
+up `~/.keys/human-music-release.tar.gpg` off this PC. To run `upload` or
+`publish` by hand, wrap it the same way:
+`scripts/with-release-keys.sh node scripts/release.mjs upload`.
+
 It refuses on uncommitted changes, off `main`, when HEAD is not exactly
 GitHub's `main`, or while a version still waits for review. Then it prints
 the commits since the last `v*` tag and waits for you to type `yes` (anything
