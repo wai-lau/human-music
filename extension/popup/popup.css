@@ -81,10 +81,16 @@ button, input, select { font: inherit; color: inherit; }
 }
 .mode input[type="range"]::-webkit-slider-runnable-track {
   height: 8px; border-radius: 4px;
-  background:
-    radial-gradient(circle at 50% 50%, var(--muted) 0 3px, transparent 3.5px) 0 0 / 33.34% 8px repeat-x,
-    linear-gradient(var(--switch-off), var(--switch-off)) 0 50% / 100% 4px no-repeat;
+  background: linear-gradient(var(--switch-off), var(--switch-off)) 0 50% / 100% 4px no-repeat;
 }
+/* The stop dots sit where the thumb centre lands: half a thumb (9px) in from each end. */
+.mode-wrap { position: relative; }
+.mode-dots { position: absolute; left: 0; right: 0; top: 50%; height: 0; pointer-events: none; }
+.mode-dot { position: absolute; top: -3px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--muted); }
+.mode-dot:nth-child(1) { left: 9px; }
+.mode-dot:nth-child(2) { left: calc(9px + (100% - 18px) / 3); }
+.mode-dot:nth-child(3) { left: calc(9px + (100% - 18px) * 2 / 3); }
+.mode-dot:nth-child(4) { left: calc(100% - 9px); }
 .mode input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-top: -5px;
   border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent);

@@ -139,3 +139,28 @@ for (const scheme of ['light', 'dark']) {
     await popup.screenshot({ path: `e2e/.results/popup-${scheme}.png` });
   });
 }
+
+test('the four stop dots sit where the thumb lands for each value', async ({ context, extensionId, setState }) => {
+  await setState();
+  const popup = await context.newPage();
+  await popup.setViewportSize({ width: 400, height: 300 });
+  await popup.emulateMedia({ colorScheme: 'light' });
+  await popup.goto(popupUrl(extensionId));
+  const input = await popup.locator('#mode').boundingBox();
+  const dots = popup.locator('.mode-dot');
+  await expect(dots).toHaveCount(4);
+  await popup.evaluate(() => { window.__seen = []; document.getElementById('mode').addEventListener('input', e => window.__seen.push(e.target.value)); });
+  for (let v = 0; v < 4; v++) {
+    const d = await dots.nth(v).boundingBox();
+    const dotX = d.x + d.width / 2;
+    // The browser puts the thumb centre half a thumb (9px) in from each end of the input.
+    const thumbX = input.x + 9 + (input.width - 18) * v / 3;
+    expect(Math.abs(dotX - thumbX)).toBeLessThanOrEqual(2);
+    // And the browser agrees: pressing on a dot's centre moves the thumb to that stop.
+    await popup.mouse.click(dotX, input.y + input.height / 2);
+    expect(Number(await popup.evaluate(() => window.__seen.at(-1)))).toBe(v);
+    // Screenshot at this value (an unready stop snaps back after a click, so set the stop directly).
+    await popup.evaluate(n => { const m = document.getElementById('mode'); m.value = String(n); m.dispatchEvent(new Event('input')); }, v);
+    await popup.locator('.mode').screenshot({ path: `e2e/.results/slider-${v}.png` });
+  }
+});
