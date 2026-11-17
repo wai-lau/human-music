@@ -186,6 +186,14 @@
   async function removeQueueRowInner(doc, row) {
     try {
       if (!row.el.isConnected) return false;
+
+      // If any menu is already open, it might belong to another row (e.g. the person is about
+      // to pick "Play next" on a person's song). Do nothing and let a later pass try again.
+      const existingPopups = doc.querySelectorAll(SEL.menuPopup);
+      for (let i = 0; i < existingPopups.length; i++) {
+        if (existingPopups[i].offsetParent !== null) return false;
+      }
+
       const menuBtn = row.el.querySelector(SEL.queueRowMenu);
       if (menuBtn) {
         menuBtn.click();

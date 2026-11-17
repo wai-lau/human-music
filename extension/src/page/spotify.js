@@ -160,6 +160,11 @@
 
   async function removeInner(doc, row) {
     if (!row || !row.el || !row.el.isConnected) return false;
+
+    // If a context menu is already open, it might belong to another row (the person is about
+    // to pick "Play next" on a person's song). Do nothing and let a later pass try again.
+    if (doc.querySelector(SEL.menu)) return false;
+
     const more = row.el.querySelector(SEL.more);
     if (more) more.click();
     else {
