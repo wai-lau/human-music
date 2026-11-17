@@ -8,7 +8,8 @@ personal lists: it ships in the package.
 
 ## Package tab
 
-Upload the zip. Name, version and icon come from `manifest.json`.
+Upload the zip. Name ("Human Music: AI Music Blocker"), version and icon come from
+`manifest.json`.
 
 ## Store listing tab
 

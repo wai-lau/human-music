@@ -25,7 +25,9 @@ categorically different (not inferior)".
   The research tool (phase 2) lives in `research/` and is never bundled:
   Wai runs it herself and publishes findings as a public list that the
   extension subscribes to.
-- **Name.** Display name "Human Music" (with a space); repo `human-music`.
+- **Name.** Display name "Human Music: AI Music Blocker" (Wai, 2026-11-17), short name
+  "Human Music" (with a space) where room is tight, such as the popup header; repo
+  `human-music`.
 - **No upstream contact.** Nothing goes to the old extension's repo.
 - **License.** MIT, copyright "wai-lau". Credit Soul Over AI (CC BY 4.0)
   in the popup and README.

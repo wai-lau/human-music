@@ -1,4 +1,4 @@
-# Human Music
+# Human Music: AI Music Blocker
 
 <img src="extension/icons/icon128.png" alt="" width="64" align="right">
 

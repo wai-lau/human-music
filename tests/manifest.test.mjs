@@ -18,7 +18,8 @@ try {
 
 const cases = [
   ['manifest_version', () => manifest.manifest_version === 3],
-  ['name', () => manifest.name === 'Human Music'],
+  // Wai, 2026-11-17: "the name should be Human Music: AI Music Blocker".
+  ['name', () => manifest.name === 'Human Music: AI Music Blocker' && manifest.short_name === 'Human Music'],
   // scripting: put the content script into YouTube Music tabs already open when the
   // extension installs or reloads (Chrome does not, and cut-off copies stop working).
   // As few as the job needs (Wai, 2026-11-13: "minimize required permissions"): storage for
