@@ -174,7 +174,7 @@ await run([
     try {
       queueThree(t.app);
       await t.app.kick();
-      await t.timers.advance(60000);
+      await t.timers.advance(24 * 3600000); // publishing is once a day (Wai, 2026-11-17)
       if (t.calls.publish.length !== 1) return 'first: ' + t.calls.publish.length;
       await t.timers.advance(599000);
       if (t.calls.publish.length !== 1) return 'retried early: ' + t.calls.publish.length;
@@ -193,7 +193,7 @@ await run([
     try {
       queueThree(t.app);
       await t.app.kick();
-      await t.timers.advance(60000);
+      await t.timers.advance(24 * 3600000); // publishing is once a day (Wai, 2026-11-17)
       await t.timers.advance(600000);
       return n === 2 || 'attempts ' + n;
     } finally { await t.stop(); }
