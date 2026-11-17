@@ -4,7 +4,8 @@
 // Anything that throws leaves the song playing.
 (function () {
   'use strict';
-  const HM = (globalThis.HM = globalThis.HM || {});
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
+  const HM = globalThis.HM;
 
   const rebuilds = key => key === HM.store.KEYS.user || key === HM.store.KEYS.settings || key === HM.store.KEYS.filterLists || key.startsWith(HM.store.listPrefix);
   const rowKey = row => `${row.title}\n${row.artistLine}`;

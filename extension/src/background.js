@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   // The service worker loads only this file; the helpers come in here (paths relative to src/).
   if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js');
 

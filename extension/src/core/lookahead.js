@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   function pickRemovals(rows, distance, matchFn) {
     if (!distance || distance < 1 || !Array.isArray(rows) || rows.length === 0) {

@@ -3,7 +3,8 @@
 // Page facts were checked live (spec, "Spotify page facts"). Nothing here throws.
 (function () {
   'use strict';
-  const HM = (globalThis.HM = globalThis.HM || {});
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
+  const HM = globalThis.HM;
   const PC = HM.pageCommon;
 
   const SEL = {

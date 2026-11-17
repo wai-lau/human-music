@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   const DEFAULTS = {
     lookahead: 3,

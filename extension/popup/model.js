@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   function copy(arr) {
     if (!arr) return [];

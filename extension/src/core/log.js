@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   function makeEntry({ event, song, match, at }) {
     const m = match || {};

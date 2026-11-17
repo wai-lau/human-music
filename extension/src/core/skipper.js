@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   globalThis.HM.skipper = {
     createSkipper({ page, setTimeout, clearTimeout, setInterval, clearInterval, onGiveUp }) {

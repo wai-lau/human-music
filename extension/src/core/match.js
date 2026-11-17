@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   const { normalize, credits, wholeWord } = globalThis.HM.text;
 
   function result(listId, listName, rule, entry, mode, confidence) {

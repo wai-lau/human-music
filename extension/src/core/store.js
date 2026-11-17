@@ -1,5 +1,5 @@
 (function () {
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
   // Where Human Music keeps things in extension storage, in one place. The key strings are
   // what is stored: changing one loses that data.

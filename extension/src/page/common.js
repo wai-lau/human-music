@@ -2,7 +2,8 @@
 // Sets globalThis.HM.pageCommon. No page-specific selectors here.
 (function () {
   'use strict';
-  const HM = (globalThis.HM = globalThis.HM || {});
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
+  const HM = globalThis.HM;
 
   // The "skip" glyph (a circle with a slash, as on an UNO skip card), drawn for Human Music.
   const BLOCK_GLYPH = [
