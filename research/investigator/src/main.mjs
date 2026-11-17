@@ -133,6 +133,7 @@ export function createApp(env, deps = {}) {
   function slowTick() {
     slowTimer = timers.setTimeout(slowTick, SLOW_TICK_MS);
     try { if (store.getState('publish.stale')) schedulePublish(); } catch { /* try again next tick */ }
+    try { if (queue.resumeIfDue()) log('queue: usage-limit pause lifted after an hour'); } catch { /* next tick */ }
     kick();
   }
 

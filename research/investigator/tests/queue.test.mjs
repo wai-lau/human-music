@@ -22,6 +22,23 @@ function setup(cap = 100, iso = '2026-11-16T12:00:00Z') {
 }
 
 await run([
+  // Review 2026-11-17 (service, finding 3): nothing ever resumed a paused queue. A usage-limit
+  // pause lifts itself after an hour; a login pause waits for Wai (the CLI's resume).
+  ['a limit pause lifts after an hour; a login pause never lifts by itself', () => {
+    const { q, c } = setup();
+    q.enqueue([art('A')]);
+    q.pause('limit: usage limit reached');
+    c.t = new Date(c.t.getTime() + 30 * 60000);
+    const early = q.resumeIfDue();
+    c.t = new Date(c.t.getTime() + 31 * 60000);
+    const later = q.resumeIfDue();
+    const got = q.next();
+    const b = setup();
+    b.q.pause('auth: logged out');
+    b.c.t = new Date(b.c.t.getTime() + 24 * 3600000);
+    const auth = b.q.resumeIfDue();
+    return (early === false && later === true && got && got.name === 'A' && auth === false && b.store.getState('queue.paused') !== null) || JSON.stringify({ early, later, got, auth });
+  }],
   ['the playing artist overtakes three waiting ones', () => {
     const { q } = setup();
     q.enqueue([art('W1'), art('W2'), art('W3')]);

@@ -118,11 +118,24 @@ export function createQueue({ store, now, cap }) {
 
     pause(reason) {
       store.setState('queue.paused', String(reason));
+      store.setState('queue.pausedAt', now().toISOString());
       store.setState('queue.lastError', String(reason));
     },
 
     resume() {
       store.setState('queue.paused', null);
+      store.setState('queue.pausedAt', null);
+    },
+
+    // A usage-limit pause lifts itself an hour after it began (the next run tells whether the
+    // limit has passed); a login pause waits for Wai's `resume` (review 2026-11-17).
+    resumeIfDue() {
+      const reason = store.getState('queue.paused');
+      if (typeof reason !== 'string' || !reason.startsWith('limit')) return false;
+      const at = Date.parse(store.getState('queue.pausedAt') || '');
+      if (Number.isFinite(at) && now().getTime() - at < 3600000) return false;
+      this.resume();
+      return true;
     },
 
     status() {

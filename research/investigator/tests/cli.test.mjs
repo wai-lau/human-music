@@ -31,6 +31,14 @@ const goodSamples = () => [
 ];
 
 await run([
+  ['resume clears a pause and says so', async () => {
+    const t = setup((s) => { s.setState('queue.paused', 'auth: logged out'); });
+    try {
+      const r = await t.call('resume');
+      const paused = t.peek((s) => s.getState('queue.paused'));
+      return (r.code === 0 && paused === null && /resumed/i.test(r.text)) || JSON.stringify({ r, paused });
+    } finally { t.done(); }
+  }],
   ['status prints queue, today against the cap, pause, last error and calibration', async () => {
     const t = setup((s) => { s.bump('2026-11-16'); s.setState('queue.lastError', 'limit: hit'); s.setState('queue.paused', 'limit: hit'); });
     try {

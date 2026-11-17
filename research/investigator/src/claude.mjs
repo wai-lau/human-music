@@ -91,6 +91,19 @@ export function buildPrompt(artist, evidence = {}) {
 const LIMIT_RE = /usage limit|rate limit|limit reached|quota|too many requests|\b429\b|overloaded/i;
 const AUTH_RE = /\/login|log in|logged out|not logged|authenticat|unauthori[sz]ed|invalid (api key|token|credential)|oauth|expired|\b401\b|credential/i;
 
+// The result entry's own error fields (a list of messages or one object), or '' for plain text.
+function errorTextOf(stdout) {
+  let o;
+  try { o = JSON.parse(stdout); } catch { return ''; }
+  if (Array.isArray(o)) o = [...o].reverse().find((m) => m && typeof m === 'object' && m.type === 'result') || null;
+  if (!o || typeof o !== 'object') return '';
+  const parts = [];
+  if (o.is_error === true && typeof o.result === 'string') parts.push(o.result);
+  if (o.api_error_status !== undefined && o.api_error_status !== null) parts.push(`status ${o.api_error_status}`);
+  if (Array.isArray(o.errors)) parts.push(...o.errors.filter((e) => typeof e === 'string'));
+  return parts.join('\n');
+}
+
 function classify(text) {
   if (LIMIT_RE.test(text)) return 'limit';
   if (AUTH_RE.test(text)) return 'auth';
@@ -155,8 +168,10 @@ export function investigate(artist, evidence, { spawn = nodeSpawn, env = process
     child.on('error', (e) => done({ ok: false, kind: 'error', detail: `child error: ${e && e.message}`.slice(0, 300) }));
     child.on('close', (code) => {
       if (code !== 0) {
-        let text = `${stderr}\n${stdout}`;
-        try { const o = JSON.parse(stdout); if (o && typeof o.result === 'string') text += `\n${o.result}`; } catch { /* plain text output */ }
+        // Classify only claude's own error text: stderr and the result entry's error fields.
+        // The rest of stdout is the transcript, web pages included, and a page saying "log in"
+        // or "429" must not pause the queue (review 2026-11-17).
+        const text = `${stderr}\n${errorTextOf(stdout)}`;
         return done({ ok: false, kind: classify(text), detail: `exit ${code}: ${text.trim().slice(0, 300)}` });
       }
       done(parseOutput(stdout));

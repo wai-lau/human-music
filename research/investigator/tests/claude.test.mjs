@@ -44,6 +44,20 @@ const env = { PATH: '/bin', HOME: '/h', CLAUDE_CODE_OAUTH_TOKEN: 'tok', HM_KEY_H
 const go = (spawn, o = {}) => investigate(a, {}, { spawn, env, ...o });
 
 await run([
+  // Review 2026-11-17 (service, finding 3): a failure is classified only from claude's own
+  // error text, never from web pages in the transcript (a page with a "/login" link or "429"
+  // used to pause the queue as logged out or rate-limited).
+  ['an exit-1 transcript with "/login" or "rate limit" in tool results is an error, not auth or limit', async () => {
+    const list = [{ type: 'user', message: { content: [{ type: 'tool_result', content: 'Sign in at https://accounts.spotify.com/login — rate limit 429 applies' }] } }, { type: 'result', is_error: true, subtype: 'error_max_turns', usage: { output_tokens: 429 } }];
+    const r = await go(fakeSpawn(JSON.stringify(list), { code: 1 }));
+    return (r.ok === false && r.kind === 'error') || JSON.stringify(r);
+  }],
+  ['claude\'s own limit and login errors still classify', async () => {
+    const lim = await go(fakeSpawn(JSON.stringify([{ type: 'result', is_error: true, result: 'Claude AI usage limit reached' }]), { code: 1 }));
+    const auth = await go(fakeSpawn('', { code: 1, stderr: 'Invalid API key · Please run /login' }));
+    const st = await go(fakeSpawn(JSON.stringify([{ type: 'result', is_error: true, api_error_status: 429 }]), { code: 1 }));
+    return (lim.kind === 'limit' && auth.kind === 'auth' && st.kind === 'limit') || JSON.stringify([lim.kind, auth.kind, st.kind]);
+  }],
   ['argv is exactly the pinned list', () => deepEqual(buildArgv(), PINNED_ARGV)],
   // Wai, 2026-11-17: "Keep opus for now? Maybe test model fidelity": Opus by name, Sonnet for comparison runs.
   ['the model is named: opus by default, sonnet on request, anything else falls back to opus', () => {
