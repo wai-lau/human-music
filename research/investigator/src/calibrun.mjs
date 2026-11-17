@@ -85,10 +85,17 @@ export async function runCalibration({ store, investigate, decide, sample, model
     } else {
       try {
         const decision = decide(result.answer);
+        // The evidence is kept too, so experiments can measure how much each sign is worth
+        // (Wai, 2026-11-17: "each thing that is being researched should assign some
+        // percentage of the certainty").
         results[a.name] = {
           truthAi: a.truthAi,
           verdict: decision.verdict,
           confidence: decision.confidence,
+          raw: result.answer.confidence,
+          signals: [...(result.answer.signals || [])],
+          sources: [...(result.answer.sources || [])],
+          contradictions: [...(result.answer.contradictions || [])],
         };
       } catch (e) {
         const attempts = (prev && prev.failed) || 0;
