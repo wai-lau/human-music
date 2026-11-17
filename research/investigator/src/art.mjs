@@ -6,7 +6,7 @@
 // Text hidden in a cover can therefore not drive a web fetch or read a file, and the research
 // call never sees the image or the look's answer.
 import { spawn as nodeSpawn } from 'node:child_process';
-import { childEnv } from './claude.mjs';
+import { childEnv, pickModel } from './claude.mjs';
 
 export const ART_HOSTS = Object.freeze([
   'lh3.googleusercontent.com',
@@ -97,9 +97,10 @@ export async function fetchArt(url, { fetch: doFetch = globalThis.fetch, timeout
   }
 }
 
-export function buildArtArgv() {
+export function buildArtArgv(model) {
   return [
     '-p',
+    '--model', pickModel(model),
     '--input-format', 'stream-json',
     '--output-format', 'json',
     '--json-schema', JSON.stringify(ART_SCHEMA),
@@ -137,7 +138,7 @@ function parseLook(stdout) {
   return { ok: true, look: c.look };
 }
 
-export function lookArt(image, { spawn = nodeSpawn, env = process.env, timeoutMs = DEFAULT_LOOK_TIMEOUT_MS } = {}) {
+export function lookArt(image, { spawn = nodeSpawn, env = process.env, timeoutMs = DEFAULT_LOOK_TIMEOUT_MS, model } = {}) {
   return new Promise((resolve) => {
     let settled = false;
     let timer = null;
@@ -152,7 +153,7 @@ export function lookArt(image, { spawn = nodeSpawn, env = process.env, timeoutMs
     }
     let child;
     try {
-      child = spawn('claude', buildArtArgv(), { env: childEnv(env) });
+      child = spawn('claude', buildArtArgv(model), { env: childEnv(env) });
     } catch (e) {
       return done({ ok: false, kind: 'error', detail: `spawn failed: ${e && e.message}`.slice(0, 300) });
     }

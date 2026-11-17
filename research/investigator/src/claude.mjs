@@ -21,9 +21,16 @@ export const SYSTEM_PROMPT = [
   'Answer unsure when the evidence is thin. Wrongly calling a real person AI is the worst mistake, so unsure is always safe.',
 ].join('\n');
 
-export function buildArgv() {
+// Investigations run on Wai's subscription with Opus, named so an account default change can't
+// switch it (Wai, 2026-11-17: "Keep opus for now? Maybe test model fidelity"); Sonnet only for
+// comparison runs. Anything else falls back to Opus.
+export const MODELS = ['opus', 'sonnet'];
+export const pickModel = (m) => (MODELS.includes(m) ? m : 'opus');
+
+export function buildArgv(model) {
   return [
     '-p',
+    '--model', pickModel(model),
     '--output-format', 'json',
     '--json-schema', JSON.stringify(ANSWER_SCHEMA),
     '--tools', TOOLS,
@@ -111,7 +118,7 @@ function parseOutput(stdout) {
   return { ok: true, answer: checked.answer };
 }
 
-export function investigate(artist, evidence, { spawn = nodeSpawn, env = process.env, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+export function investigate(artist, evidence, { spawn = nodeSpawn, env = process.env, timeoutMs = DEFAULT_TIMEOUT_MS, model } = {}) {
   return new Promise((resolve) => {
     let settled = false;
     let timer = null;
@@ -123,7 +130,7 @@ export function investigate(artist, evidence, { spawn = nodeSpawn, env = process
     };
     let child;
     try {
-      child = spawn('claude', buildArgv(), { env: childEnv(env) });
+      child = spawn('claude', buildArgv(model), { env: childEnv(env) });
     } catch (e) {
       return done({ ok: false, kind: 'error', detail: `spawn failed: ${e && e.message}`.slice(0, 300) });
     }

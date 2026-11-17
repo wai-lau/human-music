@@ -9,7 +9,7 @@ const argvValue = (flag) => { const a = buildArgv(); return a[a.indexOf(flag) + 
 const artist = (title) => ({ name: 'Velvet Sundown', site: 'spotify', playing: true, spotifyId: '0TnOYISbd1XYRBk9myaseg', songs: [{ title, album: 'Dust', artUrl: 'https://i.test/a.jpg' }] });
 const a = artist('Dust on the Wind');
 
-const PINNED_ARGV = ['-p', '--output-format', 'json', '--json-schema', JSON.stringify(ANSWER_SCHEMA), '--tools', 'WebSearch,WebFetch', '--allowedTools', 'WebSearch,WebFetch', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '25', '--no-session-persistence', '--append-system-prompt', SYSTEM_PROMPT];
+const PINNED_ARGV = ['-p', '--model', 'opus', '--output-format', 'json', '--json-schema', JSON.stringify(ANSWER_SCHEMA), '--tools', 'WebSearch,WebFetch', '--allowedTools', 'WebSearch,WebFetch', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '25', '--no-session-persistence', '--append-system-prompt', SYSTEM_PROMPT];
 
 const goodAnswer = { verdict: 'ai', confidence: 96, signals: ['deezer_ai_label'], reasons: ['label'], sources: ['https://x.test/a'] };
 
@@ -45,6 +45,11 @@ const go = (spawn, o = {}) => investigate(a, {}, { spawn, env, ...o });
 
 await run([
   ['argv is exactly the pinned list', () => deepEqual(buildArgv(), PINNED_ARGV)],
+  // Wai, 2026-11-17: "Keep opus for now? Maybe test model fidelity": Opus by name, Sonnet for comparison runs.
+  ['the model is named: opus by default, sonnet on request, anything else falls back to opus', () => {
+    const m = (x) => { const a = buildArgv(x); return a[a.indexOf('--model') + 1]; };
+    return (m() === 'opus' && m('sonnet') === 'sonnet' && m('opus; rm -rf /') === 'opus' && m('haiku') === 'opus') || [m(), m('sonnet'), m('x')].join();
+  }],
   // Live check 2026-11-16: without --strict-mcp-config, claude -p loaded the account's claude.ai connectors (Gmail, Drive, Calendar).
   ['no MCP servers or connectors: --strict-mcp-config, and no --mcp-config', () => buildArgv().includes('--strict-mcp-config') && !buildArgv().includes('--mcp-config')],
   ['restricted and safe mode are on', () => buildArgv().includes('--restricted') && buildArgv().includes('--safe-mode')],

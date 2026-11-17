@@ -112,7 +112,7 @@ run([
   }],
   ['buildArtArgv equals the pinned list; --tools is empty; --strict-mcp-config present', () => {
     const argv = buildArtArgv();
-    const pinned = ['-p', '--input-format', 'stream-json', '--output-format', 'json', '--json-schema', JSON.stringify(ART_SCHEMA), '--tools', '', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '2', '--no-session-persistence', '--append-system-prompt', ART_PROMPT];
+    const pinned = ['-p', '--model', 'opus', '--input-format', 'stream-json', '--output-format', 'json', '--json-schema', JSON.stringify(ART_SCHEMA), '--tools', '', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '2', '--no-session-persistence', '--append-system-prompt', ART_PROMPT];
     return (deepEqual(argv, pinned) && argv[argv.indexOf('--tools') + 1] === '' && argv.includes('--strict-mcp-config') && !argv.includes('--allowedTools')) || JSON.stringify(argv);
   }],
   ['ART_SCHEMA allows only look: ai, not_ai, unclear', () => deepEqual(ART_SCHEMA, { type: 'object', additionalProperties: false, required: ['look'], properties: { look: { enum: ['ai', 'not_ai', 'unclear'] } } })],
