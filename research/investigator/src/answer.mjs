@@ -79,7 +79,7 @@ export function checkAnswer(raw) {
 // verdict and confidence never exceeds what its (checked) signals support.
 export function decide(answer) {
   const { verdict, confidence, signals, reasons, sources, contradictions } = answer;
-  let result = { verdict, confidence, signals, reasons, sources, contradictions, downgraded: false };
+  const result = { verdict, confidence, signals, reasons, sources, contradictions, downgraded: false };
   if (signals.includes('pre_2020_release')) {
     return { ...result, verdict: 'human' };
   }
