@@ -77,18 +77,25 @@ permission, and one for all hosts):
 | scripting | When Human Music is installed or updated, YouTube Music and Spotify tabs that are already open don't have it yet. scripting adds it to those tabs, so music keeps being checked without the user reloading the page. It only ever adds Human Music's own packaged files, and only on those two sites. |
 | Host permission | Human Music works only on music.youtube.com and open.spotify.com. On those pages it reads the playing song, the queue and the songs shown, compares them with the user's lists, and then presses Next, removes a listed song from the queue, or hides or greys out a listed item. It asks for no other site. |
 
-The list download (raw.githubusercontent.com) needs no permission: GitHub
-allows any site to read its raw files.
+The list downloads need no permission: GitHub allows any site to read its
+raw files. The built-in lists all come from public GitHub repos on
+raw.githubusercontent.com: Soul Over AI (xoundbyte/soul-over-ai), Cevval's AI
+music list (cevvalkoala/CevvalYoutubeAIBlocklist) and Human Music's verdicts
+(wai-lau/human-music-verdicts). A list the user adds downloads from its own
+https address. These requests carry no user data, and no other copy of the
+extension ever sends anything (only the owner's development copy talks to
+the investigator, and store copies can't become one).
 
-**Remote code:** No. The lists it downloads are JSON data; all code is in
-the package.
+**Remote code:** No. The lists it downloads are data only (JSON, or a plain
+text list of channel IDs) and are never run; all code is in the package.
 
 **Data usage:** collects none of the listed kinds of user data. Certify all
 three statements (not sold to third parties, not used for unrelated
 purposes, not used for creditworthiness or lending).
 
-**Privacy policy URL:** none needed while no user data is collected (the
-GitHub repo is private, so it can't host one yet).
+**Privacy policy URL:** none needed while no user data is collected. If the
+dashboard asks anyway, use the README's "Your data" section:
+https://github.com/wai-lau/human-music#what-it-does
 
 ## Distribution tab
 
