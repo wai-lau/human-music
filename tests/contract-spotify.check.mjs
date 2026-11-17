@@ -108,6 +108,15 @@ await t('one Block artist button right of Repeat, a copy of it, mounted once', (
     && !btns[0].hasAttribute('data-testid') && boxes[0].previousElementSibling === repeat && btns[0].querySelectorAll('svg path').length === 2 && hits === 1)
     || J({ cls: btns[0].className, prev: boxes[0].previousElementSibling && boxes[0].previousElementSibling.getAttribute('data-testid'), hits });
 });
+// Security audit 2026-11-17, finding 8: a page script's .click() (isTrusted false) must not add
+// an artist to the person's list; only a real click does.
+await t('a scripted click (isTrusted false) on Block artist does nothing', () => {
+  const doc = makeDocument(bar()); let hits = 0;
+  spotify.mountPlayerButtons(doc, { onBlockArtist: () => hits++ });
+  const btn = doc.querySelector('#hm-player-buttons button');
+  btn.dispatchEvent({ type: 'click', bubbles: true, isTrusted: false, preventDefault() {}, stopPropagation() {} });
+  return hits === 0 || 'a scripted click blocked an artist';
+});
 await t('no player: safe everywhere', async () => {
   const doc = makeDocument(el('div'));
   return (spotify.readSong(doc) === null && spotify.clickNext(doc) === false && Number.isNaN(spotify.videoDuration(doc)) && spotify.mountPlayerButtons(doc, {}) === false

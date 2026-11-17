@@ -106,6 +106,16 @@ await t('player buttons: Block artist adds the whole credit, then skips', async 
   await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
   return (J(b.storage.data['hm.user'].artists) === J(['Band A & Band B']) && p.clicks.next === 1) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
 });
+// Security audit 2026-11-17, finding 8: a page script's .click() (isTrusted false) must not add
+// an artist to the person's list.
+await t('player buttons: a scripted click (isTrusted false) adds nothing', async () => {
+  const b = boot({ artists: [] }); const p = page({ title: 'Song', artist: 'Real Person' });
+  const r = await app(b, p);
+  const btn = p.doc.querySelector('#hm-player-buttons button');
+  btn.dispatchEvent({ type: 'click', bubbles: true, isTrusted: false, preventDefault() {}, stopPropagation() {} });
+  await settle(r.clock, 60); await r.a.flush();
+  return (J((b.storage.data['hm.user'] || {}).artists || []) === '[]' && p.clicks.next === 0) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
+});
 await t("a button left by an earlier copy is replaced", async () => {
   const b = boot(); const p = page({ title: 'Song', artist: 'Band A' });
   const stale = el('div', { id: 'hm-player-buttons' }, el('button', {}, 'Block artist'), el('button', {}, 'Block song'));

@@ -216,6 +216,9 @@
     if (doc.querySelector('#hm-player-buttons')) return true;
 
     const onClick = e => {
+      // Only a person's click counts: a page script's .click() has isTrusted false and could
+      // otherwise add any artist to the person's list (security audit 2026-11-17).
+      if (e && e.isTrusted === false) return;
       try { e.preventDefault(); e.stopPropagation(); } catch (err) { /* plain event */ }
       try { if (handlers && handlers.onBlockArtist) handlers.onBlockArtist(); } catch (err) { /* never break the page */ }
     };

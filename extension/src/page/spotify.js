@@ -205,6 +205,8 @@
       if (icon && icon.parentNode) icon.parentNode.replaceChild(PC.glyph(doc, '16'), icon);
       else button.appendChild(PC.glyph(doc, '16'));
       button.addEventListener('click', e => {
+        // Only a person's click counts: a page script's .click() has isTrusted false (audit 2026-11-17).
+        if (e && e.isTrusted === false) return;
         safe(() => { e.preventDefault(); e.stopPropagation(); });
         safe(() => handlers && handlers.onBlockArtist && handlers.onBlockArtist());
       });
