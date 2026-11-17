@@ -29,7 +29,7 @@
   // that misses gives nothing, never a wrong value: IDs only from channel/UC… links in the
   // artist line, covers only from Google's image hosts over https.
   const CHANNEL_LINK = /(?:^|\/)channel\/(UC[\w-]{22})(?![\w-])/;
-  const ART_HOSTS = ['lh3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com'];
+  const ART_HOSTS = ['lh3.googleusercontent.com', 'yt3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com'];
   function artHost(src) {
     const m = /^https:\/\/([^/?#:@]+)(?:[/?#]|$)/.exec(src || '');
     return !!m && ART_HOSTS.includes(m[1].toLowerCase());
@@ -43,8 +43,14 @@
     }
     return ids;
   }
+  // Checked live 2026-11-17: the watch page's #song-image img is the cover at 544 px; the new
+  // player's img.ytmusicTrackInfoThumbnail is the same picture at 60 px. Both on
+  // yt3.googleusercontent.com. (The player's artist names are buttons with no href: no IDs.)
   function readArt(doc) {
     try {
+      const big = doc.querySelector('#song-image img');
+      const bigSrc = big ? big.getAttribute('src') || '' : '';
+      if (artHost(bigSrc)) return bigSrc;
       const player = findPlayer(doc);
       if (!player) return '';
       for (const img of player.el.querySelectorAll('img')) {

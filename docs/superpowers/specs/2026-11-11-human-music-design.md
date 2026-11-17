@@ -332,6 +332,8 @@ without notice, so selectors belong in one place in the code.
 | Next | `button[aria-label="Next"]` | `.next-button` |
 | Dislike | `dislike-button-view-model` (its inner `button` has `aria-pressed`) | `.dislike` |
 | Queue rows | `ytmusic-player-queue-item` with `.song-title`, `.byline`, a `selected` attribute; no links | same |
+| Artist links (checked live 2026-11-17) | the names in `.ytmusicTrackInfoByline` are `a.ytAttributedStringLink` with `role="button"` and no `href`: no channel IDs in the player | not checked (`.byline` links read if they carry `channel/UC…`) |
+| Cover (checked live 2026-11-17) | `#song-image img` on the watch page (544 px), else `img.ytmusicTrackInfoThumbnail` (60 px, same picture); both on `yt3.googleusercontent.com` | an `img` in the player on a Google image host |
 
 - Synthetic clicks on Next and a synthetic `j` keydown on `document.body`
   both work.

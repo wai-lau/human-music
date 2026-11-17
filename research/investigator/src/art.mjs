@@ -9,7 +9,7 @@ import { spawn as nodeSpawn } from 'node:child_process';
 import { childEnv, pickModel } from './claude.mjs';
 
 export const ART_HOSTS = Object.freeze([
-  'lh3.googleusercontent.com',
+  'lh3.googleusercontent.com', 'yt3.googleusercontent.com',
   'yt3.ggpht.com',
   'i.ytimg.com',
   'i.scdn.co',

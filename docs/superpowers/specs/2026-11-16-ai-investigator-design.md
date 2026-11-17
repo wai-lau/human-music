@@ -285,7 +285,7 @@ flowchart LR
 1. **The address.** The extension sends the playing song's cover address
    (`artUrl`), read from the player on both sites.
 2. **The fetch (service code, never Claude).** https only; the host must be
-   one of `lh3.googleusercontent.com`, `yt3.ggpht.com`, `i.ytimg.com`
+   one of `lh3.googleusercontent.com`, `yt3.googleusercontent.com`, `yt3.ggpht.com`, `i.ytimg.com`
    (YouTube Music), `i.scdn.co`, `mosaic.scdn.co`,
    `image-cdn-ak.spotifycdn.com`, `image-cdn-fa.spotifycdn.com` (Spotify);
    anything else means no art. No redirects are followed; 10-second

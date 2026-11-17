@@ -35,6 +35,17 @@ t('YTM: the cover comes from the player image on a Google image host', () => {
   const yt = ytm.readArt(ytmOld(['A'], el('img', { src: 'https://i.ytimg.com/vi/x/hqdefault.jpg' })));
   return (ok === 'https://lh3.googleusercontent.com/abc=w544-h544' && yt === 'https://i.ytimg.com/vi/x/hqdefault.jpg') || J({ ok, yt });
 });
+// Checked live 2026-11-17: the new player's thumbnail (img.ytmusicTrackInfoThumbnail, 60 px) and
+// the watch page's #song-image img (544 px, same picture) are on yt3.googleusercontent.com; the
+// larger one is preferred. The player's artist names are role=button with no href: no IDs there.
+t('YTM: the 544 px song image is preferred over the 60 px player thumbnail, both on yt3.googleusercontent.com', () => {
+  const thumb = el('img', { class: 'ytmusicTrackInfoThumbnail', src: 'https://yt3.googleusercontent.com/abc=w60-h60-l90-rj' });
+  const doc = makeDocument(el('div', {}, el('ytmusic-player-page', {}, el('div', { id: 'song-image' }, el('img', { src: 'https://yt3.googleusercontent.com/abc=w544-h544-l90-rj' }))),
+    el('ytmusic-miniplayer', {}, thumb, el('div', { class: 'ytmusicTrackInfoTitle' }, 'Song'), el('div', { class: 'ytmusicTrackInfoByline' }, 'A'))));
+  const alone = ytm.readArt(ytmNew(['A'], el('img', { class: 'ytmusicTrackInfoThumbnail', src: 'https://yt3.googleusercontent.com/abc=w60-h60-l90-rj' })));
+  const big = ytm.readArt(doc);
+  return (big === 'https://yt3.googleusercontent.com/abc=w544-h544-l90-rj' && alone === 'https://yt3.googleusercontent.com/abc=w60-h60-l90-rj') || J({ big, alone });
+});
 t('YTM: an image on another host, http, or none gives no cover', () => {
   const a = ytm.readArt(ytmNew(['A'], el('img', { src: 'https://evil.test/x.jpg' })));
   const b = ytm.readArt(ytmNew(['A'], el('img', { src: 'http://lh3.googleusercontent.com/x' })));

@@ -55,7 +55,7 @@ const image = { ok: true, mediaType: 'image/png', base64: PNG.toString('base64')
 const look = (out, o = {}) => lookArt(image, { spawn: fakeSpawn(out), env, ...o });
 
 run([
-  ['ART_HOSTS is exactly the seven allowed hosts', () => deepEqual([...ART_HOSTS], ['lh3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com', 'i.scdn.co', 'mosaic.scdn.co', 'image-cdn-ak.spotifycdn.com', 'image-cdn-fa.spotifycdn.com'])],
+  ['ART_HOSTS is exactly the eight allowed hosts', () => deepEqual([...ART_HOSTS], ['lh3.googleusercontent.com', 'yt3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com', 'i.scdn.co', 'mosaic.scdn.co', 'image-cdn-ak.spotifycdn.com', 'image-cdn-fa.spotifycdn.com'])],
   ['hosts outside the list, http, IP literals, ports and credentials fail with no fetch', async () => {
     const bad = ['https://lh3.googleusercontent.com.evil.test/a', 'https://evil.test/i.scdn.co', 'http://i.scdn.co/a', 'https://127.0.0.1/a', 'https://[::1]/a', 'https://i.scdn.co:8443/a', 'https://u:p@i.scdn.co/a', 'ftp://i.scdn.co/a', 'not a url', '', undefined, 'https://sub.i.scdn.co/a'];
     for (const u of bad) {
