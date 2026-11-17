@@ -6,8 +6,8 @@ A browser extension for [YouTube Music](https://music.youtube.com) and the
 [Spotify web player](https://open.spotify.com) that keeps your listening to
 music made by people.
 
-**Status:** early. I use it loaded unpacked; it isn't on the Chrome Web
-Store.
+**Status:** on the [Chrome Web Store](https://chromewebstore.google.com/detail/gfmfiblcoldnfgafoapjmelpedonegca).
+Firefox support is coming.
 
 ## What it does
 
@@ -42,11 +42,14 @@ song plays too.
 
 ## Install
 
-In Chrome:
+Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/gfmfiblcoldnfgafoapjmelpedonegca).
+The store copy updates itself, so you get fixes as they ship.
 
-1. Download or clone this repository.
-2. Open `chrome://extensions` and switch on **Developer mode**.
-3. Click **Load unpacked** and pick the `extension` folder.
+To work on the code instead, clone this repository, open `chrome://extensions`,
+switch on **Developer mode**, click **Load unpacked** and pick the `extension`
+folder. A copy loaded this way doesn't update, and it behaves like the store
+copy: the development aids stay off unless the folder holds the owner's
+`dev-copy` marker file, which is never committed.
 
 In Firefox (121 or later), run `scripts/build-firefox.sh`, open
 `about:debugging`, choose This Firefox, then Load Temporary Add-on, and pick

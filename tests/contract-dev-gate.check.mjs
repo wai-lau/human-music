@@ -21,7 +21,8 @@ delete manifest.update_url; // as unpacked Chrome and every Firefox build
 // --- worker ------------------------------------------------------------------------------
 
 // installType: a string (getSelf resolves to it), 'none' (no management API), or 'throws'.
-function worker(installType, { callbackOnly = false } = {}) {
+// marker: whether the gitignored extension/dev-copy file is there (only Wai's working copy has it).
+function worker(installType, { callbackOnly = false, marker = true } = {}) {
   const seen = { reloads: 0, message: null };
   const storage = fakeStorage({});
   const ev = name => ({ addListener: fn => { seen[name] = fn; } });
@@ -47,7 +48,7 @@ function worker(installType, { callbackOnly = false } = {}) {
   const ctx = load([], {
     chrome, setTimeout, clearTimeout,
     importScripts: (...files) => { for (const f of files) runInContext(readFileSync(process.cwd() + '/extension/src/' + f, 'utf8'), ctx); },
-    fetch: async () => ({ ok: false, status: 503, text: async () => '' }),
+    fetch: async url => (marker && /\/dev-copy$/.test(String(url)) ? { ok: true, status: 200, text: async () => '' } : { ok: false, status: 503, text: async () => '' }),
   });
   runInContext(readFileSync(process.cwd() + '/extension/src/background.js', 'utf8'), ctx);
   const ask = msg => new Promise(resolve => {
@@ -73,6 +74,17 @@ for (const kind of ['normal', 'admin', 'sideload', 'other', 'none', 'throws']) {
   });
 }
 
+// Security audit 2026-11-17, finding 5: friends who load the repo unpacked (installType
+// 'development') must not get the development aids; only Wai's working copy, which has the
+// gitignored dev-copy file, does.
+await t('worker: an unpacked copy without the dev-copy file is not development', async () => {
+  const w = worker('development', { marker: false });
+  await settle();
+  const mode = await w.ask({ type: 'dev-mode' });
+  w.seen.message({ type: 'dev-reload' }, { id: 'abc' }, () => {});
+  await settle();
+  return (mode === false && w.seen.reloads === 0 && devKeys(w.storage).length === 0) || J({ mode, reloads: w.seen.reloads });
+});
 await t('worker: development install answers dev-mode true and reloads', async () => {
   const w = worker('development');
   await settle();

@@ -7,7 +7,8 @@ import { fakeStorage } from './fakes.mjs';
 
 const ext = p => readFileSync(new URL('../extension/' + p, import.meta.url), 'utf8');
 
-function refresher(initial, files, { remote = null } = {}) {
+// dev: Wai's development copy (the only one that imports the shipped my-lists.json backup).
+function refresher(initial, files, { remote = null, dev = true } = {}) {
   let ctx;
   const runFile = f => runInContext(ext('src/' + f), ctx);
   ctx = load([], { importScripts: (...fs) => fs.forEach(runFile) });
@@ -24,7 +25,7 @@ function refresher(initial, files, { remote = null } = {}) {
     if (remote === null) throw new Error('offline');
     return { ok: true, status: 200, text: async () => JSON.stringify(remote) };
   };
-  const r = ctx.HM.createRefresher({ storage, fetch, now: () => 1000, assetUrl: p => 'bundle:' + p });
+  const r = ctx.HM.createRefresher({ storage, fetch, now: () => 1000, assetUrl: p => 'bundle:' + p, isDev: async () => dev });
   return { r, storage, fetched, HM: ctx.HM };
 }
 
@@ -34,6 +35,15 @@ const U = o => ({ artists: [], songs: [], keywords: [], neverSkip: [], ...o });
 const snapshot = JSON.stringify({ name: 'snap', artists: [{ name: 'Snap One' }, { name: 'Snap Two' }] });
 
 run([
+  // Security audit 2026-11-17, finding 3: the shipped my-lists.json is Wai's backup; a store
+  // copy must never import it (her settings would turn on auto-dislike for every friend).
+  ['a store copy never imports the shipped backup (user, settings or list choices)', async () => {
+    const before = { 'hm.user': U({ artists: ['Mine'] }), 'hm.settings': { lookahead: 3, autoDislike: false } };
+    const { r, storage } = refresher(before, { 'lists/index.json': index, 'lists/my-lists.json': JSON.stringify({ format: 'human-music-backup', version: 1, user: U({ artists: ['Wai Act'] }), settings: { lookahead: 9, autoDislike: true, mode: 'aggressive' }, filterLists: [] }), 'lists/soa.json': snapshot }, { dev: false });
+    await r.importBundled();
+    const d = storage.data;
+    return (JSON.stringify(d['hm.user'].artists) === '["Mine"]' && d['hm.settings'].autoDislike === false && d['hm.settings'].lookahead === 3) || JSON.stringify(d);
+  }],
   ['the committed files ship and parse', () => {
     const idx = JSON.parse(ext('lists/index.json'));
     const files = idx.files.map(f => [f.file, JSON.parse(ext('lists/' + f.file))]);

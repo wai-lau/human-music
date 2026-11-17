@@ -6,3 +6,6 @@
 node_modules/
 /dist/
 /e2e/.results/
+
+# Marks the owner's working copy as a development copy (never committed or packed).
+/extension/dev-copy

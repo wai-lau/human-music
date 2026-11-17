@@ -4,13 +4,16 @@
 // download is refused (the extension then keeps its bundled copy) and anything else is
 // aborted, so a run never touches the real sites or the network.
 import { test as base, chromium, expect } from '@playwright/test';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 // HM_E2E_EXT: run against another copy of the extension (a mutation check, a build).
 export const EXT = process.env.HM_E2E_EXT || join(here, '..', 'extension');
+// The tests drive a development copy (the investigator section, the page aids), which needs the
+// gitignored dev-copy marker; a fresh clone lacks it, so the run adds it to the repo's copy.
+if (!process.env.HM_E2E_EXT && !existsSync(join(EXT, 'dev-copy'))) writeFileSync(join(EXT, 'dev-copy'), 'Development copy marker (gitignored), added by the e2e run.\n');
 const PAGES = { 'music.youtube.com': 'ytm.html', 'open.spotify.com': 'spotify.html' };
 
 // The "Remove from queue" icons the adapters look for, read from the adapters themselves.

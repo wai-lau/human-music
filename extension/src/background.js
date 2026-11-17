@@ -9,6 +9,10 @@
     const nowFn = opts.now;
     const timeoutMs = typeof opts.timeoutMs === 'number' ? opts.timeoutMs : 15000;
     const maxBytes = typeof opts.maxBytes === 'number' ? opts.maxBytes : 5000000;
+    // Only Wai's development copy imports the shipped my-lists.json backup (security audit
+    // 2026-11-17): in a store copy it would carry her settings, list choices and lists to
+    // every friend. Unknown means no.
+    const isDev = typeof opts.isDev === 'function' ? opts.isDev : async function () { return false; };
 
     async function install() {
       const stored = await storage.get([HM.store.KEYS.filterLists, HM.store.KEYS.user, HM.store.KEYS.settings]);
@@ -93,6 +97,7 @@
           if (seen[f.file] === print) continue;
           const data = JSON.parse(text);
           if (f.kind === 'backup') {
+            if (!(await Promise.resolve().then(isDev).catch(function () { return false; }))) continue;
             const imported = HM.lists.importBackup(data);
             const cur = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
             const next = HM.lists.applyBackup({
@@ -505,7 +510,8 @@ list = lists[HM.store.KEYS.filterLists][i];
       // dropping them let redirects through and read huge bodies in full (audit 2026-11-17).
       fetch: function (url, init) { return fetch(url, init); },
       now: function () { return Date.now(); },
-      assetUrl: function (path) { return chrome.runtime.getURL(path); }
+      assetUrl: function (path) { return chrome.runtime.getURL(path); },
+      isDev: function () { return new Promise(function (resolve) { waitDev(resolve); }); }
     });
     globalThis.HM.investigator = globalThis.HM.createInvestigator({
       storage: api.storage.local,
@@ -522,13 +528,25 @@ list = lists[HM.store.KEYS.filterLists][i];
       for (let i = 0; i < devCallbacks.length; i++) devCallbacks[i](value);
       devCallbacks = [];
     }
+    // An unpacked copy also needs the gitignored extension/dev-copy file, which only Wai's
+    // working copy has: friends who load the repo unpacked report 'development' too, and must
+    // not get the page aids or the investigator (security audit 2026-11-17). The packers build
+    // from git, so a release never carries the file.
+    function judgeInstall(info) {
+      if (!(info && info.installType === 'development')) { setDevMode(false); return; }
+      if (devMode !== null) return; // answered already (getSelf may answer both ways)
+      Promise.resolve()
+        .then(function () { return fetch(chrome.runtime.getURL('dev-copy')); })
+        .then(function (r) { setDevMode(!!(r && r.ok)); })
+        .catch(function () { setDevMode(false); });
+    }
     (function determineDevMode() {
       const m = chrome.management || {};
       if (!m.getSelf) { setDevMode(false); return; }
       try {
-        const result = m.getSelf(function(info) { setDevMode(info && info.installType === 'development'); });
+        const result = m.getSelf(judgeInstall);
         if (result && typeof result.then === 'function') {
-          result.then(function(info) { setDevMode(info && info.installType === 'development'); }).catch(function() { setDevMode(false); });
+          result.then(judgeInstall).catch(function() { setDevMode(false); });
         }
       } catch (e) { setDevMode(false); }
     })();
