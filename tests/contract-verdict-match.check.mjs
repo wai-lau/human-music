@@ -1,5 +1,5 @@
 // Contract check for the investigator plan, Task 3 (matching by threshold; unknown artists). Run from the repo root:
-//   node tests/wip-contract-verdict-match.check.mjs
+//   node tests/contract-verdict-match.check.mjs
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { match, log } = load(['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js']).HM;
