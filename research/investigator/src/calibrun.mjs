@@ -43,7 +43,7 @@ export function pickSample({ soa, people, seed, n = 50 }) {
 
 export async function runCalibration({ store, investigate, decide, sample, model }) {
   const resultsKey = `calibration.results.${model}`;
-  let results = store.getState(resultsKey) || {};
+  const results = store.getState(resultsKey) || {};
 
   const allArtists = [
     ...sample.ai.map((a) => ({ ...a, truthAi: true })),

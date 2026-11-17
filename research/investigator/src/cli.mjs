@@ -1,22 +1,31 @@
 // The owner's commands, run on the droplet against the service's own database:
-//   status | recheck <key> | calibrate | accept-calibration
+//   status | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] | calibrate | accept-calibration
+// `calibrate-run` investigates the calibration sample (50 Soul Over AI artists, up to 50 known
+// people from 2020 on) one at a time, resumably; its rows never publish.
 // `calibrate` only fits and reports; it never runs Claude. `accept-calibration` is the only
 // thing that stores a mapping as accepted and sets calibrated: true (Wai decides, not the code).
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { fitMapping, report } from './calibrate.mjs';
+import { pickSample, runCalibration, fitSamples } from './calibrun.mjs';
+import { investigate as realInvestigate, pickModel } from './claude.mjs';
+import { decide } from './answer.mjs';
 import { DEFAULT_DATA_DIR, dbPath } from './main.mjs';
 import { createQueue } from './queue.mjs';
 import { openStore } from './store.mjs';
 
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
-const USAGE = 'usage: node src/cli.mjs status | recheck <key> | calibrate | accept-calibration';
+const USAGE = 'usage: node src/cli.mjs status | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration';
+// In the repo the sample files sit beside the service; on the droplet pass their paths.
+const DEFAULT_SOA = new URL('../../../extension/lists/soul-over-ai.json', import.meta.url);
+const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
+const flag = (args, name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 
 const val = (v) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined);
 
-export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date() } = {}) {
+export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate } = {}) {
   const [command, ...rest] = argv;
-  if (!['status', 'recheck', 'calibrate', 'accept-calibration'].includes(command)) {
+  if (!['status', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration'].includes(command)) {
     out(USAGE);
     return 1;
   }
@@ -50,6 +59,32 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
       queue.requeue(artist);
       out(`queued for another look: ${v.name} (the stored verdict stays until a new one replaces it)`);
       return 0;
+    }
+
+    if (command === 'calibrate-run') {
+      const model = pickModel(flag(rest, '--model'));
+      // One seed per database, so a resumed run (or the Sonnet comparison) uses the same sample.
+      let seed = store.getState('calibration.seed');
+      if (!Number.isInteger(seed)) {
+        const asked = Number.parseInt(flag(rest, '--seed') || '', 10);
+        seed = Number.isInteger(asked) ? asked : now().getTime() % 2147483647;
+        store.setState('calibration.seed', seed);
+      }
+      const soa = JSON.parse(readFileSync(flag(rest, '--soul-over-ai') || DEFAULT_SOA, 'utf8'));
+      const people = JSON.parse(readFileSync(flag(rest, '--people') || DEFAULT_PEOPLE, 'utf8'));
+      const sample = pickSample({ soa, people, seed });
+      const total = sample.ai.length + sample.people.length;
+      out(`calibration run: model ${model}, seed ${seed}, ${sample.ai.length} known AI and ${sample.people.length} known people`);
+      const r = await runCalibration({ store, investigate, decide, sample, model });
+      const results = store.getState(`calibration.results.${model}`) || {};
+      if (model === 'opus') store.setState('calibration.samples', fitSamples(results));
+      const rows = Object.entries(results).filter(([, v]) => v && v.verdict);
+      const aiCalled = (truth, min) => rows.filter(([, v]) => v.truthAi === truth && v.verdict === 'ai' && v.confidence >= min).length;
+      const of = (truth) => rows.filter(([, v]) => v.truthAi === truth).length;
+      out(`${r.done} of ${total} done${r.stopped ? ` (stopped: ${r.stopped}; run again to go on)` : ''}`);
+      out(`known AI called AI: ${aiCalled(true, 95)} at 95+, ${aiCalled(true, 60)} at 60+, of ${of(true)}`);
+      out(`known people called AI: ${aiCalled(false, 95)} at 95+, ${aiCalled(false, 60)} at 60+, of ${of(false)}`);
+      return r.stopped ? 2 : 0;
     }
 
     if (command === 'calibrate') {

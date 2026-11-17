@@ -1,5 +1,5 @@
 // The owner's commands against a temp database: the printed text and what lands in the store.
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './harness.mjs';
@@ -119,4 +119,25 @@ await run([
       return !/f{64}|tok-secret-1|shl-secret-2/.test(lines.join('\n')) || 'leaked';
     } finally { rmSync(dir, { recursive: true, force: true }); }
   }],
+  ['calibrate-run investigates the sample with the chosen model, keeps the seed, and resumes', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'hm-cli-cal-'));
+    try {
+      const soa = join(dir, 'soa.json'); const people = join(dir, 'people.json');
+      writeFileSync(soa, JSON.stringify({ artists: Array.from({ length: 60 }, (_, i) => ({ name: 'AI ' + i })) }));
+      writeFileSync(people, JSON.stringify({ artists: Array.from({ length: 5 }, (_, i) => ({ name: 'P ' + i, firstRelease: 2021 })) }));
+      const calls = [];
+      let budget = 20;
+      const investigate = async (a, e, o) => { calls.push([a.name, o.model]); if (budget-- <= 0) return { ok: false, kind: 'limit', detail: 'x' }; return { ok: true, answer: { verdict: a.name.startsWith('AI') ? 'ai' : 'human', confidence: 97, signals: ['deezer_ai_label'], reasons: ['r'], sources: ['https://a.test/1', 'https://b.test/2'] } }; };
+      const lines = []; const out = (l) => lines.push(l);
+      const env = { HM_DATA_DIR: dir };
+      const args = ['calibrate-run', '--seed', '9', '--soul-over-ai', soa, '--people', people];
+      const c1 = await runCli(args, env, { out, investigate });
+      budget = 1000;
+      const c2 = await runCli([...args, '--model', 'opus'], env, { out, investigate });
+      const names = calls.map((c) => c[0]);
+      const repeats = names.length - new Set(names).size;
+      return (c1 === 2 && c2 === 0 && calls.every((c) => c[1] === 'opus') && repeats === 1 && lines.some((l) => /seed 9/.test(l)) && lines.some((l) => /55 of 55 done/.test(l))) || JSON.stringify({ c1, c2, calls: calls.length, repeats, lines });
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }],
+
 ]);

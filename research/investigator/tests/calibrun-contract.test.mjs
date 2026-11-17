@@ -1,7 +1,7 @@
 // Contract check: the calibration run (service plan Task 16). It draws a fixed sample (50 Soul
 // Over AI artists, up to 50 known people who started 2020 or later), runs each through Claude
 // one at a time, resumes where it stopped, and keeps the results apart from the published list.
-// Run from research/investigator: node tests/wip-contract-calibrun.check.mjs
+// Run from research/investigator: node tests/calibrun-contract.test.mjs
 import { pickSample, runCalibration, fitSamples } from '../src/calibrun.mjs';
 import { openStore } from '../src/store.mjs';
 const fails = [];
