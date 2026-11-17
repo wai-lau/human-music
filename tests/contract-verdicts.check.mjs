@@ -41,13 +41,13 @@ const ids = storage => (storage.data['hm.filterLists'] || []).map(l => l.id);
 await t('install lists both built-ins', async () => {
   const storage = fakeStorage({});
   await refresher(storage, async () => ({ ok: false, status: 404, headers: { get: () => null }, text: async () => '' })).install();
-  return J(ids(storage)) === J(['soul-over-ai', 'hm-verdicts']) || J(ids(storage));
+  return J(ids(storage).slice(0, 2)) === J(['soul-over-ai', 'hm-verdicts']) || J(ids(storage)); // Cevval's list may follow
 });
 await t('a start with only Soul Over AI adds the verdict list', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI }] });
   const fetch = async url => ({ ok: true, status: 200, headers: { get: () => null }, text: async () => (url === 'bundle:lists/index.json' ? '{"files":[]}' : '') });
   await refresher(storage, fetch).importBundled();
-  return J(ids(storage)) === J(['soul-over-ai', 'hm-verdicts']) || J(ids(storage));
+  return J(ids(storage).slice(0, 2)) === J(['soul-over-ai', 'hm-verdicts']) || J(ids(storage)); // Cevval's list may follow
 });
 const withVerdicts = extra => fakeStorage({ 'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI }, { ...HM.lists.HM_VERDICTS, lastRefresh: 5, count: 3, ...extra }], 'hm.list.hm-verdicts': { artists: [{ name: 'Kept', verdict: 'ai', confidence: 99 }] } });
 await t('a refresh stores the artists and the calibrated flag', async () => {
