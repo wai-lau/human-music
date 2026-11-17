@@ -34,8 +34,9 @@ else {
     eq('install user', d['hm.user'], { artists: [], songs: [], keywords: [], neverSkip: [] });
     eq('install list data', d['hm.list.soul-over-ai'], { artists: [{ name: 'A' }, { name: 'B' }] });
     const m = d['hm.filterLists'];
-    // Soul Over AI first; the verdict list (investigator plan, 2026-11-16) is the second built-in.
-    return (m.length === 2 && m[0].id === 'soul-over-ai' && m[0].count === 2 && m[0].lastRefresh === NOW && m[0].lastError === null && m[0].builtIn === true && m[1].id === 'hm-verdicts') || J(m);
+    // Soul Over AI first; the verdict list (investigator plan, 2026-11-16) is the second built-in;
+    // Cevval's list may follow (tests/wip-contract-cevval.check.mjs pins it).
+    return (m.length >= 2 && m.every(l => l.builtIn === true) && m[0].id === 'soul-over-ai' && m[0].count === 2 && m[0].lastRefresh === NOW && m[0].lastError === null && m[0].builtIn === true && m[1].id === 'hm-verdicts') || J(m);
   });
   await t('install keeps existing', async () => {
     const user = { artists: ['X'], songs: [], keywords: [], neverSkip: [] };

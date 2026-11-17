@@ -67,7 +67,7 @@ test('import merges a backup and refuses lists that are not https', async ({ con
   await expect.poll(async () => (await readStore('hm.user')).artists).toEqual(['Already There', 'Imported Act']);
   expect((await readStore('hm.settings')).lookahead).toBe(5);
   const lists = await readStore('hm.filterLists');
-  expect(lists.map(l => l.id).sort()).toEqual(['hm-verdicts', 'ok-list', 'soul-over-ai']); // both built-ins stay
+  expect(lists.map(l => l.id).filter(id => id !== 'cevval').sort()).toEqual(['hm-verdicts', 'ok-list', 'soul-over-ai']); // the built-ins stay; only the https list joins
   expect(lists.find(l => l.id === 'ok-list').enabled).toBe(false); // arrives off: turning on asks for the site
   // The list name is shown as text, never as markup.
   await expect(popup.locator('.list-name').filter({ hasText: '<b>Good</b> list' })).toHaveCount(1);
