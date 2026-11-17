@@ -57,7 +57,7 @@ await run([
     const dir = mkdtempSync(join(tmpdir(), 'hm-key-'));
     try {
       const env = join(dir, 'env');
-      const { API_KEY, ...rest } = process.env;
+      const rest = { ...process.env }; delete rest.API_KEY; // the key comes only on stdin
       const r = spawnSync(process.execPath, [TOOL, env], { input: apiKey + '\n', env: rest, encoding: 'utf8' });
       const text = readFileSync(env, 'utf8');
       return (r.status === 0 && r.stdout.trim() === derived && text === line + '\n' && !text.includes(apiKey)) || JSON.stringify({ code: r.status, out: r.stdout, err: r.stderr, text });

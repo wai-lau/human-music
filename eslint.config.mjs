@@ -51,6 +51,16 @@ export default [
     rules: { ...shared, 'no-var': 'off', 'prefer-const': 'off', 'no-script-url': 'off' },
   },
   {
+    // The research tools (the investigator service): Node modules, never bundled.
+    files: ['research/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+    rules: { ...shared, 'no-script-url': 'off' },
+  },
+  {
     // E2E code also runs functions inside the browser (page.evaluate, worker.evaluate).
     files: ['e2e/**/*.mjs'],
     languageOptions: { globals: { ...globals.node, ...globals.browser, ...globals.webextensions } },
