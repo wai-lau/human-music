@@ -1,0 +1,66 @@
+# systemd unit for the Human Music investigator service.
+# Install as /etc/systemd/system/human-music-investigator.service (see README).
+
+[Unit]
+Description=Human Music investigator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# The service's own unprivileged user. Create it first, with no login shell.
+User=human-music
+Group=human-music
+# Claude Code and git both want a HOME to keep small state files in. Point it
+# at the one folder the service may write to.
+Environment=HOME=/var/lib/human-music
+# Owned by root, readable by the service's group, mode 640. It holds the key
+# hash and tokens (see env.example), so it stays out of the unit file.
+EnvironmentFile=/etc/human-music/env
+WorkingDirectory=/opt/human-music-investigator
+ExecStart=/usr/bin/node /opt/human-music-investigator/src/main.mjs
+Restart=on-failure
+RestartSec=10
+# Files the service creates are private to its user.
+UMask=0077
+
+# Hardening. Each line below is chosen so a Node process that runs `claude`
+# and `git` and makes outbound HTTPS calls keeps working.
+
+# No child process (claude, git) can gain privileges through setuid or file capabilities.
+NoNewPrivileges=yes
+# The whole file system is read-only for the service, except the paths in ReadWritePaths.
+ProtectSystem=strict
+# The one writable folder: the database, the publishing clone and the reports.
+ReadWritePaths=/var/lib/human-music
+# Personal folders, including root's, are invisible to the service.
+ProtectHome=yes
+# The service gets its own empty temporary folder, shared with nothing else.
+PrivateTmp=yes
+# The service sees only harmless pseudo-devices, not real hardware.
+PrivateDevices=yes
+# Kernel settings under the proc and sys folders are read-only.
+ProtectKernelTunables=yes
+# Loading or unloading kernel modules is refused.
+ProtectKernelModules=yes
+# The control group tree is read-only, so the service cannot lift its own limits.
+ProtectControlGroups=yes
+# The system clock cannot be changed.
+ProtectClock=yes
+# Creating setuid or setgid files is refused.
+RestrictSUIDSGID=yes
+# Realtime scheduling is refused, so the service cannot starve the machine.
+RestrictRealtime=yes
+# Switching the process execution domain (a legacy trick) is refused.
+LockPersonality=yes
+# Only local sockets and IPv4 or IPv6 are available: enough for the proxy and HTTPS calls.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# The service keeps no Linux capabilities; it listens on a high port and needs none.
+CapabilityBoundingSet=
+# Memory cap, since the machine is shared with other services.
+MemoryMax=600M
+# Deliberately not set: MemoryDenyWriteExecute (Node's JIT needs writable
+# executable memory) and a system call filter (claude and git spawn varied calls).
+
+[Install]
+WantedBy=multi-user.target
