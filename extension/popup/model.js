@@ -149,8 +149,19 @@
   // Grouped by artist so nothing repeats (Wai, 2026-11-15: "grouping should be done by
   // artist" / "avoid repeating text in logs"), within one of the three sections.
 
+  // The artist a log group is about, which "Always show" puts on Never skip: for an artist or
+  // channel match, the listed artist that matched (review 2026-11-17: the whole credit line of
+  // a duet, "Some Person, The Velvet Sundown", protected nobody while the switch showed on);
+  // otherwise, or for a bare channel ID, the first credited artist.
+  const CHANNEL_ID = /^UC[\w-]{22}$/;
   function artistOf(entry) {
-    return globalThis.HM.text.leadCredit(entry.artistLine) || entry.entry || 'Unknown artist';
+    const named = (entry.rule === 'artist' || entry.rule === 'channel') && typeof entry.entry === 'string'
+      && entry.entry.trim() && !CHANNEL_ID.test(entry.entry.trim());
+    if (named) return entry.entry.trim();
+    const T = globalThis.HM.text;
+    const lead = T.leadCredit(entry.artistLine);
+    const first = lead ? (T.splitNames(lead)[0] || lead) : '';
+    return first || entry.entry || 'Unknown artist';
   }
 
   // groups: [{ artist, reason, onNeverSkip, total, last, items: [{ title, action, count, at }] }],

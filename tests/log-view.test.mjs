@@ -4,7 +4,7 @@
 // repeating text in logs"): each artist once with its reason, each song once with a count.
 import { load, run } from './load.mjs';
 
-const { popup, log } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js'], { URL }).HM;
+const { popup, log, match } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/match.js', 'popup/model.js'], { URL }).HM;
 const J = v => JSON.stringify(v);
 // Local noon on 2026-11-15, so "today" and "yesterday" don't depend on the time zone.
 const NOW = new Date(2026, 10, 15, 12, 0, 0).getTime();
@@ -14,6 +14,20 @@ const MINE = { listId: 'user:artists', listName: 'Your artists', rule: 'artist' 
 const e = (ago, event, title, artistLine, match = SOA, entry = 'The Velvet Sundown') => ({ at: NOW - ago, event, title, artistLine, ...match, entry });
 
 run([
+  // Review 2026-11-17: "Always show" puts the group's artist on Never skip, so the group must be
+  // the listed artist that matched, not the whole credit line ("Some Person, The Velvet Sundown"
+  // on Never skip never matched anything, while the switch showed as on).
+  ['a two-artist entry is grouped under the artist that matched, and Always show then protects it', () => {
+    const g = popup.groupLog([e(MIN, 'hidden', 'Duet', 'Some Person, The Velvet Sundown', SOA, 'Some Person')], { now: NOW, section: 'blocks' });
+    const artist = g[0] && g[0].artist;
+    const idx = match.buildIndex({ filterLists: [{ id: 'soul-over-ai', name: 'Soul Over AI', enabled: true, mode: 'act', artists: [{ name: 'Some Person' }] }], user: { artists: [], songs: [], keywords: [], neverSkip: [artist] }, threshold: null });
+    const after = match.matchItem(idx, { title: 'Duet', credits: ['Some Person', 'The Velvet Sundown'], channelIds: [], featured: false });
+    return (artist === 'Some Person' && after === null) || J({ artist, after });
+  }],
+  ['a keyword or song match still groups under the lead credit', () => {
+    const g = popup.groupLog([e(MIN, 'skipped', 'Neon', 'Aven • Album', { listId: 'user:keywords', listName: 'Your keywords', rule: 'keyword' }, 'neon')], { now: NOW, section: 'actions' });
+    return (g[0] && g[0].artist === 'Aven') || J(g.map(x => x.artist));
+  }],
   ['log.reason and log.action: short words', () =>
     log.reason(e(0, 'skipped', 'x', 'A')) === 'AI-generated · Soul Over AI'
     && log.reason({ listId: 'user:artists' }) === 'Your artists'
@@ -58,7 +72,7 @@ run([
       e(20 * MIN, 'skipped', 'Dust', 'The Velvet Sundown'),
       e(DAY, 'skipped', 'Summer Echo', 'Desa feat. Amao • Summer Echo', SOA, 'Desa'),
     ], { now: NOW, section: 'actions' });
-    return J(g.map(x => x.artist)) === J(['The Velvet Sundown', 'Aven', 'Desa feat. Amao']) || J(g.map(x => x.artist));
+    return J(g.map(x => x.artist)) === J(['The Velvet Sundown', 'Aven', 'Desa']) // the listed artist that matched (review 2026-11-17) || J(g.map(x => x.artist));
   }],
   ['the same artist for two reasons stays two groups (each reason shown once)', () => {
     const g = popup.groupLog([e(1 * MIN, 'skipped', 'A', 'Aven'), e(2 * MIN, 'skipped', 'B', 'Aven', MINE, 'Aven')], { now: NOW, section: 'actions' });
