@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 # Build the Firefox copy, then zip its contents (manifest.json at the zip root) to
 # dist/human-music-firefox-<version>.zip (gitignored), ready to upload to
-# addons.mozilla.org. Version comes from the manifest.
+# addons.mozilla.org. Built from a commit, never the working tree: the tag
+# v<version> of the version at HEAD when it exists (a release), else HEAD.
+# Usage: scripts/pack-firefox.sh [ref]
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
-bash "$repo/scripts/build-firefox.sh"
+ref=${1:-}
+if [[ -z $ref ]]; then
+  head_version=$(git -C "$repo" show HEAD:extension/manifest.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+  if git -C "$repo" rev-parse --verify --quiet "v$head_version^{commit}" >/dev/null; then
+    ref="v$head_version"
+  else
+    ref=HEAD
+    echo "note: no tag v$head_version; building from HEAD" >&2
+  fi
+fi
+bash "$repo/scripts/build-firefox.sh" "$ref"
 version=$(node -p "require('$repo/dist/firefox/manifest.json').version")
 zip_path="$repo/dist/human-music-firefox-$version.zip"
 rm -f "$zip_path"

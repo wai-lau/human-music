@@ -2,7 +2,7 @@
 // Store API calls (signed .crx upload headers, polling, publish), and the version guard.
 import { generateKeyPairSync, createVerify } from 'crypto';
 import { run } from './load.mjs';
-import { makeJwt, newer, knownVersions, createClient, bump, runRelease } from '../scripts/release.mjs';
+import { makeJwt, newer, knownVersions, createClient, bump, runRelease, runShip } from '../scripts/release.mjs';
 
 const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const SA = { client_email: 'releaser@example.iam.gserviceaccount.com', private_key: privateKey.export({ type: 'pkcs8', format: 'pem' }) };
@@ -79,26 +79,44 @@ const basics = [
 // pack, upload, publish, in that order. Every step is a fake that records itself.
 
 function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.2' }] } },
-  head = '0.1.2', dirty = '', branch = 'main', behind = '0', failing = null } = {}) {
+  head = '0.1.2', dirty = '', branch = 'main', origin = 'aaa', moves = false, answer = true, lastTag = 'v0.1.2', tagAt = 'aaa',
+  commits = 'bbb2 fix: one\nccc3 feat: two\n', failing = null } = {}) {
   const steps = [];
   let version = head;
+  let sha = 'aaa';
   const git = args => {
     steps.push('git ' + args.join(' '));
     if (args[0] === 'status') return dirty;
     if (args[0] === 'rev-parse' && args.includes('--abbrev-ref')) return branch + '\n';
-    if (args[0] === 'rev-list') return behind + '\n';
+    if (args[0] === 'rev-parse' && args[1] === 'HEAD') return sha + '\n';
+    if (args[0] === 'rev-parse' && args[1] === 'origin/main') return origin + '\n';
+    if (args[0] === 'rev-parse' && /^v.*\^\{commit\}$/.test(args[1])) { if (tagAt === null) throw new Error('no tag'); return tagAt + '\n'; }
+    if (args[0] === 'describe') { if (!lastTag) throw new Error('no tags'); return lastTag + '\n'; }
+    if (args[0] === 'log') return commits;
+    if (args[0] === 'commit') sha = 'new';
+    if (args[0] === 'tag') tagAt = sha;
     return '';
   };
-  const run = (cmd, args = []) => { const s = [cmd, ...args].join(' '); steps.push('run ' + s); if (failing && s.includes(failing)) throw new Error(s + ' failed'); };
+  const run = (cmd, args = []) => {
+    const s = [cmd, ...args].join(' '); steps.push('run ' + s);
+    if (moves && s === 'npm run e2e') sha = 'zzz';
+    if (failing && s.includes(failing)) throw new Error(s + ' failed');
+  };
   const client = {
     status: async () => { steps.push('status'); return status; },
     upload: async (bytes, name) => { steps.push('upload ' + name); return { uploadState: 'SUCCEEDED', crxVersion: version }; },
     publish: async () => { steps.push('publish'); return { state: 'PENDING_REVIEW' }; },
   };
-  const deps = { git, run, client, readVersion: () => version, writeVersion: v => { steps.push('version ' + v); version = v; },
+  const shown = [];
+  const confirm = async text => { steps.push('confirm'); shown.push(text); return answer; };
+  const deps = { git, run, client, confirm, readVersion: () => version, writeVersion: v => { steps.push('version ' + v); version = v; },
     readCrx: v => { steps.push('read crx ' + v); return Buffer.from('crx'); }, log: () => {} };
-  return { steps, deps };
+  return { steps, deps, shown };
 }
+
+const refused = async (fn, steps, bad) => {
+  try { await fn(); return 'did not refuse'; } catch (e) { return steps.some(s => bad.test(s)) ? 'went too far: ' + JSON.stringify(steps) : true; }
+};
 
 await run([
   ...basics,
@@ -106,7 +124,7 @@ await run([
   ['a release runs checks, then bumps, commits, tags, pushes, packs, uploads and submits, in order', async () => {
     const { steps, deps } = fakes();
     const res = await runRelease({ kind: 'patch', ...deps });
-    const order = ['status', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'git tag v0.1.3', 'git push', 'run scripts/pack-crx.sh', 'read crx 0.1.3', 'upload human-music-0.1.3.crx', 'publish'];
+    const order = ['status', 'confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'git tag v0.1.3', 'git push', 'run scripts/pack-crx.sh', 'read crx 0.1.3', 'upload human-music-0.1.3.crx', 'publish'];
     let at = -1;
     const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
     return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
@@ -122,13 +140,61 @@ await run([
       return (/review/i.test(e.message) && !steps.some(s => /^version|^git commit|^upload|^publish/.test(s))) || e.message + ' ' + JSON.stringify(steps);
     }
   }],
-  ['refused with uncommitted changes, off main, or behind GitHub', async () => {
+  ['refused with uncommitted changes, off main, or not equal to GitHub main', async () => {
     const out = [];
-    for (const f of [{ dirty: ' M extension/src/content.js\n' }, { branch: 'feature' }, { behind: '2' }]) {
+    for (const f of [{ dirty: ' M extension/src/content.js\n' }, { branch: 'feature' }, { origin: 'bbb' }]) {
       const { steps, deps } = fakes(f);
-      try { await runRelease({ kind: 'patch', ...deps }); out.push('did not refuse ' + JSON.stringify(f)); } catch (e) {
-        if (steps.some(s => /^version|^upload|^run npm/.test(s))) out.push('went too far ' + JSON.stringify(f));
+      const r = await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^version|^upload|^run npm|^confirm/);
+      if (r !== true) out.push(r + ' ' + JSON.stringify(f));
+    }
+    return out.length === 0 || out.join('; ');
+  }],
+  ['refused when HEAD moves during the checks: no bump, tag, push or upload', async () => {
+    const { steps, deps } = fakes({ moves: true });
+    try { await runRelease({ kind: 'patch', ...deps }); return 'did not refuse'; } catch (e) {
+      return (/main moved while testing: run again/.test(e.message) && !steps.some(s => /^version|^git commit|^git tag|^git push|^upload|^publish/.test(s))) || e.message + JSON.stringify(steps);
+    }
+  }],
+  ['refused without a typed yes: nothing is tested or changed', async () => {
+    const { steps, deps } = fakes({ answer: false });
+    return await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^run |^version|^git commit|^upload/);
+  }],
+  ['the commits shown are those since the last tag, asked before testing', async () => {
+    const { steps, deps, shown } = fakes();
+    await runRelease({ kind: 'patch', ...deps });
+    const logAt = steps.indexOf('git log --oneline v0.1.2..HEAD');
+    return (logAt >= 0 && logAt < steps.indexOf('confirm') && steps.indexOf('confirm') < steps.indexOf('run npm test')
+      && /fix: one/.test(shown[0]) && /feat: two/.test(shown[0]) && /v0\.1\.2/.test(shown[0])) || JSON.stringify({ steps, shown });
+  }],
+  ['with no tag yet, every commit is shown', async () => {
+    const { steps, deps } = fakes({ lastTag: null });
+    await runRelease({ kind: 'patch', ...deps });
+    return steps.includes('git log --oneline HEAD') || JSON.stringify(steps);
+  }],
+  ['the packed commit is the tagged commit: pack refuses if the tag is not at HEAD', async () => {
+    const { steps, deps } = fakes();
+    const git = deps.git;
+    deps.git = args => (args[0] === 'rev-parse' && /^v.*\^\{commit\}$/.test(args[1]) ? 'other\n' : git(args));
+    return await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^run scripts\/pack|^upload|^publish/);
+  }],
+  ['upload and publish: refused off main, behind GitHub, dirty or untagged; nothing uploaded', async () => {
+    const out = [];
+    for (const f of [{ branch: 'feature' }, { origin: 'bbb' }, { dirty: ' M extension/manifest.json\n' }, { tagAt: null }, { tagAt: 'old' }]) {
+      for (const cmd of ['upload', 'publish']) {
+        const { steps, deps } = fakes(f);
+        const r = await refused(() => runShip({ cmd, ...deps }), steps, /^run |^upload|^publish|^read crx/);
+        if (r !== true) out.push(cmd + ' ' + r + ' ' + JSON.stringify(f));
       }
+    }
+    return out.length === 0 || out.join('; ');
+  }],
+  ['upload and publish from tagged, clean, pushed main: pack, upload (and submit for publish)', async () => {
+    const out = [];
+    for (const cmd of ['upload', 'publish']) {
+      const { steps, deps } = fakes({ tagAt: 'aaa', status: {} });
+      await runShip({ cmd, ...deps });
+      const ok = steps.includes('run scripts/pack-crx.sh') && steps.includes('upload human-music-0.1.2.crx') && steps.includes('publish') === (cmd === 'publish');
+      if (!ok) out.push(cmd + JSON.stringify(steps));
     }
     return out.length === 0 || out.join('; ');
   }],

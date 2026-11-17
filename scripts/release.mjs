@@ -5,9 +5,10 @@
 //   node scripts/release.mjs status    published and submitted versions, review state
 //   node scripts/release.mjs upload    pack the signed .crx from git HEAD and upload it
 //   node scripts/release.mjs publish   upload, then submit it for review (goes live on approval)
+//       (upload and publish need a clean tree on main, HEAD = GitHub main, HEAD tagged v<manifest version>)
 //   node scripts/release.mjs release [patch|minor|major]   (npm run release) the whole release:
-//       refuses on a dirty tree, off main, behind GitHub or while a version waits for review;
-//       runs unit tests, lint and end-to-end tests; bumps the version, commits, tags v<version>
+//       refuses on a dirty tree, off main, HEAD not GitHub main or while a version waits for review;
+//       lists the commits since the last v* tag and needs a typed yes; runs unit tests, lint and end-to-end tests (refusing if HEAD moved meanwhile); bumps the version, commits, tags v<version>
 //       and pushes; packs the signed .crx, uploads it and submits it for review
 //
 // Config, kept outside the repo like the signing key: ~/.keys/human-music-cws.json
@@ -18,7 +19,8 @@ import { readFileSync, writeFileSync } from 'fs';
 import { createSign } from 'crypto';
 import { execFileSync } from 'child_process';
 import { homedir } from 'os';
-import { join, dirname, basename } from 'path';
+import { createInterface } from 'readline';
+import { join, dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const API = 'https://chromewebstore.googleapis.com';
@@ -126,14 +128,50 @@ export function bump(version, kind = 'patch') {
   throw new Error(`unknown release kind ${kind}: use patch, minor or major`);
 }
 
-// The whole release, with every outside step passed in (so tests can watch the order).
-// git(args) returns stdout; run(cmd, args) throws when the command fails.
-export async function runRelease({ kind = 'patch', git, run, client, readVersion, writeVersion, readCrx, log = console.log }) {
+// The guards every command that ships code shares: clean tree, on main, HEAD exactly
+// GitHub's main. Returns the commit that would ship.
+function guardMain(git) {
   if (git(['status', '--porcelain', '--untracked-files=no']).trim()) throw new Error('uncommitted changes: commit or stash them first');
   const branch = git(['rev-parse', '--abbrev-ref', 'HEAD']).trim();
   if (branch !== 'main') throw new Error(`on ${branch}: releases go from main`);
   git(['fetch', '--quiet', 'origin', 'main']);
-  if (Number(git(['rev-list', '--count', 'HEAD..origin/main']).trim()) > 0) throw new Error('main is behind GitHub: pull first');
+  const head = git(['rev-parse', 'HEAD']).trim();
+  if (head !== git(['rev-parse', 'origin/main']).trim()) throw new Error('HEAD is not GitHub main (behind or ahead): pull or push first');
+  return head;
+}
+
+// Is v<version> a tag on exactly this commit?
+function guardTagged(git, head, version) {
+  let at = '';
+  try { at = git(['rev-parse', `v${version}^{commit}`]).trim(); } catch (e) { /* no such tag */ }
+  if (at !== head) throw new Error(`HEAD is not tagged v${version}: only a released, tagged main is uploaded (run the release command)`);
+}
+
+// upload / publish of a version already tagged by a release: same guards as a release,
+// then pack HEAD (the tagged commit), upload it, and for publish submit it.
+export async function runShip({ cmd, git, run, client, readVersion, readCrx, log = console.log }) {
+  const head = guardMain(git);
+  const version = readVersion();
+  guardTagged(git, head, version);
+  const before = await client.status();
+  log(describe(before));
+  const held = knownVersions(before);
+  if (held.some(v => !newer(version, v))) throw new Error(`version ${version} at HEAD is not newer than ${held.join(', ')}: release again`);
+  run('scripts/pack-crx.sh');
+  const up = await client.upload(readCrx(version), `human-music-${version}.crx`);
+  log(`uploaded ${up.crxVersion || version} (${up.uploadState})`);
+  if (cmd === 'upload') return { version };
+  const pub = await client.publish();
+  log(`submitted for review: ${pub.state}`);
+  for (const w of (pub.warningInfo && pub.warningInfo.warnings) || []) log(`warning: ${w.reason} ${w.description || ''}`);
+  return { version, state: pub.state };
+}
+
+// The whole release, with every outside step passed in (so tests can watch the order).
+// git(args) returns stdout; run(cmd, args) throws when the command fails;
+// confirm(text) answers true only for a typed yes.
+export async function runRelease({ kind = 'patch', git, run, client, confirm, readVersion, writeVersion, readCrx, log = console.log }) {
+  const head = guardMain(git);
 
   const before = await client.status();
   log(describe(before));
@@ -141,10 +179,18 @@ export async function runRelease({ kind = 'patch', git, run, client, readVersion
     throw new Error(`a version is still waiting for review (${knownVersions({ publishedItemRevisionStatus: before.submittedItemRevisionStatus }).join(', ') || 'unknown'}): release again once it is through`);
   }
 
+  let lastTag = '';
+  try { lastTag = git(['describe', '--tags', '--abbrev=0', '--match', 'v*']).trim(); } catch (e) { /* no release yet */ }
+  const commits = git(['log', '--oneline', lastTag ? `${lastTag}..HEAD` : 'HEAD']).trim();
+  const shown = `Changes since ${lastTag || 'the start'} (releasing ${head.slice(0, 9)}):\n${commits || '(none)'}\n`;
+  log(shown);
+  if (!(await confirm(shown))) throw new Error('not confirmed: nothing released');
+
   for (const [cmd, args] of [['npm', ['test']], ['npm', ['run', 'lint']], ['npm', ['run', 'e2e']]]) {
     log(`checking: ${cmd} ${args.join(' ')}`);
     run(cmd, args);
   }
+  if (git(['rev-parse', 'HEAD']).trim() !== head) throw new Error('main moved while testing: run again');
 
   const held = [readVersion(), ...knownVersions(before)];
   const top = held.reduce((a, b) => (newer(b, a) ? b : a));
@@ -155,6 +201,8 @@ export async function runRelease({ kind = 'patch', git, run, client, readVersion
   git(['push', '-q', 'origin', 'main', `v${version}`]);
   log(`committed and pushed ${version}`);
 
+  // pack-crx.sh packs git HEAD: it must be the tagged commit.
+  guardTagged(git, git(['rev-parse', 'HEAD']).trim(), version);
   run('scripts/pack-crx.sh');
   const name = `human-music-${version}.crx`;
   const up = await client.upload(readCrx(version), name);
@@ -181,40 +229,35 @@ function describe(st) {
     st.takenDown ? 'TAKEN DOWN' : null, st.warned ? 'warned' : null].filter(Boolean).join('\n');
 }
 
+async function typedYes(text) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise(res => { rl.once('close', () => res('')); rl.question('Type yes to test and release these commits: ', res); });
+  rl.close();
+  return answer.trim().toLowerCase() === 'yes';
+}
+
 async function main(cmd, arg) {
   if (!['status', 'upload', 'publish', 'release'].includes(cmd)) { console.error('usage: node scripts/release.mjs status|upload|publish|release [patch|minor|major]'); process.exit(2); }
   const { config, serviceAccount } = loadConfig();
   const client = createClient({ config, serviceAccount, fetch: globalThis.fetch });
+  const manifest = join(repo, 'extension', 'manifest.json');
+  const deps = {
+    git: args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
+    run: (c, args = []) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit' }),
+    client,
+    readVersion: () => JSON.parse(readFileSync(manifest, 'utf8')).version,
+    readCrx: v => readFileSync(join(repo, 'dist', `human-music-${v}.crx`)),
+  };
   if (cmd === 'release') {
-    const manifest = join(repo, 'extension', 'manifest.json');
     const { version } = await runRelease({
-      kind: arg || 'patch',
-      git: args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }),
-      run: (c, args = []) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit' }),
-      client,
-      readVersion: () => JSON.parse(readFileSync(manifest, 'utf8')).version,
+      kind: arg || 'patch', ...deps, confirm: typedYes,
       writeVersion: v => writeFileSync(manifest, readFileSync(manifest, 'utf8').replace(/"version": "[^"]*"/, `"version": "${v}"`)),
-      readCrx: v => readFileSync(join(repo, 'dist', `human-music-${v}.crx`)),
     });
     console.log(`done: ${version} is in Google's review queue; it goes live once approved`);
     return;
   }
-  const before = await client.status();
-  console.log(describe(before));
-  if (cmd === 'status') return;
-
-  const version = JSON.parse(execFileSync('git', ['-C', repo, 'show', 'HEAD:extension/manifest.json'], { encoding: 'utf8' })).version;
-  const held = knownVersions(before);
-  if (held.some(v => !newer(version, v))) throw new Error(`version ${version} at HEAD is not newer than ${held.join(', ')}: bump extension/manifest.json and commit`);
-  execFileSync(join(repo, 'scripts/pack-crx.sh'), { stdio: 'inherit' });
-  const crx = join(repo, 'dist', `human-music-${version}.crx`);
-  const up = await client.upload(readFileSync(crx), basename(crx));
-  console.log(`uploaded ${up.crxVersion || version} (${up.uploadState})`);
-  if (cmd === 'upload') return;
-
-  const pub = await client.publish();
-  console.log(`submitted for review: ${pub.state}`);
-  for (const w of (pub.warningInfo && pub.warningInfo.warnings) || []) console.log(`warning: ${w.reason} ${w.description || ''}`);
+  if (cmd === 'status') { console.log(describe(await client.status())); return; }
+  await runShip({ cmd, ...deps });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

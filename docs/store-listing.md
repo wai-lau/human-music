@@ -105,16 +105,27 @@ After the first upload in the dashboard, every release is one command:
 
     npm run release            (or: npm run release -- minor / major)
 
-It refuses on uncommitted changes, off `main`, behind GitHub, or while a
-version still waits for review. Then it runs the unit tests, lint and the
-end-to-end tests, bumps the version above everything the store holds,
-commits `release: <version>`, tags `v<version>`, pushes, packs the signed
-`.crx` (`scripts/pack-crx.sh`), uploads it and submits it for review. It
-goes live with the item's current visibility once Google approves it.
+It refuses on uncommitted changes, off `main`, when HEAD is not exactly
+GitHub's `main`, or while a version still waits for review. Then it prints
+the commits since the last `v*` tag and waits for you to type `yes` (anything
+else stops it). It runs the unit tests, lint and the end-to-end tests on that
+commit and stops with "main moved while testing: run again" if HEAD changed
+meanwhile. Then it bumps the version above everything the store holds,
+commits `release: <version>` (the only new commit), tags `v<version>`,
+pushes, packs the signed `.crx` of the tagged commit (`scripts/pack-crx.sh`
+packs HEAD), uploads it and submits it for review. It goes live with the
+item's current visibility once Google approves it.
 
 `node scripts/release.mjs status` shows the published and submitted
 versions. If an upload fails after the push, `node scripts/release.mjs
-publish` uploads and submits the version at HEAD without bumping again.
+publish` (or `upload`) uploads the version at HEAD without bumping again.
+Both apply the release guards: clean tree, on `main`, HEAD equal to GitHub's
+`main`, and HEAD tagged `v<manifest version>`; otherwise they refuse.
+
+The Firefox build (`scripts/build-firefox.sh [ref]`, `scripts/pack-firefox.sh
+[ref]`) is made from a commit with `git archive`, never the working tree.
+`pack-firefox.sh` uses the tag `v<version>` of the version at HEAD when it
+exists, so the AMO zip holds exactly the released code.
 
 One-time setup (Wai; done 2026-11-15):
 
