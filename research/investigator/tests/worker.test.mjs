@@ -16,13 +16,14 @@ const answer = (o = {}) => ({
 function setup(opts = {}) {
   const store = openStore(':memory:');
   const queue = createQueue({ store, now: () => NOW, cap: opts.cap ?? 100 });
-  const calls = { investigate: 0, cheap: 0, publish: 0, shlabs: [] };
+  const calls = { investigate: 0, cheap: 0, publish: 0, shlabs: [], fetchArt: [], lookArt: [], prompts: [] };
   const w = createWorker({
     store,
     queue,
     cheapPass: async (a) => { calls.cheap++; return opts.cheap ? opts.cheap(a) : null; },
     investigate: async (a, ev) => {
       calls.investigate++;
+      calls.prompts.push(JSON.stringify([a, ev]));
       if (opts.investigate) return opts.investigate(a, ev);
       return { ok: true, answer: answer() };
     },
@@ -34,12 +35,15 @@ function setup(opts = {}) {
       },
     },
     schedulePublish: () => { calls.publish++; },
+    fetchArt: opts.fetchArt ? async (u) => { calls.fetchArt.push(u); return opts.fetchArt(u); } : undefined,
+    lookArt: opts.lookArt ? async (i) => { calls.lookArt.push(i); return opts.lookArt(i); } : undefined,
     mapping: opts.mapping ?? null,
     now: () => NOW,
   });
   return { store, queue, w, calls };
 }
 
+const deepEqual3 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const verdictOf = (store, a) => store.findVerdict(artistKeys(a));
 
 run([
@@ -230,5 +234,78 @@ run([
     const va = verdictOf(store, a);
     const vb = verdictOf(store, b);
     return (va.spotifyId === SPOTIFY && vb.spotifyId === undefined) || JSON.stringify({ va, vb });
+  }],
+  ['a look of ai adds ai_style_art once, stores the look and address outside the published list', async () => {
+    const a = art('Covered', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }, { title: 'T', album: '', artUrl: 'https://i.scdn.co/image/y' }] });
+    const { store, queue, w, calls } = setup({
+      investigate: () => ({ ok: true, answer: answer({ signals: ['ai_style_art', 'no_human_footprint'] }) }),
+      fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }),
+      lookArt: () => ({ ok: true, look: 'ai' }),
+    });
+    queue.enqueue([a]);
+    await w.runOne();
+    const v = verdictOf(store, a);
+    const stored = JSON.stringify(store.getState(`art:${v.id}`));
+    const listed = JSON.stringify(store.listPublishable());
+    const ok = v.signals.filter((s) => s === 'ai_style_art').length === 1 && v.signals.includes('no_human_footprint')
+      && calls.fetchArt.length === 1 && calls.fetchArt[0] === 'https://i.scdn.co/image/x' && calls.lookArt.length === 1
+      && stored.includes('"look":"ai"') && stored.includes('i.scdn.co/image/x') && !listed.includes('i.scdn.co') && !listed.includes('"look"');
+    return ok || JSON.stringify({ v, stored, listed });
+  }],
+  ['a look of ai on top of a strong signal adds the weak signal; a look of not_ai or unclear adds nothing', async () => {
+    const out = [];
+    for (const look of ['ai', 'not_ai', 'unclear']) {
+      const a = art(`Look ${look}`, { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }] });
+      const { store, queue, w } = setup({ fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }), lookArt: () => ({ ok: true, look }) });
+      queue.enqueue([a]);
+      await w.runOne();
+      out.push(verdictOf(store, a).signals.includes('ai_style_art'));
+    }
+    return deepEqual3(out, [true, false, false]) || JSON.stringify(out);
+  }],
+  ['a fetch failure, a look failure and a throwing look add nothing and the verdict still lands', async () => {
+    const res = [];
+    const cases = [
+      { fetchArt: () => ({ ok: false, why: 'host' }), lookArt: () => ({ ok: true, look: 'ai' }) },
+      { fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }), lookArt: () => ({ ok: false, kind: 'error', detail: 'x' }) },
+      { fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }), lookArt: () => { throw new Error('look boom'); } },
+      { fetchArt: () => { throw new Error('fetch boom'); }, lookArt: () => ({ ok: true, look: 'ai' }) },
+    ];
+    for (const c of cases) {
+      const a = art('Failing Art', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }] });
+      const { store, queue, w } = setup(c);
+      queue.enqueue([a]);
+      const r = await w.runOne();
+      const v = verdictOf(store, a);
+      res.push(r === 'done' && v && v.verdict === 'ai' && !v.signals.includes('ai_style_art'));
+    }
+    return res.every(Boolean) || JSON.stringify(res);
+  }],
+  ['art alone never makes ai: one weak signal from the look is stored as unsure', async () => {
+    const a = art('Art Only', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }] });
+    const { store, queue, w } = setup({
+      investigate: () => ({ ok: true, answer: answer({ confidence: 100, signals: [] }) }),
+      fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }),
+      lookArt: () => ({ ok: true, look: 'ai' }),
+    });
+    queue.enqueue([a]);
+    await w.runOne();
+    const v = verdictOf(store, a);
+    return (v.verdict === 'unsure' && v.signals.length === 1 && v.signals[0] === 'ai_style_art') || JSON.stringify(v);
+  }],
+  ['no art address or no art functions means no look; the research prompt carries no image data or look', async () => {
+    const a = art('Plain');
+    const b = art('Has Art', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }] });
+    const s1 = setup({ fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJDSECRETBYTES' }), lookArt: () => ({ ok: true, look: 'ai' }) });
+    s1.queue.enqueue([a, b]);
+    await s1.w.runOne();
+    const noAddr = s1.calls.fetchArt.length === 0;
+    await s1.w.runOne();
+    const s2 = setup();
+    s2.queue.enqueue([b]);
+    await s2.w.runOne();
+    const prompts = s1.calls.prompts.join('');
+    const ok = noAddr && s1.calls.fetchArt.length === 1 && !prompts.includes('SECRETBYTES') && !prompts.includes('"look"') && !prompts.includes('base64') && s2.calls.fetchArt.length === 0;
+    return ok || JSON.stringify({ noAddr, f: s1.calls.fetchArt.length, prompts });
   }],
 ]);

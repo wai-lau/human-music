@@ -6,7 +6,7 @@ import { applyMapping } from './calibrate.mjs';
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
 
-export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now }) {
+export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt }) {
   const lastError = (msg) => {
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
@@ -52,6 +52,24 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
     } catch { /* optional: fewer or no scores */ }
   }
 
+  // The cover, if the playing song has one: service-side fetch, then a tool-less look in its own
+  // Claude call. Any failure means no look; the research call never sees the image or the result.
+  async function lookAtCover(artist) {
+    try {
+      if (!fetchArt || !lookArt) return null;
+      const songs = Array.isArray(artist.songs) ? artist.songs : [];
+      const url = songs.map((x) => x && x.artUrl).find((u) => typeof u === 'string' && u);
+      if (!url) return null;
+      const img = await fetchArt(url);
+      if (!img || img.ok !== true) return null;
+      const r = await lookArt(img);
+      if (!r || r.ok !== true || !['ai', 'not_ai', 'unclear'].includes(r.look)) return null;
+      return { url, look: r.look };
+    } catch {
+      return null;
+    }
+  }
+
   async function runOne() {
     let artist = null;
     try {
@@ -91,7 +109,12 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         return 'done';
       }
 
-      const d = decide(res.answer);
+      // Only an `ai` look adds the weak signal, once; decide() never lets it stand alone.
+      const cover = await lookAtCover(artist);
+      const answer = cover && cover.look === 'ai' && !res.answer.signals.includes('ai_style_art')
+        ? { ...res.answer, signals: [...res.answer.signals, 'ai_style_art'] }
+        : res.answer;
+      const d = decide(answer);
       store.bump(today);
       const raw = d.confidence;
       const shown = d.verdict === 'ai' ? applyMapping(mapping, raw) : raw;
@@ -103,6 +126,8 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         reasons: d.reasons,
         sources: d.sources,
       }, 'claude', today);
+      // The look and the cover address stay on the droplet, apart from the published list.
+      if (cover) { try { store.setState(`art:${id}`, cover); } catch { /* optional */ } }
       queue.done(artist);
       schedulePublish();
       await second(id, artist, res.answer);
