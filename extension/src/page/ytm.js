@@ -25,6 +25,36 @@
     menuItem: '[role=menuitem]',
   };
 
+  // The player's cover and artist links (investigator plan, Task 4). A guess about the page
+  // that misses gives nothing, never a wrong value: IDs only from channel/UC… links in the
+  // artist line, covers only from Google's image hosts over https.
+  const CHANNEL_LINK = /(?:^|\/)channel\/(UC[\w-]{22})(?![\w-])/;
+  const ART_HOSTS = ['lh3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com'];
+  function artHost(src) {
+    const m = /^https:\/\/([^/?#:@]+)(?:[/?#]|$)/.exec(src || '');
+    return !!m && ART_HOSTS.includes(m[1].toLowerCase());
+  }
+  function channelIdsIn(bylineEl) {
+    const ids = [];
+    if (!bylineEl) return ids;
+    for (const a of bylineEl.querySelectorAll('a[href*="channel/"]')) {
+      const m = CHANNEL_LINK.exec(a.getAttribute('href') || '');
+      if (m && !ids.includes(m[1])) ids.push(m[1]);
+    }
+    return ids;
+  }
+  function readArt(doc) {
+    try {
+      const player = findPlayer(doc);
+      if (!player) return '';
+      for (const img of player.el.querySelectorAll('img')) {
+        const src = img.getAttribute('src') || '';
+        if (artHost(src)) return src;
+      }
+    } catch (e) { /* no cover */ }
+    return '';
+  }
+
   function findPlayer(doc) {
     let player = doc.querySelector(SEL.playerNew);
     if (player) return { el: player, layout: 'new' };
@@ -52,7 +82,7 @@
     const title = (titleEl.textContent || '').trim();
     if (!title) return null;
     const artistLine = (bylineEl ? bylineEl.textContent : '').trim();
-    return { title, artistLine, channelIds: [] };
+    return { title, artistLine, channelIds: channelIdsIn(bylineEl) };
   }
 
   function readQueue(doc) {
@@ -488,6 +518,7 @@
     SEL,
     REMOVE_ICON,
     readSong,
+    readArt,
     readQueue,
     clickNext,
     pressNextKey,

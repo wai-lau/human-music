@@ -244,8 +244,24 @@
     PC.unhideAll(doc);
   }
 
+  // The playing song's cover, only from Spotify's image hosts over https (investigator plan,
+  // Task 4); anything else gives no cover.
+  const ART_HOSTS = ['i.scdn.co', 'mosaic.scdn.co', 'image-cdn-ak.spotifycdn.com', 'image-cdn-fa.spotifycdn.com'];
+  function readArt(doc) {
+    return safe(() => {
+      const widget = doc.querySelector(SEL.widget);
+      if (!widget) return '';
+      for (const img of widget.querySelectorAll('img')) {
+        const src = img.getAttribute('src') || '';
+        const m = /^https:\/\/([^/?#:@]+)(?:[/?#]|$)/.exec(src);
+        if (m && ART_HOSTS.includes(m[1].toLowerCase())) return src;
+      }
+      return '';
+    }, '');
+  }
+
   HM.spotify = {
-    SEL, REMOVE_ICON, readSong, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
+    SEL, REMOVE_ICON, readSong, readArt, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
     videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideAll,
   };
 })();

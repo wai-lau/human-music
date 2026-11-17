@@ -27,13 +27,16 @@ const sends = worker => worker.evaluate(() => globalThis.__hmSends || []);
 test('an unknown artist playing reaches the investigator once, with the key', async ({ context, worker, setState }) => {
   await setState({ settings: { lookahead: 0, investigate: true } });
   await recordSends(worker, 'e2e-key');
-  const page = await openSite(context, YTM, { songs: [{ title: 'Fresh Song', artist: UNKNOWN }, { title: 'Next', artist: UNKNOWN }] });
+  const page = await openSite(context, YTM, { songs: [{ title: 'Fresh Song', artist: UNKNOWN, channelId: 'UCIE9zgCYFKd-GLQX5jwhceZ', art: 'https://lh3.googleusercontent.com/e2e-cover=w544' }, { title: 'Next', artist: UNKNOWN }] });
   await expect(page.locator('#hm-block-artist')).toBeVisible();
   await expect.poll(async () => (await sends(worker)).length, { timeout: 10_000 }).toBe(1);
   const [s] = await sends(worker);
   expect(s.url).toBe('https://wai-lau.net/human-music/api/investigate');
   expect(s.auth).toBe('Bearer e2e-key');
   expect(s.body.items.map(i => i.credits).flat()).toContain(UNKNOWN);
+  // The player's artist link and cover travel with the playing song.
+  expect(s.body.items[0].channelIds).toEqual(['UCIE9zgCYFKd-GLQX5jwhceZ']);
+  expect(s.body.items[0].artUrl).toBe('https://lh3.googleusercontent.com/e2e-cover=w544');
   await page.waitForTimeout(2500); // the same artist is not sent again
   expect(await sends(worker)).toHaveLength(1);
 });

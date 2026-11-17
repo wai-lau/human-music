@@ -19,6 +19,7 @@
      move on, the queue row menu can remove a row. window.__setup comes from the test:
      { songs: [{ title, artist }], playing: bool, items: [{ title, artist, channel }] }. -->
 <ytmusic-miniplayer>
+  <img class="cover" alt="">
   <div class="ytmusicTrackInfoTitle"></div>
   <div class="ytmusicTrackInfoByline"></div>
   <div class="ytmusicPlayerControlsMainControls">
@@ -56,7 +57,13 @@
   function render() {
     const s = songs[current];
     $('.ytmusicTrackInfoTitle').textContent = s ? s.title : '';
-    $('.ytmusicTrackInfoByline').textContent = s ? `${s.artist} • Stand-in album • 2026` : '';
+    // A song may carry its artist's channel ID (linked in the byline, as on the real page) and
+    // a cover address (the player image's src; the stand-in never loads it).
+    const byline = $('.ytmusicTrackInfoByline');
+    byline.textContent = '';
+    if (s && s.channelId) byline.append(make('a', { href: 'channel/' + s.channelId }, s.artist), ' • Stand-in album • 2026');
+    else byline.textContent = s ? `${s.artist} • Stand-in album • 2026` : '';
+    if (s && s.art) $('.cover').setAttribute('src', s.art); else $('.cover').removeAttribute('src');
     const queue = $('#queue');
     queue.textContent = '';
     songs.forEach((song, i) => {
