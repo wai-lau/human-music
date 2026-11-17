@@ -16,14 +16,15 @@ function rig(opts = {}) {
   const clock = fakeClock();
   const calls = { next: 0, key: 0, dislike: 0, seeks: [] };
   let song = { title: 'A', artistLine: 'Band • Album' };
+  let blank = false; // key 'blanks': the player shows no song for a while after the key press
   const moveOn = () => { song = { title: 'B', artistLine: 'Other • Album' }; };
   const maybeThrow = name => { if (opts.throwOn === name) throw new Error('boom'); };
   if (opts.movesAt) clock.setTimeout(moveOn, opts.movesAt);
   const video = opts.video || 'paused';
   const page = {
-    readSong: () => (opts.nullSong ? null : { ...song }),
+    readSong: () => (opts.nullSong || blank ? null : { ...song }),
     clickNext: () => { calls.next++; maybeThrow('clickNext'); if (opts.nextReturns === false) return false; if (opts.next === 'moves') moveOn(); return true; },
-    pressNextKey: () => { calls.key++; maybeThrow('pressNextKey'); if (opts.key === 'moves') moveOn(); },
+    pressNextKey: () => { calls.key++; maybeThrow('pressNextKey'); if (opts.key === 'moves') moveOn(); if (opts.key === 'blanks') blank = true; },
     clickDislike: () => { calls.dislike++; maybeThrow('clickDislike'); if (opts.dislike === 'moves') moveOn(); return opts.dislikeReturns !== false; },
     videoDuration: () => (typeof opts.duration === 'function' ? opts.duration(clock.now()) : opts.duration ?? 200),
     seekTo: s => calls.seeks.push(s),
@@ -147,6 +148,14 @@ t('null song means not changed', () => {
   const { clock, calls, s } = rig({ nullSong: true, key: 'ignored', duration: 200 });
   s.skip({ dislikeFirst: false }); clock.tick(10000);
   return (clock.pending() === 0 && !s.busy()) || J({ calls, pending: clock.pending() });
+});
+// Review 2026-11-17 (page side, finding 5): between songs the player can show no title while
+// the next (a person's) song already plays. An unreadable song is not "the same song": no
+// second Next and no seek to the end of whatever is playing.
+t('the player shows no song after the key press: no second Next, no seek', () => {
+  const { clock, calls, s } = rig({ key: 'blanks', video: 'playing', duration: 200 });
+  s.skip({ dislikeFirst: false }); clock.tick(10000);
+  return (calls.key === 1 && calls.next === 0 && J(calls.seeks) === '[]' && clock.pending() === 0) || J({ calls, pending: clock.pending() });
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

@@ -23,6 +23,18 @@
         }
       }
 
+      // For pressing again or seeking, the song must be readable and still the listed one
+      // (review 2026-11-17): a player that shows no title between songs may already be playing
+      // a person's song, so unreadable means "don't act", not "still the same".
+      function stillSameSong() {
+        try {
+          const now = page.readSong();
+          return skipSong != null && now != null && now.title === skipSong.title && now.artistLine === skipSong.artistLine;
+        } catch (e) {
+          return false;
+        }
+      }
+
       function clearAllTimers() {
         if (pollInterval != null) { clearInterval(pollInterval); pollInterval = null; }
         if (giveUpTimeout != null) { clearTimeout(giveUpTimeout); giveUpTimeout = null; }
@@ -45,7 +57,7 @@
         try { page.pressNextKey(); } catch (e) {}
         buttonTimeout = setTimeout(() => {
           buttonTimeout = null;
-          if (!busy || !isCurrentSong()) return;
+          if (!busy || !stillSameSong()) return;
           const now = videoNow();
           if (before && now && !now.paused && now.time > before.time) {
             try { page.clickNext(); } catch (e) {}
@@ -53,7 +65,7 @@
         }, 750);
         seekTimeout = setTimeout(() => {
           seekTimeout = null;
-          if (busy && isCurrentSong()) {
+          if (busy && stillSameSong()) {
             tryMaybeSeek();
           }
         }, 1500);
@@ -68,7 +80,7 @@
           } else {
             if (seekInterval == null) {
               seekInterval = setInterval(() => {
-                if (!busy || !isCurrentSong()) {
+                if (!busy || !stillSameSong()) {
                   clearInterval(seekInterval);
                   seekInterval = null;
                   return;
