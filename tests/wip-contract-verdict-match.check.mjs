@@ -29,6 +29,7 @@ tryEq('page items too', () => match.matchItem(idx(95), { title: 'X', credits: ['
 tryEq('no threshold argument means list-only', () => !!match.matchSong(match.buildIndex({ filterLists: [verdictList], user: emptyUser }), song('Forrest Rose')), false);
 tryEq('reason with confidence', () => log.reason({ listId: 'hm-verdicts', listName: 'Human Music verdicts', confidence: 97 }), 'AI-generated · Human Music verdicts · 97%');
 tryEq('reason without confidence unchanged', () => log.reason({ listId: 'soul-over-ai', listName: 'Soul Over AI' }), 'AI-generated · Soul Over AI');
+tryEq('reason with no list is still an empty string', () => log.reason({ listId: null, listName: null }), '');
 tryEq('log entry keeps confidence', () => log.makeEntry({ event: 'skipped', song: song('Forrest Rose'), match: { listId: 'hm-verdicts', listName: 'Human Music verdicts', rule: 'artist', entry: 'Forrest Rose', mode: 'act', confidence: 97 }, at: 1 }).confidence, 97);
 tryEq('known: any verdict at any confidence', () => match.isKnown(idx(null), { credits: ['real person'], channelIds: [] }), true);
 tryEq('known: a list artist', () => match.isKnown(idx(null), { credits: ['the velvet sundown'], channelIds: [] }), true);
