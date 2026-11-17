@@ -55,6 +55,12 @@ const image = { ok: true, mediaType: 'image/png', base64: PNG.toString('base64')
 const look = (out, o = {}) => lookArt(image, { spawn: fakeSpawn(out), env, ...o });
 
 run([
+  // claude 2.1.326 with --output-format stream-json prints one message per line (review 2026-11-17).
+  ['a stream-json transcript (one message per line) is read from its last result line', async () => {
+    const lines = [{ type: 'system', subtype: 'init', tools: [] }, { type: 'assistant', message: {} }, { type: 'result', subtype: 'success', is_error: false, result: '', structured_output: { look: 'ai' } }].map((m) => JSON.stringify(m)).join('\n') + '\n';
+    const r = await look(lines);
+    return (r.ok === true && r.look === 'ai') || JSON.stringify(r);
+  }],
   ['ART_HOSTS is exactly the eight allowed hosts', () => deepEqual([...ART_HOSTS], ['lh3.googleusercontent.com', 'yt3.googleusercontent.com', 'yt3.ggpht.com', 'i.ytimg.com', 'i.scdn.co', 'mosaic.scdn.co', 'image-cdn-ak.spotifycdn.com', 'image-cdn-fa.spotifycdn.com'])],
   ['hosts outside the list, http, IP literals, ports and credentials fail with no fetch', async () => {
     const bad = ['https://lh3.googleusercontent.com.evil.test/a', 'https://evil.test/i.scdn.co', 'http://i.scdn.co/a', 'https://127.0.0.1/a', 'https://[::1]/a', 'https://i.scdn.co:8443/a', 'https://u:p@i.scdn.co/a', 'ftp://i.scdn.co/a', 'not a url', '', undefined, 'https://sub.i.scdn.co/a'];
@@ -112,7 +118,7 @@ run([
   }],
   ['buildArtArgv equals the pinned list; --tools is empty; --strict-mcp-config present', () => {
     const argv = buildArtArgv();
-    const pinned = ['-p', '--model', 'opus', '--input-format', 'stream-json', '--output-format', 'json', '--json-schema', JSON.stringify(ART_SCHEMA), '--tools', '', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '2', '--no-session-persistence', '--append-system-prompt', ART_PROMPT];
+    const pinned = ['-p', '--model', 'opus', '--input-format', 'stream-json', '--output-format', 'stream-json', '--verbose', '--json-schema', JSON.stringify(ART_SCHEMA), '--tools', '', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '2', '--no-session-persistence', '--append-system-prompt', ART_PROMPT];
     return (deepEqual(argv, pinned) && argv[argv.indexOf('--tools') + 1] === '' && argv.includes('--strict-mcp-config') && !argv.includes('--allowedTools')) || JSON.stringify(argv);
   }],
   ['ART_SCHEMA allows only look: ai, not_ai, unclear', () => deepEqual(ART_SCHEMA, { type: 'object', additionalProperties: false, required: ['look'], properties: { look: { enum: ['ai', 'not_ai', 'unclear'] } } })],

@@ -101,8 +101,12 @@ export function buildArtArgv(model) {
   return [
     '-p',
     '--model', pickModel(model),
+    // Checked against claude 2.1.326 (review 2026-11-17): stream-json input requires
+    // stream-json output, which in print mode also requires --verbose; with
+    // --output-format json every look was refused.
     '--input-format', 'stream-json',
-    '--output-format', 'json',
+    '--output-format', 'stream-json',
+    '--verbose',
     '--json-schema', JSON.stringify(ART_SCHEMA),
     '--tools', '',
     '--permission-mode', 'dontAsk',
@@ -118,7 +122,14 @@ export function buildArtArgv(model) {
 // Exactly { look } with one of the three words; anything else is rejected, never repaired.
 function parseLook(stdout) {
   let outer;
-  try { outer = JSON.parse(stdout); } catch { return { ok: false, kind: 'invalid', detail: 'output is not JSON' }; }
+  try { outer = JSON.parse(stdout); } catch {
+    // stream-json output: one JSON message per line; the answer is in the last result entry.
+    const lines = String(stdout).split('\n').map((l) => l.trim()).filter(Boolean);
+    const msgs = [];
+    for (const l of lines) { try { msgs.push(JSON.parse(l)); } catch { /* not a message line */ } }
+    if (!msgs.length) return { ok: false, kind: 'invalid', detail: 'output is not JSON' };
+    outer = msgs;
+  }
   if (Array.isArray(outer)) {
     const results = outer.filter((m) => m && typeof m === 'object' && m.type === 'result');
     if (!results.length) return { ok: false, kind: 'invalid', detail: 'no result entry' };
