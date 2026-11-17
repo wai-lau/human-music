@@ -78,16 +78,15 @@
   }
 
   // The mode in force: off whenever paused; the chosen mode once the person moved the slider;
-  // otherwise Optimal once the verdict list is calibrated (the design), else List-only.
+  // otherwise Optimal once the verdict list is calibrated (the design), else List-only. A mode
+  // that blocks on verdicts (Optimal, Aggressive) acts as List-only while the verdict list isn't
+  // calibrated, however it was set (a backup, a list that stopped being calibrated): verdicts
+  // that aren't ready never skip anyone, and the chosen mode comes back once they are.
   function effectiveMode(settings, calibrated) {
     if (settings.mode === 'off') return 'off';
-    if (settings.modeChosen) {
-      return settings.mode;
-    }
-    if (calibrated) {
-      return 'optimal';
-    }
-    return 'lists';
+    const mode = settings.modeChosen ? settings.mode : (calibrated ? 'optimal' : 'lists');
+    if (threshold(mode) !== null && !calibrated) return 'lists';
+    return mode;
   }
 
   globalThis.HM.settings = { DEFAULTS, MODES, sanitize, threshold, effectiveMode };

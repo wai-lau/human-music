@@ -27,6 +27,15 @@ tryEq('default follows calibration', () => [settings.effectiveMode(settings.sani
 tryEq('a chosen mode stays', () => settings.effectiveMode(settings.sanitize({ mode: 'lists', modeChosen: true }), true), 'lists');
 tryEq('paused without a chosen mode is off', () => settings.effectiveMode(settings.sanitize({ paused: true }), true), 'off');
 tryEq('chosen off stays off', () => settings.effectiveMode(settings.sanitize({ mode: 'off', modeChosen: true }), true), 'off');
+// Review 2026-11-17: a chosen Optimal or Aggressive (from a backup, or a verdict list that stops
+// being calibrated) must not block on verdicts that aren't ready; it comes back on its own once
+// the list is calibrated.
+tryEq('chosen optimal and aggressive act as List only while the verdict list is not calibrated', () => [
+  settings.effectiveMode(settings.sanitize({ mode: 'optimal', modeChosen: true }), false),
+  settings.effectiveMode(settings.sanitize({ mode: 'aggressive', modeChosen: true }), false),
+  settings.effectiveMode(settings.sanitize({ mode: 'optimal', modeChosen: true }), true),
+  settings.effectiveMode(settings.sanitize({ mode: 'aggressive', modeChosen: true }), true),
+], ['lists', 'lists', 'optimal', 'aggressive']);
 tryEq('other settings unchanged', () => { const s = settings.sanitize({ lookahead: 4, autoSkip: false }); return [s.lookahead, s.autoSkip, s.refresh]; }, [4, false, 'daily']);
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

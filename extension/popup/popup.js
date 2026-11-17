@@ -254,13 +254,15 @@
     if (m) showMode(m);
   });
   $('mode').addEventListener('change', e => {
-    let mode = HM.settings.MODES[Number(e.target.value)] || 'lists';
+    const mode = HM.settings.MODES[Number(e.target.value)] || 'lists';
     if (HM.settings.threshold(mode) !== null && !verdictsCalibrated()) {
+      // Refused: nothing is saved, so this person still gets the Optimal default once the
+      // verdict list is calibrated (saving a chosen List only would keep them off it).
       status(`${MODE_NAMES[mode]} is not ready yet, so List only stays on until the verdict list is checked.`);
-      mode = 'lists';
-    } else {
-      status('');
+      showMode(HM.settings.effectiveMode(state.settings, verdictsCalibrated()));
+      return;
     }
+    status('');
     showMode(mode);
     saveSettings({ ...state.settings, mode, modeChosen: true, paused: mode === 'off' });
   });

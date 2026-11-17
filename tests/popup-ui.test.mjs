@@ -187,12 +187,14 @@ run([
     const s = data(p, 'hm.settings');
     return (s.mode === 'off' && s.paused === true && s.modeChosen === true) || JSON.stringify(s);
   }],
-  ['until the verdict list is calibrated, Optimal and Aggressive snap back to List only and say so', async () => {
+  // A refusal saves nothing (review 2026-11-17): recording a chosen List only would keep this
+  // person off the Optimal default once the verdict list is calibrated.
+  ['until the verdict list is calibrated, Optimal and Aggressive snap back to List only, say so, and save nothing', async () => {
     const p = await open();
     await p.change('mode', e => { e.value = '2'; });
-    const s = data(p, 'hm.settings');
+    const s = data(p, 'hm.settings') || {};
     const said = p.$('status').textContent;
-    return (s.mode === 'lists' && p.$('mode').value === '1' && p.$('mode-label').textContent === 'List only' && /Optimal is not ready yet/.test(said)) || JSON.stringify({ s, said });
+    return (s.modeChosen !== true && s.mode !== 'optimal' && p.$('mode').value === '1' && p.$('mode-label').textContent === 'List only' && /Optimal is not ready yet/.test(said)) || JSON.stringify({ s, said });
   }],
   ['a verdict log line reads AI-generated · Human Music verdicts · 97%', async () => {
     const p = await open({ 'hm.log': [{ at: Date.now(), event: 'removed', title: 'T', artistLine: 'Forrest Rose', listId: 'hm-verdicts', listName: 'Human Music verdicts', rule: 'artist', entry: 'Forrest Rose', confidence: 97 }] });
