@@ -9,7 +9,7 @@ const SPOTIFY = 'A'.repeat(22);
 const TRACK = 'T'.repeat(22);
 const art = (name, o = {}) => ({ name, site: 'ytm', songs: [{ title: 'S', album: '', artUrl: '' }], playing: false, ...o });
 const answer = (o = {}) => ({
-  verdict: 'ai', confidence: 97, signals: ['deezer_ai_label'], reasons: ['label'], sources: ['https://x.example/a'], ...o,
+  verdict: 'ai', confidence: 97, signals: ['deezer_ai_label'], reasons: ['label'], sources: ['https://x.example/a', 'https://y.example/b'], ...o,
 });
 
 // The store and queue are real (in memory); every other collaborator is a fake.

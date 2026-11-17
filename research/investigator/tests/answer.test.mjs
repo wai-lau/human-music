@@ -33,7 +33,7 @@ await run([
   ['no signals at ai 100 is downgraded (injected answer)', () => { const d = decide({ ...good, signals: [], confidence: 100 }); return d.verdict === 'unsure' && d.confidence === 50 && d.downgraded; }],
   ['art alone never decides', () => decide({ ...good, signals: ['ai_style_art'] }).verdict === 'unsure'],
   ['two weak different signals keep ai, below the 95 line', () => { const d = decide({ ...good, signals: ['no_human_footprint', 'short_heavy_catalogue'], confidence: 100 }); return d.verdict === 'ai' && d.confidence === 94 && !d.downgraded; }],
-  ['one strong signal keeps ai at its confidence', () => { const d = decide({ ...good, signals: ['deezer_ai_label'], confidence: 99 }); return d.verdict === 'ai' && d.confidence === 99 && !d.downgraded; }],
+  ['one strong signal keeps ai at its confidence (sources on two sites)', () => { const d = decide({ ...good, signals: ['deezer_ai_label'], confidence: 99, sources: ['https://a.test/1', 'https://b.test/2'] }); return d.verdict === 'ai' && d.confidence === 99 && !d.downgraded; }],
   ['human passes unchanged', () => { const d = decide({ ...good, verdict: 'human', signals: [], confidence: 90 }); return d.verdict === 'human' && d.confidence === 90 && !d.downgraded; }],
   ['unsure passes unchanged', () => { const d = decide({ ...good, verdict: 'unsure', signals: [], confidence: 80 }); return d.verdict === 'unsure' && d.confidence === 80 && !d.downgraded; }],
   ['a downgraded low-confidence answer is not raised', () => decide({ ...good, signals: [], confidence: 10 }).confidence === 10],

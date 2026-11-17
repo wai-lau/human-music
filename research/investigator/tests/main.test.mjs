@@ -149,16 +149,17 @@ await run([
       return (r.status === 202 && t.calls.cheap === 1) || `${r.status} cheap ${t.calls.cheap}`;
     } finally { await t.stop(); }
   }],
-  ['publish is debounced to once per 60 s, covers every verdict, and says calibrated: false', async () => {
+  // Wai, 2026-11-17: "publish once a day".
+  ['publish is once a day, covers every verdict, and says calibrated: false', async () => {
     const t = await make();
     try {
       queueThree(t.app);
       await t.app.kick();
       await t.timers.advance(0);
       await t.timers.advance(0);
-      await t.timers.advance(59000);
+      await t.timers.advance(23 * 3600000);
       if (t.calls.publish.length !== 0) return 'published early: ' + t.calls.publish.length;
-      await t.timers.advance(1000);
+      await t.timers.advance(3600000);
       if (t.calls.publish.length !== 1) return 'publishes: ' + t.calls.publish.length;
       const list = JSON.parse(t.calls.publish[0]);
       if (list.artists.length !== 3 || list.calibrated !== false) return 'list: ' + t.calls.publish[0];
