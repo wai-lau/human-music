@@ -334,6 +334,29 @@ separate calls is simpler and leaves nothing to get wrong.
   lookups work), and nginx reaches the service over a unix socket
   instead of `127.0.0.1:8140`.
 
+### The investigator's rules (Wai, 2026-11-17)
+
+Wai: "pre-2020, auto-allow / listed as AI on subscribed lists, auto-fail /
+never wait for me to approve / publish once a day / only when not in list,
+out of API calls and post-2020 should the investigator do anything / it
+should use its judgement, look for multiple sources, lower confidence if
+there are contradicting sources / things like releasing 5 albums in 2026 is
+a flag".
+
+- **Before Claude:** music released before 2020 means made by people (the
+  MusicBrainz pass, no Claude call). An artist on a subscribed list is AI and
+  is never sent (the extension reports only artists `isKnown` doesn't know).
+- **Claude runs only** for an artist on no list, whose release history and
+  SH Labs lookups leave the question open, and who started in 2020 or later.
+  If Claude itself finds a release before 2020, the verdict is `human`.
+- **Judgment and sources:** Claude looks for several independent sources and
+  reports the ones that point the other way. A 95-or-more `ai` verdict needs
+  at least two sources on different sites and none against; each
+  contradicting source lowers the confidence by 20.
+- **Prolific releasing is a flag:** about five albums in one year (2024 or
+  later) counts as the `short_heavy_catalogue` signal.
+- **No review step:** verdicts publish without Wai's approval, once a day.
+
 ### Test cases (Wai, 2026-11-16)
 
 Forrest Rose and The Broken Radios are AI-generated and on no list: the first
