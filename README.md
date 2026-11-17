@@ -33,8 +33,7 @@ and sends nothing; it only downloads the lists you use. Your settings and its
 log stay on your computer and go away when you uninstall it.
 
 **Safety.** When it isn't sure, the song plays. It asks only for access to
-YouTube Music and Spotify and treats every list as plain data. Its security is
-reviewed as it changes.
+YouTube Music and Spotify and treats every list as plain data.
 
 **Free and open source.** Human Music is free and will stay free, under the
 MIT license.
