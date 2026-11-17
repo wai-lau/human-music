@@ -164,7 +164,7 @@ list = lists[HM.store.KEYS.filterLists][i];
           timeoutHandle = setTimeout(function() { controller.abort(); }, timeoutMs);
         }
 
-        const opts = { redirect: 'error' };
+        const opts = { redirect: 'error', credentials: 'omit' };
         if (signal) opts.signal = signal;
 
         const fetchPromise = fetchFn(list.url, opts);
@@ -199,7 +199,7 @@ list = lists[HM.store.KEYS.filterLists][i];
           }
         }
 
-        const textPromise = resp.text();
+        const textPromise = readCapped(resp, controller);
         let text;
         try {
           if (typeof setTimeout !== 'undefined') {
@@ -217,7 +217,7 @@ list = lists[HM.store.KEYS.filterLists][i];
 
         if (timeoutHandle !== null) clearTimeout(timeoutHandle);
 
-        if (text.length > maxBytes) {
+        if (text === null || text.length > maxBytes) {
           await recordFailure(id, 'Body over ' + maxBytes + ' bytes');
           return false;
         }
@@ -260,6 +260,30 @@ list = lists[HM.store.KEYS.filterLists][i];
       }
     }
 
+    // Reads a response body as text, stopping (and cancelling the download) once it passes
+    // maxBytes: null means too big. A response without a stream (tests) is read whole.
+    async function readCapped(resp, controller) {
+      const body = resp && resp.body;
+      if (!body || typeof body.getReader !== 'function' || typeof TextDecoder === 'undefined') return resp.text();
+      const reader = body.getReader();
+      const decoder = new TextDecoder();
+      let total = 0;
+      let text = '';
+      for (;;) {
+        const part = await reader.read();
+        if (part.done) break;
+        const value = part.value || new Uint8Array(0);
+        total += value.byteLength;
+        if (total > maxBytes) {
+          try { await reader.cancel(); } catch (e) { /* already closed */ }
+          if (controller) { try { controller.abort(); } catch (e) { /* done */ } }
+          return null;
+        }
+        text += decoder.decode(value, { stream: true });
+      }
+      return text + decoder.decode();
+    }
+
     async function recordFailure(id, message) {
       const lists = await storage.get(HM.store.KEYS.filterLists);
       if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
@@ -268,6 +292,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
         if (lists[HM.store.KEYS.filterLists][i].id === id) {
           lists[HM.store.KEYS.filterLists][i].lastError = message;
+          lists[HM.store.KEYS.filterLists][i].lastFailedAt = nowFn();
           break;
         }
       }
@@ -298,6 +323,9 @@ list = lists[HM.store.KEYS.filterLists][i];
         if (!list.enabled) {
           continue;
         }
+        // A list that failed in the last hour rests, so a broken list isn't fetched at every
+        // worker start (the popup's Refresh button still tries at once).
+        if (list.lastError && typeof list.lastFailedAt === 'number' && now - list.lastFailedAt < 3600000) continue;
         if (globalThis.HM.lists.isRefreshDue(list.lastRefresh, settings.refresh, now)) {
           refreshed.push(list.id);
           await refreshOne(list.id);
@@ -473,7 +501,9 @@ list = lists[HM.store.KEYS.filterLists][i];
     const api = HM.store.api();
     globalThis.HM.refresher = globalThis.HM.createRefresher({
       storage: api.storage.local,
-      fetch: function (url) { return fetch(url); },
+      // The options carry the list limits (redirect: 'error', the abort signal, no credentials);
+      // dropping them let redirects through and read huge bodies in full (audit 2026-11-17).
+      fetch: function (url, init) { return fetch(url, init); },
       now: function () { return Date.now(); },
       assetUrl: function (path) { return chrome.runtime.getURL(path); }
     });
