@@ -56,8 +56,9 @@ Upload the zip. Name ("Human Music: AI Music Blocker"), version and icon come fr
 3. `3-actions.png`: the log's Actions section.
 4. `4-behaviour.png`: the Behaviour settings.
 
-The popup shots show the redesigned popup (after 0.1.2) and the Pause
-switch; retake 2-4 when the filtering-mode slider ships. **Small promo
+Shots 2-4 (retaken 2026-11-17) show the popup with the filtering-mode
+slider, from a store-like copy (no investigator section); upload them with
+0.1.4. **Small promo
 tile** (440x280): optional.
 
 ## Privacy tab
