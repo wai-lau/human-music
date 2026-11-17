@@ -330,7 +330,7 @@ separate calls is simpler and leaves nothing to get wrong.
   server). On the droplet, the systemd unit fences the whole service and
   its Claude children off from local and private addresses
   (`IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12
-  192.168.0.0/16`, with only `127.0.0.53`, Ubuntu's DNS stub, allowed back so name
+  192.168.0.0/16 100.64.0.0/10 fc00::/7`, with only `127.0.0.53`, Ubuntu's DNS stub, allowed back so name
   lookups work), and nginx reaches the service over a unix socket
   instead of `127.0.0.1:8140`.
 

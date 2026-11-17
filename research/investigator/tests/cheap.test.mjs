@@ -11,7 +11,7 @@ const UA = 'HumanMusicInvestigator/0.1 (+https://github.com/wai-lau/human-music)
 function fake(lookup, { status = 200, raw } = {}) {
   const calls = [];
   const f = async (url, opts) => {
-    calls.push({ url: String(url), headers: (opts && opts.headers) || {} });
+    calls.push({ url: String(url), headers: (opts && opts.headers) || {}, signal: opts && opts.signal, redirect: opts && opts.redirect });
     const body = String(url).includes('/artist/?') ? SEARCH : lookup;
     return {
       ok: status >= 200 && status < 300,
@@ -83,6 +83,12 @@ run([
     const ua = f.calls.map((c) => c.headers['User-Agent']);
     if (!ua.length || ua.some((u) => u !== UA)) return JSON.stringify(ua);
     return !/@/.test(ua[0]) || 'has an email';
+  }],
+  // Security audit 2026-11-17 (hardening): a hung MusicBrainz request would stall the queue.
+  ['every request carries a timeout signal and refuses redirects', async () => {
+    const f = fake(fx('musicbrainz-lookup-old'));
+    await cheapPass(artist({ spotifyId: SP }), { fetch: f, sleep: sleeper() });
+    return (f.calls.length > 0 && f.calls.every((c) => c.signal && typeof c.signal.aborted === 'boolean' && c.redirect === 'error')) || JSON.stringify(f.calls.map((c) => ({ signal: !!c.signal, redirect: c.redirect })));
   }],
   ['requests use fmt=json and the documented URL shapes', async () => {
     const f = fake(fx('musicbrainz-lookup-old'));

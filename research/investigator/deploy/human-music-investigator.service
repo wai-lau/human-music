@@ -68,7 +68,7 @@ RuntimeDirectory=human-music
 # but connected to 127.0.0.1). Public addresses stay open for web research,
 # GitHub and SH Labs. Unix sockets are not IP, so the nginx socket is
 # unaffected.
-IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 fc00::/7
 # Name lookups on Ubuntu go through systemd-resolved's stub at 127.0.0.53, which
 # the deny above would block (no lookups means no web research at all). Allow
 # exactly that address back; it serves DNS only. Allow wins over deny.

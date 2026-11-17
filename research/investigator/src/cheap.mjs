@@ -28,7 +28,8 @@ async function get(url, { fetch, sleep, now }) {
     await sleep(wait > 0 ? wait : 0);
   }
   lastAt.set(fetch, now());
-  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
+  // A hung MusicBrainz request would stall the whole queue: give up after 10 seconds.
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(10000) });
   if (!res || !res.ok) return null;
   return res.json();
 }

@@ -647,10 +647,10 @@ list = lists[HM.store.KEYS.filterLists][i];
       }
       // Unknown artists for the investigator. Only a development copy ever sends (Wai,
       // 2026-11-16: "my developer copy is the only one that calls the investigator"),
-      // and only with the key she pasted into it.
+      // and only with the key she pasted into it. At most 20 a batch: the service refuses more.
       if (msg && msg.type === 'hm-investigate' && Array.isArray(msg.items)) {
         waitDev(function (dev) {
-          if (dev) globalThis.HM.investigator.send(msg.items.slice(0, 50)).catch(function () { /* recorded as lastError */ });
+          if (dev) globalThis.HM.investigator.send(msg.items.slice(0, 20)).catch(function () { /* recorded as lastError */ });
         });
         return false;
       }

@@ -32,7 +32,7 @@ await run([
   ['unit: RuntimeDirectory=human-music, for the socket', () => has(/^RuntimeDirectory=human-music$/m)],
   ['unit: IPAddressDeny fences off local and private addresses; only the DNS stub comes back', () => {
     const m = /^IPAddressDeny=(.*)$/m.exec(code(unit));
-    return Boolean(m) && m[1].trim().split(/\s+/).join(' ') === 'localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16' && (code(unit).match(/^IPAddressAllow=.*$/gm) || []).join('|') === 'IPAddressAllow=127.0.0.53';
+    return Boolean(m) && m[1].trim().split(/\s+/).join(' ') === 'localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 fc00::/7' && (code(unit).match(/^IPAddressAllow=.*$/gm) || []).join('|') === 'IPAddressAllow=127.0.0.53';
   }],
   ['unit: the new fence lines are explained by a comment above them', () => {
     const lines = unit.split('\n');
