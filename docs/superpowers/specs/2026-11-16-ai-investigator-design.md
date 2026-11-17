@@ -362,6 +362,12 @@ a flag".
 Forrest Rose and The Broken Radios are AI-generated and on no list: the first
 live run must find both as AI. They also join the calibration's known-AI set.
 
+First live run, 2026-11-17 (Opus, web tools only, no cover): Forrest Rose `ai` 72
+(more than ten albums in 2025-2026, no label or bio) and The Broken Radios `ai`
+72 (15 albums Feb-Oct 2026 on Deezer, no members or press): both found, both
+weak-signal only, so they'd block in Aggressive but not Optimal. Wet Leg, as a
+check the other way: `human` 98.
+
 ### Calibration
 
 A model's "95" is not a probability. Before Optimal ships, the investigator
