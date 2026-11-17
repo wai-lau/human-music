@@ -11,17 +11,13 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
 
-  // The stored record's IDs are the artist's own. An ID Claude found on the web fills a gap
-  // only for a verdict that cannot cause a skip: a wrong ID on an `ai` verdict would put the
-  // verdict on someone else.
+  // The stored record's IDs are only the artist's own, from the page. An ID Claude found on the
+  // web is never stored (review 2026-11-17): a stored ID becomes a lasting key, so a planted one
+  // could later sit on an `ai` verdict (blocking someone else by ID) or merge two artists.
   function withIds(artist, found, verdictWord) {
     const out = {};
     if (artist.spotifyId) out.spotifyId = artist.spotifyId;
     if (artist.channelId) out.channelId = artist.channelId;
-    if (verdictWord !== 'ai' && found) {
-      if (!out.spotifyId && found.spotifyId) out.spotifyId = found.spotifyId;
-      if (!out.channelId && found.channelId) out.channelId = found.channelId;
-    }
     return out;
   }
 

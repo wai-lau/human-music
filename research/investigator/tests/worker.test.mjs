@@ -222,7 +222,9 @@ run([
     await w.runOne();
     return (calls.investigate === 1 && verdictOf(store, a) !== null) || 'no verdict after cheap throw';
   }],
-  ['the answer ids fill a non-ai verdict but never an ai one', async () => {
+  // Review 2026-11-17 (service, finding 4): a found ID stored as a key could later land on an ai
+  // verdict (blocking someone else's ID) or merge two artists. Found IDs are never stored.
+  ['IDs Claude found are never stored, on any verdict', async () => {
     const a = art('No Ids');
     const b = art('No Ids Ai');
     const { store, queue, w } = setup({
@@ -233,7 +235,21 @@ run([
     await w.runOne();
     const va = verdictOf(store, a);
     const vb = verdictOf(store, b);
-    return (va.spotifyId === SPOTIFY && vb.spotifyId === undefined) || JSON.stringify({ va, vb });
+    const keyed = store.findVerdict(['sp:' + SPOTIFY]);
+    return (va.spotifyId === undefined && vb.spotifyId === undefined && keyed === null) || JSON.stringify({ va, vb, keyed: keyed && keyed.name });
+  }],
+  ['an unsure verdict with a found ID, later judged ai, publishes without that ID', async () => {
+    const victim = 'V'.repeat(22);
+    const a = art('Nova');
+    let ans = answer({ verdict: 'unsure', confidence: 40, signals: ['no_human_footprint'], spotifyId: victim });
+    const { store, queue, w } = setup({ investigate: () => ({ ok: true, answer: ans }) });
+    queue.enqueue([a]);
+    await w.runOne();
+    ans = answer({ spotifyId: victim });
+    queue.requeue(a);
+    await w.runOne();
+    const v = verdictOf(store, a);
+    return (v && v.verdict === 'ai' && v.spotifyId !== victim) || JSON.stringify(v);
   }],
   ['a look of ai adds ai_style_art once, stores the look and address outside the published list', async () => {
     const a = art('Covered', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }, { title: 'T', album: '', artUrl: 'https://i.scdn.co/image/y' }] });
