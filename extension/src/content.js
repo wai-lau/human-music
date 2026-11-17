@@ -34,7 +34,7 @@
     };
   }
 
-  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {} }) {
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {} }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -55,10 +55,43 @@
       closeAfterCheck: false, // close the panel again once its rows were seen
       skipMatch: null, // the match behind the skip in progress (for a skip-failed log line)
       removeFailures: new Map(), // queue rows whose removal failed: rowKey -> { tries, at }
+      reported: new Set(), // normalised credits already sent to the investigator this page
     };
     let writes = Promise.resolve();
 
     const matchSong = song => (state.index ? safe(() => HM.match.matchSong(state.index, song), null) : null);
+
+    function buildReportItem(row) {
+      const host = safe(() => doc.location.hostname, '') || '';
+      const siteName = /(^|\.)open\.spotify\.com$/.test(host) ? 'spotify' : 'ytm';
+      const artistLine = row.artistLine || '';
+      const parts = artistLine.split(' • ');
+      const album = parts.length > 1 ? parts[1].trim() : '';
+      const readArt = site['readArt'];
+      const artUrl = typeof readArt === 'function' ? safe(() => readArt(doc), '') : '';
+      return {
+        site: siteName,
+        title: row.title || '',
+        artistLine,
+        credits: HM.text.splitNames(HM.text.leadCredit(artistLine)),
+        album,
+        artUrl,
+        channelIds: row.channelIds || [],
+      };
+    }
+
+    function reportUnknown(item) {
+      if (!state.settings.investigate || !state.index) return;
+      const row = buildReportItem(item);
+      if (HM.match.isKnown(state.index, row)) return;
+      for (const credit of row.credits) {
+        const key = HM.text.normalize(credit);
+        if (!state.reported.has(key)) {
+          state.reported.add(key);
+          safe(() => onUnknown([row]), []);
+        }
+      }
+    }
 
     // Storage writes run one after another, so two quick ones never lose each other.
     function queueWrite(fn) {
@@ -89,9 +122,15 @@
       const lists = Array.isArray(stored[HM.store.KEYS.filterLists]) ? stored[HM.store.KEYS.filterLists] : [];
       const keys = lists.map(l => HM.store.listKey(l.id));
       const data = keys.length ? await storage.get(keys) : {};
+      const verdictList = lists.find(l => l.id === 'hm-verdicts');
+      const verdictData = (data[HM.store.listKey('hm-verdicts')] || {});
+      const calibrated = !!verdictData.calibrated;
+      const mode = HM.settings.effectiveMode(state.settings, calibrated);
+      const threshold = HM.settings.threshold(mode);
       state.index = HM.match.buildIndex({
         filterLists: lists.map(l => ({ ...l, artists: (data[HM.store.listKey(l.id)] || {}).artists || [] })),
         user,
+        threshold,
       });
     }
 
@@ -118,7 +157,7 @@
       if (safe(() => state.skipper.busy(), false)) { safe(() => timers.setTimeout(schedule, 200)); return; }
       state.last = { title: song.title, artistLine: song.artistLine };
       const match = matchSong(song);
-      if (!match) return;
+      if (!match) { reportUnknown(song); return; }
       if (match.mode === 'watch') { log('watched', song, match); return; }
       if (!state.settings.autoSkip) { log('seen', song, match); return; }
       state.skipMatch = match; // named in the log if this skip doesn't take
@@ -199,6 +238,7 @@
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
           if (!remove.length || typing()) break;
           const row = rows[remove[0]];
+          reportUnknown(row);
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
           if (removed) log('removed', row, match);
@@ -206,6 +246,13 @@
             const f = state.removeFailures.get(rowKey(row)) || { tries: 0, at: 0 };
             state.removeFailures.set(rowKey(row), { tries: f.tries + 1, at: now() });
             log('remove-failed', row, match, { oncePerDay: true });
+          }
+        }
+        // Report unknown queue rows (not matched for removal)
+        if (state.settings.investigate && state.index) {
+          const rows = safe(() => site.readQueue(doc), []);
+          for (const row of rows) {
+            reportUnknown(row);
           }
         }
       } finally {
