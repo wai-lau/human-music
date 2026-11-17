@@ -11,21 +11,33 @@ Firefox support is coming.
 
 ## What it does
 
-- Takes songs by listed AI-generated artists out of your queue before they
-  play, including the songs YouTube Music adds to its own radio.
-- Skips one if it plays anyway, moving on exactly one song.
-- Hides their songs, albums and playlists on the home page, Explore and
-  search results.
-- Greys out their songs on playlist, album and artist pages, with a skip
-  sign where the cover would be, so you can see what will be skipped.
-- Shows on the toolbar icon how many songs it skipped or took out of the
-  queue in that tab.
-- Logs every song it removed, skipped or hid, with the list that caused it,
-  so you can check its work.
+On YouTube Music and Spotify, Human Music keeps songs by AI-generated artists
+out of your listening: out of your queue before they play, skipped if one
+starts anyway, and hidden on the home page and in search.
 
-Everything happens inside the music tab. It doesn't switch tabs or
-take your keyboard focus, it holds off while you type, and if you have more
-than one music tab open, only the one that's playing skips songs.
+**Lists.** It works from lists you choose: [Soul Over AI](https://souloverai.com)
+(CC BY 4.0), Cevval's AI music list, Human Music's own verdicts, your own
+artists, songs and keywords, or any list you subscribe to by web address. A new
+list only watches, and logs what it would skip, until you let it act.
+
+**The investigator.** Lists can't keep up with every new artist, so Human
+Music's investigator checks artists that aren't on any list yet. It looks for
+several independent sources, gives each artist a verdict with a confidence, and
+publishes the verdicts as a public list,
+[human-music-verdicts](https://github.com/wai-lau/human-music-verdicts). You
+decide how sure a verdict must be before a song is skipped. The code is in
+[`research/investigator`](research/investigator).
+
+**Your data.** No account, no tracking, no ads. Human Music collects nothing
+and sends nothing; it only downloads the lists you use. Your settings and its
+log stay on your computer and go away when you uninstall it.
+
+**Safety.** When it isn't sure, the song plays. It asks only for access to
+YouTube Music and Spotify and treats every list as plain data. Its security is
+reviewed as it changes.
+
+**Free and open source.** Human Music is free and will stay free, under the
+MIT license.
 
 ## Why
 

@@ -22,34 +22,29 @@ Upload the zip. Name, version and icon come from `manifest.json`.
 > AI-generated music is still music, and some listeners enjoy it. This
 > extension is for listeners who use music to connect with other humans.
 >
-> On YouTube Music and Spotify, it works from lists of AI-generated artists
-> and from your own lists:
+> On YouTube Music and Spotify, it keeps songs by AI-generated artists out of
+> your listening: out of your queue before they play, skipped if one starts
+> anyway, and hidden on the home page and in search.
 >
-> - Songs by listed artists are taken out of your queue before they play,
->   including the songs YouTube Music adds to its radio.
-> - If one starts anyway, it moves on by exactly one song.
-> - Their songs, albums and playlists are hidden on the home page, Explore
->   and search results.
-> - On playlist, album and artist pages their songs are greyed out, with a
->   skip sign where the cover would be, and can't be clicked.
-> - The toolbar icon shows how many songs it skipped or took out of the
->   queue in that tab.
-> - A log groups everything by artist: what it kept from playing, what it
->   skipped, and anything that didn't work, with the list that caused it.
->   If an artist is there by mistake, one switch keeps them playing.
+> It works from lists you choose: Soul Over AI (CC BY 4.0), Cevval's AI music
+> list, Human Music's own verdicts, your own artists, or any list you
+> subscribe to. A new list only watches until you let it act.
 >
-> You choose the lists. It comes with the Soul Over AI list of AI-generated
-> artists (CC BY 4.0), and you can add your own artists, songs and keywords
-> or subscribe to other lists by web address. A new list only watches, and
-> shows in the log what it would skip, until you let it act.
+> Lists can't keep up with every new artist, so Human Music's investigator
+> checks artists that aren't on any list yet. It looks for several
+> independent sources, gives each artist a verdict with a confidence, and
+> publishes the verdicts as a public list. You decide how sure a verdict must
+> be before a song is skipped.
 >
-> It never switches your tab or takes your keyboard focus, holds off while
-> you type, and only the tab that is playing skips songs. When it isn't sure,
-> the song plays.
+> No account, no tracking, no ads. Human Music collects nothing and sends
+> nothing; it only downloads the lists you use. Your settings and its log
+> stay on your computer and go away when you uninstall it.
 >
-> Everything stays on your computer. Human Music has no account, collects no
-> data and sends nothing anywhere. It only downloads the lists you subscribe
-> to.
+> When it isn't sure, the song plays. It only asks for access to YouTube
+> Music and Spotify, and it treats every list as plain data.
+>
+> Human Music is free and will stay free. Its code is open source under the
+> MIT license: github.com/wai-lau/human-music
 
 **Category:** Entertainment. **Language:** English.
 
