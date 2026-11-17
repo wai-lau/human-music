@@ -1,0 +1,951 @@
+{
+  "description": "Calibration set B: artists with strong public evidence that their music is made by people, whose first release came in 2020 or later. The investigator is run on this set (plus the known-AI set) to measure how often it is wrong at each confidence. Public artists only.",
+  "built": "2026-11-16",
+  "artists": [
+    {
+      "name": "Wet Leg",
+      "firstRelease": 2021,
+      "genre": "indie rock",
+      "country": "United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Wet_Leg",
+          "what": "Wikipedia article: Debut single 'Chaise Longue' released 15 June 2021; debut album topped the UK chart in 2022."
+        },
+        {
+          "url": "https://www.thecurrent.org/feature/2021/12/01/npr-wet-leg-tiny-desk-home-concert",
+          "what": "NPR Tiny Desk (home) concert, filmed at a venue on the Isle of Wight, Dec 2021."
+        }
+      ]
+    },
+    {
+      "name": "Laufey",
+      "firstRelease": 2020,
+      "genre": "jazz pop",
+      "country": "Iceland",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Laufey_(singer)",
+          "what": "Wikipedia article: Debut single 'Street by Street' released 6 April 2020; cello soloist with the Iceland Symphony Orchestra at 15."
+        },
+        {
+          "url": "https://www.npr.org/2023/12/13/1217040502/laufey-tiny-desk-concert",
+          "what": "NPR Tiny Desk concert, Dec 2023, four songs with a string quartet."
+        }
+      ]
+    },
+    {
+      "name": "Ado",
+      "firstRelease": 2020,
+      "genre": "pop",
+      "country": "Japan",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Ado_(singer)",
+          "what": "Wikipedia article: Debuted in 2020 with 'Usseewa' (number 1 on Billboard Japan Hot 100); keeps her face private but performs live."
+        }
+      ]
+    },
+    {
+      "name": "Ayra Starr",
+      "firstRelease": 2021,
+      "genre": "afrobeats",
+      "country": "Nigeria",
+      "spotifyId": "3ZpEKRjHaHANcpk10u6Ntq",
+      "youtubeChannelId": "UCK7oVw_ftuBIwiipiBf7ogA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Ayra_Starr",
+          "what": "Wikipedia article: Self-titled debut EP released January 2021 on Mavin Records."
+        },
+        {
+          "url": "https://www.npr.org/artists/1127285665/ayra-starr",
+          "what": "NPR artist page, with a Tiny Desk concert filmed in May 2026."
+        },
+        {
+          "url": "https://ayrastarr.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q106462586",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Benson Boone",
+      "firstRelease": 2021,
+      "genre": "pop",
+      "country": "United States",
+      "spotifyId": "22wbnEMDvgVIAGdFeek6ET",
+      "youtubeChannelId": "UCvILah8hAWYhYOmAG3ZjvBA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Benson_Boone",
+          "what": "Wikipedia article: First single 'Ghost Town' released 15 October 2021 with a label deal; debut album 2024 reached number 6 on the Billboard 200."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q110008128",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Jessie Murph",
+      "firstRelease": 2021,
+      "genre": "pop / country-trap",
+      "country": "United States",
+      "spotifyId": "2yLzlEFtIS0Q9UkyBZdQA7",
+      "youtubeChannelId": "UCOu-8cNd_UZV0VTUPgPpGsg",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Jessie_Murph",
+          "what": "Wikipedia article: Signed with Columbia in 2021 and released debut single 'Upgrade'; debut album 2024."
+        },
+        {
+          "url": "https://www.jessiemurph.com",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q122157373",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "English Teacher",
+      "firstRelease": 2021,
+      "genre": "indie rock",
+      "country": "United Kingdom",
+      "spotifyId": "5H9IFTRxSICj24uxO15ScU",
+      "youtubeChannelId": "UC3hiFhcvJqEZfbD3qo3A_Sw",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/English_Teacher",
+          "what": "Wikipedia article: First single 'R&B' in 2021; won the 2024 Mercury Prize for debut album This Could Be Texas."
+        },
+        {
+          "url": "https://readdork.com/news/mercury-prize-2024-shortlist",
+          "what": "Dork news article listing the 2024 Mercury Prize shortlist, which includes English Teacher."
+        },
+        {
+          "url": "https://www.englishteacherband.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q124304162",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "The Last Dinner Party",
+      "firstRelease": 2023,
+      "genre": "baroque pop / art rock",
+      "country": "United Kingdom",
+      "spotifyId": "5SHgclK1ZpTdfdAmXW7J6s",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/The_Last_Dinner_Party",
+          "what": "Wikipedia article: Debut single 'Nothing Matters' April 2023; debut album went to number 1 in the UK in Feb 2024."
+        },
+        {
+          "url": "https://www.npr.org/sections/world-cafe/2024/02/02/1228593227/the-last-dinner-party-performs-live-on-world-cafe",
+          "what": "NPR World Cafe live session filmed in Philadelphia, Feb 2024."
+        },
+        {
+          "url": "https://readdork.com/news/mercury-prize-2024-shortlist",
+          "what": "Dork news article listing the 2024 Mercury Prize shortlist, which includes the band."
+        },
+        {
+          "url": "https://www.thelastdinnerparty.co.uk/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q121433613",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Hannah Jadagu",
+      "firstRelease": 2021,
+      "genre": "bedroom pop / indie",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Hannah_Jadagu",
+          "what": "Wikipedia article: Debut EP What Is Going On? released April 2021 on Sub Pop."
+        },
+        {
+          "url": "https://www.npr.org/2023/08/28/1196283036/middle-school-iphone-recordings-lead-to-hannah-jadagus-debut-album-aperture",
+          "what": "NPR feature on her debut album Aperture, Aug 2023."
+        },
+        {
+          "url": "https://www.npr.org/2023/06/26/1184278255/favorite-new-artists-of-2023-so-far",
+          "what": "NPR Music 'Favorite New Artists of 2023 (so far)'."
+        }
+      ]
+    },
+    {
+      "name": "Enhypen",
+      "firstRelease": 2020,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "5t5FqBwTcgKTaWmfEbwQY9",
+      "youtubeChannelId": "UCArLZtok93cO5R9RI4_Y5Jw",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Enhypen",
+          "what": "Wikipedia article: Debuted 30 November 2020 with the EP Border: Day One; formed through the 2020 TV competition I-Land."
+        },
+        {
+          "url": "http://beliftlab.com/enhypen",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q99479445",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "IVE",
+      "firstRelease": 2021,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "6RHTUrRF63xao58xh9FXYJ",
+      "youtubeChannelId": "UC-Fnix71vRP64WXeo0ikd0Q",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Ive_(group)",
+          "what": "Wikipedia article: Debuted 1 December 2021 with the single album Eleven."
+        },
+        {
+          "url": "http://ive-official.com",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q109375061",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "STAYC",
+      "firstRelease": 2020,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "01XYiBYaoMJcNhPokrg0l0",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/STAYC",
+          "what": "Wikipedia article: Debuted 12 November 2020 with the single album Star to a Young Culture; produced by Black Eyed Pilseung."
+        },
+        {
+          "url": "http://www.highup-ent.com/stayc",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q101541493",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Treasure",
+      "firstRelease": 2020,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "3KonOYiLsU53m4yT7gNotP",
+      "youtubeChannelId": "UCx9hXYOCvUYwrprEqe4ZQHA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Treasure_(band)",
+          "what": "Wikipedia article: Debuted 7 August 2020 with the single album The First Step: Chapter One."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q61057550",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Le Sserafim",
+      "firstRelease": 2022,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "4SpbR6yFEvexJuaBpgAU5p",
+      "youtubeChannelId": "UCs-QBT4qkj_YiQw1ZntDO3g",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Le_Sserafim",
+          "what": "Wikipedia article: Debuted 2 May 2022 with the EP Fearless; played Coachella in April 2024."
+        },
+        {
+          "url": "https://le-sserafim.com",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q111381707",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "BoyNextDoor",
+      "firstRelease": 2023,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "4hnHLgMSOiqERWBL4jINP1",
+      "youtubeChannelId": "UChhKBlh_wvspTh5n4mL0b5g",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/BoyNextDoor",
+          "what": "Wikipedia article: Debuted May 2023 with the single album Who!; toured from December 2024."
+        },
+        {
+          "url": "https://boynextdoor-official.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q118178306",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Zerobaseone",
+      "firstRelease": 2023,
+      "genre": "K-pop",
+      "country": "South Korea",
+      "spotifyId": "7cjg7EkeZy3OI5o9Qthc6n",
+      "youtubeChannelId": "UCSAp0Yl9S0Zq5uDqE6im_XQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Zerobaseone",
+          "what": "Wikipedia article: Formed on the TV show Boys Planet; debuted 10 July 2023 with the EP Youth in the Shade."
+        },
+        {
+          "url": "https://wake-one.com/artists/zerobaseone",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q117808633",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "JO1",
+      "firstRelease": 2020,
+      "genre": "J-pop",
+      "country": "Japan",
+      "spotifyId": "2koP6FEfIEVk4l2Fe6jFhu",
+      "youtubeChannelId": "UCsmXiDP8S40uBeJYxvyulmA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/JO1",
+          "what": "Wikipedia article: Formed on Produce 101 Japan; debuted 4 March 2020 with the single Protostar, number 1 on Oricon."
+        },
+        {
+          "url": "https://jo1.jp",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q78297569",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Barry Can't Swim",
+      "firstRelease": 2021,
+      "genre": "electronic / house",
+      "country": "United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Barry_Can't_Swim",
+          "what": "Wikipedia article: Debut EP Amor Fati released July 2021; debut album shortlisted for the 2024 Mercury Prize; Brit Awards nominee."
+        },
+        {
+          "url": "https://readdork.com/news/mercury-prize-2024-shortlist",
+          "what": "Dork news article listing the 2024 Mercury Prize shortlist, which includes his album."
+        }
+      ]
+    },
+    {
+      "name": "Samara Joy",
+      "firstRelease": 2021,
+      "genre": "jazz",
+      "country": "United States",
+      "spotifyId": "5LkbTSqXfMBjFSGi9LOGjq",
+      "youtubeChannelId": "UCUe1VdaF0Nfz1Gho3SWWb8A",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Samara_Joy",
+          "what": "Wikipedia article: Self-titled debut album 2021; won Grammy Best New Artist in 2023."
+        },
+        {
+          "url": "https://www.npr.org/2023/05/24/1178008143/jazz-singer-samara-joy-in-concert",
+          "what": "NPR Fresh Air in-studio concert and interview, May 2023."
+        },
+        {
+          "url": "https://www.samarajoy.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q108311952",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Asake",
+      "firstRelease": 2022,
+      "genre": "afrobeats / amapiano",
+      "country": "Nigeria",
+      "spotifyId": "3a1tBryiczPAZpgoZN9Rzg",
+      "youtubeChannelId": "UCU9R50wyBPKpdbcIScAyZig",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Asake",
+          "what": "Wikipedia article: Debut EP Ololade Asake released February 2022 on YBNL Nation; debut album 2022."
+        },
+        {
+          "url": "https://www.npr.org/artists/1142177221/asake",
+          "what": "NPR artist page, with a Tiny Desk concert filmed in August 2025."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q112861798",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Mimi Webb",
+      "firstRelease": 2020,
+      "genre": "pop",
+      "country": "United Kingdom",
+      "spotifyId": "3GxKJzJK4LpsYGXQrw77wz",
+      "youtubeChannelId": "UCKUa7K2srvoAASkphxrnRgg",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Mimi_Webb",
+          "what": "Wikipedia article: Debut single 'Before I Go' April 2020; debut EP Seven Shades of Heartbreak went to number 9 in the UK in Oct 2021."
+        },
+        {
+          "url": "https://www.mimiwebb.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q106613064",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Royel Otis",
+      "firstRelease": 2021,
+      "genre": "indie pop",
+      "country": "Australia",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Royel_Otis",
+          "what": "Wikipedia article: Debut EP Campus October 2021; won four ARIA Awards in 2024."
+        }
+      ]
+    },
+    {
+      "name": "Uncle Waffles",
+      "firstRelease": 2022,
+      "genre": "amapiano / house",
+      "country": "Eswatini / South Africa",
+      "spotifyId": "68McnNC9twEtiynOAJRRgZ",
+      "youtubeChannelId": "UCDfH7E8iHkEjmZ6H9uQ5o1g",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Uncle_Waffles",
+          "what": "Wikipedia article: Debut single 'Tanzania' March 2022, number 1 in South Africa."
+        },
+        {
+          "url": "https://bookwaffles.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q109406884",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Bini",
+      "firstRelease": 2020,
+      "genre": "P-pop",
+      "country": "Philippines",
+      "youtubeChannelId": "UCtOcDBKgyr-f50SgbMErFkQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Bini_(group)",
+          "what": "Wikipedia article: Released the cover 'Da Coconut Nut' in Nov 2020; official debut 11 June 2021; formed on ABS-CBN's Star Hunt Academy."
+        },
+        {
+          "url": "https://bini.global/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q29966238",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Berwyn",
+      "firstRelease": 2020,
+      "genre": "alternative hip hop",
+      "country": "Trinidad and Tobago / United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Berwyn_(musician)",
+          "what": "Wikipedia article: Debut mixtape Demotape/Vega released 25 September 2020; debut album nominated for the 2024 Mercury Prize."
+        },
+        {
+          "url": "https://readdork.com/news/mercury-prize-2024-shortlist",
+          "what": "Dork news article listing the 2024 Mercury Prize shortlist, which includes his album."
+        }
+      ]
+    },
+    {
+      "name": "Ice Spice",
+      "firstRelease": 2021,
+      "genre": "hip hop",
+      "country": "United States",
+      "spotifyId": "3LZZPxNDGDFVSIPqf4JuEf",
+      "youtubeChannelId": "UCJTqwQj5iTHYrko04PbGI9w",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Ice_Spice",
+          "what": "Wikipedia article: Debut song 'Bully Freestyle' released March 2021; debut EP Like..? January 2023."
+        },
+        {
+          "url": "https://icespicemusic.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q114114977",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Bailey Zimmerman",
+      "firstRelease": 2021,
+      "genre": "country",
+      "country": "United States",
+      "spotifyId": "3win9vGIxFfBRag9S63wwf",
+      "youtubeChannelId": "UC2I1O7O6e8BDSXatTCpYBgQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Bailey_Zimmerman",
+          "what": "Wikipedia article: Debut single 'Never Comin' Home' released 3 February 2021; made his Grand Ole Opry debut Nov 2022."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q112581616",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Mei Semones",
+      "firstRelease": 2022,
+      "genre": "jazz-influenced indie rock",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Mei_Semones",
+          "what": "Wikipedia article: Self-released debut EP Tsukino in 2022; debut album Animaru 2025."
+        }
+      ]
+    },
+    {
+      "name": "Jane Remover",
+      "firstRelease": 2021,
+      "genre": "digicore / electronic pop",
+      "country": "United States",
+      "spotifyId": "2rLGlNI6htigNxx172qxLu",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Jane_Remover",
+          "what": "Wikipedia article: Debut EP Teen Week released 26 February 2021 under the name dltzk."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q115920342",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Fat Dog",
+      "firstRelease": 2023,
+      "genre": "post-punk / dance rock",
+      "country": "United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Fat_Dog",
+          "what": "Wikipedia article: First single 'King of the Slugs' released August 2023; debut album WOOF. September 2024; played South by Southwest 2024."
+        },
+        {
+          "url": "https://fatdogfatdogfatdog.com/",
+          "what": "Official website."
+        }
+      ]
+    },
+    {
+      "name": "Lambrini Girls",
+      "firstRelease": 2021,
+      "genre": "punk",
+      "country": "United Kingdom",
+      "spotifyId": "6VR4TJ20WGiho2xZWMuuWb",
+      "youtubeChannelId": "UCr33PPOQ3kfnONhM6a49CGA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Lambrini_Girls",
+          "what": "Wikipedia article: Debut single 'Homewrecker' released 2021; signed to Big Scary Monsters; debut album 2025."
+        },
+        {
+          "url": "https://www.lambrinigirlsband.co.uk/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q112123144",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Dora Jar",
+      "firstRelease": 2021,
+      "genre": "art pop / bedroom pop",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Dora_Jar",
+          "what": "Wikipedia article: Debut EP Digital Meadow released 2021; debut album 2024."
+        }
+      ]
+    },
+    {
+      "name": "Milo J",
+      "firstRelease": 2021,
+      "genre": "Argentine hip hop / pop",
+      "country": "Argentina",
+      "spotifyId": "19HM5j0ULGSmEoRcrSe5x3",
+      "youtubeChannelId": "UCAPk9W8Ng6epalCoC3YVvsQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Milo_J",
+          "what": "Wikipedia article: Began uploading songs to YouTube in late 2021 through the BajoWest community; debut EP 511 April 2023."
+        },
+        {
+          "url": "https://www.milojota.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q120734926",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Wishy",
+      "firstRelease": 2023,
+      "genre": "indie rock",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Wishy",
+          "what": "Wikipedia article: Debut EP Mana released 2023; debut album Triple Seven (Aug 2024) widely praised."
+        }
+      ]
+    },
+    {
+      "name": "Dylan Gossett",
+      "firstRelease": 2023,
+      "genre": "country",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Dylan_Gossett",
+          "what": "Wikipedia article: First single 'To Be Free' released 20 June 2023; debut EP Oct 2023 and debut album Westward July 2025."
+        }
+      ]
+    },
+    {
+      "name": "NewDad",
+      "firstRelease": 2021,
+      "genre": "indie rock",
+      "country": "Ireland",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/NewDad",
+          "what": "Wikipedia article: Debut EP Waves released March 2021; debut album Madra (Jan 2024) named one of NME's ten best debut albums of 2024."
+        }
+      ]
+    },
+    {
+      "name": "PinkPantheress",
+      "firstRelease": 2020,
+      "genre": "UK garage / drum and bass pop",
+      "country": "United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/PinkPantheress",
+          "what": "Wikipedia article: First songs posted in 2020; debut mixtape To Hell with It October 2021; won the Brit Award for British Artist (youngest ever, per Wikipedia)."
+        }
+      ]
+    },
+    {
+      "name": "Megan Moroney",
+      "firstRelease": 2021,
+      "genre": "country",
+      "country": "United States",
+      "spotifyId": "5Ppie0uPnbnvGBYRwYmlt0",
+      "youtubeChannelId": "UCVJw311xTzReixTY2r9P8HQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Megan_Moroney",
+          "what": "Wikipedia article: First single 'Wonder' released 2021; debut album Lucky May 2023."
+        },
+        {
+          "url": "https://www.meganmoroney.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q116786312",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Tai Verdes",
+      "firstRelease": 2020,
+      "genre": "pop",
+      "country": "United States",
+      "spotifyId": "2kCO8LXN1usaOPL3iEE28I",
+      "youtubeChannelId": "UCj_zshVh2vwxwgDX_SWU7yg",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Tai_Verdes",
+          "what": "Wikipedia article: First single 'Stuck in the Middle' released mid-2020; debut album TV May 2021."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q109426057",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Lauren Spencer Smith",
+      "firstRelease": 2022,
+      "genre": "pop",
+      "country": "Canada",
+      "spotifyId": "79AyR6ATpj2LTPxfb6FX50",
+      "youtubeChannelId": "UC5_0AVrgtXhtBObIFSX7JlA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Lauren_Spencer_Smith",
+          "what": "Wikipedia article: First single 'Fingers Crossed' released January 2022, top 20 in several countries; debut album Mirror 2023."
+        },
+        {
+          "url": "https://www.laurenspencersmith.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q110630787",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Flo",
+      "firstRelease": 2022,
+      "genre": "R&B",
+      "country": "United Kingdom",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Flo_(group)",
+          "what": "Wikipedia article: Debut single 'Cardboard Box' released 24 March 2022 on Island; debut album Access All Areas 2024."
+        }
+      ]
+    },
+    {
+      "name": "Iván Cornejo",
+      "firstRelease": 2021,
+      "genre": "regional Mexican (sad sierreño)",
+      "country": "United States",
+      "spotifyId": "6PH3FLQAxtqYy46Zv08bpV",
+      "youtubeChannelId": "UCW1QQBeFN9OU87lMcv3jClg",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Iván_Cornejo",
+          "what": "Wikipedia article: Debut album Alma Vacía released 20 August 2021 when he was 17; played Coachella in 2025."
+        },
+        {
+          "url": "https://www.ivancornejoofficial.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q108984139",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Judeline",
+      "firstRelease": 2022,
+      "genre": "alt pop",
+      "country": "Spain",
+      "spotifyId": "1H6X7yhnXZg73f9bssaj1Q",
+      "youtubeChannelId": "UCivaiE8RNombvmGOrcF1YBA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Judeline",
+          "what": "Wikipedia article: Independently released her first EP de la luz in 2022; debut album Bodhiria Oct 2024."
+        },
+        {
+          "url": "https://judeline.es/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q123257584",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Budjerah",
+      "firstRelease": 2020,
+      "genre": "soul / pop",
+      "country": "Australia",
+      "youtubeChannelId": "UCFQXeU__ExeTFCFqeuiZXxA",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Budjerah",
+          "what": "Wikipedia article: Debut single 'Missing You' released October 2020; won the Michael Gudinski Breakthrough Artist award at the 2021 ARIA Awards."
+        },
+        {
+          "url": "http://budjerah.com",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q106510429",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Immanuel Wilkins",
+      "firstRelease": 2020,
+      "genre": "jazz",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Immanuel_Wilkins",
+          "what": "Wikipedia article: Presented his debut album Omega in 2020, recorded with a live quartet (Micah Thomas, Daryl Johns, Kweku Sumbry)."
+        }
+      ]
+    },
+    {
+      "name": "Fridayy",
+      "firstRelease": 2022,
+      "genre": "R&B / gospel-influenced",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Fridayy",
+          "what": "Wikipedia article: Debut single 'Don't Give Up On Me' October 2022; self-titled debut album 2023."
+        }
+      ]
+    },
+    {
+      "name": "Pinkshift",
+      "firstRelease": 2020,
+      "genre": "pop punk",
+      "country": "United States",
+      "spotifyId": "3bfSaJqEYosPcdoCN06G3P",
+      "youtubeChannelId": "UCLLaqH6baTqUYDVYcRmyiyw",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Pinkshift",
+          "what": "Wikipedia article: Debut single 'On Thin Ice' released 13 March 2020; debut album Love Me Forever October 2022 on Hopeless Records."
+        },
+        {
+          "url": "https://www.pinkshiftmd.com",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q109538607",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    },
+    {
+      "name": "Alamat",
+      "firstRelease": 2021,
+      "genre": "P-pop",
+      "country": "Philippines",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Alamat_(band)",
+          "what": "Wikipedia article: Debuted 14 February 2021 with the single 'Kbye'; debut EP Pasulong 2022."
+        }
+      ]
+    },
+    {
+      "name": "Gabriels",
+      "firstRelease": 2021,
+      "genre": "soul",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Gabriels_(band)",
+          "what": "Wikipedia article: Debut EP Love and Hate in a Different Time (June 2021), publicly praised by Elton John; debut album Angels & Queens 2022."
+        }
+      ]
+    },
+    {
+      "name": "Sombr",
+      "firstRelease": 2021,
+      "genre": "pop / indie pop",
+      "country": "United States",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Sombr",
+          "what": "Wikipedia article: Debut single 'Nothing Left to Say' October 2021; debut album I Barely Know Her (2025) earned a Grammy Best New Artist nomination."
+        }
+      ]
+    },
+    {
+      "name": "Sienna Spiro",
+      "firstRelease": 2024,
+      "genre": "pop",
+      "country": "United Kingdom",
+      "spotifyId": "02gSuSAWEdWa5UOvqzjX6v",
+      "youtubeChannelId": "UCd5sMkyvImc50eLIpwy3UaQ",
+      "evidence": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Sienna_Spiro",
+          "what": "Wikipedia article: Started releasing music in 2024; debut EP Sink Now, Swim Later February 2025."
+        },
+        {
+          "url": "https://www.officialsiennaspiro.com/",
+          "what": "Official website."
+        },
+        {
+          "url": "https://www.wikidata.org/wiki/Q131631266",
+          "what": "Wikidata record, source of the listed Spotify artist ID and YouTube channel ID."
+        }
+      ]
+    }
+  ]
+}
