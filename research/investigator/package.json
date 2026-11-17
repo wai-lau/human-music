@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "for f in tests/*.test.mjs; do node \"$f\" || exit 1; done"
+  }
+}
