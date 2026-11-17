@@ -75,7 +75,9 @@ export function buildPrompt(artist, evidence = {}) {
     site: artist.site,
     spotifyId: artist.spotifyId,
     channelId: artist.channelId,
-    songs: artist.songs,
+    // The cover's address stays out: this call has web tools, and the cover is judged only by
+    // the separate tool-less look (review 2026-11-17).
+    songs: Array.isArray(artist.songs) ? artist.songs.map(({ artUrl, ...rest }) => rest) : artist.songs,
     knownReleases: evidence.releases,
   };
   const body = stripMarkers(JSON.stringify(data, null, 1));

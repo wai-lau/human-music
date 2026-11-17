@@ -44,6 +44,12 @@ const env = { PATH: '/bin', HOME: '/h', CLAUDE_CODE_OAUTH_TOKEN: 'tok', HM_KEY_H
 const go = (spawn, o = {}) => investigate(a, {}, { spawn, env, ...o });
 
 await run([
+  // Review 2026-11-17: the research call has web tools, so it never gets the cover's address
+  // (the look is a separate, tool-less call).
+  ['the research prompt never carries a cover address', () => {
+    const p = buildPrompt({ name: 'Nova', site: 'ytm', songs: [{ title: 'S', album: 'A', artUrl: 'https://lh3.googleusercontent.com/secret-cover=w544' }] }, {});
+    return (!p.includes('secret-cover') && p.includes('"S"')) || p.slice(0, 300);
+  }],
   // Review 2026-11-17 (service, finding 3): a failure is classified only from claude's own
   // error text, never from web pages in the transcript (a page with a "/login" link or "429"
   // used to pause the queue as logged out or rate-limited).
