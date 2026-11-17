@@ -86,6 +86,7 @@ await run([
     const { q, c } = setup(100, '2026-11-16T23:59:00Z');
     q.enqueue([art('Daily')]);
     q.next();
+    q.done('nm:daily');
     c.t = new Date('2026-11-17T00:01:00Z');
     const r = q.enqueue([art('Daily')]);
     return r.queued === 1 || JSON.stringify(r);
@@ -169,6 +170,64 @@ await run([
     q.enqueue([art('A', { playing: true, spotifyId: '2GRtAbCdEfGhIjKlMnOpQr' })]);
     const a = q.next();
     return (a.playing === true && a.spotifyId === '2GRtAbCdEfGhIjKlMnOpQr' && a.songs.length === 1) || JSON.stringify(a);
+  }],
+  ['take without done(), reopen the file: the same artist comes out first', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'inv-queue-'));
+    try {
+      const path = join(dir, 'q.sqlite');
+      const c = clock('2026-11-16T12:00:00Z');
+      const s1 = openStore(path);
+      const q1 = createQueue({ store: s1, now: c.now, cap: 100 });
+      q1.enqueue([art('A'), art('B'), art('P', { playing: true })]);
+      const taken = q1.next();
+      const mid = q1.status().queued;
+      s1.close();
+      const s2 = openStore(path);
+      const q2 = createQueue({ store: s2, now: c.now, cap: 100 });
+      const got = names(q2, 4);
+      s2.close();
+      return (taken.name === 'P' && mid === 2 && same(got, ['P', 'A', 'B', null]) === true) || JSON.stringify([taken, mid, got]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }],
+  ['done() removes it for good, also across a reopen', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'inv-queue-'));
+    try {
+      const path = join(dir, 'q.sqlite');
+      const c = clock('2026-11-16T12:00:00Z');
+      const s1 = openStore(path);
+      const q1 = createQueue({ store: s1, now: c.now, cap: 100 });
+      q1.enqueue([art('A'), art('B')]);
+      const a = q1.next();
+      q1.done('nm:a');
+      const b = q1.next();
+      s1.close();
+      const s2 = openStore(path);
+      const q2 = createQueue({ store: s2, now: c.now, cap: 100 });
+      const got = names(q2, 2);
+      s2.close();
+      return (a.name === 'A' && b.name === 'B' && same(got, ['B', null]) === true) || JSON.stringify([a, b, got]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }],
+  ['done() on an unknown key is harmless', () => {
+    const { q } = setup();
+    q.enqueue([art('A')]);
+    q.done('nm:nobody');
+    return q.status().queued === 1;
+  }],
+  ['the once-a-day record does not block the artist returned after a crash', () => {
+    const { q, store, c } = setup();
+    q.enqueue([art('A')]);
+    q.next();
+    const q2 = createQueue({ store, now: c.now, cap: 100 });
+    const again = q2.enqueue([art('A')]);
+    const a = q2.next();
+    return (again.again === 1 && a && a.name === 'A') || JSON.stringify([again, a]);
+  }],
+  ['an in-progress artist is not counted as waiting', () => {
+    const { q } = setup();
+    q.enqueue([art('A'), art('B')]);
+    q.next();
+    return q.status().queued === 1;
   }],
   ['status on an empty queue', () => {
     const { q } = setup(7);

@@ -12,7 +12,8 @@ export function createQueue({ store, now, cap }) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       artist TEXT NOT NULL,
       playing INTEGER NOT NULL,
-      front INTEGER NOT NULL DEFAULT 0
+      front INTEGER NOT NULL DEFAULT 0,
+      in_progress INTEGER NOT NULL DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS queue_keys (
       key TEXT PRIMARY KEY,
@@ -29,15 +30,23 @@ export function createQueue({ store, now, cap }) {
     insert: db.prepare('INSERT INTO queue (artist, playing, front) VALUES (?, ?, ?)'),
     setKey: db.prepare('INSERT OR REPLACE INTO queue_keys (key, queue_id) VALUES (?, ?)'),
     hasKey: db.prepare('SELECT 1 AS x FROM queue_keys WHERE key = ?'),
-    top: db.prepare('SELECT id, artist FROM queue ORDER BY front DESC, playing DESC, id ASC LIMIT 1'),
+    top: db.prepare('SELECT id, artist FROM queue WHERE in_progress = 0 ORDER BY front DESC, playing DESC, id ASC LIMIT 1'),
     drop: db.prepare('DELETE FROM queue WHERE id = ?'),
     dropKeys: db.prepare('DELETE FROM queue_keys WHERE queue_id = ?'),
-    size: db.prepare('SELECT COUNT(*) AS n FROM queue'),
+    size: db.prepare('SELECT COUNT(*) AS n FROM queue WHERE in_progress = 0'),
+    take: db.prepare('UPDATE queue SET in_progress = 1 WHERE id = ?'),
+    owner: db.prepare('SELECT queue_id FROM queue_keys WHERE key = ?'),
+    isTaken: db.prepare('SELECT in_progress FROM queue WHERE id = ?'),
+    release: db.prepare('UPDATE queue SET in_progress = 0, front = ? WHERE id = ?'),
+    orphans: db.prepare('SELECT id FROM queue WHERE in_progress = 1 ORDER BY id DESC'),
     maxFront: db.prepare('SELECT COALESCE(MAX(front), 0) AS m FROM queue'),
     seen: db.prepare('SELECT 1 AS x FROM enqueued_days WHERE key = ? AND day = ?'),
     markSeen: db.prepare('INSERT OR IGNORE INTO enqueued_days (key, day) VALUES (?, ?)'),
     oldDays: db.prepare('DELETE FROM enqueued_days WHERE day < ?'),
   };
+
+  // A process that died mid-run left in-progress rows: they go back to the front.
+  for (const { id } of q.orphans.all()) q.release.run(q.maxFront.get().m + 1, id);
 
   const today = () => now().toISOString().slice(0, 10);
 
@@ -79,15 +88,31 @@ export function createQueue({ store, now, cap }) {
       return store.transaction(() => {
         const row = q.top.get();
         if (!row) return null;
-        q.dropKeys.run(row.id);
-        q.drop.run(row.id);
+        q.take.run(row.id);
         return JSON.parse(row.artist);
       });
     },
 
     requeue(artist) {
       store.transaction(() => {
-        insert(artist, artistKeys(artist), q.maxFront.get().m + 1);
+        const keys = artistKeys(artist);
+        const front = q.maxFront.get().m + 1;
+        for (const k of keys) {
+          const row = q.owner.get(k);
+          if (row && q.isTaken.get(row.queue_id)) { q.release.run(front, row.queue_id); return; }
+        }
+        insert(artist, keys, front);
+      });
+    },
+
+    // The verdict is stored: forget the artist. `key` is any of its artist keys (or the artist).
+    done(key) {
+      const k = typeof key === 'string' ? key : artistKeys(key)[0];
+      store.transaction(() => {
+        const row = q.owner.get(k);
+        if (!row) return;
+        q.dropKeys.run(row.queue_id);
+        q.drop.run(row.queue_id);
       });
     },
 
