@@ -256,6 +256,78 @@ How the investigator uses it (Claude's reading, for Wai to check):
 - Start on the free plan; move to full tracks only if the previews turn out
   too noisy to compare.
 
+### Album art, safely (Wai, 2026-11-16)
+
+Wai: "yes, design it safely, think hard", after a side agent noted that the
+service plan had dropped the covers she asked for. A cover that looks
+AI-made is a clue, never proof. The danger is how Claude sees it: the
+droplet holds keys, and any text inside a cover is written by strangers.
+
+Two rules settle it. **No Claude process ever gets a file tool**, so the
+cover never touches the disk where Claude could reach it. And **the call
+that looks at the cover is not the call that searches the web**, so text
+hidden in an image can't steer a web fetch.
+
+```mermaid
+flowchart LR
+  E[extension: playing song's cover address] --> F[service fetches it: fixed hosts, 1 MB, image bytes only, memory only]
+  F --> L["art look: claude -p, no tools at all, image on standard input"]
+  L -->|"look: ai / not_ai / unclear"| D[decide]
+  R["research: claude -p, web tools only, never sees the image"] --> D
+  D --> V[verdict]
+```
+
+1. **The address.** The extension sends the playing song's cover address
+   (`artUrl`), read from the player on both sites.
+2. **The fetch (service code, never Claude).** https only; the host must be
+   one of `lh3.googleusercontent.com`, `yt3.ggpht.com`, `i.ytimg.com`
+   (YouTube Music), `i.scdn.co`, `mosaic.scdn.co`,
+   `image-cdn-ak.spotifycdn.com`, `image-cdn-fa.spotifycdn.com` (Spotify);
+   anything else means no art. No redirects are followed; 10-second
+   timeout; at most 1 MB, read as a stream and cut off; the bytes must
+   start with a JPEG, PNG or WebP signature (the content-type header is not
+   trusted). The image stays in memory and is never written to disk.
+3. **The look (its own Claude call).** `claude -p` with no tools at all
+   (`--tools ""`), `--strict-mcp-config --restricted --safe-mode`,
+   `--max-turns 1`, the image passed on standard input as an image block
+   (`--input-format stream-json`), and a fixed question. Its answer schema
+   is `{ "look": "ai" | "not_ai" | "unclear" }` with no free text, checked
+   strictly. Checked live 2026-11-16: `claude -p` reads an image from
+   standard input with an empty tool list.
+4. **The use (service code).** Only `"ai"` adds the weak signal
+   `ai_style_art` before `decide`; anything else, or any failure, adds
+   nothing and the verdict goes on without it. The research call never sees
+   the image or the look's answer. So the most a doctored cover can do is
+   add one weak signal, which `decide` never lets stand alone, and which
+   can't lift an AI verdict past 94 (Optimal needs a strong signal). The
+   look and the cover address are stored with the verdict on the droplet,
+   never published.
+5. **Measured.** Calibration runs the look too; if it calls known people's
+   covers AI-made often enough to cause wrong verdicts, a setting turns it
+   off.
+
+Why not let Claude read the file from one folder: a file tool in the same
+call as the web tools lets a cover's hidden text drive web fetches, and one
+confinement slip would put the GitHub key within reach. No file tool and
+separate calls is simpler and leaves nothing to get wrong.
+
+### Two more fences, from the live check (2026-11-16)
+
+- **Account connectors.** With only `--tools WebSearch,WebFetch`, `claude -p`
+  still loaded Wai's claude.ai connectors (Gmail, Google Drive, Calendar).
+  `--permission-mode dontAsk` refuses them, but one setting would separate
+  a prompt injection from her mail. Every call adds `--strict-mcp-config`
+  (checked: the tool list drops to WebFetch and WebSearch, no MCP servers),
+  plus `--restricted` and `--safe-mode`.
+- **Local addresses.** WebFetch runs on the machine itself: asked to fetch
+  `http://127.0.0.1:<port>/`, it refused `localhost` but connected to
+  `127.0.0.1` (over https, so it read nothing from the plain-HTTP test
+  server). On the droplet, the systemd unit fences the whole service and
+  its Claude children off from local and private addresses
+  (`IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12
+  192.168.0.0/16`), and nginx reaches the service over a unix socket
+  instead of `127.0.0.1:8140`.
+
 ### Test cases (Wai, 2026-11-16)
 
 Forrest Rose and The Broken Radios are AI-generated and on no list: the first
