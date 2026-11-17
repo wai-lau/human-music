@@ -20,7 +20,7 @@ import { createWorker } from './worker.mjs';
 export const DEFAULT_SOCKET = '/run/human-music/investigator.sock';
 export const DEFAULT_DATA_DIR = '/var/lib/human-music';
 const DEFAULT_CAP = 100;
-const PUBLISH_DELAY_MS = 60 * 1000;
+const PUBLISH_DELAY_MS = 24 * 60 * 60 * 1000;
 const PUBLISH_RETRY_MS = 10 * 60 * 1000;
 const SLOW_TICK_MS = 5 * 60 * 1000;
 
