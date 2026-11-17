@@ -423,6 +423,14 @@
           if (sent && typeof sent.catch === 'function') sent.catch(() => {});
         } catch (e) { /* cut off */ }
       },
+      // Unknown artists go to the worker, which sends them to the investigator only from Wai's
+      // development copy with her key; every other copy drops them (investigate is off there).
+      onUnknown: items => {
+        try {
+          const sent = chrome.runtime.sendMessage({ type: 'hm-investigate', items });
+          if (sent && typeof sent.catch === 'function') sent.catch(() => {});
+        } catch (e) { /* cut off */ }
+      },
     });
     HM.app.start().catch(() => {});
     // The service worker pings open tabs when it starts; a tab that answers has a live copy.

@@ -1,0 +1,48 @@
+// The investigator path, end to end: an unknown artist playing on the YouTube Music stand-in
+// page reaches the worker, which sends it with the key (this run is a development copy). The
+// worker's fetch is recorded instead of reaching the network.
+import { test, expect, openSite } from './fixtures.mjs';
+
+const YTM = 'https://music.youtube.com/watch?v=e2e';
+const UNKNOWN = 'E2E Unknown Act';
+
+async function recordSends(worker, token) {
+  await worker.evaluate(async (token) => {
+    await chrome.storage.local.set({ 'hm.investigator': { token } });
+    globalThis.__hmSends = [];
+    if (!globalThis.__hmFetch) {
+      globalThis.__hmFetch = globalThis.fetch;
+      globalThis.fetch = async (url, init = {}) => {
+        if (String(url).includes('/api/investigate')) {
+          globalThis.__hmSends.push({ url: String(url), auth: (init.headers || {}).Authorization, body: JSON.parse(init.body || '{}') });
+          return new Response('{}', { status: 202 });
+        }
+        return globalThis.__hmFetch(url, init);
+      };
+    }
+  }, token);
+}
+const sends = worker => worker.evaluate(() => globalThis.__hmSends || []);
+
+test('an unknown artist playing reaches the investigator once, with the key', async ({ context, worker, setState }) => {
+  await setState({ settings: { lookahead: 0, investigate: true } });
+  await recordSends(worker, 'e2e-key');
+  const page = await openSite(context, YTM, { songs: [{ title: 'Fresh Song', artist: UNKNOWN }, { title: 'Next', artist: UNKNOWN }] });
+  await expect(page.locator('#hm-block-artist')).toBeVisible();
+  await expect.poll(async () => (await sends(worker)).length, { timeout: 10_000 }).toBe(1);
+  const [s] = await sends(worker);
+  expect(s.url).toBe('https://wai-lau.net/human-music/api/investigate');
+  expect(s.auth).toBe('Bearer e2e-key');
+  expect(s.body.items.map(i => i.credits).flat()).toContain(UNKNOWN);
+  await page.waitForTimeout(2500); // the same artist is not sent again
+  expect(await sends(worker)).toHaveLength(1);
+});
+
+test('nothing is sent while investigating is off', async ({ context, worker, setState }) => {
+  await setState({ settings: { lookahead: 0, investigate: false } });
+  await recordSends(worker, 'e2e-key');
+  const page = await openSite(context, YTM, { songs: [{ title: 'Fresh Song', artist: UNKNOWN }] });
+  await expect(page.locator('#hm-block-artist')).toBeVisible();
+  await page.waitForTimeout(3000);
+  expect(await sends(worker)).toEqual([]);
+});
