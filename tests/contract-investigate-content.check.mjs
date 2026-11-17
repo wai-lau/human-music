@@ -1,6 +1,6 @@
 // Contract check for the investigator plan, Task 4 (the content script reports unknown artists
 // and follows the mode). Uses a fake site, so only content.js is tested. Run from the repo root:
-//   node tests/wip-contract-investigate-content.check.mjs
+//   node tests/contract-investigate-content.check.mjs
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
 const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mjs');
@@ -33,14 +33,14 @@ function fakeSite({ song, queue = [], rows = [], art }) {
   return { site, calls };
 }
 
-async function start({ site, investigate = true, mode = 'lists' }) {
+async function start({ site, investigate = true, mode = 'lists', modeChosen = true }) {
   const ctx = load(FILES, { setTimeout, clearTimeout });
   const { HM } = ctx;
   const storage = fakeStorage({
     'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI, lastRefresh: 1 }, { ...HM.lists.HM_VERDICTS, lastRefresh: 1, calibrated: true }],
     'hm.list.soul-over-ai': { artists: [{ name: 'The Velvet Sundown' }] },
     'hm.list.hm-verdicts': { artists: [{ name: 'Verdict Act', verdict: 'ai', confidence: 97 }, { name: 'Low Act', verdict: 'ai', confidence: 40 }], calibrated: true },
-    'hm.settings': { ...HM.settings.DEFAULTS, investigate, mode, modeChosen: true },
+    'hm.settings': { ...HM.settings.DEFAULTS, investigate, mode, modeChosen },
     'hm.user': { artists: [], songs: [], keywords: [], neverSkip: ['Real Person'] },
   });
   const clock = fakeClock();
@@ -103,6 +103,27 @@ await t('a verdict at 40 does not block in Optimal; it does in Aggressive only a
   const r = await start({ site: fakeSite({ song: PERSON, rows }).site, mode: 'aggressive' });
   await settle(r.clock, 1000);
   return el.hasAttribute('data-hm-marked') === false || 'marked at 40 in Aggressive';
+});await t('a queue row never carries the playing song\'s cover', async () => {
+  const queue = [{ ...PERSON, selected: true }, { ...ROW, selected: false }];
+  const r = await start({ site: fakeSite({ song: PERSON, queue, art: 'https://lh3.googleusercontent.com/playing' }).site });
+  await r.app.runLookahead(); await settle(r.clock, 1000);
+  const item = r.batches.flat().find(i => J(i.credits) === J(['Row Act'])) || {};
+  return item.artUrl === '' || J(item);
 });
+await t('only queue rows in the lookahead window are reported', async () => {
+  const queue = [{ ...PERSON, selected: true }, ...['One', 'Two', 'Three', 'Four', 'Five'].map(n => ({ title: n, artistLine: n + ' Act • X', selected: false }))];
+  const r = await start({ site: fakeSite({ song: PERSON, queue }).site }); // lookahead 3 by default
+  for (let k = 0; k < 2; k++) { await r.app.runLookahead(); await settle(r.clock, 1000); }
+  return J(r.reported().sort()) === J(['One Act', 'Three Act', 'Two Act']) || J(r.reported());
+});
+await t('calibration comes from the verdict list\'s meta (an unchosen mode turns Optimal on)', async () => {
+  const el = fakeEl();
+  const rows = [{ el, title: 'V', credits: ['Verdict Act'], channelIds: [] }];
+  const r = await start({ site: fakeSite({ song: PERSON, rows }).site, mode: 'lists', modeChosen: false });
+  await r.storage.set({ 'hm.list.hm-verdicts': { artists: r.storage.data['hm.list.hm-verdicts'].artists } }); // list data without the flag
+  await settle(r.clock, 1000); await settle(r.clock, 1000);
+  return el.hasAttribute('data-hm-marked') === true || 'not marked: the meta says calibrated';
+});
+
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);

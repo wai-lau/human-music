@@ -61,14 +61,16 @@
 
     const matchSong = song => (state.index ? safe(() => HM.match.matchSong(state.index, song), null) : null);
 
-    function buildReportItem(row) {
+    // The cover is read from the player, so only the playing song may carry it: a queue row
+    // with the playing song's cover would have the investigator judge the wrong artist's art.
+    function buildReportItem(row, playing) {
       const host = safe(() => doc.location.hostname, '') || '';
       const siteName = /(^|\.)open\.spotify\.com$/.test(host) ? 'spotify' : 'ytm';
       const artistLine = row.artistLine || '';
       const parts = artistLine.split(' • ');
       const album = parts.length > 1 ? parts[1].trim() : '';
       const readArt = site['readArt'];
-      const artUrl = typeof readArt === 'function' ? safe(() => readArt(doc), '') : '';
+      const artUrl = playing && typeof readArt === 'function' ? safe(() => readArt(doc), '') || '' : '';
       return {
         site: siteName,
         title: row.title || '',
@@ -80,9 +82,9 @@
       };
     }
 
-    function reportUnknown(item) {
+    function reportUnknown(item, playing = false) {
       if (!state.settings.investigate || !state.index) return;
-      const row = buildReportItem(item);
+      const row = buildReportItem(item, playing);
       if (HM.match.isKnown(state.index, row)) return;
       for (const credit of row.credits) {
         const key = HM.text.normalize(credit);
@@ -122,9 +124,9 @@
       const lists = Array.isArray(stored[HM.store.KEYS.filterLists]) ? stored[HM.store.KEYS.filterLists] : [];
       const keys = lists.map(l => HM.store.listKey(l.id));
       const data = keys.length ? await storage.get(keys) : {};
+      // Calibration is the verdict list meta's flag (the refresher copies it there).
       const verdictList = lists.find(l => l.id === 'hm-verdicts');
-      const verdictData = (data[HM.store.listKey('hm-verdicts')] || {});
-      const calibrated = !!verdictData.calibrated;
+      const calibrated = !!(verdictList && verdictList.calibrated === true);
       const mode = HM.settings.effectiveMode(state.settings, calibrated);
       const threshold = HM.settings.threshold(mode);
       state.index = HM.match.buildIndex({
@@ -157,7 +159,7 @@
       if (safe(() => state.skipper.busy(), false)) { safe(() => timers.setTimeout(schedule, 200)); return; }
       state.last = { title: song.title, artistLine: song.artistLine };
       const match = matchSong(song);
-      if (!match) { reportUnknown(song); return; }
+      if (!match) { reportUnknown(song, true); return; }
       if (match.mode === 'watch') { log('watched', song, match); return; }
       if (!state.settings.autoSkip) { log('seen', song, match); return; }
       state.skipMatch = match; // named in the log if this skip doesn't take
@@ -238,7 +240,6 @@
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
           if (!remove.length || typing()) break;
           const row = rows[remove[0]];
-          reportUnknown(row);
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
           if (removed) log('removed', row, match);
@@ -248,12 +249,12 @@
             log('remove-failed', row, match, { oncePerDay: true });
           }
         }
-        // Report unknown queue rows (not matched for removal)
+        // Unknown artists in the lookahead window (the rows checked ahead) are reported; rows
+        // further down wait until they come up, so a long queue can't spend the day's checks.
         if (state.settings.investigate && state.index) {
           const rows = safe(() => site.readQueue(doc), []);
-          for (const row of rows) {
-            reportUnknown(row);
-          }
+          const at = rows.findIndex(r => r.selected);
+          for (const row of rows.slice(at + 1, at + 1 + state.settings.lookahead)) reportUnknown(row);
         }
       } finally {
         state.lookaheadRunning = false;
