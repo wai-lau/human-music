@@ -414,7 +414,7 @@ Nothing here runs without Wai's explicit yes to that step; no step is run by a h
 
 - [ ] **D1** User and data folder. Show the commands; wait for yes; run; check the folder owner and mode.
 - [ ] **D2** Copy `research/investigator/` to its folder; run `npm test` there; expect every file `N/N pass` (this also confirms `node:sqlite` works on the droplet's Node; if it does not, stop and report).
-- [ ] **D3** Wai runs `API_KEY=... node tools/make-key.mjs <envfile>` herself and pastes the printed derived key into her developer copy's token field. Check: the env file holds a single `HM_KEY_HASH` line and no 64-hex string equals the admin key.
+- [ ] **D3** Wai runs `grep '^API_KEY=' <exec-fn env file> | cut -d= -f2- | node tools/make-key.mjs <envfile>` herself (the admin key never appears on a command line or in shell history) and pastes the printed derived key into her developer copy's token field. Check: the env file holds a single `HM_KEY_HASH` line and no 64-hex string equals the admin key.
 - [ ] **D4** Create `/etc/human-music/env` (root, group the service user, mode 640) with the three values; Wai runs `claude setup-token` and pastes the token herself.
 - [ ] **D5** (pending Wai's answer) GitHub: Wai creates the rule that only she may update `main` and adds the deploy key with write access; an approved test pushes a throwaway commit to `main` with the key and expects refusal, then publishes to `verdicts` and expects success.
 - [ ] **D6** Install the unit; `systemctl start`; check `systemctl status` and the log show no key.
