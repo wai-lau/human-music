@@ -23,14 +23,24 @@ await run([
     const lines = unit.split('\n');
     return lines.every((l, i) => !/^(Protect|Restrict|Lock|NoNew|PrivateTmp|MemoryMax)/.test(l) || (i > 0 && lines[i - 1].trim().startsWith('#')));
   }],
-  ['nginx: proxies only /human-music/api/ and /human-music/verdicts/ to 127.0.0.1:8140', () => {
+  ['nginx: proxies only /human-music/api/ and /human-music/verdicts/, over the unix socket', () => {
     const c = code(nginx);
     const locs = [...c.matchAll(/location\s+(\S+)\s*\{/g)].map((m) => m[1]).sort();
-    return JSON.stringify(locs) === JSON.stringify(['/human-music/api/', '/human-music/verdicts/']) && [...c.matchAll(/proxy_pass\s+(\S+);/g)].every((m) => m[1].startsWith('http://127.0.0.1:8140/')) && (c.match(/proxy_pass/g) || []).length === 2;
+    const sock = 'http://unix:/run/human-music/investigator.sock:/';
+    return JSON.stringify(locs) === JSON.stringify(['/human-music/api/', '/human-music/verdicts/']) && [...c.matchAll(/proxy_pass\s+(\S+);/g)].every((m) => m[1].startsWith(sock)) && (c.match(/proxy_pass/g) || []).length === 2 && !/127\.0\.0\.1|8140/.test(c);
+  }],
+  ['unit: RuntimeDirectory=human-music, for the socket', () => has(/^RuntimeDirectory=human-music$/m)],
+  ['unit: IPAddressDeny fences off local and private addresses, and allows nothing back', () => {
+    const m = /^IPAddressDeny=(.*)$/m.exec(code(unit));
+    return Boolean(m) && m[1].trim().split(/\s+/).join(' ') === 'localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16' && !has(/^IPAddressAllow=/m);
+  }],
+  ['unit: the new fence lines are explained by a comment above them', () => {
+    const lines = unit.split('\n');
+    return lines.every((l, i) => !/^(RuntimeDirectory|IPAddressDeny)=/.test(l) || (i > 0 && lines[i - 1].trim().startsWith('#')));
   }],
   ['nginx: 64k body limit and a rate limit', () => /client_max_body_size\s+64k;/.test(code(nginx)) && /limit_req\s+zone=/.test(code(nginx)) && /limit_req_zone/.test(nginx) && /http block/i.test(nginx)],
-  ['env.example: exactly the eight names, all empty', () => {
-    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH'];
+  ['env.example: exactly the nine names, all empty', () => {
+    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET'];
     const lines = env.split('\n').filter((l) => l.trim() && !l.startsWith('#'));
     return lines.length === names.length && names.every((n) => lines.includes(n + '='));
   }],
@@ -42,6 +52,6 @@ await run([
   ['no file has a key-looking value (long hex, sk- strings, long token after =)', () => Object.values(files).every((s) => !/\b[0-9a-f]{32,}\b/i.test(s) && !/sk-[A-Za-z0-9_-]{10,}/.test(s) && !/=\s*[A-Za-z0-9_-]{24,}\s*$/m.test(s))],
   ['no file names an access detail or another service', () => Object.values(files).every((s) => !/\bssh\s|root@|exec-fn/i.test(s))],
   ['readme: neutral words only', () => !/slop|fake|garbage/i.test(readme) && /made by people/.test(readme) && /AI-generated/.test(readme)],
-  ['readme: lists the routes, every env variable and the test command', () => ['/api/investigate', '/api/status', '/api/recheck', '/verdicts/', 'HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'npm test'].every((t) => readme.includes(t))],
+  ['readme: lists the routes, every env variable and the test command', () => ['/api/investigate', '/api/status', '/api/recheck', '/verdicts/', 'HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'IPAddressDeny', 'investigator.sock', 'npm test'].every((t) => readme.includes(t))],
   ['readme: no ASCII-art diagram', () => !/[─│┌└├]|^\s*[+|]?-{3,}>|-->\s*$/m.test(readme.replace(/```mermaid[\s\S]*?```/g, ''))],
 ]);

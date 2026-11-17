@@ -55,8 +55,21 @@ RestrictRealtime=yes
 LockPersonality=yes
 # Only local sockets and IPv4 or IPv6 are available: enough for the proxy and HTTPS calls.
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-# The service keeps no Linux capabilities; it listens on a high port and needs none.
+# The service keeps no Linux capabilities; it listens on a unix socket and needs none.
 CapabilityBoundingSet=
+# systemd creates /run/human-music for the service and removes it on stop. The
+# service puts its unix socket there (investigator.sock); nginx proxies to it,
+# so no TCP port is opened. Add the nginx user to the human-music group so it
+# can reach the socket (mode 0660).
+RuntimeDirectory=human-music
+# Neither the service nor the claude and git children it starts can open a
+# connection to this machine itself or to private networks: WebFetch runs on
+# this host and would otherwise reach local services (it refused "localhost"
+# but connected to 127.0.0.1). Public addresses stay open for web research,
+# GitHub and SH Labs. Unix sockets are not IP, so the nginx socket is
+# unaffected. If name lookups go through a local stub resolver (127.0.0.53),
+# add IPAddressAllow=127.0.0.53, which wins over the deny above.
+IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
 # Memory cap, since the machine is shared with other services.
 MemoryMax=600M
 # Deliberately not set: MemoryDenyWriteExecute (Node's JIT needs writable

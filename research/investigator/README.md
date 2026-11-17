@@ -38,10 +38,11 @@ Strangers write page text and artist names, so a prompt injection can happen. Th
 - Titles, names and page text reach Claude as fenced, untrusted data.
 - The child process gets a minimal environment. All git work happens in the service's own code, with a deploy key that can write to the verdicts branch and cannot update `main`.
 - The systemd unit runs as its own user with a read-only file system apart from its data folder.
+- The unit sets `IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`. WebFetch runs on the machine itself and connected to `127.0.0.1` in a live check, so neither the service nor its Claude children may reach this machine or private networks. Public addresses stay open for web research, GitHub and SH Labs. If name lookups use a local stub resolver, the unit comment says what to allow.
 
 ## Routes
 
-The service listens on `127.0.0.1:8140`. The nginx snippet exposes only the first four routes below, under `/human-music/`.
+The service listens on a unix socket, `/run/human-music/investigator.sock` by default (`HM_SOCKET`), with no TCP port open. nginx proxies to that socket (the nginx user needs the `human-music` group to reach it). The snippet exposes only the first four routes below, under `/human-music/`.
 
 | Route | Needs key | What it does |
 |---|---|---|
@@ -67,6 +68,7 @@ Set in `/etc/human-music/env`. `deploy/env.example` is the template with empty v
 | `HM_DATA_DIR` | Folder for the database and reports. |
 | `HM_PUBLISH_REMOTE` | Git remote that receives the published list. |
 | `HM_PUBLISH_KEY_PATH` | Path to the deploy key used for publishing. |
+| `HM_SOCKET` | Unix socket to listen on. Default `/run/human-music/investigator.sock`. |
 
 ## Tests
 
@@ -78,6 +80,10 @@ npm test
 
 Each file in `tests/` prints `N/N pass` and the run stops at the first failing file. The tests use stand-in collaborators, so they need no network, no Claude login and no keys. `tests/deploy.test.mjs` also checks that the files in `deploy/` carry no home paths, user names or key-like values.
 
+## Owner commands
+
+Run as the service's user with the same environment file loaded: `node src/cli.mjs status`, `recheck <key>`, `calibrate` and `accept-calibration`. `calibrate` fits the confidence mapping from the stored samples and prints the report; it does not run Claude. `accept-calibration` is the only command that turns the mapping on and marks the published list `calibrated: true`.
+
 ## Install
 
 Files for the install are in `deploy/`. Each step below changes the droplet and waits for the owner's explicit approval (Task 18 of the plan).
@@ -87,7 +93,7 @@ Files for the install are in `deploy/`. Each step below changes the droplet and 
 3. The owner runs `tools/make-key.mjs` herself. It reads the admin key from standard input, prints the derived key once and writes `HM_KEY_HASH`.
 4. Create `/etc/human-music/env` from `deploy/env.example` (owner root, group `human-music`, mode 640). The owner runs `claude setup-token` and pastes the token herself.
 5. Set up the GitHub write key for the verdicts branch, and confirm with a test push that `main` is refused.
-6. Install `deploy/human-music-investigator.service`, start it, and check that the status and log show no key.
-7. Add `deploy/nginx-human-music.conf` (the `limit_req_zone` line goes in the http block), run `nginx -t`, then reload.
+6. Install `deploy/human-music-investigator.service`, start it, and check that the status and log show no key and that `/run/human-music/investigator.sock` exists (mode 0660, group `human-music`). Add the nginx user to the `human-music` group.
+7. Add `deploy/nginx-human-music.conf` (the `limit_req_zone` line goes in the http block), run `nginx -t`, then reload. It proxies to the socket from step 6.
 8. Smoke test: `/api/status` without a key is 401, with the key is 200, and one item queues.
 9. Run the first calibration and the live check on two known AI-generated artists, then decide whether to accept the calibration.
