@@ -226,6 +226,36 @@ Reasons and sources stay on the droplet (shown at
 `/verdicts/<key>` for anyone who wants to check a verdict); the list carries
 only what extensions need, to keep it small.
 
+### A second opinion: SH Labs (Wai, 2026-11-16)
+
+Wai, pointing at https://shlabs.music: "we might be able to use this / we
+can compare against our investigator". SH Labs (SubmitHub's technology
+division) judges the audio of one track: `POST /api/v1/detect` with an
+`X-API-Key`, given a Spotify track ID, an ISRC or a direct audio address; it
+answers a 0-100 AI probability, a label (Human Made, Pure AI Generated,
+Processed AI Generated) and the likely generator. Its free plan allows 500
+tracks a day, 10 a minute, but for Spotify IDs it hears only the 30-second
+preview (its docs warn those scores can differ from full-track ones); full
+tracks cost $50 a month.
+
+How the investigator uses it (Claude's reading, for Wai to check):
+
+- **For comparison, not for verdicts.** For each investigated artist with a
+  Spotify ID (Spotify items carry one; for YouTube Music artists, when
+  Claude's research finds them on Spotify), the service asks SH Labs about
+  up to two tracks and stores the scores beside the verdict on the droplet.
+  The calibration report then shows where the two agree and where they
+  don't; the disagreements are what Wai reviews.
+- **Never published.** SH Labs scores stay on the droplet and out of the
+  public list: its terms forbid redistributing the service and using a
+  result as the only basis for a decision against a person. Putting its
+  scores in the list would need SH Labs's written yes.
+- **Its key stays out of Claude's reach.** The service code calls SH Labs
+  itself; the key sits in the service's environment file, and Claude never
+  sees it (the same reasoning as The key).
+- Start on the free plan; move to full tracks only if the previews turn out
+  too noisy to compare.
+
 ### Test cases (Wai, 2026-11-16)
 
 Forrest Rose and The Broken Radios are AI-generated and on no list: the first
