@@ -41,14 +41,45 @@
     // changes. kind 'backup': a Human Music (or old extension) backup, merged into
     // your lists. kind 'filter-list' with an id: fills that list only while it has
     // no downloaded copy. A broken file is skipped; resolves to the files imported.
+    // Built-in upkeep at every start, whatever happened to the bundled import.
+    async function ensureBuiltIns() {
+      const HM = globalThis.HM;
+      // Ensure the built-in verdict list is always present after bundled import
+      // (no list meta yet means install has not run: leave the storage to it)
+      let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
+      if (Array.isArray(metas) && !metas.some(m => m.id === 'hm-verdicts')) {
+        metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
+        await storage.set({ [HM.store.KEYS.filterLists]: metas });
+      }
+      if (Array.isArray(metas) && !metas.some(m => m.id === 'cevval')) {
+        metas = metas.concat([{ ...HM.lists.CEVVAL }]);
+        await storage.set({ [HM.store.KEYS.filterLists]: metas });
+      }
+      // Built-in lists take their name and address from the code, so a list that moves
+      // (the verdict list did, 2026-11-17) follows on the next start. The person's own
+      // choices (on or off, Watch only) and the refresh record stay.
+      if (Array.isArray(metas)) {
+        const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL];
+        let changed = false;
+        const next = metas.map(m => {
+          const code = m && m.builtIn === true ? BUILT_INS.find(b => b.id === m.id) : null;
+          if (!code || (m.url === code.url && m.name === code.name)) return m;
+          changed = true;
+          return { ...m, url: code.url, name: code.name };
+        });
+        if (changed) await storage.set({ [HM.store.KEYS.filterLists]: next });
+      }
+    }
+
     async function importBundled() {
       const done = [];
-      if (typeof opts.assetUrl !== 'function') return done;
+      if (typeof opts.assetUrl !== 'function') { await ensureBuiltIns(); return done; }
       const HM = globalThis.HM;
       let index;
       try {
         index = JSON.parse(await (await fetchFn(opts.assetUrl('lists/index.json'))).text());
       } catch (e) {
+        await ensureBuiltIns(); // the bundled index is unreadable: the built-ins still get looked after
         return done;
       }
       const files = index && Array.isArray(index.files) ? index.files : [];
@@ -96,17 +127,7 @@
           // skip this file; the others still import
         }
       }
-      // Ensure the built-in verdict list is always present after bundled import
-      // (no list meta yet means install has not run: leave the storage to it)
-      let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
-      if (Array.isArray(metas) && !metas.some(m => m.id === 'hm-verdicts')) {
-        metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
-        await storage.set({ [HM.store.KEYS.filterLists]: metas });
-      }
-      if (Array.isArray(metas) && !metas.some(m => m.id === 'cevval')) {
-        metas = metas.concat([{ ...HM.lists.CEVVAL }]);
-        await storage.set({ [HM.store.KEYS.filterLists]: metas });
-      }
+      await ensureBuiltIns();
       return done;
     }
 

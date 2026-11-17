@@ -16,7 +16,8 @@
   const HM_VERDICTS = {
     id: 'hm-verdicts',
     name: 'Human Music verdicts',
-    url: 'https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json',
+    // Its own repo (Wai, 2026-11-17): the investigator's GitHub key can write only there.
+    url: 'https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/verdicts.json',
     enabled: true,
     mode: 'act',
     builtIn: true,

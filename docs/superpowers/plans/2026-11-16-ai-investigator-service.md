@@ -359,7 +359,7 @@ Wai, 2026-11-17: the verdict list lives in its own public repo, `wai-lau/human-m
 - [ ] **Step 4:** Run; expect pass.
 - [ ] **Step 5:** Commit `feat(investigator): verdict list and publisher`.
 
-### Task 13: Point the extension at the verdicts repo (Claude, after Cevval merges: both touch lists.js)
+### Task 13: Point the extension at the verdicts repo (Claude) — done 2026-11-17
 
 The built-in list URL today is `https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json`; it becomes `https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/verdicts.json`.
 

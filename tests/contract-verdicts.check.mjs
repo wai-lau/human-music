@@ -19,7 +19,7 @@ const pick = (v, name) => v.artists.find(a => a.name === name);
 
 await t('HM_VERDICTS is the built-in verdict list', () => {
   const v = HM.lists.HM_VERDICTS || {};
-  return (v.id === 'hm-verdicts' && v.name === 'Human Music verdicts' && v.url === 'https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json'
+  return (v.id === 'hm-verdicts' && v.name === 'Human Music verdicts' && v.url === 'https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/verdicts.json'
     && v.builtIn === true && v.mode === 'act' && v.enabled === true) || J(v);
 });
 await t('verdict fields parsed', () => {
@@ -66,6 +66,15 @@ await t('not JSON keeps the last good copy', async () => {
   const storage = withVerdicts();
   const ok = await refresher(storage, async () => ({ ok: true, status: 200, headers: { get: () => null }, text: async () => '<html>oops</html>' })).refreshOne('hm-verdicts');
   return (ok === false && storage.data['hm.list.hm-verdicts'].artists[0].name === 'Kept') || J({ ok });
+});
+await t('a start gives stored built-ins the code\'s name and address, keeping the person\'s choices', async () => {
+  const old = { ...HM.lists.HM_VERDICTS, url: 'https://raw.githubusercontent.com/wai-lau/human-music/main/verdicts/verdicts.json', name: 'Old name', enabled: false, mode: 'watch', count: 7, lastRefresh: 5 };
+  const storage = fakeStorage({ 'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI }, old, { ...HM.lists.CEVVAL }, { id: 'mine', name: 'Mine', url: 'https://lists.example/m.json', enabled: true, mode: 'act' }] });
+  await refresher(storage, async () => ({ ok: false, status: 404, headers: { get: () => null }, text: async () => '' })).importBundled();
+  const m = storage.data['hm.filterLists'];
+  const v = m.find(l => l.id === 'hm-verdicts'); const mine = m.find(l => l.id === 'mine');
+  return (v.url === HM.lists.HM_VERDICTS.url && v.name === HM.lists.HM_VERDICTS.name && v.enabled === false && v.mode === 'watch' && v.count === 7 && v.lastRefresh === 5
+    && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 4) || J(m);
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
