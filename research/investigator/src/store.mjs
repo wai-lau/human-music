@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS scores (
   probability REAL NOT NULL,
   label TEXT,
   generator TEXT,
+  audio_source TEXT,
   at TEXT NOT NULL,
   PRIMARY KEY (artist_id, track_id)
 );
@@ -83,9 +84,9 @@ export function openStore(path) {
     getArtist: db.prepare('SELECT * FROM artists WHERE id = ?'),
     keysOf: db.prepare('SELECT key FROM artist_keys WHERE artist_id = ?'),
     publishable: db.prepare("SELECT * FROM artists WHERE source = 'live' ORDER BY id"),
-    putScore: db.prepare(`INSERT OR REPLACE INTO scores (artist_id, track_id, probability, label, generator, at)
-      VALUES (?, ?, ?, ?, ?, ?)`),
-    getScores: db.prepare('SELECT track_id, probability, label, generator, at FROM scores WHERE artist_id = ? ORDER BY rowid'),
+    putScore: db.prepare(`INSERT OR REPLACE INTO scores (artist_id, track_id, probability, label, generator, audio_source, at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`),
+    getScores: db.prepare('SELECT track_id, probability, label, generator, audio_source, at FROM scores WHERE artist_id = ? ORDER BY rowid'),
     getCount: db.prepare('SELECT n FROM counters WHERE day = ?'),
     bumpCount: db.prepare('INSERT INTO counters (day, n) VALUES (?, 1) ON CONFLICT(day) DO UPDATE SET n = n + 1'),
     getState: db.prepare('SELECT value FROM state WHERE key = ?'),
@@ -204,14 +205,14 @@ export function openStore(path) {
     putScores(artistId, scores) {
       transaction(() => {
         for (const s of scores) {
-          q.putScore.run(artistId, String(s.trackId), s.probability, s.label ?? null, s.generator ?? null, s.at);
+          q.putScore.run(artistId, String(s.trackId), s.probability, s.label ?? null, s.generator ?? null, s.audioSource ?? null, s.at);
         }
       });
     },
 
     getScores(artistId) {
       return q.getScores.all(artistId).map(r => ({
-        trackId: r.track_id, probability: r.probability, label: r.label, generator: r.generator, at: r.at,
+        trackId: r.track_id, probability: r.probability, label: r.label, generator: r.generator, audioSource: r.audio_source, at: r.at,
       }));
     },
 

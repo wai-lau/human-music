@@ -72,12 +72,12 @@ await run([
   ['scores round-trip and are not in listPublishable', () => {
     const s = openStore(':memory:');
     const id = s.putVerdict(verdict());
-    const sc = [{ trackId: 't1', probability: 0.97, label: 'ai', generator: 'suno', at: '2026-11-16T01:00:00Z' }];
+    const sc = [{ trackId: 't1', probability: 0.97, label: 'ai', generator: 'suno', audioSource: 'preview', at: '2026-11-16T01:00:00Z' }];
     s.putScores(id, sc);
     s.putScores(id, [{ trackId: 't2', probability: 0.1, label: 'human', generator: null, at: '2026-11-16T02:00:00Z' }]);
     const got = s.getScores(id);
     const pub = JSON.stringify(s.listPublishable());
-    return (got.length === 2 && JSON.stringify(got[0]) === JSON.stringify(sc[0]) && got[1].generator === null && !pub.includes('0.97') && !pub.includes('suno') && !pub.includes('probability')) || JSON.stringify([got, pub]);
+    return (got.length === 2 && JSON.stringify(got[0]) === JSON.stringify(sc[0]) && got[1].generator === null && got[1].audioSource === null && !pub.includes('0.97') && !pub.includes('preview') && !pub.includes('suno') && !pub.includes('probability')) || JSON.stringify([got, pub]);
   }],
   ['putScores on the same track replaces it', () => {
     const s = openStore(':memory:');

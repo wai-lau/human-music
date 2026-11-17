@@ -64,6 +64,8 @@ export function createShLabs({ fetch, key, sleep, now = Date.now }) {
           probability: p,
           label: typeof r.prediction === 'string' ? r.prediction : '',
           generator: typeof r.most_likely_ai_type === 'string' ? r.most_likely_ai_type : null,
+          // What SH Labs heard: its docs say preview and full-track scores can differ, so never compare them unmarked.
+          audioSource: body.audio_source === 'full' || body.audio_source === 'preview' ? body.audio_source : null,
           at: new Date(now()).toISOString(),
         });
       } catch {

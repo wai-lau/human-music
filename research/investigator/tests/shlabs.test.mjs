@@ -35,7 +35,7 @@ run([
     const out = await make(f, sleeper()).scoreTracks([T1]);
     if (out.length !== 1) return JSON.stringify(out);
     const r = out[0];
-    if (r.trackId !== T1 || r.probability !== 97.4 || r.label !== 'Pure AI Generated' || r.generator !== 'Suno') return JSON.stringify(r);
+    if (r.trackId !== T1 || r.probability !== 95.2 || r.label !== 'Pure AI Generated' || r.generator !== 'Suno' || r.audioSource !== 'full') return JSON.stringify(r);
     if (Number.isNaN(Date.parse(r.at))) return `at ${r.at}`;
     const c = f.calls[0];
     if (c.url !== 'https://shlabs.music/api/v1/detect' || c.opts.method !== 'POST') return c.url;
@@ -97,6 +97,16 @@ run([
     } catch (e) {
       return `threw: ${String(e.message).includes(KEY) ? 'message has the key' : 'escaped'}`;
     }
+  }],
+  // The docs: preview and full-track scores "can differ", so each score keeps what was heard.
+  ['a preview score says so; an unknown audio_source is null', async () => {
+    const mk = src => { const body = { result: { probability_ai_generated: 50, prediction: 'Human Made' } }; if (src !== undefined) body.audio_source = src; return body; };
+    const out = [];
+    for (const src of ['preview', 'full', 'weird', undefined]) {
+      const sh = createShLabs({ key: 'k', fetch: async () => ({ ok: true, status: 200, json: async () => mk(src) }), sleep: async () => {}, now: () => 0 });
+      out.push(((await sh.scoreTracks([T1]))[0] || {}).audioSource);
+    }
+    return JSON.stringify(out) === JSON.stringify(['preview', 'full', null, null]) || JSON.stringify(out);
   }],
   ['probability outside 0-100 is dropped', async () => {
     for (const p of [-1, 100.5, 'high', null, NaN]) {
