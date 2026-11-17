@@ -8,6 +8,7 @@
 //   lookup  GET /ws/2/artist/<mbid>?inc=url-rels+release-groups&fmt=json
 //           -> { relations: [{ url: { resource } }], 'release-groups': [{ title, 'first-release-date' }] }
 // At most one request a second; a meaningful User-Agent is required.
+import { normalizeName } from './names.mjs';
 
 const BASE = 'https://musicbrainz.org/ws/2/artist/';
 const USER_AGENT = 'HumanMusicInvestigator/0.1 (+https://github.com/wai-lau/human-music)';
@@ -15,7 +16,7 @@ const GAP_MS = 1000;
 const MAX_CANDIDATES = 3;
 const CUTOFF_YEAR = 2020;
 
-const norm = (s) => String(s ?? '').normalize('NFC').toLowerCase().trim().replace(/\s+/g, ' ');
+const norm = (s) => (typeof s === 'string' ? normalizeName(s) : ''); // the service's one name rule (names.mjs)
 
 // One limiter per fetch function, so two calls sharing a fetch share the pace.
 const lastAt = new WeakMap();

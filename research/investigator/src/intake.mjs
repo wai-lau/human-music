@@ -5,6 +5,8 @@ import { artistKeys } from './names.mjs';
 const MAX_BYTES = 65536;
 const MAX_ITEMS = 20;
 const MAX_FIELD = 300;
+// Control characters are stripped from every incoming field on purpose.
+// eslint-disable-next-line no-control-regex
 const CONTROL = /[\u0000-\u001f\u007f-\u009f]/g;
 const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
 const YOUTUBE_ID = /^UC[\w-]{22}$/;
