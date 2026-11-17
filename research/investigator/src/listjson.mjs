@@ -1,0 +1,38 @@
+// Build the published verdict list: exactly the fields the extension's parseFilterList reads,
+// plus `checked` (ignored by the extension). Reasons, sources, signals and SH Labs data stay home.
+
+import { applyMapping } from './calibrate.mjs';
+import { normalizeName } from './names.mjs';
+
+const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
+const YOUTUBE_ID = /^UC[\w-]{22}$/;
+const WORDS = new Set(['ai', 'human', 'unsure']);
+
+const clampInt = (n) => Math.max(0, Math.min(100, Math.round(n)));
+
+export function buildList(verdicts, { now, calibrated, mapping } = {}) {
+  const rows = [];
+  for (const v of Array.isArray(verdicts) ? verdicts : []) {
+    if (!v || v.source === 'calibration') continue;
+    if (typeof v.name !== 'string' || v.name.trim() === '' || !WORDS.has(v.verdict)) continue;
+    let confidence;
+    if (v.verdict === 'ai') {
+      const raw = Number.isFinite(v.rawConfidence) ? v.rawConfidence : v.confidence;
+      confidence = applyMapping(mapping, raw);
+    } else {
+      confidence = Number.isFinite(v.confidence) ? clampInt(v.confidence) : 0;
+    }
+    const entry = { name: v.name, verdict: v.verdict, confidence, checked: typeof v.checked === 'string' ? v.checked : '' };
+    if (typeof v.spotifyId === 'string' && SPOTIFY_ID.test(v.spotifyId)) entry.spotifyId = v.spotifyId;
+    if (typeof v.channelId === 'string' && YOUTUBE_ID.test(v.channelId)) entry.channelId = v.channelId;
+    rows.push([normalizeName(v.name), entry]);
+  }
+  rows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  const list = {
+    name: 'Human Music verdicts',
+    updated: (now instanceof Date ? now : new Date()).toISOString(),
+    calibrated: calibrated === true,
+    artists: rows.map((r) => r[1]),
+  };
+  return JSON.stringify(list, null, 2) + '\n';
+}
