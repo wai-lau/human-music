@@ -14,6 +14,12 @@ function fake(initial) {
   return f;
 }
 
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+const TOOL = join(import.meta.dirname, '..', 'tools', 'make-key.mjs');
+
 await run([
   ['an empty file gains exactly the hash line', () => {
     const f = fake('');
@@ -46,5 +52,15 @@ await run([
   ['the returned derived key equals deriveKey(apiKey)', () => {
     const f = fake('');
     return makeKey({ apiKey, envFile: '/e', readFile: f.readFile, writeFile: f.writeFile }).derived === derived;
+  }],
+  ['the CLI takes the admin key on standard input and writes only the hash', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'hm-key-'));
+    try {
+      const env = join(dir, 'env');
+      const { API_KEY, ...rest } = process.env;
+      const r = spawnSync(process.execPath, [TOOL, env], { input: apiKey + '\n', env: rest, encoding: 'utf8' });
+      const text = readFileSync(env, 'utf8');
+      return (r.status === 0 && r.stdout.trim() === derived && text === line + '\n' && !text.includes(apiKey)) || JSON.stringify({ code: r.status, out: r.stdout, err: r.stderr, text });
+    } finally { rmSync(dir, { recursive: true, force: true }); }
   }],
 ]);
