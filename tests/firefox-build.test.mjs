@@ -26,6 +26,9 @@ run([
     JSON.stringify(ff.background.scripts) === JSON.stringify([...imported, 'src/background.js']) || JSON.stringify({ ff: ff.background.scripts, imported })],
   ['gecko id and a Firefox version with MV3 background scripts', () =>
     (ff.browser_specific_settings.gecko.id === 'human-music@wai-lau' && parseInt(ff.browser_specific_settings.gecko.strict_min_version, 10) >= 121) || JSON.stringify(ff.browser_specific_settings)],
+  ['declares no data collection (AMO requires it for new extensions)', () =>
+    JSON.stringify(ff.browser_specific_settings.gecko.data_collection_permissions) === '{"required":["none"]}' || JSON.stringify(ff.browser_specific_settings.gecko)],
+  ['no management permission is requested (getSelf needs none)', () => !(ff.permissions || []).includes('management') || 'management present'],
   ['everything else matches the Chrome manifest', () => {
     const strip = m => { const c = { ...m }; delete c.background; delete c.browser_specific_settings; return JSON.stringify(c); };
     return strip(ff) === strip(chrome) || 'manifests differ';

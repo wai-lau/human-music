@@ -130,3 +130,36 @@ One-time setup (Wai; done 2026-11-15):
 
 Neither file goes in the repo. If the visibility is changed by hand in the
 dashboard, publish once by hand before the API can publish again.
+
+## Firefox (addons.mozilla.org)
+
+Upload `dist/human-music-firefox-<version>.zip`, made by
+`scripts/pack-firefox.sh` (it runs `scripts/build-firefox.sh` first and zips
+`dist/firefox/` with `manifest.json` at the root). The Firefox build has not
+yet been loaded in a real Firefox; do that first (`about:debugging`, This
+Firefox, Load Temporary Add-on, pick `dist/firefox/manifest.json`).
+
+**Data collection:** the manifest declares
+`browser_specific_settings.gecko.data_collection_permissions` as
+`{ "required": ["none"] }`, which AMO requires of every new extension. In
+the upload form, answer that the extension collects no data. Firefox older
+than 140 ignores the key, which is harmless here.
+
+**Listing text:** reuse the Summary, Description and Category from the Store
+listing tab above as they are. Reuse the four screenshots (1280x800, same
+order). The name and icon come from the manifest.
+
+**Source code:** the package is plain JavaScript with no build step or
+minification, so AMO should not ask for source; if it does, upload a zip of
+the repo.
+
+Wai does these herself:
+
+1. Create or sign in to the AMO developer account
+   (addons.mozilla.org/developers) and submit a new add-on.
+2. Choose "On this site" (listed), upload the zip, and fix anything the
+   validator reports.
+3. Fill in the listing from the text above; pick the Entertainment category.
+4. Submit for review. Later releases use the same pack script after bumping
+   `version` in `extension/manifest.json` (AMO rejects a version it already
+   has).
