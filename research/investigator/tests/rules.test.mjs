@@ -1,5 +1,5 @@
 // Contract check: Wai's investigator rules (2026-11-17), see the design section "The
-// investigator's rules". Run from research/investigator: node tests/wip-contract-rules.check.mjs
+// investigator's rules". Run from research/investigator: node tests/rules.test.mjs
 import { checkAnswer, decide, SIGNALS } from '../src/answer.mjs';
 import { SYSTEM_PROMPT } from '../src/claude.mjs';
 const fails = [];
