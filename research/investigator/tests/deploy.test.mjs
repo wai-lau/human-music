@@ -30,13 +30,13 @@ await run([
     return JSON.stringify(locs) === JSON.stringify(['/human-music/api/', '/human-music/verdicts/']) && [...c.matchAll(/proxy_pass\s+(\S+);/g)].every((m) => m[1].startsWith(sock)) && (c.match(/proxy_pass/g) || []).length === 2 && !/127\.0\.0\.1|8140/.test(c);
   }],
   ['unit: RuntimeDirectory=human-music, for the socket', () => has(/^RuntimeDirectory=human-music$/m)],
-  ['unit: IPAddressDeny fences off local and private addresses, and allows nothing back', () => {
+  ['unit: IPAddressDeny fences off local and private addresses; only the DNS stub comes back', () => {
     const m = /^IPAddressDeny=(.*)$/m.exec(code(unit));
-    return Boolean(m) && m[1].trim().split(/\s+/).join(' ') === 'localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16' && !has(/^IPAddressAllow=/m);
+    return Boolean(m) && m[1].trim().split(/\s+/).join(' ') === 'localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16' && (code(unit).match(/^IPAddressAllow=.*$/gm) || []).join('|') === 'IPAddressAllow=127.0.0.53';
   }],
   ['unit: the new fence lines are explained by a comment above them', () => {
     const lines = unit.split('\n');
-    return lines.every((l, i) => !/^(RuntimeDirectory|IPAddressDeny)=/.test(l) || (i > 0 && lines[i - 1].trim().startsWith('#')));
+    return lines.every((l, i) => !/^(RuntimeDirectory|IPAddressDeny|IPAddressAllow)=/.test(l) || (i > 0 && lines[i - 1].trim().startsWith('#')));
   }],
   ['nginx: 64k body limit and a rate limit', () => /client_max_body_size\s+64k;/.test(code(nginx)) && /limit_req\s+zone=/.test(code(nginx)) && /limit_req_zone/.test(nginx) && /http block/i.test(nginx)],
   ['env.example: exactly the nine names, all empty', () => {

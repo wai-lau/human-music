@@ -38,7 +38,7 @@ Strangers write page text and artist names, so a prompt injection can happen. Th
 - Titles, names and page text reach Claude as fenced, untrusted data.
 - The child process gets a minimal environment. All git work happens in the service's own code, with a deploy key that can write to the verdicts branch and cannot update `main`.
 - The systemd unit runs as its own user with a read-only file system apart from its data folder.
-- The unit sets `IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`. WebFetch runs on the machine itself and connected to `127.0.0.1` in a live check, so neither the service nor its Claude children may reach this machine or private networks. Public addresses stay open for web research, GitHub and SH Labs. If name lookups use a local stub resolver, the unit comment says what to allow.
+- The unit sets `IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16`. WebFetch runs on the machine itself and connected to `127.0.0.1` in a live check, so neither the service nor its Claude children may reach this machine or private networks. Public addresses stay open for web research, GitHub and SH Labs. Only `127.0.0.53`, Ubuntu's local DNS stub, is allowed back, so name lookups still work.
 
 ## Routes
 

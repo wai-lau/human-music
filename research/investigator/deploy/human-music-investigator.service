@@ -67,9 +67,12 @@ RuntimeDirectory=human-music
 # this host and would otherwise reach local services (it refused "localhost"
 # but connected to 127.0.0.1). Public addresses stay open for web research,
 # GitHub and SH Labs. Unix sockets are not IP, so the nginx socket is
-# unaffected. If name lookups go through a local stub resolver (127.0.0.53),
-# add IPAddressAllow=127.0.0.53, which wins over the deny above.
+# unaffected.
 IPAddressDeny=localhost link-local multicast 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+# Name lookups on Ubuntu go through systemd-resolved's stub at 127.0.0.53, which
+# the deny above would block (no lookups means no web research at all). Allow
+# exactly that address back; it serves DNS only. Allow wins over deny.
+IPAddressAllow=127.0.0.53
 # Memory cap, since the machine is shared with other services.
 MemoryMax=600M
 # Deliberately not set: MemoryDenyWriteExecute (Node's JIT needs writable
