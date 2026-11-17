@@ -62,12 +62,20 @@ wai-lau.net admin keys", then chose a key derived from the admin key. The
 investigator answers at its public address (Wai's choice) but accepts only
 `Authorization: Bearer <key>` where key is
 `sha256("human-music-investigator:" + API_KEY)` in hex, API_KEY being
-exec-fn's admin key (exec-fn derives its login cookie the same way). The
-service reads API_KEY when it starts and compares with `hmac.compare_digest`
-or its Node equivalent; a small CLI on the droplet prints the derived key
-for Wai to paste into her developer copy once. A leaked key opens only the
-investigator; changing the admin key changes it. Wherever this document
-says "token", it means this key.
+exec-fn's admin key (exec-fn derives its login cookie the same way).
+
+**The investigator never holds the admin key** (Wai, 2026-11-16, "yes do
+safer", after a side agent pointed out that the service feeds text anyone
+can write to Claude, so a prompt injection could try to read what the
+service holds). A one-time step on the droplet, run by Wai (it reads exec-fn's
+API_KEY), prints the derived key once for her to paste into her developer
+copy, and writes only `sha256(derived key)` in hex to the investigator's
+environment file as `HM_KEY_HASH`. The service hashes each presented key
+and compares it to `HM_KEY_HASH` with `crypto.timingSafeEqual`. So the
+service holds neither the admin key nor the derived key: reading its files
+or environment opens nothing. A leaked derived key opens only the
+investigator; changing the admin key means running the step again. Wherever
+this document says "token", it means the derived key.
 
 ## Goals
 
@@ -195,8 +203,8 @@ flowchart TD
 - **Limits:** one investigation at a time; a daily cap (start at 100,
   adjustable); requests over size or without the token are refused.
 - **Runs as its own unprivileged user**, as a systemd service, with its own
-  Claude Code login (Wai logs in once). The token lives in a root-readable
-  environment file.
+  Claude Code login (Wai logs in once). Its root-readable environment file
+  holds only the token's hash (see The key).
 
 ### Verdict list format
 
@@ -314,8 +322,9 @@ repo.
    `/opt/human-music-investigator`, Node 22 standard library only (Node is
    there and matches the repo's tooling).
 3. `/etc/human-music/env` (owner root, group human-music, mode 640) with the
-   investigator token and `CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token`
-   that Wai runs once.
+   token's hash `HM_KEY_HASH` (never the admin key or the token itself; see
+   The key) and `CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token` that Wai
+   runs once.
 4. A systemd unit `human-music-investigator.service`: `User=human-music`,
    listening on `127.0.0.1:8140`, with `ProtectSystem=strict`,
    `ReadWritePaths=/var/lib/human-music`, `NoNewPrivileges=yes`,
