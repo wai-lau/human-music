@@ -1,6 +1,6 @@
 // Contract check (security audit 2026-11-17, hardening): text from the page or a list is
 // capped before it goes into the log, so a hostile 1 MB title can't fill the log's storage.
-// Run from the repo root: node tests/wip-contract-log-cap.check.mjs
+// Run from the repo root: node tests/contract-log-cap.check.mjs
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { HM } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js'], {});
 const fails = [];
