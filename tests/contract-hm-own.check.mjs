@@ -1,7 +1,7 @@
 // Contract check (security audit 2026-11-17, finding 9): page markup can't take over the HM
 // namespace. An element with id="HM" shows up as window.HM through the window's named
 // properties (not an own property of the global), and the scripts used to adopt it.
-// Run from the repo root: node tests/wip-contract-hm-own.check.mjs
+// Run from the repo root: node tests/contract-hm-own.check.mjs
 const { readFileSync, readdirSync } = await import('fs');
 const { join } = await import('path');
 const vm = await import('vm');
