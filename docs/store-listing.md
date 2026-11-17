@@ -145,8 +145,8 @@ Firefox, Load Temporary Add-on, pick `dist/firefox/manifest.json`).
 the upload form, answer that the extension collects no data. Firefox older
 than 140 ignores the key, which is harmless here.
 
-**Listing text:** reuse the Summary, Description and Category from the Store
-listing tab above as they are. Reuse the four screenshots (1280x800, same
+**Listing text:** reuse the Summary and Description from the Store listing
+tab above as they are. Reuse the four screenshots (1280x800, same
 order). The name and icon come from the manifest.
 
 **Source code:** the package is plain JavaScript with no build step or
@@ -159,7 +159,8 @@ Wai does these herself:
    (addons.mozilla.org/developers) and submit a new add-on.
 2. Choose "On this site" (listed), upload the zip, and fix anything the
    validator reports.
-3. Fill in the listing from the text above; pick the Entertainment category.
+3. Fill in the listing from the text above; pick the "Photos, Music &
+   Videos" category (AMO's own list).
 4. Submit for review. Later releases use the same pack script after bumping
    `version` in `extension/manifest.json` (AMO rejects a version it already
    has).
