@@ -29,6 +29,12 @@ export function buildArgv() {
     '--tools', TOOLS,
     '--allowedTools', TOOLS,
     '--permission-mode', 'dontAsk',
+    // Live check 2026-11-16: without this, claude -p loaded the account's claude.ai connectors
+    // (Gmail, Drive, Calendar). With it, the tool list is only WebFetch and WebSearch.
+    '--strict-mcp-config',
+    // No code-running tools, no user or project settings files; no CLAUDE.md, skills or plugins.
+    '--restricted',
+    '--safe-mode',
     '--max-turns', '25',
     '--no-session-persistence',
     '--append-system-prompt', SYSTEM_PROMPT,
@@ -84,6 +90,13 @@ function classify(text) {
 function parseOutput(stdout) {
   let outer;
   try { outer = JSON.parse(stdout); } catch { return { ok: false, kind: 'invalid', detail: 'output is not JSON' }; }
+  // claude 2.1.326 prints a list of messages ending in the result entry (live check 2026-11-16);
+  // older versions print the result entry alone.
+  if (Array.isArray(outer)) {
+    const results = outer.filter((m) => m && typeof m === 'object' && m.type === 'result');
+    if (!results.length) return { ok: false, kind: 'invalid', detail: 'no result entry' };
+    outer = results[results.length - 1];
+  }
   if (outer === null || typeof outer !== 'object') return { ok: false, kind: 'invalid', detail: 'output is not an object' };
   if (outer.is_error === true) {
     const msg = typeof outer.result === 'string' ? outer.result : 'claude reported an error';

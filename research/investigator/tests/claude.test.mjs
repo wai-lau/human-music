@@ -9,7 +9,7 @@ const argvValue = (flag) => { const a = buildArgv(); return a[a.indexOf(flag) + 
 const artist = (title) => ({ name: 'Velvet Sundown', site: 'spotify', playing: true, spotifyId: '0TnOYISbd1XYRBk9myaseg', songs: [{ title, album: 'Dust', artUrl: 'https://i.test/a.jpg' }] });
 const a = artist('Dust on the Wind');
 
-const PINNED_ARGV = ['-p', '--output-format', 'json', '--json-schema', JSON.stringify(ANSWER_SCHEMA), '--tools', 'WebSearch,WebFetch', '--allowedTools', 'WebSearch,WebFetch', '--permission-mode', 'dontAsk', '--max-turns', '25', '--no-session-persistence', '--append-system-prompt', SYSTEM_PROMPT];
+const PINNED_ARGV = ['-p', '--output-format', 'json', '--json-schema', JSON.stringify(ANSWER_SCHEMA), '--tools', 'WebSearch,WebFetch', '--allowedTools', 'WebSearch,WebFetch', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--restricted', '--safe-mode', '--max-turns', '25', '--no-session-persistence', '--append-system-prompt', SYSTEM_PROMPT];
 
 const goodAnswer = { verdict: 'ai', confidence: 96, signals: ['deezer_ai_label'], reasons: ['label'], sources: ['https://x.test/a'] };
 
@@ -45,6 +45,27 @@ const go = (spawn, o = {}) => investigate(a, {}, { spawn, env, ...o });
 
 await run([
   ['argv is exactly the pinned list', () => deepEqual(buildArgv(), PINNED_ARGV)],
+  // Live check 2026-11-16: without --strict-mcp-config, claude -p loaded the account's claude.ai connectors (Gmail, Drive, Calendar).
+  ['no MCP servers or connectors: --strict-mcp-config, and no --mcp-config', () => buildArgv().includes('--strict-mcp-config') && !buildArgv().includes('--mcp-config')],
+  ['restricted and safe mode are on', () => buildArgv().includes('--restricted') && buildArgv().includes('--safe-mode')],
+  // Live check 2026-11-16: claude 2.1.326 prints a list of messages ending in the result entry.
+  ['a list of messages ending in a result is read from its result entry', async () => {
+    const list = [{ type: 'system', subtype: 'init', tools: ['WebFetch', 'WebSearch'] }, { type: 'assistant', message: {} }, { type: 'result', subtype: 'success', is_error: false, result: '', structured_output: goodAnswer }];
+    const spawn = fakeSpawn(JSON.stringify(list));
+    const r = await investigate(artist('Forrest Rose'), {}, { spawn, env: {} });
+    return (r.ok === true && r.answer.verdict === 'ai') || JSON.stringify(r);
+  }],
+  ['a list with an error result is an error, never an answer', async () => {
+    const list = [{ type: 'system', subtype: 'init' }, { type: 'result', is_error: true, result: 'Usage limit reached', structured_output: goodAnswer }];
+    const spawn = fakeSpawn(JSON.stringify(list));
+    const r = await investigate(artist('Forrest Rose'), {}, { spawn, env: {} });
+    return (r.ok === false && r.kind === 'limit') || JSON.stringify(r);
+  }],
+  ['a list with no result entry is invalid', async () => {
+    const spawn = fakeSpawn(JSON.stringify([{ type: 'system', subtype: 'init' }]));
+    const r = await investigate(artist('Forrest Rose'), {}, { spawn, env: {} });
+    return (r.ok === false && r.kind === 'invalid') || JSON.stringify(r);
+  }],
   ['no Bash, Read, Write or Edit anywhere in argv', () => !/\b(Bash|Read|Write|Edit|Glob|Grep|NotebookEdit)\b/.test(buildArgv().join(' ').replace(SYSTEM_PROMPT, ''))],
   ['tools list is only the two web tools', () => argvValue('--tools') === 'WebSearch,WebFetch' && argvValue('--allowedTools') === 'WebSearch,WebFetch'],
   ['permission mode is dontAsk and no skip-permissions flag', () => argvValue('--permission-mode') === 'dontAsk' && !buildArgv().some((x) => /dangerously|skip-permissions|bypass/i.test(x))],
