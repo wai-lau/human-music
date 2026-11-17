@@ -294,7 +294,7 @@ flowchart LR
    trusted). The image stays in memory and is never written to disk.
 3. **The look (its own Claude call).** `claude -p` with no tools at all
    (`--tools ""`), `--strict-mcp-config --restricted --safe-mode`,
-   `--max-turns 1`, the image passed on standard input as an image block
+   `--max-turns 2` (the structured answer takes a tool turn), the image passed on standard input as an image block
    (`--input-format stream-json`), and a fixed question. Its answer schema
    is `{ "look": "ai" | "not_ai" | "unclear" }` with no free text, checked
    strictly. Checked live 2026-11-16: `claude -p` reads an image from
