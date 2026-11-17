@@ -1,17 +1,23 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
+  function cap(str) {
+    if (str == null) return str;
+    const s = String(str);
+    return s.length > 300 ? s.slice(0, 300) : s;
+  }
+
   function makeEntry({ event, song, match, at }) {
     const m = match || {};
     return {
       at: at,
       event: event,
-      title: song ? song.title : '',
-      artistLine: song ? song.artistLine : '',
+      title: cap(song ? song.title : ''),
+      artistLine: cap(song ? song.artistLine : ''),
       listId: m.listId || null,
-      listName: m.listName || null,
+      listName: cap(m.listName || null),
       rule: m.rule || null,
-      entry: m.entry || null,
+      entry: cap(m.entry || null),
       confidence: typeof m.confidence === 'number' ? m.confidence : undefined
     };
   }
