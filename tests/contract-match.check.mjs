@@ -75,5 +75,13 @@ for (let i = 0; i < 2000; i++) match.matchSong(big, { title: `Song ${i}`, artist
 const avg = (performance.now() - t0) / 2000;
 if (!(avg < 6)) fails.push(`speed: ${avg.toFixed(3)} ms per new song`);
 
+// Review 2026-11-17: a song title that is only spaces must never match a row whose title is
+// empty (queue rows before their text is drawn, items with no title).
+{
+  const idx = match.buildIndex({ filterLists: [], user: { artists: [], songs: [{ title: "   ", artist: null }, { title: '', artist: null }], keywords: [], neverSkip: [] }, threshold: null });
+  const a = match.matchSong(idx, { title: '', artistLine: 'Real Person' });
+  const b = match.matchItem(idx, { title: '', credits: ['Real Person'], channelIds: [], featured: false });
+  if (a || b) fails.push('blank song title matched: ' + JSON.stringify({ a, b }));
+}
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : `probe ok (${avg.toFixed(3)} ms per song)`);
 process.exit(fails.length ? 1 : 0);

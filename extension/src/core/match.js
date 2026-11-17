@@ -55,7 +55,9 @@
 
     const userArtists = (user.artists || []).map(a => ({ key: normalize(a), name: a }));
     userArtists.forEach(a => known.add(a.key));
-    const userSongs = (user.songs || []).map(s => ({ title: normalize(s.title), artist: s.artist ? normalize(s.artist) : null, original: s }));
+    // A song whose title is empty after normalising would match every row whose title isn't
+    // drawn yet (review 2026-11-17): dropped, like empty keywords.
+    const userSongs = (user.songs || []).map(s => ({ title: normalize(s && s.title), artist: s && s.artist ? normalize(s.artist) : null, original: s })).filter(s => s.title);
     // An empty keyword would match every song, so empties are dropped.
     const userKeywords = (user.keywords || []).filter(k => normalize(k)).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
     const neverSkip = new Set((user.neverSkip || []).map(a => normalize(a)));
