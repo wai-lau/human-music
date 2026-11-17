@@ -25,6 +25,19 @@
     lastError: null
   };
 
+  const CEVVAL = {
+    id: 'cevval',
+    name: 'Cevval AI music list',
+    url: 'https://raw.githubusercontent.com/cevvalkoala/CevvalYoutubeAIBlocklist/main/CevvalYoutubeAIblocklist.txt',
+    enabled: true,
+    mode: 'act',
+    builtIn: true,
+    format: 'text',
+    lastRefresh: null,
+    count: 0,
+    lastError: null
+  };
+
   const FREQUENCIES = {
     '6h': 21600000,
     '12h': 43200000,
@@ -253,11 +266,33 @@
     return h.toString(16).padStart(8, '0') + ':' + text.length;
   }
 
+  function parseFilterText(text) {
+    const artists = [];
+    const seen = new Set();
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line === '' || line.startsWith('!')) continue;
+      const m = line.match(/UC[\w-]{22}/g);
+      if (m) {
+        for (let j = 0; j < m.length; j++) {
+          if (!seen.has(m[j])) {
+            seen.add(m[j]);
+            artists.push({ channelId: m[j] });
+          }
+        }
+      }
+    }
+    return { artists: artists };
+  }
+
   globalThis.HM.lists = {
     SOUL_OVER_AI: SOUL_OVER_AI,
     HM_VERDICTS: HM_VERDICTS,
+    CEVVAL: CEVVAL,
     FREQUENCIES: FREQUENCIES,
     parseFilterList: parseFilterList,
+    parseFilterText: parseFilterText,
     isRefreshDue: isRefreshDue,
     importBackup: importBackup,
     exportBackup: exportBackup,

@@ -22,11 +22,13 @@
       if (!list.enabled) continue;
       const artists = Array.isArray(list.artists) ? list.artists : [];
       for (const a of artists) {
-        if (!a || typeof a.name !== 'string' || !normalize(a.name)) continue;
-        const key = normalize(a.name);
-        known.add(key);
+        if (!a) continue;
+        const name = typeof a.name === 'string' ? a.name : '';
+        const key = name ? normalize(name) : null;
+
         if (a.channelId) known.add(a.channelId);
         if (a.spotifyId) known.add(a.spotifyId);
+        if (key) known.add(key);
 
         // The verdict list only blocks at the mode's confidence threshold.
         let confidence;
@@ -37,16 +39,16 @@
           confidence = a.confidence;
         }
 
-        const entry = { listId: list.id, listName: list.name, entry: a.name };
+        const entry = { listId: list.id, listName: list.name, entry: name || a.channelId || a.spotifyId };
         if (confidence !== undefined) entry.confidence = confidence;
         if (list.mode === 'act') {
           if (a.channelId) actChannels.set(a.channelId, entry);
           if (a.spotifyId) actChannels.set(a.spotifyId, entry);
-          actArtists.set(key, entry);
+          if (key) actArtists.set(key, entry);
         } else {
           if (a.channelId) watchChannels.set(a.channelId, entry);
           if (a.spotifyId) watchChannels.set(a.spotifyId, entry);
-          watchArtists.set(key, entry);
+          if (key) watchArtists.set(key, entry);
         }
       }
     }

@@ -15,7 +15,7 @@
 
       if (!stored[HM.store.KEYS.filterLists]) {
         await storage.set({
-          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }]
+          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }]
         });
       }
 
@@ -101,6 +101,10 @@
       let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
       if (Array.isArray(metas) && !metas.some(m => m.id === 'hm-verdicts')) {
         metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
+        await storage.set({ [HM.store.KEYS.filterLists]: metas });
+      }
+      if (Array.isArray(metas) && !metas.some(m => m.id === 'cevval')) {
+        metas = metas.concat([{ ...HM.lists.CEVVAL }]);
         await storage.set({ [HM.store.KEYS.filterLists]: metas });
       }
       return done;
@@ -197,12 +201,16 @@ list = lists[HM.store.KEYS.filterLists][i];
           return false;
         }
 
-        const parsed = JSON.parse(text);
-        const listData = globalThis.HM.lists.parseFilterList(parsed);
-
-        if (listData === null) {
-          await recordFailure(id, 'Not a filter list');
-          return false;
+        let listData;
+        if (list.format === 'text') {
+          listData = globalThis.HM.lists.parseFilterText(text);
+        } else {
+          const parsed = JSON.parse(text);
+          listData = globalThis.HM.lists.parseFilterList(parsed);
+          if (listData === null) {
+            await recordFailure(id, 'Not a filter list');
+            return false;
+          }
         }
 
         const setObj = {};
