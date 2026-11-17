@@ -2,15 +2,21 @@
   globalThis.HM = globalThis.HM || {};
   const { normalize, credits, wholeWord } = globalThis.HM.text;
 
-  function result(listId, listName, rule, entry, mode) {
-    return { listId, listName, rule, entry, mode };
+  function result(listId, listName, rule, entry, mode, confidence) {
+    const r = { listId, listName, rule, entry, mode };
+    if (confidence !== undefined) r.confidence = confidence;
+    return r;
   }
 
-  function buildIndex({ filterLists, user }) {
+  function buildIndex({ filterLists, user, threshold }) {
     const actArtists = new Map();
     const actChannels = new Map();
     const watchArtists = new Map();
     const watchChannels = new Map();
+    // Every entry on every enabled list is "known", regardless of threshold:
+    // list-only mode still sees them, and we can tell unknown artists from ones
+    // that have a low-confidence verdict.
+    const known = new Set();
 
     for (const list of filterLists) {
       if (!list.enabled) continue;
@@ -18,7 +24,21 @@
       for (const a of artists) {
         if (!a || typeof a.name !== 'string' || !normalize(a.name)) continue;
         const key = normalize(a.name);
+        known.add(key);
+        if (a.channelId) known.add(a.channelId);
+        if (a.spotifyId) known.add(a.spotifyId);
+
+        // The verdict list only blocks at the mode's confidence threshold.
+        let confidence;
+        if (list.id === 'hm-verdicts') {
+          if (threshold === null || threshold === undefined) continue;
+          if (a.verdict !== 'ai') continue;
+          if (typeof a.confidence !== 'number' || a.confidence < threshold) continue;
+          confidence = a.confidence;
+        }
+
         const entry = { listId: list.id, listName: list.name, entry: a.name };
+        if (confidence !== undefined) entry.confidence = confidence;
         if (list.mode === 'act') {
           if (a.channelId) actChannels.set(a.channelId, entry);
           if (a.spotifyId) actChannels.set(a.spotifyId, entry);
@@ -32,15 +52,31 @@
     }
 
     const userArtists = (user.artists || []).map(a => ({ key: normalize(a), name: a }));
+    userArtists.forEach(a => known.add(a.key));
     const userSongs = (user.songs || []).map(s => ({ title: normalize(s.title), artist: s.artist ? normalize(s.artist) : null, original: s }));
     // An empty keyword would match every song, so empties are dropped.
     const userKeywords = (user.keywords || []).filter(k => normalize(k)).map(k => ({ key: normalize(k), name: k, regex: wholeWord(k) }));
     const neverSkip = new Set((user.neverSkip || []).map(a => normalize(a)));
+    neverSkip.forEach(a => known.add(a));
 
     return {
       actArtists, actChannels, watchArtists, watchChannels,
       userArtists, userSongs, userKeywords, neverSkip,
+      known,
     };
+  }
+
+  function isKnown(index, item) {
+    const i = item || {};
+    const creditsList = i.credits || [];
+    const channelIds = i.channelIds || [];
+    for (const credit of creditsList) {
+      if (index.known.has(normalize(credit))) return true;
+    }
+    for (const id of channelIds) {
+      if (index.known.has(id)) return true;
+    }
+    return false;
   }
 
   // The rules in order, after Never skip: your songs, your artists, your keywords, then act
@@ -75,13 +111,13 @@
     for (const credit of normalizedCreditedArtists) {
       if (index.actArtists.has(credit)) {
         const act = index.actArtists.get(credit);
-        return result(act.listId, act.listName, 'artist', act.entry, 'act');
+        return result(act.listId, act.listName, 'artist', act.entry, 'act', act.confidence);
       }
     }
     for (const ch of channelIds) {
       if (index.actChannels.has(ch)) {
         const act = index.actChannels.get(ch);
-        return result(act.listId, act.listName, 'channel', act.entry, 'act');
+        return result(act.listId, act.listName, 'channel', act.entry, 'act', act.confidence);
       }
     }
     for (const credit of normalizedCreditedArtists) {
@@ -137,7 +173,7 @@
         if (mine) found.push(result('user:artists', 'Your artists', 'artist', mine.name, 'act'));
         else if (index.actArtists.has(credit)) {
           const act = index.actArtists.get(credit);
-          found.push(result(act.listId, act.listName, 'artist', act.entry, 'act'));
+          found.push(result(act.listId, act.listName, 'artist', act.entry, 'act', act.confidence));
         }
         else if (index.watchArtists.has(credit)) {
           const watch = index.watchArtists.get(credit);
@@ -152,5 +188,5 @@
     return matchChain(index, title, normalizedCredits, channelIds);
   }
 
-  globalThis.HM.match = { buildIndex, matchSong, matchItem };
+  globalThis.HM.match = { buildIndex, matchSong, matchItem, isKnown };
 })();

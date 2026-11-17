@@ -2,15 +2,17 @@
   globalThis.HM = globalThis.HM || {};
 
   function makeEntry({ event, song, match, at }) {
+    const m = match || {};
     return {
       at: at,
       event: event,
       title: song ? song.title : '',
       artistLine: song ? song.artistLine : '',
-      listId: match ? match.listId : null,
-      listName: match ? match.listName : null,
-      rule: match ? match.rule : null,
-      entry: match ? match.entry : null
+      listId: m.listId || null,
+      listName: m.listName || null,
+      rule: m.rule || null,
+      entry: m.entry || null,
+      confidence: typeof m.confidence === 'number' ? m.confidence : undefined
     };
   }
 
@@ -66,8 +68,12 @@
     if (e.listId === 'user:artists') return 'Your artists';
     if (e.listId === 'user:songs') return 'Your songs';
     if (e.listId === 'user:keywords') return 'Keyword “' + (e.entry || '') + '”';
-    if (e.listName) return 'AI-generated · ' + e.listName;
-    return '';
+    let r = '';
+    if (e.listName) {
+      r = 'AI-generated · ' + e.listName;
+      if (typeof e.confidence === 'number') r = r + ' · ' + e.confidence + '%';
+    }
+    return r;
   }
 
   function append(entries, entry, cap) {
