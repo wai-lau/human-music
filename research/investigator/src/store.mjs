@@ -26,8 +26,9 @@ CREATE TABLE IF NOT EXISTS artists (
   source TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS artist_keys (
-  key TEXT PRIMARY KEY,
-  artist_id INTEGER NOT NULL
+  key TEXT NOT NULL,
+  artist_id INTEGER NOT NULL,
+  PRIMARY KEY (key, artist_id)
 );
 CREATE INDEX IF NOT EXISTS artist_keys_artist ON artist_keys (artist_id);
 CREATE TABLE IF NOT EXISTS scores (
@@ -67,14 +68,15 @@ export function openStore(path) {
   db.exec(SCHEMA);
 
   const q = {
-    keyOwner: db.prepare('SELECT artist_id FROM artist_keys WHERE key = ?'),
+    keyOwners: db.prepare('SELECT artist_id FROM artist_keys WHERE key = ?'),
     insertArtist: db.prepare(`INSERT INTO artists
       (name, verdict, confidence, raw_confidence, signals, reasons, sources, model, checked, source)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
     updateArtist: db.prepare(`UPDATE artists SET name = ?, verdict = ?, confidence = ?, raw_confidence = ?,
       signals = ?, reasons = ?, sources = ?, model = ?, checked = ?, source = ? WHERE id = ?`),
-    setKey: db.prepare('INSERT OR REPLACE INTO artist_keys (key, artist_id) VALUES (?, ?)'),
-    moveKeys: db.prepare('UPDATE artist_keys SET artist_id = ? WHERE artist_id = ?'),
+    setKey: db.prepare('INSERT OR IGNORE INTO artist_keys (key, artist_id) VALUES (?, ?)'),
+    moveKeys: db.prepare('UPDATE OR IGNORE artist_keys SET artist_id = ? WHERE artist_id = ?'),
+    dropKeys: db.prepare('DELETE FROM artist_keys WHERE artist_id = ?'),
     moveScores: db.prepare('UPDATE OR IGNORE scores SET artist_id = ? WHERE artist_id = ?'),
     dropScores: db.prepare('DELETE FROM scores WHERE artist_id = ?'),
     dropArtist: db.prepare('DELETE FROM artists WHERE id = ?'),
@@ -123,13 +125,37 @@ export function openStore(path) {
     }
   }
 
-  function ownerOf(keys) {
-    const ids = new Set();
+  // The Spotify and YouTube ID keys among a list of keys (a record has at most one of each).
+  function idsIn(keys) {
+    const ids = {};
     for (const k of keys) {
-      const row = q.keyOwner.get(k);
-      if (row) ids.add(row.artist_id);
+      if (k.startsWith('sp:')) ids.sp = k;
+      else if (k.startsWith('yt:')) ids.yt = k;
     }
+    return ids;
+  }
+
+  // Two records conflict when both have a Spotify ID, or both a channel ID, and they differ.
+  function conflicts(a, b) {
+    return Boolean((a.sp && b.sp && a.sp !== b.sp) || (a.yt && b.yt && a.yt !== b.yt));
+  }
+
+  function ownersOf(keys) {
+    const ids = new Set();
+    for (const k of keys) for (const r of q.keyOwners.all(k)) ids.add(r.artist_id);
     return [...ids].sort((a, b) => a - b);
+  }
+
+  // The artists these keys refer to. Records sharing an ID come first. Failing that, the one
+  // record sharing the name, if its IDs do not conflict. A name shared by several records is
+  // ambiguous and refers to none of them (unsure means investigate, never reuse).
+  function resolve(keys) {
+    const mine = idsIn(keys);
+    const free = (id) => !conflicts(idsIn(q.keysOf.all(id).map(r => r.key)), mine);
+    const byId = ownersOf(keys.filter(k => !k.startsWith('nm:'))).filter(free);
+    if (byId.length) return byId;
+    const byName = ownersOf(keys.filter(k => k.startsWith('nm:'))).filter(free);
+    return byName.length === 1 ? byName : [];
   }
 
   return {
@@ -145,7 +171,7 @@ export function openStore(path) {
         v.model, v.checked, v.source,
       ];
       return transaction(() => {
-        const owners = ownerOf(keys);
+        const owners = resolve(keys);
         let id;
         if (owners.length === 0) {
           id = Number(q.insertArtist.run(...vals).lastInsertRowid);
@@ -155,6 +181,7 @@ export function openStore(path) {
             q.moveKeys.run(id, other);
             q.moveScores.run(id, other);
             q.dropScores.run(other);
+            q.dropKeys.run(other);
             q.dropArtist.run(other);
           }
           q.updateArtist.run(...vals, id);
@@ -165,7 +192,7 @@ export function openStore(path) {
     },
 
     findVerdict(keys) {
-      const owners = ownerOf(keys);
+      const owners = resolve(keys);
       if (owners.length === 0) return null;
       return toVerdict(q.getArtist.get(owners[0]));
     },

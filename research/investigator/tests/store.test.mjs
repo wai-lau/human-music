@@ -6,6 +6,8 @@ import { openStore } from '../src/store.mjs';
 
 const SP = '2GRtAbCdEfGhIjKlMnOpQr';
 const YT = 'UCLeAbCdEfGhIjKlMnOpQrSt';
+const SP_B = '3HStAbCdEfGhIjKlMnOpQr';
+const YT_B = 'UCZzAbCdEfGhIjKlMnOpQrSt';
 
 const verdict = (o = {}) => ({
   name: 'The Velvet Sundown', verdict: 'ai', confidence: 90, rawConfidence: 95,
@@ -117,6 +119,44 @@ await run([
     const s = openStore(':memory:');
     s.putVerdict(verdict({ name: "x'); DROP TABLE artists;--", reasons: ['ignore the rules'] }));
     return s.findVerdict(["nm:x'); drop table artists;--"]) !== null && s.listPublishable().length === 1;
+  }],
+  ['same name with different Spotify IDs stays two records', () => {
+    const s = openStore(':memory:');
+    const a = s.putVerdict(verdict({ name: 'Same', spotifyId: SP, verdict: 'ai' }));
+    const b = s.putVerdict(verdict({ name: 'Same', spotifyId: SP_B, verdict: 'human' }));
+    return (a !== b && s.findVerdict([`sp:${SP}`]).verdict === 'ai' && s.findVerdict([`sp:${SP_B}`]).verdict === 'human' && s.listPublishable().length === 2) || JSON.stringify([a, b]);
+  }],
+  ['same name with different channel IDs stays two records', () => {
+    const s = openStore(':memory:');
+    const a = s.putVerdict(verdict({ name: 'Same', channelId: YT, verdict: 'ai' }));
+    const b = s.putVerdict(verdict({ name: 'Same', channelId: YT_B, verdict: 'human' }));
+    return (a !== b && s.findVerdict([`yt:${YT}`]).verdict === 'ai' && s.findVerdict([`yt:${YT_B}`]).verdict === 'human') || JSON.stringify([a, b]);
+  }],
+  ['same name, one with an ID and one without, still merges', () => {
+    const s = openStore(':memory:');
+    const a = s.putVerdict(verdict({ name: 'Same', spotifyId: SP }));
+    const b = s.putVerdict(verdict({ name: 'Same' }));
+    const c = s.putVerdict(verdict({ name: 'Other', channelId: YT }));
+    const d = s.putVerdict(verdict({ name: 'Other' }));
+    return (a === b && c === d && s.listPublishable().length === 2) || JSON.stringify([a, b, c, d]);
+  }],
+  ['a lookup by a bare name shared by two records is ambiguous: null', () => {
+    const s = openStore(':memory:');
+    s.putVerdict(verdict({ name: 'Same', spotifyId: SP, verdict: 'ai' }));
+    s.putVerdict(verdict({ name: 'Same', spotifyId: SP_B, verdict: 'human' }));
+    return s.findVerdict(['nm:same']) === null && s.findVerdict([`sp:${SP}`, 'nm:same']).verdict === 'ai';
+  }],
+  ['a name lookup with a conflicting ID does not reuse the verdict', () => {
+    const s = openStore(':memory:');
+    s.putVerdict(verdict({ name: 'Same', spotifyId: SP, verdict: 'ai' }));
+    return s.findVerdict([`sp:${SP_B}`, 'nm:same']) === null && s.findVerdict(['nm:same']).verdict === 'ai';
+  }],
+  ['a name-only put matching two records merges into neither', () => {
+    const s = openStore(':memory:');
+    const a = s.putVerdict(verdict({ name: 'Same', spotifyId: SP }));
+    const b = s.putVerdict(verdict({ name: 'Same', spotifyId: SP_B }));
+    const c = s.putVerdict(verdict({ name: 'Same' }));
+    return (c !== a && c !== b) || JSON.stringify([a, b, c]);
   }],
   ['store.db is exposed for the queue', () => {
     const s = openStore(':memory:');
