@@ -101,6 +101,8 @@
     if (Object.prototype.hasOwnProperty.call(FREQUENCIES, frequency)) {
       interval = FREQUENCIES[frequency];
     }
+    // A time ahead of now (the clock was corrected) is no proof of a recent refresh.
+    if (typeof lastRefresh === 'number' && lastRefresh > now && interval !== Infinity) return true;
     if (interval === undefined) {
       return now - lastRefresh >= FREQUENCIES.daily;
     }

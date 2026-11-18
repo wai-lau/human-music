@@ -330,7 +330,7 @@ list = lists[HM.store.KEYS.filterLists][i];
         }
         // A list that failed in the last hour rests, so a broken list isn't fetched at every
         // worker start (the popup's Refresh button still tries at once).
-        if (list.lastError && typeof list.lastFailedAt === 'number' && now - list.lastFailedAt < 3600000) continue;
+        if (list.lastError && typeof list.lastFailedAt === 'number' && list.lastFailedAt <= now && now - list.lastFailedAt < 3600000) continue;
         if (globalThis.HM.lists.isRefreshDue(list.lastRefresh, settings.refresh, now)) {
           refreshed.push(list.id);
           await refreshOne(list.id);
