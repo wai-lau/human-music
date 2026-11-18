@@ -239,7 +239,9 @@
           const { remove, watched } = HM.lookahead.pickRemovals(rows, state.settings.lookahead,
             row => (resting(row) ? null : matchSong(row)));
           for (const w of watched) log('watched', rows[w.index], w.match, { oncePerDay: true });
-          if (!remove.length || typing()) break;
+          // The person may switch to No filtering (or the lists may go) while a removal runs:
+          // stop before the next one (review 2026-11-17).
+          if (!remove.length || typing() || state.settings.paused || !state.index) break;
           const row = rows[remove[0]];
           const match = matchSong(row);
           const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
