@@ -1,0 +1,408 @@
+{
+  "description": "Calibration set C: HARD set of small acts (no Wikipedia article, well under 100,000 monthly listeners, first release 2020 or later) whose music is clearly made by people, with at least two independent public sources. Includes faceless producers (pseudonymous lofi, ambient, synthwave) who are the cases most likely to look like AI. Used to measure how often the evidence checklist wrongly points at AI. Public artists only; spotifyId and youtubeChannelId are present only where confirmed.",
+  "built": "2026-11-18",
+  "artists": [
+    {
+      "name": "Nervous Light",
+      "firstRelease": 2020,
+      "genre": "emo / pop-punk",
+      "country": "Australia",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://www.theaureview.com/music/interviews-music/interview-nervous-light-talk-debut-ep-a-secret-video-and-being-elder-emos/",
+          "what": "The AU Review interviews band members Rich, Jordan and Antony of Brisbane about their debut EP Bury What's Left of My Heart in Your Backyard (released 4 February 2022) and a Greaser Bar show."
+        },
+        {
+          "url": "https://www.theaureview.com/music/live-review-the-comfort-nervous-light-wifecult-at-the-brightside-brisbane-26-02-23/",
+          "what": "A live review of Nervous Light at The Brightside, Brisbane on 26 February 2023 describes their set, banter and a crowd singalong."
+        }
+      ]
+    },
+    {
+      "name": "Weekend Punks",
+      "firstRelease": 2021,
+      "genre": "indie / surf pop",
+      "country": "United Kingdom",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://fortherabbits.net/2022/07/14/get-to-know-weekend-punks/",
+          "what": "A Q&A names band members Matt, Rosie, David and Jen, based in Southampton with an EP made in Southampton and Reykjavik, and a first live show planned."
+        },
+        {
+          "url": "https://weekendpunks.bandcamp.com/",
+          "what": "The Bandcamp page lists the Weekend Punks EP, location Southampton UK, and links to the band's YouTube channel."
+        }
+      ]
+    },
+    {
+      "name": "Mist & Wing",
+      "firstRelease": 2022,
+      "genre": "folk / Americana",
+      "country": "United Kingdom",
+      "faceless": false,
+      "spotifyId": "0eTdnSYYgH7wlkRyWqdMBp",
+      "youtubeChannelId": "UCTOvlnIllcQqrnohO79DD-g",
+      "evidence": [
+        {
+          "url": "https://darrensmusicblog.com/2023/03/05/indie-folk-americana-ep-review-mist-wing-step-into-the-light/",
+          "what": "An EP review names duo Alan and Grace Murray plus session players Jack Henderson, Donal McCruden and Calum Munroe on Step Into The Light, released 18 November 2022."
+        },
+        {
+          "url": "https://projects.handsupfortrad.scot/folkwaves/duntulm-by-mist-wing/",
+          "what": "The Hands Up For Trad Folk Waves page describes Alan and Grace Murray as an Isle of Skye duo and graduates of UHI Applied Music and the Royal College of Music."
+        },
+        {
+          "url": "https://mistandwing.com/",
+          "what": "The band's own site shows photos and links the Spotify artist page and YouTube channel."
+        }
+      ]
+    },
+    {
+      "name": "Goatroper",
+      "firstRelease": 2023,
+      "genre": "country / honky-tonk folk",
+      "country": "United States",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://www.adventuresinamericana.com/the-music-distillery-blog/music-review-goatropers-self-titled-debut-album",
+          "what": "A review of the self-titled debut album names Minneapolis bandleaders Abbey Janii and Mike Lee, who share songwriting and lead vocals."
+        },
+        {
+          "url": "https://first-avenue.com/performer/goatroper/",
+          "what": "First Avenue's performer page lists Goatroper as a Minneapolis group led by Mike Lee and Abbey Janii, debut album produced by Tim Evenson, with a 1 Feb 2024 Turf Club support show."
+        }
+      ]
+    },
+    {
+      "name": "Genevieve Sovereign",
+      "firstRelease": 2022,
+      "genre": "experimental electronic singer-songwriter",
+      "country": "Australia",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://happymag.tv/interview-genevieve-sovereign/",
+          "what": "A Happy Mag interview (10 Oct 2023) with Melbourne-based Genevieve Sovereign covers her debut EP It's yours., her flute and guitar playing and collaborators Emily Saaen and Paul Wyer."
+        },
+        {
+          "url": "https://rgm.press/?p=153138",
+          "what": "RGM profile says she plays flute and piccolo and lists the people who played on Midday Blue and the studios used."
+        }
+      ]
+    },
+    {
+      "name": "Jade Relics",
+      "firstRelease": 2021,
+      "genre": "hip-hop",
+      "country": "US",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://www.sevendaysvt.com/?p=93367",
+          "what": "Seven Days (Vermont) review of the debut EP Mandarine names the trio: Rico James (producer), Elder Orange/Matthew Scott (multi-instrumentalist, engineer) and IAME (MC/producer)."
+        },
+        {
+          "url": "https://jaderelics.bandcamp.com",
+          "what": "Bandcamp page credits Rico James (production), IAME (raps, production) and Elder Orange (vocals, bass, guitar, mixing) and lists singles from January 2021 and the album Mandarine on 25 March 2022."
+        }
+      ]
+    },
+    {
+      "name": "Kataan",
+      "firstRelease": 2021,
+      "genre": "death metal",
+      "country": "US",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://blessedaltarzine.com/2021/06/09/kataan-interview/",
+          "what": "Blessed Altar interview with Nicholas Thornbury (vocals, guitar) and Brett Boland (bass, drums), who describe recording the debut EP in their own apartments."
+        },
+        {
+          "url": "https://kataan.bandcamp.com/releases",
+          "what": "Bandcamp credits state 'Kataan is Nicholas Thornbury and Brett Boland', with Boland engineering and mixing, and a band photo credited to Meiling Boland; EP released 7 May 2021."
+        },
+        {
+          "url": "https://metal-temple.com/?p=58420",
+          "what": "Metal Temple review (20 June 2021) of the self-titled debut EP on Prosthetic Records names Thornbury and Boland as the members."
+        }
+      ]
+    },
+    {
+      "name": "Howl Quartet",
+      "firstRelease": 2021,
+      "genre": "jazz",
+      "country": "GB",
+      "faceless": false,
+      "spotifyId": "0JDWptjN8HpLRR01JRfFEK",
+      "evidence": [
+        {
+          "url": "https://www.thejazzmann.com/reviews/review/howl-quartet-life-as-we-see-it",
+          "what": "Ian Mann's review of the self-released debut Life As We See It names Dan Smith (alto sax), Harry Brunt (tenor sax), Pete Komor (bass) and Matt Parkinson (drums) and says it was launched by livestream on 5 March 2021."
+        },
+        {
+          "url": "https://www.greennote.co.uk/?p=8119",
+          "what": "Green Note (London venue) event listing for Jazz @ Green Note presents Howl Quartet names the four members."
+        },
+        {
+          "url": "https://howlquartet1.bandcamp.com/",
+          "what": "Bandcamp lists Life As We See It (March 2021) and later albums, with Night Song credits naming the four players and recording at Lightship 95 Studios, London."
+        }
+      ]
+    },
+    {
+      "name": "Atalaia Airlines",
+      "firstRelease": 2021,
+      "genre": "funk-pop / city pop (Portuguese)",
+      "country": "PT",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://observador.pt/2021/11/18/ondas-fm-city-pop-e-lampreia-a-bordalesa-la-no-ar-os-atalaia-airlines-viajam-sempre-em-primeira-classe/",
+          "what": "Observador (18 Nov 2021) profiles the Lisbon trio Afonso Serro, Humberto Dias and Pedro Puccini, mainly Portuguese-language songs, debut album released that day with a live show at Super Bock em Stock."
+        },
+        {
+          "url": "https://www.jambase.com/festival/super-bock-em-stock-2021",
+          "what": "JamBase lists Atalaia Airlines on the 19 November 2021 line-up of the Super Bock em Stock festival in Lisbon."
+        }
+      ]
+    },
+    {
+      "name": "Aló Presidente",
+      "firstRelease": 2021,
+      "genre": "indie rock (Spanish)",
+      "country": "ES",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://indiehoy.com/descubrir/alo-presidente-surrealismo-y-humor-negro-en-clave-indie-rock-espanol/",
+          "what": "Indie Hoy (13 April 2021) profiles the five-piece Spanish-language band (Alicia, Juan, Rodrigo, Manu, Juan Antonio) and its debut EP Que tal, mortal?."
+        },
+        {
+          "url": "https://alopresidente.bandcamp.com/album/qu-tal-mortal-2",
+          "what": "Bandcamp page, released 12 February 2021 and located in Murcia, credits Juan (vocals, guitar), Alicia (synths), Rodrigo (guitar, bass), Juan Antonio (bass, guitar) and Manu (drums)."
+        }
+      ]
+    },
+    {
+      "name": "Hoffy Beats",
+      "firstRelease": 2020,
+      "genre": "lofi hip-hop / chillhop",
+      "country": "Denmark",
+      "faceless": true,
+      "spotifyId": "2z92TjllsDfZLyBjp0SDuq",
+      "evidence": [
+        {
+          "url": "https://www.stereofox.com/interviews/hoffybeats-interview/",
+          "what": "Stereofox interview with the Denmark-based producer and pianist (addressed as Jonas) who names collaborators Farnell Newton, Lenny Loops and Bertram Kvist and mentions playing live on a Roland FA08."
+        },
+        {
+          "url": "https://label.stereofox.com/?p=1174",
+          "what": "Stereofox label artist page gives a bio of Hoffy Beats (Jonas), 26, from Denmark, a self-taught pianist who started on guitar lessons as a child, and lists the Spotify artist ID."
+        },
+        {
+          "url": "https://audiomack.com/enforcelofi/song/thehideaway",
+          "what": "Audiomack lists 'The Hideaway' by Hoffy Beats and Ricardo Schneider, both credited as producers, released 18 September 2020 on Enforce Lo-Fi."
+        }
+      ]
+    },
+    {
+      "name": "faff",
+      "firstRelease": 2021,
+      "genre": "chillhop / jazz-influenced lofi",
+      "country": "United Kingdom",
+      "faceless": true,
+      "spotifyId": "3dKNvDOPWpPth4n4gg8osF",
+      "evidence": [
+        {
+          "url": "https://label.stereofox.com/?p=2624",
+          "what": "Stereofox label page describes faff as a London-based producer originally from Texas who is a musician and songwriter, and credits collaborator lightheart, a Rotterdam drummer and beatmaker."
+        },
+        {
+          "url": "https://faff.bandcamp.com/track/remember-me",
+          "what": "Bandcamp track page shows 'Remember Me' released 31 August 2022 on Lofi Jazz Records, credited to faff with named collaborators Anton, DESH and Hippo Dreams, London UK."
+        },
+        {
+          "url": "https://faff.bandcamp.com",
+          "what": "Bandcamp artist page lists faff as a London producer and composer with tracks made with Andy from Art Class, mathien and Operator:Operator."
+        }
+      ]
+    },
+    {
+      "name": "Electron Odyssey",
+      "firstRelease": 2021,
+      "genre": "synthwave",
+      "country": "US",
+      "faceless": true,
+      "spotifyId": "7HlUOleQx5PTRTa8LEdaZe",
+      "evidence": [
+        {
+          "url": "https://cherryaudio.com/news/interview-making-waves-with-electron-odyssey",
+          "what": "Cherry Audio interview states Electron Odyssey is Jeff Spoonhower, a game cinematic artist and sound designer, whose first singles came in early 2021 and debut album Your Future Awaits in August 2021."
+        },
+        {
+          "url": "https://electronodyssey.bandcamp.com",
+          "what": "Bandcamp page names Jeff Spoonhower as musician, composer and producer, lists four albums and singles with named featured vocalists, and places him in Indiana."
+        },
+        {
+          "url": "https://www.musicmetricsvault.com/artists/electron-odyssey/7HlUOleQx5PTRTa8LEdaZe",
+          "what": "Listing shows about 1,265 monthly Spotify listeners, genres synthwave and chillwave, and links the Spotify artist page."
+        }
+      ]
+    },
+    {
+      "name": "UFO95",
+      "firstRelease": 2020,
+      "genre": "techno (live hardware)",
+      "country": "France/Belgium",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://www.buzzsprout.com/190475/episodes/18698931-ufo95",
+          "what": "Podcast interview with Killian Vaissade, who performs live on hardware, holds a Tresor residency, has played Berghain, and runs the Tesseract label with a named partner."
+        },
+        {
+          "url": "https://909originals.com/2026/02/05/909originals-catches-up-with-techno-producer-ufo95/",
+          "what": "Interview describes a French techno producer known for live sets at Berghain, Bassiani, Basement New York and Tresor, with releases on Tresor, WSNWG and MORD."
+        },
+        {
+          "url": "https://ufo95.bandcamp.com/album/dissolution",
+          "what": "Bandcamp page credits artwork to K.Vaissade and mastering to OTON, locates the act in Paris, and lists releases back to MTY003 in September 2020."
+        },
+        {
+          "url": "https://nts.live/artists/97878-ufo95",
+          "what": "NTS artist page says UFO95 has been played over 20 times on NTS since 30 September 2020 and that the debut LP was on Mama Told Ya."
+        }
+      ]
+    },
+    {
+      "name": "MZA",
+      "firstRelease": 2021,
+      "genre": "jungle / drum and bass / jazz-hop",
+      "country": "Singapore",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://mixmag.asia/feature/japanese-singaporean-producer-mza-unveils-debut-ep-balmoral",
+          "what": "Mixmag Asia reports the debut EP Balmoral on 4 June 2021 on Yen Disco Soundsystem, a label MZA co-runs, with trumpeter Toshinori Kondo featured, and DJ gigs at Potato Head Singapore and Kilo Lounge."
+        },
+        {
+          "url": "https://www.lifeinarpeggio.com/blog/mza-interview-balmoral-ep-local-electronic-producers-djs-singapore",
+          "what": "Interview with Matt Sekiya (MZA), Japanese-Singaporean, on Balmoral, the SCAPE ALT. Residency, and DJ sets at Choice Cuts Goods + Coffee and Kilo Lounge."
+        }
+      ]
+    },
+    {
+      "name": "Confidential",
+      "firstRelease": 2020,
+      "genre": "lofi hip-hop / chillhop",
+      "country": "UK",
+      "faceless": false,
+      "spotifyId": "4erl5USs7RuiUU4QeiEQFO",
+      "evidence": [
+        {
+          "url": "https://indiemusicdiscovery.com/interview-confidential",
+          "what": "Indie Music Discovery interview (Sept 2021) with the Brighton-based lo-fi chillhop artist, describing guitar-led sample-based and original music."
+        },
+        {
+          "url": "https://alex-latham-z13k.squarespace.com/blog/interview/july2022/musosoup/confidential",
+          "what": "July 2022 interview names him as George Wakerley, a former rock and metal guitarist, with debut album Sometime Tomorrow in July 2020 and links his Spotify artist page."
+        },
+        {
+          "url": "http://www.thepunkhead.com/blog/Confidential-Slipping-Away",
+          "what": "The Punk Head post names George Wakerley as Confidential and describes Slipping Away as his first release with his own vocals."
+        }
+      ]
+    },
+    {
+      "name": "jüle.",
+      "firstRelease": 2020,
+      "genre": "jazzhop / lofi",
+      "country": "UK",
+      "faceless": true,
+      "spotifyId": "2awWBxv11I86fi6z4T0U9o",
+      "evidence": [
+        {
+          "url": "https://label.stereofox.com/?p=682",
+          "what": "Stereofox Records release page names the producer as Joseph Watt, London-based, and says the melody comes from a solo he played in a live session."
+        },
+        {
+          "url": "https://toolbox.marketingtools.apple.com/en-us/apple-music/us/artist/1526445741",
+          "what": "Apple Music artist bio gives a first-person account of the drumming background and a BBC live session reimagining the tracks with other musicians, with releases from Aug 2020."
+        },
+        {
+          "url": "https://stereofox.com/jule-the-living-ft-noe-mina",
+          "what": "Stereofox post credits The Living (2023) as a collaboration between London producer jule. and US artist Noe Mina."
+        }
+      ]
+    },
+    {
+      "name": "Anhedral",
+      "firstRelease": 2020,
+      "genre": "ambient / drone",
+      "country": "Singapore",
+      "faceless": true,
+      "spotifyId": "0ISTADb9dq109Afr5btXHc",
+      "evidence": [
+        {
+          "url": "https://lifeinarpeggio.com/blog/anhedral-interview-ambient-alternative-electronic-music-producers-singapore",
+          "what": "Interview names Anhedral as the ambient alias of Singaporean musician Roystan Tan, a former lead guitarist, and calls Maiden Jaunt his 2020 debut."
+        },
+        {
+          "url": "https://anhedralsg.bandcamp.com",
+          "what": "Bandcamp lists Maiden Jaunt (Feb 2020) and Hiraeth (Jun 2021) as ambient releases from Singapore and links the Spotify artist page."
+        }
+      ]
+    },
+    {
+      "name": "Of Thread & Mist",
+      "firstRelease": 2021,
+      "genre": "dark ambient / drone",
+      "country": "United Kingdom",
+      "faceless": true,
+      "evidence": [
+        {
+          "url": "https://auralaggravation.com/tag/of-thread-mist/",
+          "what": "Review describes Of Thread & Mist as Richard Knox's new solo project, with debut album Static Hymns to No One on Gizeh Records (GZH101) out 22 January 2021, made with hand-made tape loops and modified cassette players."
+        },
+        {
+          "url": "http://www.textura.org/archives/o/ofthread&mist_statichymns.htm",
+          "what": "Review says the project is Richard Knox's, the album was recorded in September 2020 in Glossop and consists of two long dark ambient drone pieces."
+        },
+        {
+          "url": "https://acloserlisten.com/2021/01/20/of-thread-mist-static-hymns-to-no-one",
+          "what": "A Closer Listen review of Static Hymns to No One names Richard Knox as performing as Of Thread & Mist on Gizeh Records."
+        }
+      ]
+    },
+    {
+      "name": "Assistert Sjølmord",
+      "firstRelease": 2021,
+      "genre": "hardcore punk",
+      "country": "Norway",
+      "faceless": false,
+      "evidence": [
+        {
+          "url": "https://occii.org/events/kangpunk",
+          "what": "Venue listing for OCCII Amsterdam on 5 December 2025 bills Assistert Sjølmord, an Oslo hardcore band, with Zyfilis, Kronol and Stresssystem."
+        },
+        {
+          "url": "https://www.maximumrocknroll.com/band/assistert-sjolmord/",
+          "what": "Maximum Rocknroll #496 (September 2024) reviews their Klimabombe 7-inch on Static Shock as a hardcore punk debut."
+        },
+        {
+          "url": "https://yavraimentrienafaire.blogspot.com/2022/02/assistert-sjlmord.html",
+          "what": "February 2022 blog review of the band's demo names Erling (bass), Martin (drums) and Siggen (vocals) from Oslo."
+        },
+        {
+          "url": "https://stereogum.com/2271577/stream-assistert-sjolmords-feral-new-self-titled-ep/music",
+          "what": "Stereogum article (July 2024) presents the Oslo hardcore band's self-titled debut EP."
+        }
+      ]
+    }
+  ],
+  "caveats": "Gathered 2026-11-18 by a research pass; checked for JSON shape and against Soul Over AI and Zoundhub, not re-fetched by hand. Monthly listeners were mostly not measured, and Kataan, UFO95 and Atalaia Airlines may be bigger than 'small' (that makes the people side easier, not harder). The faceless flags are loose: several faceless acts are named people with some public footprint. No cafe-jazz or production-music act was found. Spotify IDs are present for 9 acts only. Some first-release years rest on one source."
+}
