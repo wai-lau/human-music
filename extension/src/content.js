@@ -107,9 +107,19 @@
     const COUNTED = new Set(['skipped', 'disliked', 'removed']);
     let count = 0;
 
+    // Once-a-day entries this tab already logged (or found logged): remembered here, so a page
+    // update every second doesn't read the whole log again to learn it (review 2026-11-17).
+    const loggedOnce = new Map();
     function log(event, song, match, { oncePerDay = false } = {}) {
       if (COUNTED.has(event)) { count++; safe(() => onCount(count)); }
       const entry = HM.log.makeEntry({ event, song, match, at: now() });
+      if (oncePerDay) {
+        const k = [entry.event, entry.title, entry.artistLine].join('\u0000');
+        const at = loggedOnce.get(k);
+        if (at !== undefined && entry.at - at >= 0 && entry.at - at < 86400000) return Promise.resolve();
+        if (loggedOnce.size >= 2000) loggedOnce.clear();
+        loggedOnce.set(k, entry.at);
+      }
       return queueWrite(async () => {
         const stored = await storage.get(HM.store.KEYS.log);
         const entries = Array.isArray(stored[HM.store.KEYS.log]) ? stored[HM.store.KEYS.log] : [];
