@@ -27,22 +27,49 @@
   }
   function clear(el) { if (el) el.textContent = ''; }
 
-  async function read(keys) {
-    try { return (await store.get(keys)) || {}; } catch (e) { return {}; }
-  }
+  const READ_FAILED = 'Could not read your saved data, so nothing was changed. Try again.';
+
+  // A failed read keeps the last copy on screen and says so: an empty answer must never stand
+  // in for the person's lists (the next edit would have written it over them).
   async function load() {
-    const r = await read([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log, HM.store.KEYS.investigator]);
+    let r;
+    try { r = (await store.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log, HM.store.KEYS.investigator])) || {}; } catch (e) {
+      status('Could not read your saved data. What shows may be out of date.');
+      return false;
+    }
     state.user = { ...HM.store.emptyUser(), ...(r[HM.store.KEYS.user] || {}) };
     state.settings = HM.settings.sanitize(r[HM.store.KEYS.settings]);
-    const lists = Array.isArray(r[HM.store.KEYS.filterLists]) ? r[HM.store.KEYS.filterLists] : [];
-    state.lists = lists.some(l => l.id === HM.lists.SOUL_OVER_AI.id) ? lists : [{ ...HM.lists.SOUL_OVER_AI }, ...lists];
+    state.lists = listsFrom(r[HM.store.KEYS.filterLists]);
     state.log = Array.isArray(r[HM.store.KEYS.log]) ? r[HM.store.KEYS.log] : [];
     const inv = r[HM.store.KEYS.investigator];
     state.investigator = inv && typeof inv === 'object' ? inv : {};
+    return true;
   }
-  const saveUser = user => { state.user = user; return store.set({ [HM.store.KEYS.user]: user }); };
-  const saveSettings = s => { state.settings = HM.settings.sanitize(s); return store.set({ [HM.store.KEYS.settings]: state.settings }); };
-  const saveLists = lists => { state.lists = lists; return store.set({ [HM.store.KEYS.filterLists]: lists }); };
+  function listsFrom(stored) {
+    const lists = Array.isArray(stored) ? stored : [];
+    return lists.some(l => l.id === HM.lists.SOUL_OVER_AI.id) ? lists : [{ ...HM.lists.SOUL_OVER_AI }, ...lists];
+  }
+
+  // Every edit reads what is stored right now, changes that, and writes it back, one edit at a
+  // time. The popup's own copy (state) is only for drawing. A failed read or write changes
+  // nothing and says so. Resolves to the new value, or null.
+  let queue = Promise.resolve();
+  function edit(key, normalize, change, apply) {
+    const run = queue.then(async () => {
+      let cur;
+      try { cur = normalize(((await store.get(key)) || {})[key]); } catch (e) { status(READ_FAILED); return null; }
+      let next;
+      try { next = normalize(change(cur)); } catch (e) { status(e.message); return null; }
+      try { await store.set({ [key]: next }); } catch (e) { status('Could not save that change.'); return null; }
+      apply(next);
+      return next;
+    });
+    queue = run.catch(() => {});
+    return run;
+  }
+  const editUser = change => edit(HM.store.KEYS.user, u => ({ ...HM.store.emptyUser(), ...(u || {}) }), change, u => { state.user = u; });
+  const editSettings = change => edit(HM.store.KEYS.settings, s => HM.settings.sanitize(s), change, s => { state.settings = s; });
+  const editLists = change => edit(HM.store.KEYS.filterLists, listsFrom, change, l => { state.lists = l; });
 
   // --- tabs --------------------------------------------------------------------
 
@@ -61,7 +88,7 @@
   }
 
   function updateList(id, change) {
-    return saveLists(state.lists.map(l => (l.id === id ? { ...l, ...change } : l)));
+    return editLists(ls => ls.map(l => (l.id === id ? { ...l, ...change } : l)));
   }
 
   // after: what to say once the refresh worked (a newly added list says how it starts).
@@ -99,11 +126,10 @@
           list.builtIn ? null : node('button', {
             class: 'link', textContent: 'Remove',
             onclick: () => {
-              let rest;
-              try { rest = HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
+              try { HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
               // The downloaded copy goes too (up to 5 MB), first: if it fails the list stays
               // in view to try again, and adding the same address later starts clean.
-              Promise.resolve().then(() => store.remove(HM.store.listKey(list.id))).then(() => saveLists(rest))
+              Promise.resolve().then(() => store.remove(HM.store.listKey(list.id))).then(() => editLists(ls => HM.popup.removeFilterList(ls, list.id)))
                 .catch(() => status('Could not remove that list. Try again.'));
             },
           }))));
@@ -132,20 +158,23 @@
   }
 
   $('add-list-btn').addEventListener('click', () => {
-    let lists;
     const act = !!$('list-act-now').checked;
-    try { lists = HM.popup.addFilterList(state.lists, $('list-url').value.trim(), $('list-name').value, { act }); } catch (e) { status(e.message); return; }
-    const added = lists[lists.length - 1];
-    const said = act ? `Added ${added.name}. It acts at once.`
-      : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
-    saveLists(lists).then(() => refreshList(added.id, said));
-    $('list-url').value = '';
-    $('list-name').value = '';
-    $('list-act-now').checked = false;
-    status(said);
+    const url = $('list-url').value.trim();
+    const name = $('list-name').value;
+    let added = null;
+    editLists(ls => { const next = HM.popup.addFilterList(ls, url, name, { act }); added = next[next.length - 1]; return next; }).then(lists => {
+      if (!lists) return;
+      const said = act ? `Added ${added.name}. It acts at once.`
+        : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
+      refreshList(added.id, said);
+      $('list-url').value = '';
+      $('list-name').value = '';
+      $('list-act-now').checked = false;
+      status(said);
+    });
   });
 
-  $('refresh-frequency').addEventListener('change', e => saveSettings({ ...state.settings, refresh: e.target.value }));
+  $('refresh-frequency').addEventListener('change', e => { const value = e.target.value; editSettings(s => ({ ...s, refresh: value })); });
 
   // --- Lists tab: your lists --------------------------------------------------------
 
@@ -166,7 +195,10 @@
       entries.forEach((entry, i) => {
         const text = typeof entry === 'string' ? entry : entry.title + (entry.artist ? ` by ${entry.artist}` : '');
         ul.append(node('li', {}, node('span', { textContent: text }),
-          node('button', { textContent: 'Remove', onclick: () => saveUser(HM.popup.removeEntry(state.user, kind, i)) })));
+          node('button', { textContent: 'Remove', onclick: () => editUser(u => {
+            const at = (u[kind] || []).findIndex(x => JSON.stringify(x) === JSON.stringify(entry));
+            return at < 0 ? u : HM.popup.removeEntry(u, kind, at);
+          }) })));
       });
     }
   }
@@ -175,14 +207,16 @@
   for (const btn of document.querySelectorAll('.add-entry-btn')) {
     const kind = btn.dataset.kind;
     const input = $(INPUTS[kind]);
-    const add = () => { saveUser(HM.popup.addEntry(state.user, kind, input.value)); input.value = ''; };
+    const add = () => { const value = input.value; input.value = ''; editUser(u => HM.popup.addEntry(u, kind, value)); };
     btn.addEventListener('click', add);
     if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
   }
   $('add-song-btn').addEventListener('click', () => {
-    saveUser(HM.popup.addSong(state.user, $('song-title').value, $('song-artist').value));
+    const title = $('song-title').value;
+    const artist = $('song-artist').value;
     $('song-title').value = '';
     $('song-artist').value = '';
+    editUser(u => HM.popup.addSong(u, title, artist));
   });
 
   // --- Lists tab: backup -------------------------------------------------------------
@@ -212,10 +246,10 @@
       return;
     }
     const u = data.user;
-    const next = HM.lists.applyBackup({ user: state.user, settings: state.settings, filterLists: state.lists }, data);
-    await saveUser(next.user);
-    if (data.settings) await saveSettings(next.settings);
-    if (data.filterLists) await saveLists(next.filterLists);
+    const apply = (u, s, l) => HM.lists.applyBackup({ user: u, settings: s, filterLists: l }, data);
+    await editUser(u => apply(u, state.settings, state.lists).user);
+    if (data.settings) await editSettings(s => apply(state.user, s, state.lists).settings);
+    if (data.filterLists) await editLists(l => apply(state.user, state.settings, l).filterLists);
     const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
     status(`Imported ${n(u.artists.length, 'artist', 'artists')}, ${n(u.songs.length, 'song', 'songs')}, ${n(u.keywords.length, 'keyword', 'keywords')} and ${n(u.neverSkip.length, 'never-skip artist', 'never-skip artists')}.`);
   });
@@ -267,7 +301,7 @@
     }
     status('');
     showMode(mode);
-    saveSettings({ ...state.settings, mode, modeChosen: true, paused: mode === 'off' });
+    editSettings(s => ({ ...s, mode, modeChosen: true, paused: mode === 'off' }));
   });
 
   // --- Investigator (development copies only) ---------------------------------------------------
@@ -298,13 +332,13 @@
     state.investigator = next;
     status(token ? 'A key is saved.' : 'The key is removed.');
     store.set({ [HM.store.KEYS.investigator]: next });
-    saveSettings({ ...state.settings, investigate: !!token });
+    editSettings(s => ({ ...s, investigate: !!token }));
     renderInvestigator();
   });
 
-  $('lookahead').addEventListener('change', e => saveSettings({ ...state.settings, lookahead: e.target.value }));
+  $('lookahead').addEventListener('change', e => { const value = e.target.value; editSettings(s => ({ ...s, lookahead: value })); });
   for (const [id, key] of Object.entries(TOGGLES)) {
-    $(id).addEventListener('change', e => saveSettings({ ...state.settings, [key]: !!e.target.checked }));
+    $(id).addEventListener('change', e => { const on = !!e.target.checked; editSettings(s => ({ ...s, [key]: on })); });
   }
 
   // --- Log tab --------------------------------------------------------------------------
@@ -390,12 +424,14 @@
           type: 'checkbox', checked: g.onNeverSkip, 'aria-label': `Always show ${g.artist}`,
           onchange: e => {
             if (e.target.checked) {
-              saveUser(HM.popup.addEntry(state.user, 'neverSkip', g.artist));
+              editUser(u => HM.popup.addEntry(u, 'neverSkip', g.artist));
               status(`${g.artist} will always show.`);
             } else {
               const N = HM.text.normalize;
-              const i = (state.user.neverSkip || []).findIndex(n => N(n) === N(g.artist));
-              if (i >= 0) saveUser(HM.popup.removeEntry(state.user, 'neverSkip', i));
+              editUser(u => {
+                const i = (u.neverSkip || []).findIndex(n => N(n) === N(g.artist));
+                return i >= 0 ? HM.popup.removeEntry(u, 'neverSkip', i) : u;
+              });
               status(`${g.artist} follows the lists again.`);
             }
           },

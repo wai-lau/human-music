@@ -6,9 +6,11 @@ import { fakeStorage } from './fakes.mjs';
 
 const settle = async () => { for (let i = 0; i < 8; i++) await new Promise(r => setTimeout(r, 0)); };
 
-async function open(initial = {}, { grant = true, dev = true } = {}) {
+async function open(initial = {}, { grant = true, dev = true, wrap = null } = {}) {
   const doc = parseHTML(readFileSync(new URL('../extension/popup/popup.html', import.meta.url), 'utf8'));
-  const storage = fakeStorage(initial);
+  const base = fakeStorage(initial);
+  const storage = wrap ? wrap(base) : base;
+  storage.data = base.data;
   const calls = { permissions: [], messages: [] };
   const chrome = {
     storage: { local: storage, onChanged: storage.onChanged },
@@ -165,6 +167,32 @@ run([
     const ids = data(p, 'hm.filterLists').map(l => l.id).join(',');
     return (afterA === '[]' && p.calls.removed === undefined && ids === 'soul-over-ai')
       || JSON.stringify({ afterA, removed: p.calls.removed, ids });
+  }],
+  ['a failed storage read keeps your lists: the next Add leaves the other entries and says so', async () => {
+    const user = { artists: ['Old Artist'], songs: [{ title: 'S', artist: null }], keywords: ['kw'], neverSkip: ['Safe One'] };
+    let failNext = false;
+    const wrap = s => ({ ...s, get: async k => { if (failNext) { failNext = false; throw new Error('storage hiccup'); } return s.get(k); } });
+    const p = await open({ 'hm.user': user }, { wrap });
+    failNext = true;
+    await p.storage.set({ 'hm.log': [] }); // a storage change: the popup reloads, and that read fails
+    await settle();
+    const shown = p.$('artists').children.length;
+    const said = p.$('status').textContent;
+    p.$('artist-input').value = 'New';
+    await p.click(p.doc.querySelector('.add-entry-btn[data-kind="artists"]'));
+    const u = data(p, 'hm.user');
+    return (shown === 1 && said !== '' && JSON.stringify(u) === JSON.stringify({ ...user, artists: ['Old Artist', 'New'] }))
+      || JSON.stringify({ shown, said, u });
+  }],
+  ['an Add whose read fails writes nothing and says so', async () => {
+    const user = { artists: ['Old Artist'], songs: [], keywords: ['kw'], neverSkip: ['Safe One'] };
+    let failNext = false;
+    const wrap = s => ({ ...s, get: async k => { if (failNext) { failNext = false; throw new Error('storage hiccup'); } return s.get(k); } });
+    const p = await open({ 'hm.user': user }, { wrap });
+    failNext = true;
+    p.$('artist-input').value = 'New';
+    await p.click(p.doc.querySelector('.add-entry-btn[data-kind="artists"]'));
+    return (JSON.stringify(data(p, 'hm.user')) === JSON.stringify(user) && p.$('status').textContent !== '') || JSON.stringify({ u: data(p, 'hm.user'), said: p.$('status').textContent });
   }],
   ['removing a list also deletes its downloaded data, so adding it again starts clean', async () => {
     const mk = (id, url) => ({ id, name: id, url, enabled: true, mode: 'act', builtIn: false, lastRefresh: 5, count: 1, lastError: null });
