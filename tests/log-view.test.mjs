@@ -72,7 +72,8 @@ run([
       e(20 * MIN, 'skipped', 'Dust', 'The Velvet Sundown'),
       e(DAY, 'skipped', 'Summer Echo', 'Desa feat. Amao • Summer Echo', SOA, 'Desa'),
     ], { now: NOW, section: 'actions' });
-    return J(g.map(x => x.artist)) === J(['The Velvet Sundown', 'Aven', 'Desa']) // the listed artist that matched (review 2026-11-17) || J(g.map(x => x.artist));
+    // Desa, not "Desa feat. Amao": the listed artist that matched (review 2026-11-17).
+    return J(g.map(x => x.artist)) === J(['The Velvet Sundown', 'Aven', 'Desa']) || J(g.map(x => x.artist));
   }],
   ['the same artist for two reasons stays two groups (each reason shown once)', () => {
     const g = popup.groupLog([e(1 * MIN, 'skipped', 'A', 'Aven'), e(2 * MIN, 'skipped', 'B', 'Aven', MINE, 'Aven')], { now: NOW, section: 'actions' });
