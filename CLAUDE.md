@@ -23,9 +23,9 @@ categorically different (not inferior)".
   source (`~/src/YTM-AI-Artist-Song-Blocker`). The spec describes all the
   behavior needed.
 - **Two parts.** `extension/` is the whole package, loaded unpacked as is.
-  The research tool (phase 2) lives in `research/` and is never bundled:
-  Wai runs it herself and publishes findings as a public list that the
-  extension subscribes to.
+  The investigator lives in `research/investigator` and is never bundled:
+  Wai runs it on her own server, and it publishes its verdicts once a day to
+  the public list wai-lau/human-music-verdicts that the extension subscribes to.
 - **Name.** Display name "Human Music: AI Music Blocker" (Wai, 2026-11-17), short name
   "Human Music" (with a space) where room is tight, such as the popup header; repo
   `human-music`.
