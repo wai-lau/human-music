@@ -98,7 +98,12 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
           queue.requeue(artist);
           return 'paused';
         }
-        // invalid (or any other failure): store nothing, do not retry today
+        // A timeout or crash may pass: try again later, twice (review 2026-11-17).
+        if (kind === 'error' && queue.retryLater(artist)) {
+          lastError(`${reason} (will try again)`);
+          return 'retry';
+        }
+        // invalid (or a failure that keeps happening): store nothing, do not retry today
         if (kind === 'invalid') store.bump(today); // Claude ran and used the subscription
         lastError(reason);
         queue.done(artist);

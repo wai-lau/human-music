@@ -22,6 +22,15 @@ function setup(cap = 100, iso = '2026-11-16T12:00:00Z') {
 }
 
 await run([
+  ['a queue made before retries gets the new columns and keeps its rows', () => {
+    const store = openStore(':memory:');
+    store.db.exec('CREATE TABLE queue (id INTEGER PRIMARY KEY AUTOINCREMENT, artist TEXT NOT NULL, playing INTEGER NOT NULL, front INTEGER NOT NULL DEFAULT 0, in_progress INTEGER NOT NULL DEFAULT 0); CREATE TABLE queue_keys (key TEXT PRIMARY KEY, queue_id INTEGER NOT NULL);');
+    store.db.prepare('INSERT INTO queue (artist, playing) VALUES (?, 0)').run(JSON.stringify(art('Old')));
+    const c = clock('2026-11-16T12:00:00Z');
+    const q = createQueue({ store, now: c.now, cap: 100 });
+    const a = q.next();
+    return (a && a.name === 'Old') || JSON.stringify(a);
+  }],
   // Review 2026-11-17 (service, finding 3): nothing ever resumed a paused queue. A usage-limit
   // pause lifts itself after an hour; a login pause waits for Wai (the CLI's resume).
   ['a limit pause lifts after an hour; a login pause never lifts by itself', () => {

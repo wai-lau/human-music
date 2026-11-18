@@ -139,7 +139,7 @@ export function createApp(env, deps = {}) {
     })().then((result) => {
       current = null;
       if (result !== 'idle') log(`step: ${result}`);
-      if (result === 'done' && !closed && !chainTimer) {
+      if ((result === 'done' || result === 'retry') && !closed && !chainTimer) {
         chainTimer = timers.setTimeout(() => { chainTimer = null; kick(); }, 0);
       }
       return result;

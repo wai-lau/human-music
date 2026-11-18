@@ -15,7 +15,8 @@ const answer = (o = {}) => ({
 // The store and queue are real (in memory); every other collaborator is a fake.
 function setup(opts = {}) {
   const store = openStore(':memory:');
-  const queue = createQueue({ store, now: () => NOW, cap: opts.cap ?? 100 });
+  const nowFn = opts.now || (() => NOW);
+  const queue = createQueue({ store, now: nowFn, cap: opts.cap ?? 100 });
   const calls = { investigate: 0, cheap: 0, publish: 0, shlabs: [], fetchArt: [], lookArt: [], prompts: [] };
   const w = createWorker({
     store,
@@ -38,11 +39,12 @@ function setup(opts = {}) {
     fetchArt: opts.fetchArt ? async (u) => { calls.fetchArt.push(u); return opts.fetchArt(u); } : undefined,
     lookArt: opts.lookArt ? async (i) => { calls.lookArt.push(i); return opts.lookArt(i); } : undefined,
     mapping: opts.mapping ?? null,
-    now: () => NOW,
+    now: nowFn,
   });
   return { store, queue, w, calls };
 }
 
+const J = (v) => JSON.stringify(v);
 const deepEqual3 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const verdictOf = (store, a) => store.findVerdict(artistKeys(a));
 
@@ -130,6 +132,28 @@ run([
     const ok = r === 'done' && verdictOf(store, a) === null && queue.status().queued === 0
       && (await w.runOne()) === 'idle' && String(queue.status().lastError).includes('verdict not one of') && queue.status().paused === null;
     return ok || JSON.stringify({ r, status: queue.status() });
+  }],
+  // Review 2026-11-17 (service, finding 6): a timeout or crash dropped the artist until the
+  // extension happened to send it again. It is retried twice, 15 minutes apart, then dropped.
+  ['a temporary failure is retried twice, 15 minutes apart, then dropped', async () => {
+    let t = NOW.getTime();
+    const a = art('Flaky');
+    const { store, queue, w, calls } = setup({ now: () => new Date(t), investigate: () => ({ ok: false, kind: 'error', detail: 'timed out after 600000 ms' }) });
+    queue.enqueue([a]);
+    const out = [await w.runOne()];
+    out.push(await w.runOne()); // not yet: 15 minutes
+    t += 16 * 60000; out.push(await w.runOne());
+    t += 16 * 60000; out.push(await w.runOne());
+    t += 16 * 60000; out.push(await w.runOne());
+    return (J(out) === J(['retry', 'idle', 'retry', 'done', 'idle']) && calls.investigate === 3 && verdictOf(store, a) === null && queue.status().queued === 0) || J({ out, n: calls.investigate, q: queue.status() });
+  }],
+  ['a waiting retry doesn\'t hold up the next artist', async () => {
+    const a = art('Flaky');
+    const b = art('Fine');
+    const { store, queue, w } = setup({ investigate: (x) => (x.name === 'Flaky' ? { ok: false, kind: 'error', detail: 'exit 1' } : { ok: true, answer: answer() }) });
+    queue.enqueue([a, b]);
+    const out = [await w.runOne(), await w.runOne(), await w.runOne()];
+    return (J(out) === J(['retry', 'done', 'idle']) && verdictOf(store, b) !== null && queue.status().queued === 1) || J({ out, q: queue.status() });
   }],
   ['an invalid answer uses a daily slot (Claude ran)', async () => {
     const { store, queue, w } = setup({ investigate: () => ({ ok: false, kind: 'invalid', detail: 'x' }) });

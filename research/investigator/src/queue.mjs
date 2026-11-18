@@ -13,7 +13,9 @@ export function createQueue({ store, now, cap }) {
       artist TEXT NOT NULL,
       playing INTEGER NOT NULL,
       front INTEGER NOT NULL DEFAULT 0,
-      in_progress INTEGER NOT NULL DEFAULT 0
+      in_progress INTEGER NOT NULL DEFAULT 0,
+      tries INTEGER NOT NULL DEFAULT 0,
+      not_before INTEGER NOT NULL DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS queue_keys (
       key TEXT PRIMARY KEY,
@@ -26,11 +28,18 @@ export function createQueue({ store, now, cap }) {
     );
   `);
 
+  // Databases made before retries (review 2026-11-17) get the two columns.
+  const cols = new Set(db.prepare('PRAGMA table_info(queue)').all().map((c) => c.name));
+  if (!cols.has('tries')) db.exec('ALTER TABLE queue ADD COLUMN tries INTEGER NOT NULL DEFAULT 0');
+  if (!cols.has('not_before')) db.exec('ALTER TABLE queue ADD COLUMN not_before INTEGER NOT NULL DEFAULT 0');
+
   const q = {
     insert: db.prepare('INSERT INTO queue (artist, playing, front) VALUES (?, ?, ?)'),
     setKey: db.prepare('INSERT OR REPLACE INTO queue_keys (key, queue_id) VALUES (?, ?)'),
     hasKey: db.prepare('SELECT 1 AS x FROM queue_keys WHERE key = ?'),
-    top: db.prepare('SELECT id, artist FROM queue WHERE in_progress = 0 ORDER BY front DESC, playing DESC, id ASC LIMIT 1'),
+    top: db.prepare('SELECT id, artist FROM queue WHERE in_progress = 0 AND not_before <= ? ORDER BY front DESC, playing DESC, id ASC LIMIT 1'),
+    triesOf: db.prepare('SELECT tries FROM queue WHERE id = ?'),
+    later: db.prepare('UPDATE queue SET in_progress = 0, tries = tries + 1, not_before = ?, front = (SELECT COALESCE(MIN(front), 0) FROM queue) - 1 WHERE id = ?'),
     drop: db.prepare('DELETE FROM queue WHERE id = ?'),
     dropKeys: db.prepare('DELETE FROM queue_keys WHERE queue_id = ?'),
     size: db.prepare('SELECT COUNT(*) AS n FROM queue WHERE in_progress = 0'),
@@ -86,7 +95,7 @@ export function createQueue({ store, now, cap }) {
       if (store.getState('queue.paused') !== null) return null;
       if (store.count(today()) >= cap) return null;
       return store.transaction(() => {
-        const row = q.top.get();
+        const row = q.top.get(now().getTime());
         if (!row) return null;
         q.take.run(row.id);
         return JSON.parse(row.artist);
@@ -102,6 +111,22 @@ export function createQueue({ store, now, cap }) {
           if (row && q.isTaken.get(row.queue_id)) { q.release.run(front, row.queue_id); return; }
         }
         insert(artist, keys, front);
+      });
+    },
+
+    // A temporary failure (a timeout, a crash): the artist goes to the back and waits
+    // waitMs, at most `max` times; then it is dropped like any failure. Returns whether it stays.
+    retryLater(artist, { waitMs = 15 * 60000, max = 2 } = {}) {
+      return store.transaction(() => {
+        for (const k of artistKeys(artist)) {
+          const row = q.owner.get(k);
+          if (!row || !q.isTaken.get(row.queue_id)) continue;
+          const t = q.triesOf.get(row.queue_id);
+          if (!t || t.tries >= max) return false;
+          q.later.run(now().getTime() + waitMs, row.queue_id);
+          return true;
+        }
+        return false;
       });
     },
 
