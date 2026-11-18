@@ -1,14 +1,15 @@
 # Chrome Web Store listing
 
 Text for each field of the developer dashboard, ready to paste. Package:
-`dist/human-music-<version>.zip`, built from `extension/` with
-`cd extension && zip -qr -X ../dist/human-music-$(jq -r .version manifest.json).zip .`.
+the item takes verified uploads only, so a release uploads the signed
+`dist/human-music-<version>.crx` that `npm run release` packs (see "Releasing
+from the terminal" below); a plain zip of `extension/` is no longer accepted.
 Check before every upload that `extension/lists/my-lists.json` holds no
 personal lists: it ships in the package.
 
 ## Package tab
 
-Upload the zip. Name ("Human Music: AI Music Blocker"), version and icon come from
+Upload the signed `.crx`. Name ("Human Music: AI Music Blocker"), version and icon come from
 `manifest.json`.
 
 ## Store listing tab
@@ -110,23 +111,31 @@ After the first upload in the dashboard, every release is one command:
     npm run release            (or: npm run release -- minor / major)
 
 Only Wai releases (2026-11-17). The two keys it needs are locked behind a
-passphrase: run `scripts/lock-release-keys.sh` once, in your own terminal, and
-from then on the release asks for the passphrase, unlocks the keys into
-memory-backed temp space for that run only, and shreds them when it ends. Back
-up `~/.keys/human-music-release.tar.gpg` off this PC. To run `upload` or
-`publish` by hand, wrap it the same way:
-`scripts/with-release-keys.sh node scripts/release.mjs upload`.
+passphrase: run `scripts/lock-release-keys.sh` once, in your own terminal. The
+release runs in two phases, and the keys exist only in the second.
 
-It refuses on uncommitted changes, off `main`, when HEAD is not exactly
-GitHub's `main`, or while a version still waits for review. Then it prints
-the commits since the last `v*` tag and waits for you to type `yes` (anything
-else stops it). It runs the unit tests, lint and the end-to-end tests on that
-commit and stops with "main moved while testing: run again" if HEAD changed
-meanwhile. Then it bumps the version above everything the store holds,
-commits `release: <version>` (the only new commit), tags `v<version>`,
-pushes, packs the signed `.crx` of the tagged commit (`scripts/pack-crx.sh`
-packs HEAD), uploads it and submits it for review. It goes live with the
-item's current visibility once Google approves it.
+Phase 1 holds no key. It refuses on uncommitted changes, off `main`, or when
+HEAD is not exactly GitHub's `main`. Then it prints the commits since the last
+`v*` tag and waits for you to type `yes` (anything else stops it). It runs the
+unit tests, lint and the end-to-end tests on that commit.
+
+Phase 2 is `node scripts/release.mjs sign`, which the release starts itself
+under `scripts/with-release-keys.sh`. That script asks for the passphrase (not
+cached), unlocks the keys into memory-backed temp space for that run only, and
+shreds them when it ends, however it ends. Phase 2 stops with "main moved while
+testing: run again" if HEAD changed meanwhile, and refuses while a version
+still waits for review. Then it bumps the version above everything the store
+holds and commits `release: <version>`. It packs the signed `.crx` and the
+Firefox zip from that commit into a staging folder, before anything is tagged
+or pushed. If a pack fails, it undoes the version commit and nothing is tagged
+or pushed. When every pack has worked it tags `v<version>`, pushes the branch
+and the tag in one atomic push, uploads the `.crx` and submits it for review.
+It goes live with the item's current visibility once Google approves it, and
+the packs are copied into `dist/`. Back up `~/.keys/human-music-release.tar.gpg`
+off this PC.
+
+To run `upload` or `publish` by hand, wrap it the same way:
+`scripts/with-release-keys.sh node scripts/release.mjs upload`.
 
 `node scripts/release.mjs status` shows the published and submitted
 versions. If an upload fails after the push, `node scripts/release.mjs
