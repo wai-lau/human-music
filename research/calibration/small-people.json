@@ -1,5 +1,5 @@
 {
-  "description": "Calibration set C: HARD set of small acts (no Wikipedia article, well under 100,000 monthly listeners, first release 2020 or later) whose music is clearly made by people, with at least two independent public sources. Includes faceless producers (pseudonymous lofi, ambient, synthwave) who are the cases most likely to look like AI. Used to measure how often the evidence checklist wrongly points at AI. Public artists only; spotifyId and youtubeChannelId are present only where confirmed.",
+  "description": "Calibration set C: HARD set of small acts (no Wikipedia article, under about 50,000 monthly listeners, first release 2020 or later) whose music is made by people, with at least two public sources. The first 20 entries (gathered first) include faceless producers (pseudonymous lofi, ambient, synthwave), the cases most likely to look like AI. Entries 21 onward (24 acts) were added later with a Spotify ID, a checked 'listeners' figure, and a Soul Over AI / Zoundhub check; they are mostly acts that show their faces. Used to measure how often the evidence checklist wrongly points at AI. Public artists only.",
   "built": "2026-11-18",
   "artists": [
     {
@@ -402,7 +402,539 @@
           "what": "Stereogum article (July 2024) presents the Oslo hardcore band's self-titled debut EP."
         }
       ]
+    },
+    {
+      "name": "Kypp Grubb",
+      "firstRelease": 2021,
+      "genre": "lofi hip hop / chillhop",
+      "country": "Chile",
+      "faceless": true,
+      "listeners": "383 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "6SBtrSI7PZyY3rQi1RW7mw",
+      "releasesNote": "about 3 per year (15 Bandcamp releases 2021-2025); not a 5+ pace",
+      "facelessNote": "pseudonym, one-line bio, no website or socials linked on Bandcamp, cover art only",
+      "evidence": [
+        {
+          "url": "https://kyppgrubb.bandcamp.com/album/statika",
+          "what": "Debut album Statika (14 July 2021, M.I.S.T. Records) is described as a project of Chilean producer Danny Arce, previously released as Arce and part of the collective Olympic."
+        },
+        {
+          "url": "https://kyppgrubb.bandcamp.com/music",
+          "what": "Artist page lists Santiago, Chile and bio 'Bedroom composer, beatmaker, lo-fi hip hop connoisseur', with releases alongside Lofi Alumni, ChillHopGuru, Beatmology and Lost City Sounds."
+        },
+        {
+          "url": "https://lo-fialumni.bandcamp.com",
+          "what": "The Springfield, Ohio label Lo-fi Alumni lists While You Sleep by Kypp Grubb on its own release roster."
+        }
+      ]
+    },
+    {
+      "name": "KapTep",
+      "firstRelease": 2021,
+      "genre": "ambient / drone",
+      "country": "US (Illinois)",
+      "faceless": true,
+      "listeners": "4.2K monthly listeners (open.spotify.com via check.py, 2026-11-18)",
+      "spotifyId": "1IyAWELH08HwshFClYVr8p",
+      "releasesNote": "about 2 per year (2025: Exhale Feb, Naming the Sky Sep); 8 releases May 2021-Jan 2026",
+      "facelessNote": "Bandcamp page has only a one-line tagline, no bio or photos; credits name Derek Carter only on one album",
+      "evidence": [
+        {
+          "url": "https://kaptep.bandcamp.com/album/music-for-migraines-vol-2",
+          "what": "Album credits name KapTep (Derek Carter) and Brannan Lane for the music, Lane for mixing, and Dionis Afonichev (Dionisaf) for mastering."
+        },
+        {
+          "url": "https://ambientcat.bandcamp.com/artists",
+          "what": "Ambient Cat label roster lists Kaptep (Illinois) alongside other named ambient artists."
+        },
+        {
+          "url": "https://www.ambientblog.net/blog/page/8/",
+          "what": "Ambient Blog, an independent site, lists a KapTep release in its May 2025 posts."
+        }
+      ]
+    },
+    {
+      "name": "Viuda",
+      "firstRelease": 2021,
+      "genre": "indie rock / post-punk",
+      "country": "Spain",
+      "faceless": false,
+      "listeners": "2.1K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "763tlp8iKt8a4yvH8HMVF0",
+      "releasesNote": "about 1 per year (EP 2021, singles 2022, album 2024)",
+      "facelessNote": "four named members, play festivals, interviewed",
+      "evidence": [
+        {
+          "url": "https://davidsaavedra2.substack.com/p/viuda-nos-gusta-utilizar-conceptos",
+          "what": "Interview names the four members from Gijón (Marta Candás, Elisa G. Gómez, Sara Rego, Eva Llavona), says they started rehearsing in a house during the pandemic, and that the writer saw them live at Monkey Week and the Tandem festival."
+        },
+        {
+          "url": "https://www.laganzua.net/noticias/24855-nuevecondiez-sinkope-skontra-la-mueska-y-viuda-conciertos-de-la-carriona-rock-aviles",
+          "what": "Concert news item (12 Sept 2022) lists Viuda on the free-entry La Carriona Rock bill in Avilés on 16 September."
+        },
+        {
+          "url": "https://somosviuda.bandcamp.com/music",
+          "what": "The band's Bandcamp lists the Provinciana album and earlier releases (first release date 2021-05-05 taken from MusicBrainz)."
+        }
+      ]
+    },
+    {
+      "name": "Grave Hex",
+      "firstRelease": 2025,
+      "genre": "death metal / punk",
+      "country": "Finland",
+      "faceless": false,
+      "listeners": "2.5K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "1NRGLmmW1YCwMxwT5c6ge1",
+      "releasesNote": "about 1 album per year; formed March 2024, debut album Aug 2025",
+      "facelessNote": "band photos by a named photographer, founders named, Helsinki scene; roster text uses initials",
+      "evidence": [
+        {
+          "url": "https://metalodyssey.net/2025/07/09/grave-hex-finnish-death-metal-punks-to-unleash-vermian-death-debut-album-this-august",
+          "what": "Label announcement names founders Matti, Miikka and Martti (Helsinki, formed March 2024), Hanna on bass, studio credits and release on Night Terrors and Cavernous Records."
+        },
+        {
+          "url": "https://mangowave-magazine.com/reviews/grave-hex-vermian-death",
+          "what": "Review of Vermian Death (22 Aug 2025) with band photos credited to Anni Lassila and the bassist Hanna named."
+        }
+      ]
+    },
+    {
+      "name": "Library Card",
+      "firstRelease": 2022,
+      "genre": "post-punk / noise punk",
+      "country": "Netherlands",
+      "faceless": false,
+      "listeners": "13.8K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "2PNgtvSYvlo95zq1d5uEiT",
+      "releasesNote": "about 1-2 per year (single Jun 2022, EP Mar 2024, album announced 2026)",
+      "facelessNote": "four named members, tour, festivals",
+      "evidence": [
+        {
+          "url": "https://leguesswho.com/lineup/library-card",
+          "what": "Le Guess Who? 2023 lineup page names Lot van Teylingen, Mitchell Quitz, Kat Kalkman and Emre Karayalcin, Rotterdam, with a Saturday 16:15 slot."
+        },
+        {
+          "url": "https://esns.nl/festival/artists/library-card",
+          "what": "Eurosonic Noorderslag page describes four members, formed mid-2021, and lists ESNS appearances in 2024 and 2025."
+        },
+        {
+          "url": "https://beatsperminute.com/library-card-skip-through-the-ruin-on-anxious-debut-single-mirror-factory/",
+          "what": "Article of 15 June 2022 on debut single Mirror Factory names the members and notes Kat Kalkman directed the video."
+        }
+      ]
+    },
+    {
+      "name": "Cage Fight",
+      "firstRelease": 2022,
+      "genre": "metal / thrashcore",
+      "country": "United Kingdom",
+      "faceless": false,
+      "listeners": "14.5K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "35GpJabAKuETXnWsWQbTjr",
+      "releasesNote": "about 1 per year (debut album May 2022; Exuvia May 2026)",
+      "facelessNote": "named members, festival and club shows, many interviews",
+      "evidence": [
+        {
+          "url": "https://moshville.co.uk/interview/2022/08/road-to-bloodstock-2022-cage-fight/",
+          "what": "Interview (9 Aug 2022) says the band has existed since Feb 2021, is based in London, names members' hometowns and a Bloodstock 2022 slot."
+        },
+        {
+          "url": "https://devolutionmagazine.co.uk/2026/04/23/interview-cage-fight-weve-got-to-know-each-other-as-musicians-a-lot-more/",
+          "what": "April 2026 interview with Rachel Aspe and James Monteith naming Will Horsman and Nick Plews, covering the album Exuvia and a London release show."
+        },
+        {
+          "url": "https://www.loudersound.com/features/cage-fight-new-band-2022-thrashcore",
+          "what": "Feature explains how Monteith met singer Rachel Aspe via a video and that the self-titled debut came out in 2022."
+        }
+      ]
+    },
+    {
+      "name": "Satellite Birdhouse",
+      "firstRelease": 2024,
+      "genre": "folk",
+      "country": "Canada",
+      "faceless": false,
+      "listeners": "173 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "5TBLJzJSrs21hLearEfhbp",
+      "releasesNote": "about 1-2 per year",
+      "facelessNote": "named duo, play NAC, award winners",
+      "evidence": [
+        {
+          "url": "https://ottawamic.com/cma/cma-2025",
+          "what": "Capital Music Awards page lists Satellite Birdhouse as winner of Newcomer of the Year, 22 May 2025, Southam Hall, National Arts Centre."
+        },
+        {
+          "url": "https://www.613today.ca/events/2026-06-11-satellite-birdhouse-jukebox-lunch-concerts",
+          "what": "Event listing names Stacy DuBois and Troy Huizinga, a folk rock duo, playing a free NAC lunch concert on 11 June 2026."
+        },
+        {
+          "url": "https://satellitebirdhouse.bandcamp.com/album/satellite-birdhouse",
+          "what": "Bandcamp album page credits Troy Huizinga as producer, a named recording engineer, mastering engineer and cover artist."
+        }
+      ]
+    },
+    {
+      "name": "KOMONO LAKE",
+      "firstRelease": 2021,
+      "genre": "city pop / J-R&B / soul",
+      "country": "Japan",
+      "faceless": false,
+      "listeners": "954 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "3wWaB9vMXkeUHD6RgH3lpG",
+      "releasesNote": "9 releases in 2021 and 8 in 2022 (Apple Music listing, singles plus EPs)",
+      "facelessNote": "three named members, Twitter/Instagram/YouTube/TikTok, played a Taiwan tour per a profile",
+      "evidence": [
+        {
+          "url": "https://www.tunecore.co.jp/artists/komono_lake?lang=en",
+          "what": "Distributor artist page names the three members: Kanbin (vocals, lyrics, illustrator), SKYTOPIA (producer, keyboards, ex-Kero Kero Bonito) and Kuroji (bass); formed in 2021 in Tokyo."
+        },
+        {
+          "url": "https://coolestsound.jp/tag/Komono%20Lake",
+          "what": "Japanese music site tag page lists the same three members and dates the EP Justified (2022-01-26), the single Easy and the album Sunshower (2022-11-30)."
+        }
+      ]
+    },
+    {
+      "name": "Munyasya",
+      "firstRelease": 2023,
+      "genre": "Afro-tech / electronic",
+      "country": "Kenya",
+      "faceless": false,
+      "listeners": "203 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "4TvHKIqggNweDs4pqn6j6Z",
+      "releasesNote": "9 releases in 2024 (Apple Music listing: singles, remix, EP)",
+      "facelessNote": "real Nairobi DJ with Mixcloud shows and several socials; face photo not described in the page text",
+      "evidence": [
+        {
+          "url": "https://musicinafrica.net/magazine/kenya-munyasya-unveils-debut-ep-adwari/",
+          "what": "Music In Africa reports the debut EP An Adwari (16 Aug 2024, Paradise Sound System) with vocalist Lizzy Agolla and collaborators RAK, Kiberu and Casis."
+        },
+        {
+          "url": "https://www.mixcloud.com/MUNY_ASYA/listens/",
+          "what": "Mixcloud profile describes a Nairobi-based self-taught artist who started DJing at 13, with premieres on DJ Mag, Norient and Pan African Music and shows on Balearic FM."
+        }
+      ]
+    },
+    {
+      "name": "Yaz León",
+      "firstRelease": 2022,
+      "genre": "neo-soul / indie soul / hip-hop",
+      "country": "United Kingdom (London; Spanish-Iraqi)",
+      "faceless": false,
+      "listeners": "100 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "5X1IWlDIQ1TotWsaXVAbMB",
+      "releasesNote": "3 releases in 2024 (Apple Music listing); about 1-3 per year",
+      "facelessNote": "photos of her in features, band, Sofar and BBC Music Introducing shows reported",
+      "evidence": [
+        {
+          "url": "https://www.clashmusic.com/?p=401214",
+          "what": "Clash Next Wave feature (29 Jul 2024) profiles the West London singer-songwriter and names BUKKY on her EP Bleach."
+        },
+        {
+          "url": "https://noctismag.com/?p=24580",
+          "what": "Noctis interview with two photos of her; says she self-produced Bleach with her band and wants to play bigger stages."
+        }
+      ]
+    },
+    {
+      "name": "Bowman Aremwaki",
+      "firstRelease": 2022,
+      "genre": "Afrobeats / dancehall / R&B",
+      "country": "Uganda",
+      "faceless": false,
+      "listeners": "1.3K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "2YoIFtQ3oep6z6p5z7j1Dh",
+      "releasesNote": "about 2 per year (Apple Music lists 2 in 2024, 1+ in 2025)",
+      "facelessNote": "named person, interviewed twice, former trio member",
+      "evidence": [
+        {
+          "url": "https://afrocritik.com/in-conversation-bowman-aremwaki-ugandan-artiste/",
+          "what": "Afrocritik interview (29 Apr 2024) with the 26-year-old from western Uganda: co-founded the collective Shwento in 2020, first solo song Dec 2022, debut EP Public Notice 2024."
+        },
+        {
+          "url": "https://www.qazini.com/i-don-t-guide-my-music-i-let-music-guide-me-bowman-aremwaki-young-ugandan-musician-on-his-musical-journey",
+          "what": "Qazini interview (2 Sep 2024) names Shwento members Agaba Collins and Simbaraishe Goodson and producers Victor Tima, Axel and Ledra on Public Notice."
+        }
+      ]
+    },
+    {
+      "name": "Nelly Baradi",
+      "firstRelease": 2025,
+      "genre": "Afro-R&B / pop",
+      "country": "Nigeria",
+      "faceless": false,
+      "listeners": "1.3K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "77bRctbyJcjkQcyEa5wrQr",
+      "releasesNote": "2 releases in 2025 (Wake Up and a live version)",
+      "facelessNote": "named singer, ex-backing vocalist for known artists, label signing coverage",
+      "evidence": [
+        {
+          "url": "https://www.thisdaylive.com/2025/06/26/troniq-music-unveils-afro-rb-powerhouse-nelly-baradi",
+          "what": "ThisDay says Troniq Music signed Nelly Toritseju Baradi (born 1999, Sapele; Lagos since 2018) and lists artists she sang backup for, including Timaya, Seyi Vibez and Mohbad."
+        },
+        {
+          "url": "https://radrafrica.com/nelly-baradi-makes-a-sultry-debut-with-wake-up",
+          "what": "RadarAfrica (30 Jun 2025) covers her debut single Wake Up on Troniq and her background vocal work."
+        }
+      ]
+    },
+    {
+      "name": "MK woop",
+      "firstRelease": 2024,
+      "genre": "hip-hop / rap (garage, grime)",
+      "country": "Japan",
+      "faceless": false,
+      "listeners": "4.2K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "3AUCOiwJCLQmRotHBdCW7j",
+      "releasesNote": "about 2 per year (Apple Music lists 1 in 2024, EP + singles 2025)",
+      "facelessNote": "named collaborators, photo of the artist in press, Tokyo scene",
+      "evidence": [
+        {
+          "url": "https://avyss-magazine.com/2025/08/06/62768",
+          "what": "Avyss lists the credits of first EP iridescent (6 Aug 2025): producer ascii (mix/master), TAXON, hyunis1000, y0da, YAYA-ko, taiyo hasumi, jacket by VC*; includes an image of the artist."
+        },
+        {
+          "url": "https://hypebeast.com/jp/2025/8/mk-woop-ep-iridescent-release-info",
+          "what": "Hypebeast Japan describes MK woop as a young Tokyo rapper and names features hyunis1000 (Kobe unit Neibiss) and DJ/singer YAYA-ko."
+        }
+      ]
+    },
+    {
+      "name": "Afamefuna",
+      "firstRelease": 2023,
+      "genre": "dance / R&B (producer)",
+      "country": "United States (Brooklyn; Kenyan-Nigerian)",
+      "faceless": false,
+      "listeners": "646 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "77xX6GTfHs4OBEBGUtxOuG",
+      "releasesNote": "about 2-3 per year (2 in 2025, 3 in 2024 under a variant name)",
+      "facelessNote": "named producer, podcast host, photographer and stylist credited",
+      "evidence": [
+        {
+          "url": "https://afrocritik.com/afamefuna-onyebadi-interview/",
+          "what": "Afrocritik interview (18 Mar 2025): Brooklyn-based Kenyan-Nigerian producer who began making beats in 2013; names vocalists on debut EP i.r.l and co-host of The 30 Percent Podcast."
+        },
+        {
+          "url": "https://musicinafrica.net/magazine/kenyan-nigerian-producer-afamefuna-shares-news-ep-iri/",
+          "what": "Music In Africa (21 Mar 2025) reports EP i.r.l with Kenyan artists Terrianne Iraki, Zowie Kengocha, Wambui and Stacy Kamatu."
+        }
+      ]
+    },
+    {
+      "name": "Erase Everything",
+      "firstRelease": 2024,
+      "genre": "shoegaze / post-punk / alt rock",
+      "country": "New Zealand",
+      "faceless": false,
+      "listeners": "55 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "6bO2RSo1VSUwVpBc0N3gbV",
+      "releasesNote": "2 EPs so far (a 2024 Bandcamp demo EP and Glass Souls in 2025); Apple Music lists 4 items in 2025 incl. singles",
+      "facelessNote": "named members, label, gigs and reviews",
+      "evidence": [
+        {
+          "url": "https://www.undertheradar.co.nz/news/22590/Interview-Erase-Everything---Glass-Souls-EP-Summer-Shows.utr",
+          "what": "Interview naming members Angelo Munro, Grant Sowerby, Matthew Berry, John Ropiha and Milan Borich, with a 13 December 2025 release show at Big Fan, Auckland and a January 2026 festival slot."
+        },
+        {
+          "url": "https://13thfloor.co.nz/?p=260397",
+          "what": "EP review by Alex Robertson (22 Oct 2025) naming the five members and their other bands, and the Sunreturn label release of Glass Souls."
+        }
+      ]
+    },
+    {
+      "name": "Bored Marsh",
+      "firstRelease": 2023,
+      "genre": "alt rock / shoegaze-leaning",
+      "country": "United Kingdom",
+      "faceless": false,
+      "listeners": "61 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "0SgGeJ9govHSfMrgapK5l5",
+      "releasesNote": "Apple Music lists 2 items in 2023, 3 in 2024, 4 in 2025 (EPs and singles)",
+      "facelessNote": "four named members, headline local shows, press coverage",
+      "evidence": [
+        {
+          "url": "https://leftlion.co.uk/features/2024/10/gig-review-bored-marsh-at-rough-trade-nottingham-live-music/",
+          "what": "Gig review of the 27 Sept 2024 EP launch at Rough Trade Nottingham naming Joe Need, Brad Westby, Jade Bowman and Paul Mason-Smith."
+        },
+        {
+          "url": "https://thenottsreview.substack.com/p/interview-bored-marsh-tell-us-all",
+          "what": "Interview with guitarist Brad Westby about forming the band, the independently released debut EP Idiot (27 Sept 2024), Focus Wales and BBC Introducing play."
+        }
+      ]
+    },
+    {
+      "name": "anklet",
+      "firstRelease": 2024,
+      "genre": "J-rock / indie rock (Japanese)",
+      "country": "Japan",
+      "faceless": false,
+      "listeners": "26 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "6QnHUKR81mkKxSKZXP5P8O",
+      "releasesNote": "about 2 per year (debut single COLORS July 2024; EP monologue May 2025)",
+      "facelessNote": "three named members, photos, tours and release shows",
+      "evidence": [
+        {
+          "url": "https://electricbloomwebzine.com/2025/04/tokyo-indie-trio-anklet-detail-first-ep-monologue-following-strong-2024-debut.html",
+          "what": "Article naming Nanami Kadowaki, Manami Okina and Haruka Kurose, formed by audition in late 2023, debut single COLORS July 2024, label R&PMusic, a three-city tour."
+        },
+        {
+          "url": "https://www.tunecore.co.jp/the-magazine/newreleases/509108",
+          "what": "TuneCore Japan release note (21 May 2025) for the EP monologue, calling its lead track a staple of their live shows."
+        }
+      ]
+    },
+    {
+      "name": "Paira",
+      "firstRelease": 2024,
+      "genre": "shoegaze-adjacent electronic alt rock (Portuguese)",
+      "country": "Brazil",
+      "faceless": false,
+      "listeners": "16.4K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "5zp72qFQJre0AGm5eIdFVW",
+      "releasesNote": "Apple Music lists 4 items in 2024 and 3 in 2025 (EP01 and singles)",
+      "facelessNote": "two named members, tour and festival-style shows",
+      "evidence": [
+        {
+          "url": "https://everythingisnoise.net/weekly-featured-artist/wfa-paira/",
+          "what": "Featured-artist piece naming Clara Borges and André Pádua of Belo Horizonte, label Balaclava Records, a June 2025 opening slot for Clap Your Hands Say Yeah."
+        },
+        {
+          "url": "https://www.last.fm/event/4917647+Est%C3%A9reo+MIS+%7C+Paira",
+          "what": "Event listing: Paira headlining Estéreo MIS at the Museu da Imagem e do Som, São Paulo, 25 April 2025, as a duo of Clara Borges and André Pádua."
+        }
+      ]
+    },
+    {
+      "name": "Blåly",
+      "firstRelease": 2023,
+      "genre": "jazz piano trio",
+      "country": "Denmark",
+      "faceless": false,
+      "listeners": "15.2K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "2MauCRPzMxXqKaMTGo1iX2",
+      "releasesNote": "debut album Nystalgi Sept 2024; Apple Music lists 1 item in 2023, 2 in 2024, 4 in 2026 (singles and live releases); instrumental with Danish titles",
+      "facelessNote": "three named members, sold-out club shows, press",
+      "evidence": [
+        {
+          "url": "https://dkdm.dk/en/news/instrumental-jazz-trio-blaly-has-just-released-their-debut-album-nystalgi",
+          "what": "Danish music-database news item naming Barbara Fiig (piano), Johan Kjær Houver (bass) and Timon Matern (drums), trio formed at the Royal Danish Academy of Music, debut album 13 Sept 2024."
+        },
+        {
+          "url": "https://jazzfuel.com/project/blaly-nystalgi/",
+          "what": "Jazz promo page for Nystalgi listing the same three members and the label April Records."
+        }
+      ]
+    },
+    {
+      "name": "Nuevos Rios",
+      "firstRelease": 2025,
+      "genre": "Afro-Colombian marimba / cumbia / tropical bass (Spanish)",
+      "country": "Colombia / France",
+      "faceless": false,
+      "listeners": "2K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "6pZwAdJCdtrKXeAGygm3db",
+      "releasesNote": "debut single Sumba Ale then self-titled album (March 2026); Apple Music lists 1 item in 2025, 3 in 2026",
+      "facelessNote": "named collaborators, label, festival stage show",
+      "evidence": [
+        {
+          "url": "https://zzkrecords.com/news/introducing-nuevos-rios-the-debut-single-from-zzk-s-newest-signing",
+          "what": "Label news post: collaboration of Nidia Góngora with Canalón de Timbiquí and the Toulouse trio Reco Reco, debut single Sumba Ale on ZZK Records."
+        },
+        {
+          "url": "https://www.humboldtforum.org/en/programm/termin/concert/nuevos-rios-col-fra-165254/",
+          "what": "Humboldt Forum (Berlin) listing of a free 90-minute Nuevos Ríos concert at the Durchlüften 2026 festival, naming Nidia Góngora as vocalist."
+        }
+      ]
+    },
+    {
+      "name": "Kronstad 23",
+      "firstRelease": 2024,
+      "genre": "jazz-rock / krautrock / post-rock",
+      "country": "Norway",
+      "faceless": false,
+      "listeners": "26.2K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "0nI2LIAQ73qp2Cpwe2FSm2",
+      "releasesNote": "about 1-2 albums per year (Jobber Overtid 2024, Sommermørket 2025, Dødehavet 2026); instrumental with Norwegian titles",
+      "facelessNote": "four named members, label releases, reviews",
+      "evidence": [
+        {
+          "url": "https://complexdistractions.blog/2025/11/18/kronstad-23-sommermorket/",
+          "what": "Review naming Øyvind Vie Berg, Aleksander Tøsdal Tveit, Eirik Rømcke and Hans Christian Dalgaard, formed in Bergen autumn 2023, recorded live on tape, label El Paraiso Records."
+        },
+        {
+          "url": "https://thesoundoffightingcatsthree.blogspot.com/2025/01/kronstad-23-jobber-overtid-2024.html",
+          "what": "Review of the 2024 debut album Jobber Overtid describing a core trio plus guest horn and drum players."
+        }
+      ]
+    },
+    {
+      "name": "Zahn",
+      "firstRelease": 2020,
+      "genre": "post-rock / krautrock / noise rock",
+      "country": "Germany",
+      "faceless": false,
+      "listeners": "2.7K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "3Mf8on77s8dgqfuXTptYO1",
+      "releasesNote": "about 1 album per 2 years; Apple Music lists 3 items in 2021, 3 in 2026 (albums and singles)",
+      "facelessNote": "three named members from other known bands, label",
+      "evidence": [
+        {
+          "url": "https://echoesanddust.com/2023/11/under-the-influence-with-zahn/",
+          "what": "Interview with Chris Breuer, Nic Stockmann and Felix Gebhard about influences and the album Adria (24 Nov 2023)."
+        },
+        {
+          "url": "https://crazysanerecords.com/artists/zahn/",
+          "what": "Label artist page naming the three members and their other bands, with the album PURPUR."
+        }
+      ]
+    },
+    {
+      "name": "Camiseta 22",
+      "firstRelease": 2022,
+      "genre": "cumbia / ska / Latin rock (Spanish)",
+      "country": "Chile",
+      "faceless": false,
+      "listeners": "10.2K monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "32lMy5o72ghZijsNvPOeUf",
+      "releasesNote": "5 releases in 2022 (4 singles plus the album Un Mundo Raro); 7 in 2024 per Apple Music, incl. live singles",
+      "facelessNote": "two named leads plus keyboardist, bar and festival shows",
+      "evidence": [
+        {
+          "url": "https://www.elmostrador.cl/cultura/2022/11/09/camiseta-22-en-bar-las-tejas/",
+          "what": "El Mostrador listing for the 9 Nov 2022 show at Bar Las Tejas, Santiago, naming Tomás Maldonado (vocals) and Robinson Acuña (guitar)."
+        },
+        {
+          "url": "https://redgol.cl/tiempolibre/El-aplaudido-reencuentro-musical-de-dos-integrantes-de-Guachupe-Antes-de-las-10-20220128-0085.html",
+          "what": "Redgol article (28 Jan 2022) on the debut single Antes de las 10 by Acuña and Maldonado, ex-Guachupé, with Camilo Salinas on keyboards."
+        }
+      ]
+    },
+    {
+      "name": "Fran Quintero",
+      "firstRelease": 2022,
+      "genre": "singer-songwriter / indie pop-rock (Spanish)",
+      "country": "Chile",
+      "faceless": false,
+      "listeners": "477 monthly listeners (open.spotify.com, 2026-11-18)",
+      "spotifyId": "2tb2LJzkF6LFQhQf43unP2",
+      "releasesNote": "5 releases in 2022 (singles Te Vas, Silencio Acelerado, Navegando, La Luna, then album La Carta)",
+      "facelessNote": "named solo artist, award, launch show",
+      "evidence": [
+        {
+          "url": "https://www.cnnchile.com/cultura/premios-pulsar-2023-ganadores_20230605/",
+          "what": "CNN Chile winners list: Fran Quintero - La Carta under Mejor nuevo o nueva artista, Premios Pulsar 2023."
+        },
+        {
+          "url": "https://sunderbeats.com/tag/fran-quintero",
+          "what": "Announcement of her La Carta launch show at Sala 1, GAM (22 July), album premiered Nov 2022."
+        },
+        {
+          "url": "https://conciertos.club/artistas/fran-quintero",
+          "what": "Profile calling her a Chilean singer-songwriter and producer, Premios Min finalist, Pulsar winner."
+        }
+      ]
     }
   ],
-  "caveats": "Gathered 2026-11-18 by a research pass; checked for JSON shape and against Soul Over AI and Zoundhub, not re-fetched by hand. Monthly listeners were mostly not measured, and Kataan, UFO95 and Atalaia Airlines may be bigger than 'small' (that makes the people side easier, not harder). The faceless flags are loose: several faceless acts are named people with some public footprint. No cafe-jazz or production-music act was found. Spotify IDs are present for 9 acts only. Some first-release years rest on one source."
+  "caveats": "Gathered 2026-11-18 by research passes over public web pages; checked for JSON shape, and (entries 21 onward) against Soul Over AI and Zoundhub by Spotify ID and name, not every page re-fetched by hand. The first 20: monthly listeners mostly not measured, Kataan, UFO95 and Atalaia Airlines may be bigger than 'small', the faceless flags are loose, Spotify IDs present for 9 only, some first-release years rest on one source. Entries 21 onward: 'listeners' is the figure printed on the artist's open.spotify.com page on 2026-11-18; Spotify IDs are from artist pages or MusicBrainz links; first-release years and per-year release counts come from Bandcamp/Apple Music listings and can be lower bounds. SHORTFALL: the follow-up aimed for 60 more acts, 30 of them faceless, but the session's web-search budget ran out; only 24 were added (2 faceless). Faceless acts with two independent real-people sources and a findable Spotify ID were the hardest to find, so the faceless side of the harder test is thin and the first 20's faceless flags remain loose."
 }
