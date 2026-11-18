@@ -22,11 +22,20 @@ or 60 or higher (Aggressive). Until the verdict list has been calibrated, both
 of those fall back to List only. List only is the default until then, and
 Optimal after that, unless you've picked a mode yourself.
 
-It works from lists you choose: [Soul Over AI](https://souloverai.com)
-(CC BY 4.0), Cevval's AI music list, Human Music's own verdicts, your own
+It works from lists you choose: [Zoundhub](https://zoundhub.com)'s clearest
+AI flags, Cevval's AI music list, Human Music's own verdicts, your own
 artists, songs and keywords, or any list you subscribe to by web address. The
-first three are built in. A new list only watches, and logs what it would
-skip, until you let it act.
+first three are built in. [Soul Over AI](https://souloverai.com) (CC BY 4.0),
+which stopped updating in March 2026, is built in too but starts switched off
+on new installs. A new list only watches, and logs what it would skip, until
+you let it act.
+
+From Zoundhub, Human Music uses only the artists it rates 5 dots that also
+carry Deezer's AI label and first released music in 2020 or later. Zoundhub
+calls its rating "an AI signal, not a verified classification", so the less
+certain ratings are left out, and a name Zoundhub also gives to a low-rated
+artist only matches that artist's Spotify ID. A copy of that list is
+refreshed in [human-music-verdicts](https://github.com/wai-lau/human-music-verdicts).
 
 Lists can't keep up with every new artist, so I run an
 investigator service that checks artists that aren't on any list yet. It looks
@@ -84,8 +93,8 @@ and in search. Spotify has no dislike button, so auto-dislike only skips there.
 
 Human Music checks songs against lists:
 
-- Filter lists you subscribe to. The Soul Over AI, Cevval and Human Music
-  verdict lists are built in, and you can add others by URL. Each one can be switched off, or put in watch
+- Filter lists you subscribe to. The Zoundhub, Cevval, Human Music verdict
+  and Soul Over AI lists are built in, and you can add others by URL. Each one can be switched off, or put in watch
   mode, where it only logs what it would have done.
 - Your own lists of artists, songs and keywords. Add to them from the
   popup, or press the block button (a circle with a slash) next to Repeat
@@ -107,7 +116,8 @@ it in Human Music's Lists tab to keep your lists.
 
 ## Credits
 
-The Soul Over AI list is by souloverai.com, used under
+The Zoundhub list comes from [zoundhub.com](https://zoundhub.com). The Soul
+Over AI list is by souloverai.com, used under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## Development

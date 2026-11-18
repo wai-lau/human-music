@@ -28,9 +28,10 @@ Upload the signed `.crx`. Name ("Human Music: AI Music Blocker"), version and ic
 > your listening: out of your queue before they play, skipped if one starts
 > anyway, and hidden on the home page and in search.
 >
-> It works from lists you choose: Soul Over AI (CC BY 4.0), Cevval's AI music
-> list, Human Music's own verdicts, your own artists, or any list you
-> subscribe to. A new list only watches until you let it act.
+> It works from lists you choose: Zoundhub's clearest AI flags, Cevval's AI
+> music list, Human Music's own verdicts, Soul Over AI (CC BY 4.0), your own
+> artists, or any list you subscribe to. A new list only watches until you
+> let it act.
 >
 > Lists can't keep up with every new artist, so Human Music's investigator
 > checks artists that aren't on any list yet. It looks for several
@@ -82,8 +83,9 @@ permission, and one for all hosts):
 The list downloads need no permission: GitHub allows any site to read its
 raw files. The built-in lists all come from public GitHub repos on
 raw.githubusercontent.com: Soul Over AI (xoundbyte/soul-over-ai), Cevval's AI
-music list (cevvalkoala/CevvalYoutubeAIBlocklist) and Human Music's verdicts
-(wai-lau/human-music-verdicts). A list the user adds downloads from its own
+music list (cevvalkoala/CevvalYoutubeAIBlocklist), and Human Music's verdicts
+and its daily copy of Zoundhub's clearest AI flags (both in
+wai-lau/human-music-verdicts). A list the user adds downloads from its own
 https address. These requests carry no user data, and no other copy of the
 extension ever sends anything (only the owner's development copy talks to
 the investigator, and store copies can't become one).

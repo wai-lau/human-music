@@ -13,6 +13,20 @@
     lastError: null
   };
 
+  // Zoundhub's clearest AI flags (rating 5 with Deezer's AI label, debut 2020 or later), mirrored
+  // daily into the verdicts repo (Wai, 2026-11-18: switch to Zoundhub now; "1A" a daily mirror).
+  const ZOUNDHUB = {
+    id: 'zoundhub',
+    name: 'Zoundhub',
+    url: 'https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/zoundhub.json',
+    enabled: true,
+    mode: 'act',
+    builtIn: true,
+    lastRefresh: null,
+    count: 0,
+    lastError: null
+  };
+
   const HM_VERDICTS = {
     id: 'hm-verdicts',
     name: 'Human Music verdicts',
@@ -328,6 +342,7 @@
     SOUL_OVER_AI: SOUL_OVER_AI,
     HM_VERDICTS: HM_VERDICTS,
     CEVVAL: CEVVAL,
+    ZOUNDHUB: ZOUNDHUB,
     FREQUENCIES: FREQUENCIES,
     parseFilterList: parseFilterList,
     parseFilterText: parseFilterText,

@@ -74,7 +74,8 @@ await t('a start gives stored built-ins the code\'s name and address, keeping th
   const m = storage.data['hm.filterLists'];
   const v = m.find(l => l.id === 'hm-verdicts'); const mine = m.find(l => l.id === 'mine');
   return (v.url === HM.lists.HM_VERDICTS.url && v.name === HM.lists.HM_VERDICTS.name && v.enabled === false && v.mode === 'watch' && v.count === 7 && v.lastRefresh === 5
-    && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 4) || J(m);
+    // 5: the four stored, plus Zoundhub, which every start adds (2026-11-18).
+    && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 5 && m.some(l => l.id === 'zoundhub')) || J(m);
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

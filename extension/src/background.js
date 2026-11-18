@@ -37,7 +37,9 @@
 
       await updateMetas(function (metas) {
         if (metas) return undefined;
-        return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }];
+        // Zoundhub replaces Soul Over AI (frozen since March 2026) for new installs; Soul Over AI
+        // stays on the list, off (Wai, 2026-11-18).
+        return [{ ...globalThis.HM.lists.SOUL_OVER_AI, enabled: false }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }];
       });
 
       if (!stored[HM.store.KEYS.user]) {
@@ -65,7 +67,7 @@
     // Built-in upkeep at every start, whatever happened to the bundled import.
     async function ensureBuiltIns() {
       const HM = globalThis.HM;
-      const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL];
+      const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB];
       // No list meta yet means install has not run: leave the storage to it. Built-in lists
       // take their name, address and format from the code, so a list that moves (the verdict
       // list did, 2026-11-17) follows on the next start, and a missing one comes back. The
@@ -81,7 +83,7 @@
           if (code.format === undefined) delete fixed.format; else fixed.format = code.format;
           return fixed;
         });
-        for (const code of [HM.lists.HM_VERDICTS, HM.lists.CEVVAL]) {
+        for (const code of [HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB]) {
           if (!next.some(function (m) { return m && m.id === code.id; })) { next = next.concat([{ ...code }]); changed = true; }
         }
         return changed ? next : undefined;

@@ -31,6 +31,7 @@ function rig(seed) {
       meta(HM.lists.SOUL_OVER_AI),
       meta(HM.lists.HM_VERDICTS, { url: 'https://old.example/verdicts.json', name: 'Old verdicts name' }),
       meta(HM.lists.CEVVAL, { name: 'Old cevval name', url: 'https://old.example/cevval.txt' }),
+      meta(HM.lists.ZOUNDHUB), // a copy that has started since Zoundhub became built in (2026-11-18)
       meta({ id: 'mine', name: 'Mine', url: 'https://example.org/mine.json', enabled: true, mode: 'act', builtIn: false }),
     ],
   });

@@ -197,9 +197,9 @@ async function runTests() {
     for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
     const atStart = refreshedUrls.slice();
     await refresher.refreshDue();
-    // The start-up upkeep adds the two built-in lists this storage lacked (verdicts, Cevval),
-    // which are due too.
-    if (atStart.length !== 4 || refreshedUrls.length !== 4) {
+    // The start-up upkeep adds the three built-in lists this storage lacked (verdicts, Cevval,
+    // Zoundhub since 2026-11-18), which are due too.
+    if (atStart.length !== 5 || refreshedUrls.length !== 5) {
       throw new Error('wrong number of fetches: ' + atStart.length + ' at start, ' + refreshedUrls.length + ' after');
     }
     // (Soul Over AI's address is the code's: the built-in upkeep repairs it at start.)
