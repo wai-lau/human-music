@@ -24,7 +24,7 @@ import { openStore } from './store.mjs';
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
 const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report';
 // In the repo the sample files sit beside the service; on the droplet pass their paths.
-const DEFAULT_SOA = new URL('../../../extension/lists/soul-over-ai.json', import.meta.url);
+const DEFAULT_SOA = new URL('../calibration/soul-over-ai.json', import.meta.url);
 const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
 const flag = (args, name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 

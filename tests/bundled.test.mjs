@@ -48,8 +48,7 @@ run([
     const idx = JSON.parse(ext('lists/index.json'));
     const files = idx.files.map(f => [f.file, JSON.parse(ext('lists/' + f.file))]);
     const mine = files.find(([f]) => f === 'my-lists.json')[1];
-    const soa = files.find(([f]) => f === 'soul-over-ai.json')[1];
-    return (mine.format === 'human-music-backup' && soa.artists.length > 1000 && soa.artists.every(a => typeof a.name === 'string' && a.name)) || 'bad files';
+    return mine.format === 'human-music-backup' || 'bad files';
   }],
   ['install imports your lists and fills Soul Over AI from the snapshot when offline', async () => {
     const { r, storage } = refresher({}, { 'lists/index.json': index, 'lists/my-lists.json': backup(U({ artists: ['Band A'] })), 'lists/soa.json': snapshot });

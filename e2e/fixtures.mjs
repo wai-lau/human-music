@@ -32,7 +32,7 @@ const iconOf = file => readFileSync(join(EXT, 'src/page', file), 'utf8').match(/
 export const ICONS = { ytm: iconOf('ytm.js'), spotify: iconOf('spotify.js') };
 
 // An artist from the bundled Soul Over AI list that has a Spotify ID.
-const SOA = JSON.parse(readFileSync(join(EXT, 'lists/soul-over-ai.json'), 'utf8'));
+const SOA = JSON.parse(readFileSync(join(here, '..', 'research', 'calibration', 'soul-over-ai.json'), 'utf8'));
 export const LISTED = (Array.isArray(SOA) ? SOA : SOA.artists).find(a => a && a.name && /^[A-Za-z0-9]{22}$/.test(a.spotifyId || ''));
 
 const EMPTY_USER = { artists: [], songs: [], keywords: [], neverSkip: [] };
