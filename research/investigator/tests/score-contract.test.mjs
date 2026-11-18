@@ -2,7 +2,7 @@
 // her earlier ask: "each thing that is being researched should assign some percentage of the
 // certainty"). Numbers and rules come from research/calibration/signals-research.md: section 3
 // (the signs and their points), section 4 (groups, caps, guards) and section 5 (worked examples,
-// used as the cases below). Run: node tests/score-contract.check.mjs (from research/investigator).
+// used as the cases below). Run: node tests/score-contract.test.mjs (from research/investigator).
 //
 // Interface:
 //   SIGNS: { <code>: { group, points } } for every scored sign. group is 'A'..'F' or 'people'.
@@ -126,6 +126,10 @@ await run([
   ['a different prior moves the start', () => {
     const r = score({}, { opts: { prior: 0.4 } });
     return near(r.probability, 0.4) || J(r);
+  }],
+  ['a status that names an object property is not a level', () => {
+    const r = score({ S3: 'constructor', P2: 'toString', M1: '__proto__' });
+    return (r.groups.A === 0 && r.groups.people === 0 && Number.isFinite(r.score)) || JSON.stringify(r.groups);
   }],
   ['bad input never throws and counts nothing', () => {
     const rs = [scoreChecklist(null), scoreChecklist({}), scoreChecklist({ signs: 'x', genres: 5, sources: null })];
