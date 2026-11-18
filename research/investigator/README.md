@@ -34,7 +34,7 @@ Verdict words are `ai`, `human` and `unsure`. Confidence is an integer from 0 to
 - A login problem, a usage limit, or a setup problem (for example `claude` missing from the service's PATH) pauses the queue and keeps the artist. A usage-limit pause lifts itself an hour after it began. The others wait for the owner to fix the cause and run `resume`.
 - A timeout or crash sends the artist to the back of the queue to wait 15 minutes, at most twice. An answer that fails the schema check is dropped.
 - IDs that Claude finds on the web are never stored. A record keeps only the IDs the extension sent from the page.
-- Git stops after 2 minutes, ssh after 20 seconds to connect or 30 seconds of silence, and SH Labs calls after 15 seconds. Publishing uses GitHub's published SSH host keys, pinned in a `known_hosts` file the publisher writes, with `StrictHostKeyChecking=yes`.
+- Each publishing command stops after 2 minutes, the connection to GitHub after 20 seconds to connect or 30 seconds of silence, and SH Labs calls after 15 seconds. Publishing checks GitHub's published host keys, pinned in a `known_hosts` file the publisher writes, and refuses any other host.
 - A verdict that did not meet the rule for `ai` stays under 95 after the confidence mapping.
 
 ## How the owner's keys stay out of Claude's reach
