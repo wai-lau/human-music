@@ -38,6 +38,22 @@ await run([
     return (r.ok && r.checklist.signs.S1 === 'found' && r.checklist.signs.P2 === 'streaming_date' && r.checklist.signs.P3 === 'not_found'
       && J(r.checklist.sources) === J(['https://zoundhub.com/artist/x', 'https://open.spotify.com/album/y']) && J(r.checklist.genres) === J(['indie rock'])) || J(r);
   }],
+  // The first experiment run (2026-11-18) lost found signs whose source held a link plus a note
+  // ("https://... (album list)"): the first https link in the text is the source.
+  ['a source with a note around its link keeps the sign; the link is taken out cleanly', () => {
+    const a = full();
+    a.signs.M4 = { status: 'found', source: 'Deezer album list: https://www.deezer.com/en/artist/1/albums (94 albums).' };
+    a.signs.S1 = { status: 'found', source: '<https://zoundhub.com/artist/x>, relays the flag' };
+    const r = checkChecklist(a);
+    return (r.ok && r.checklist.signs.M4 === 'found' && r.checklist.signs.S1 === 'found'
+      && J(r.checklist.sources) === J(['https://zoundhub.com/artist/x', 'https://www.deezer.com/en/artist/1/albums'])) || J(r);
+  }],
+  ['the raw answer per sign is kept for audit, cut short', () => {
+    const a = full();
+    a.signs.M6 = { status: 'found', source: 'x'.repeat(400) };
+    const r = checkChecklist(a);
+    return (r.ok && r.checklist.raw.M6.status === 'found' && r.checklist.raw.M6.source.length === 200 && r.checklist.signs.M6 === 'unknown') || J(r.checklist && r.checklist.raw && r.checklist.raw.M6);
+  }],
   ['a found sign with no https page counts as unknown', () => {
     const a = full();
     a.signs.M6 = { status: 'found', source: 'I searched everywhere' };

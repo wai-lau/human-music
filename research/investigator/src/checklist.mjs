@@ -5,7 +5,13 @@
 // service checks them itself: M3 and P16 (SH Labs), W4 (the tool-less cover look); and P1
 // (a release before 2020) is the cheap pass's rule before Claude runs at all.
 
-const HTTPS = /^https:\/\/[^\s]+$/;
+// The first https link in a source text (Claude often adds a note around it), without the
+// punctuation that ends a sentence or wraps a link.
+const LINK = /https:\/\/[^\s<>"'`]+/;
+function linkIn(text) {
+  const m = LINK.exec(text);
+  return m ? m[0].replace(/[).,;:!?\]}>]+$/, '') : '';
+}
 
 // code -> [the status words Claude may use besides not_found and unknown, the wording]
 export const CHECKLIST = {
@@ -94,14 +100,17 @@ export function checkChecklist(candidate) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, reason: 'no signs' };
   const signs = {};
   const sources = [];
+  const given = {};
   for (const code of CODES) {
     const entry = raw[code];
     if (!entry || typeof entry !== 'object') return { ok: false, reason: `missing sign ${code}` };
     if (!statusesOf(code).includes(entry.status)) return { ok: false, reason: `bad status for ${code}` };
     let status = entry.status;
-    const source = typeof entry.source === 'string' ? entry.source.trim() : '';
+    const text = typeof entry.source === 'string' ? entry.source.trim() : '';
+    given[code] = { status: entry.status, source: text.slice(0, 200) };
     if (status !== 'not_found' && status !== 'unknown') {
-      if (HTTPS.test(source)) sources.push(source);
+      const link = linkIn(text);
+      if (link.length > 'https://'.length) sources.push(link);
       else status = 'unknown';
     }
     signs[code] = status;
@@ -110,5 +119,5 @@ export function checkChecklist(candidate) {
     ? candidate.genres.filter((g) => typeof g === 'string' && g.trim()).map((g) => g.trim().slice(0, 60)).slice(0, 6)
     : [];
   const summary = typeof candidate.summary === 'string' ? candidate.summary.slice(0, 600) : '';
-  return { ok: true, checklist: { signs, genres, sources: [...new Set(sources)], summary } };
+  return { ok: true, checklist: { signs, genres, sources: [...new Set(sources)], summary, raw: given } };
 }
