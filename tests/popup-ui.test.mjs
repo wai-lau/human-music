@@ -27,7 +27,37 @@ async function open(initial = {}, { grant = true, dev = true, wrap = null } = {}
 }
 const data = (p, k) => p.storage.data[k];
 
+const LOGGED = (title = 'X') => ({ at: Date.now(), event: 'hidden', title, artistLine: 'Y', listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'Y' });
+
 run([
+  // Review 2026-11-17: every log write (a tab logs a song) redrew the whole popup, so keyboard
+  // focus fell out of whatever you were using and a half-typed lookahead number was reset.
+  ['a log write while typing in the lookahead field keeps what you typed and the focus', async () => {
+    const p = await open();
+    const f = p.$('lookahead'); f.focus(); f.value = '8';
+    await p.storage.set({ 'hm.log': [LOGGED()] }); await settle();
+    return (f.value === '8' && p.doc.activeElement === f) || JSON.stringify({ v: f.value, a: p.doc.activeElement.id });
+  }],
+  ['a log write leaves the lists tab alone: a focused switch stays put and focused', async () => {
+    const p = await open();
+    const box = p.doc.querySelector('#watch-lists input'); box.focus();
+    await p.storage.set({ 'hm.log': [LOGGED()] }); await settle();
+    return (box.isConnected && p.doc.activeElement === box) || JSON.stringify({ connected: box.isConnected });
+  }],
+  ['switching Watch only by keyboard keeps focus on that switch after the redraw', async () => {
+    const p = await open();
+    const box = p.doc.querySelector('#watch-lists input'); const label = box.getAttribute('aria-label'); box.focus();
+    box.checked = !box.checked; box.dispatchEvent(new Event('change')); await settle();
+    const a = p.doc.activeElement;
+    return (a && a.getAttribute && a.getAttribute('aria-label') === label) || JSON.stringify({ want: label, got: a && a.getAttribute && a.getAttribute('aria-label') });
+  }],
+  ['opening a log group by keyboard keeps focus on its toggle', async () => {
+    const p = await open({ 'hm.log': [LOGGED('Song A')] });
+    const t = p.doc.querySelector('#log-entries .log-toggle'); t.focus();
+    await p.click(t);
+    const a = p.doc.activeElement;
+    return (a && a.classList && a.classList.contains('log-toggle') && a.getAttribute('aria-expanded') === 'true') || JSON.stringify({ cls: a && a.className });
+  }],
   ['Log is the first tab and the popup opens on it (Wai, 2026-11-13: "First Tab should be Log")', async () => {
     const p = await open();
     const tabs = [...p.doc.querySelectorAll('.tab')];

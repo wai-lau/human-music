@@ -259,7 +259,8 @@
   const TOGGLES = { 'auto-skip': 'autoSkip', 'auto-dislike': 'autoDislike', 'hide-items': 'hidePageItems', 'player-buttons': 'playerButtons' };
 
   function renderSettings() {
-    $('lookahead').value = String(state.settings.lookahead);
+    // Not while you're typing in it (review 2026-11-17: a log write reset a half-typed number).
+    if (document.activeElement !== $('lookahead')) $('lookahead').value = String(state.settings.lookahead);
     for (const [id, key] of Object.entries(TOGGLES)) $(id).checked = !!state.settings[key];
   }
 
@@ -414,7 +415,8 @@
       }
       const toggle = node('button', {
         class: 'log-toggle', 'aria-expanded': String(open), title: open ? 'Hide songs' : 'Show songs',
-        onclick: () => { if (expanded.has(key)) expanded.delete(key); else expanded.add(key); renderLog(); },
+        'data-focus': `log|${key}`,
+        onclick: () => { if (expanded.has(key)) expanded.delete(key); else expanded.add(key); keepFocus(renderLog); },
       }, node('span', { class: 'chev', 'aria-hidden': 'true' }),
         node('span', { class: 'log-artist', textContent: g.artist }),
         node('span', { class: 'log-sum', textContent: String(g.total) }));
@@ -460,12 +462,49 @@
 
   function renderAll() { renderFilterLists(); renderUserLists(); renderSettings(); renderMode(); renderInvestigator(); renderToday(); renderLog(); }
 
+  // A redraw puts keyboard focus back on the same control (review 2026-11-17: it fell out of
+  // the popup on every redraw). Controls are found again by id, data-focus or aria-label.
+  function keepFocus(render) {
+    const a = document.activeElement;
+    const k = a && a !== document.body && a.getAttribute
+      ? { id: a.id || '', tag: (a.tagName || '').toLowerCase(), focus: a.getAttribute('data-focus'), label: a.getAttribute('aria-label') }
+      : null;
+    render();
+    if (!k || (document.activeElement && document.activeElement !== document.body)) return;
+    let el = k.id ? $(k.id) : null;
+    if (!el && k.tag && (k.focus || k.label)) {
+      el = [...document.querySelectorAll(k.tag)].find(e => (k.focus ? e.getAttribute('data-focus') === k.focus : e.getAttribute('aria-label') === k.label)) || null;
+    }
+    if (el && typeof el.focus === 'function') el.focus();
+  }
+
+  // Only the sections whose data changed are drawn again: a tab logs songs all the time, and
+  // that must not rebuild the lists you are working in.
+  const SECTIONS = [
+    [k => k === HM.store.KEYS.log, [renderToday, renderLog]],
+    [k => k === HM.store.KEYS.user, [renderUserLists, renderLog]],
+    [k => k === HM.store.KEYS.settings, [renderSettings, renderMode, renderInvestigator, renderLog]],
+    [k => k === HM.store.KEYS.filterLists || k.startsWith('hm.list.'), [renderFilterLists, renderMode, renderLog]],
+    [k => k === HM.store.KEYS.investigator, [renderInvestigator]],
+  ];
+  function renderFor(keys) {
+    const todo = new Set();
+    for (const k of keys) {
+      const hit = SECTIONS.find(([is]) => is(k));
+      if (!hit) return renderAll; // a key this list doesn't know: draw everything
+      for (const fn of hit[1]) todo.add(fn);
+    }
+    return () => { for (const fn of todo) fn(); };
+  }
+
   const onChanged = (api.storage && api.storage.onChanged) || store.onChanged;
   if (onChanged) {
     onChanged.addListener((changes, area) => {
       if (area && area !== 'local') return;
-      if (!Object.keys(changes).some(k => k.startsWith('hm.'))) return;
-      load().then(renderAll);
+      const keys = Object.keys(changes).filter(k => k.startsWith('hm.'));
+      if (!keys.length) return;
+      const render = renderFor(keys);
+      load().then(ok => { if (ok !== false) keepFocus(render); });
     });
   }
 
