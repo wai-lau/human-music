@@ -9,7 +9,7 @@
 //   The key's name is 'investigator-token'.
 //   HM.moveInvestigatorKey(storage, secrets): a token still in hm.investigator moves to the secrets
 //   and leaves storage (run at every worker start).
-// Run from the repo root: node tests/wip-contract-secret-key.check.mjs
+// Run from the repo root: node tests/contract-secret-key.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');

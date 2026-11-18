@@ -17,13 +17,14 @@ async function open(initial = {}, { grant = true, dev = true, wrap = null } = {}
     permissions: { request: (q, cb) => { calls.permissions.push(q); cb(grant); }, remove: (q, cb) => { calls.removed = (calls.removed || []).concat([q]); if (cb) cb(true); } },
     runtime: { sendMessage: (m, cb) => { calls.messages.push(m); if (dev === 'throw' && m.type === 'dev-mode') throw new Error('no worker'); if (cb) cb(m.type === 'dev-mode' ? dev === true : true); } },
   };
-  load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'popup/model.js', 'popup/popup.js'],
-    { document: doc, chrome, URL, Blob, setTimeout, clearTimeout });
+  const secrets = new Map();
+  load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/secret.js', 'popup/model.js', 'popup/popup.js'],
+    { document: doc, chrome, URL, Blob, setTimeout, clearTimeout, __hmSecretBackend: { get: k => secrets.get(k) || null, set: (k, v) => secrets.set(k, v), remove: k => secrets.delete(k) } });
   await settle();
   const $ = id => doc.getElementById(id);
   const change = async (id, set) => { set($(id)); $(id).dispatchEvent(new Event('change')); await settle(); };
   const click = async el => { el.click(); await settle(); };
-  return { doc, storage, calls, $, change, click };
+  return { doc, storage, secrets, calls, $, change, click };
 }
 const data = (p, k) => p.storage.data[k];
 
@@ -301,16 +302,17 @@ run([
     const p = await open({ 'hm.log': [{ at: Date.now(), event: 'removed', title: 'T', artistLine: 'Forrest Rose', listId: 'hm-verdicts', listName: 'Human Music verdicts', rule: 'artist', entry: 'Forrest Rose', confidence: 97 }] });
     return p.doc.querySelector('#log-entries .log-reason').textContent === 'AI-generated · Human Music verdicts · 97%' || p.doc.querySelector('#log-entries').textContent;
   }],
-  ['investigator: saving a key stores it apart from settings, sets investigate, empties the field; clearing turns it off', async () => {
-    const p = await open();
+  ['investigator: saving a key stores it in secrets, sets investigate, empties the field; clearing turns it off', async () => {
+    const p = await open({ 'hm.investigator': { base: 'https://wai-lau.net/human-music', sent: {} } });
     const type = p.$('investigator-token').getAttribute('type') === 'password' && p.$('investigator').hidden === false;
     p.$('investigator-token').value = 'secret-key-123';
     await p.click(p.$('investigator-save'));
     const inv = data(p, 'hm.investigator');
-    const saved = inv.token === 'secret-key-123' && data(p, 'hm.settings').investigate === true && p.$('investigator-token').value === ''
+    const saved = !('token' in inv) && inv.base === 'https://wai-lau.net/human-music' && data(p, 'hm.settings').investigate === true && p.$('investigator-token').value === ''
+      && p.secrets.get('investigator-token') === 'secret-key-123'
       && !JSON.stringify(data(p, 'hm.settings')).includes('secret-key') && !p.doc.body.textContent.includes('secret-key') && /key is saved/.test(p.$('investigator-status').textContent);
     await p.click(p.$('investigator-save'));
-    const cleared = data(p, 'hm.investigator').token === '' && data(p, 'hm.settings').investigate === false;
+    const cleared = (p.secrets.get('investigator-token') ?? null) === null && data(p, 'hm.settings').investigate === false;
     return (type && saved && cleared) || JSON.stringify({ type, saved, cleared, inv });
   }],
   ['investigator: saving a key keeps the worker\'s newer sent record and last error', async () => {
@@ -320,7 +322,7 @@ run([
     p.$('investigator-token').value = 'new-key';
     await p.click(p.$('investigator-save'));
     const inv = data(p, 'hm.investigator');
-    return (inv.token === 'new-key' && inv.sent['some artist'] === '2026-11-17' && inv.lastSentAt === 5 && inv.lastError === 'HTTP 503') || JSON.stringify(inv);
+    return (!('token' in inv) && p.secrets.get('investigator-token') === 'new-key' && inv.sent['some artist'] === '2026-11-17' && inv.lastSentAt === 5 && inv.lastError === 'HTTP 503') || JSON.stringify(inv);
   }],
   ['investigator status shows last sent and last error', async () => {
     const p = await open({ 'hm.investigator': { token: 'k', base: 'https://wai-lau.net/human-music', sent: {}, lastSentAt: Date.now() - 60000, lastError: 'HTTP 401' } });

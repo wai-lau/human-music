@@ -48,7 +48,7 @@ const html = readFileSync(process.cwd() + '/extension/popup/popup.html', 'utf8')
 for (const label of ['Lists', 'Behaviour', 'Log']) t(`tab ${label}`, () => new RegExp(`<button[^>]*>\\s*${label}\\s*</button>`).test(html) || 'no tab button');
 t('credit line', () => html.includes('Soul Over AI list by souloverai.com, CC BY 4.0.') || 'missing');
 const srcs = [...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map(m => m[1]);
-eq('script order', srcs, ['../src/core/text.js', '../src/core/store.js', '../src/core/lists.js', '../src/core/settings.js', '../src/core/log.js', 'model.js', 'popup.js']);
+eq('script order', srcs, ['../src/core/text.js', '../src/core/store.js', '../src/core/lists.js', '../src/core/settings.js', '../src/core/log.js', 'model.js', '../src/core/secret.js', 'popup.js']);
 t('no inline script', () => !/<script(?![^>]*\bsrc=)[^>]*>\s*\S/.test(html) || 'inline script');
 t('popup.js and css exist', () => { readFileSync(process.cwd() + '/extension/popup/popup.js'); readFileSync(process.cwd() + '/extension/popup/popup.css'); return true; });
 

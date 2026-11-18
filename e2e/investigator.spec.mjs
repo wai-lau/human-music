@@ -8,7 +8,9 @@ const UNKNOWN = 'E2E Unknown Act';
 
 async function recordSends(worker, token) {
   await worker.evaluate(async (token) => {
-    await chrome.storage.local.set({ 'hm.investigator': { token } });
+    // The key lives in the extension's own IndexedDB, never in storage (hardening, 2026-11-18).
+    await chrome.storage.local.set({ 'hm.investigator': {} });
+    await globalThis.HM.secrets.set('investigator-token', token);
     globalThis.__hmSends = [];
     if (!globalThis.__hmFetch) {
       globalThis.__hmFetch = globalThis.fetch;

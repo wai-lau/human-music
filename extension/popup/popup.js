@@ -362,12 +362,15 @@
   // Hidden unless the worker says this is a development install; store copies never show it.
 
   function renderInvestigator() {
-    const inv = state.investigator;
-    const bits = [inv.token ? 'A key is saved.' : 'No key saved.'];
-    if (typeof inv.lastSentAt === 'number') bits.push(`Last sent ${HM.popup.timeLabel(inv.lastSentAt, Date.now())}.`);
-    if (inv.lastError) bits.push(`Last error: ${HM.popup.plainError(inv.lastError)}`);
-    const el = $('investigator-status');
-    if (el) el.textContent = bits.join(' ');
+    // No secret store (or a failed read) means no key saved.
+    Promise.resolve().then(() => (HM.secrets ? HM.secrets.get('investigator-token') : null)).catch(() => null).then(saved => {
+      const inv = state.investigator;
+      const bits = [saved ? 'A key is saved.' : 'No key saved.'];
+      if (typeof inv.lastSentAt === 'number') bits.push(`Last sent ${HM.popup.timeLabel(inv.lastSentAt, Date.now())}.`);
+      if (inv.lastError) bits.push(`Last error: ${HM.popup.plainError(inv.lastError)}`);
+      const el = $('investigator-status');
+      if (el) el.textContent = bits.join(' ');
+    });
   }
 
   try {
@@ -381,13 +384,24 @@
     const field = $('investigator-token');
     const token = field.value.trim();
     field.value = '';
-    // Only the key is the popup's to write: the worker's sent record and last error are
-    // read fresh and kept, so they are not overwritten with this popup's older copy.
+    // The key goes to the extension's own IndexedDB (HM.secrets), never to storage the music
+    // pages can read. The stored record is edited through the popup's one-at-a-time queue
+    // (fresh read, keep the worker's sent record, last error and last send), with any old key
+    // field removed.
     edit(HM.store.KEYS.investigator, v => (v && typeof v === 'object' ? v : {}),
-      cur => ({ ...cur, token, base: typeof cur.base === 'string' ? cur.base : 'https://wai-lau.net/human-music', sent: cur.sent && typeof cur.sent === 'object' ? cur.sent : {} }),
-      next => { state.investigator = next; renderInvestigator(); }).then(next => {
-      if (next) status(token ? 'A key is saved.' : 'The key is removed.');
-    });
+      cur => {
+        const next = { ...cur, base: typeof cur.base === 'string' ? cur.base : 'https://wai-lau.net/human-music', sent: cur.sent && typeof cur.sent === 'object' ? cur.sent : {} };
+        delete next.token;
+        return next;
+      },
+      next => { state.investigator = next; })
+      .then(next => (next ? (token ? HM.secrets.set('investigator-token', token) : HM.secrets.remove('investigator-token')).then(() => next) : null))
+      .then(next => {
+        if (!next) return;
+        renderInvestigator();
+        status(token ? 'A key is saved.' : 'The key is removed.');
+      })
+      .catch(() => { status('Could not save the key.'); });
     editSettings(s => ({ ...s, investigate: !!token }));
   });
 

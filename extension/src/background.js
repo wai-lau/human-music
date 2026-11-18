@@ -1,7 +1,7 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   // The service worker loads only this file; the helpers come in here (paths relative to src/).
-  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js');
+  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js', 'core/secret.js');
 
   function createRefresher(opts) {
     const storage = opts.storage;
@@ -400,6 +400,7 @@ list = lists[HM.store.KEYS.filterLists][i];
     const storage = opts.storage;
     const fetchFn = opts.fetch;
     const nowFn = opts.now;
+    const secrets = opts.secrets || globalThis.HM.secrets;
     const DEFAULT_BASE = 'https://wai-lau.net/human-music';
     const WEEK = 7 * 24 * 3600 * 1000;
     // Artist keys whose POST is pending, so a second send of the same artist skips at once.
@@ -418,7 +419,6 @@ list = lists[HM.store.KEYS.filterLists][i];
       const key = HM.store.KEYS.investigator;
       const existing = ((await storage.get(key)) || {})[key];
       const state = existing && typeof existing === 'object' ? existing : {};
-      if (typeof state.token !== 'string') state.token = '';
       if (typeof state.base !== 'string') state.base = DEFAULT_BASE;
       if (!state.sent || typeof state.sent !== 'object') state.sent = {};
       return state;
@@ -481,7 +481,8 @@ list = lists[HM.store.KEYS.filterLists][i];
       await serial(async function () {
         const state = await readState();
         dropOld(state.sent);
-        token = state.token;
+        // A key that can't be read means no key: nothing is sent.
+        try { token = (await secrets.get('investigator-token')) || ''; } catch (e) { token = ''; }
         base = state.base;
         if (!token) return;
         // The token only ever travels over https.
@@ -550,6 +551,20 @@ list = lists[HM.store.KEYS.filterLists][i];
 
   globalThis.HM.createInvestigator = createInvestigator;
 
+  async function moveInvestigatorKey(storage, secrets) {
+    const key = HM.store.KEYS.investigator;
+    const existing = ((await storage.get(key)) || {})[key];
+    if (existing && typeof existing.token === 'string' && existing.token !== '') {
+      try {
+        await secrets.set('investigator-token', existing.token);
+      } catch (e) { /* migration failure is non-fatal */ }
+      const record = typeof existing === 'object' ? Object.assign({}, existing) : {};
+      delete record.token;
+      await storage.set({ [key]: record });
+    }
+  }
+  globalThis.HM.moveInvestigatorKey = moveInvestigatorKey;
+
   // Fresh verdicts (investigator plan, Task 5): for 30 minutes after a send, each worker
   // start refreshes the verdict list when its copy is more than 5 minutes old, so new
   // verdicts arrive soon after the investigator writes them.
@@ -577,8 +592,10 @@ list = lists[HM.store.KEYS.filterLists][i];
     globalThis.HM.investigator = globalThis.HM.createInvestigator({
       storage: api.storage.local,
       fetch: function (url, init) { return fetch(url, init); },
-      now: function () { return Date.now(); }
+      now: function () { return Date.now(); },
+      secrets: globalThis.HM.secrets
     });
+    globalThis.HM.moveInvestigatorKey(api.storage.local, globalThis.HM.secrets).catch(function () { /* migration is best-effort */ });
 
     // Development mode: only true when management.getSelf() reports installType 'development'
     // (unpacked Chrome extension or temporary Firefox add-on). Cached after first answer.

@@ -115,7 +115,7 @@ test('the filtering mode slider saves the mode and snaps back while the verdict 
   await expect.poll(async () => { const s = await readStore('hm.settings'); return [s.mode, s.paused]; }).toEqual(['lists', false]);
 });
 
-test('the investigator key section shows in this development copy and never shows the key back', async ({ context, extensionId, setState, readStore }) => {
+test('the investigator key section shows in this development copy and never shows the key back', async ({ context, extensionId, setState, readStore, worker }) => {
   await setState();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
@@ -125,7 +125,9 @@ test('the investigator key section shows in this development copy and never show
   await popup.locator('#investigator-save').click();
   await expect(popup.locator('#investigator-token')).toHaveValue('');
   await expect(popup.locator('#investigator-status')).toContainText('A key is saved');
-  await expect.poll(async () => (await readStore('hm.investigator')).token).toBe('e2e-secret-key');
+  // Kept in the extension's own IndexedDB, out of the storage the music pages can read.
+  await expect.poll(async () => worker.evaluate(() => globalThis.HM.secrets.get('investigator-token'))).toBe('e2e-secret-key');
+  expect(JSON.stringify(await readStore('hm.investigator'))).not.toContain('e2e-secret-key');
   expect((await readStore('hm.settings')).investigate).toBe(true);
 });
 

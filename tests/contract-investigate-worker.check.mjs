@@ -19,12 +19,15 @@ const items = [
   { site: 'ytm', title: 'Neon', artistLine: 'Forrest Rose • Album', credits: ['Forrest Rose'], album: 'Album', artUrl: 'https://lh3.googleusercontent.com/x', channelIds: [] },
   { site: 'spotify', title: 'Static', artistLine: 'The Broken Radios', credits: ['The Broken Radios'], album: '', artUrl: '', channelIds: ['0000000000000000000000'] },
 ];
+// The key lives in the secrets (IndexedDB), never in storage (hardening, 2026-11-18).
+const secretsWith = (token) => { const m = new Map(token ? [['investigator-token', token]] : []); return HM.createSecrets({ get: async (k) => (m.has(k) ? m.get(k) : null), set: async (k, v) => { m.set(k, v); }, remove: async (k) => { m.delete(k); } }); };
 function rig({ token = 't0k', status = 202, now = NOON, stored = {} } = {}) {
   const calls = [];
-  const storage = fakeStorage({ 'hm.investigator': { token, ...stored } });
+  const storage = fakeStorage({ 'hm.investigator': { ...stored } });
+  const secrets = secretsWith(token);
   const fetch = async (url, init = {}) => { calls.push({ url, init }); return { ok: status < 400, status, headers: { get: () => null }, text: async () => '{}' }; };
   let clock = now;
-  const inv = HM.createInvestigator({ storage, fetch, now: () => clock });
+  const inv = HM.createInvestigator({ storage, secrets, fetch, now: () => clock });
   return { inv, calls, storage, tick: ms => { clock += ms; } };
 }
 
@@ -72,15 +75,15 @@ await t('a failed send is recorded and not retried the same day', async () => {
   return (st.lastError === 'HTTP 503' && again.sent === 0 && r.calls.length === 1) || J({ st, again, calls: r.calls.length });
 });
 await t('a network error never throws', async () => {
-  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
-  const inv = HM.createInvestigator({ storage, fetch: async () => { throw new Error('offline'); }, now: () => NOON });
+  const storage = fakeStorage({ 'hm.investigator': {} });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: async () => { throw new Error('offline'); }, now: () => NOON });
   const res = await inv.send(items);
   return (res.sent === 0 && /offline/.test(storage.data['hm.investigator'].lastError || '')) || J({ res, st: storage.data['hm.investigator'] });
 });
 await t('the token is never written anywhere else', async () => {
   const r = rig();
   await r.inv.send(items);
-  const elsewhere = Object.entries(r.storage.data).filter(([k]) => k !== 'hm.investigator').some(([, v]) => J(v).includes('t0k'));
+  const elsewhere = Object.entries(r.storage.data).some(([, v]) => J(v).includes('t0k')); // not even in hm.investigator
   return !elsewhere || 'token copied';
 });
 await t('one artist on two albums the same day: sent once (keys come from the credits)', async () => {
@@ -92,9 +95,9 @@ await t('one artist on two albums the same day: sent once (keys come from the cr
 });
 await t('a later success clears the last error', async () => {
   let status = 503;
-  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const storage = fakeStorage({ 'hm.investigator': {} });
   let clock = NOON;
-  const inv = HM.createInvestigator({ storage, fetch: async () => ({ ok: status < 400, status, headers: { get: () => null }, text: async () => '{}' }), now: () => clock });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: async () => ({ ok: status < 400, status, headers: { get: () => null }, text: async () => '{}' }), now: () => clock });
   await inv.send(items);
   status = 202; clock += DAY;
   await inv.send(items);
@@ -140,33 +143,32 @@ function gated(storage) {
 }
 const tick = () => new Promise(r => setTimeout(r, 5));
 
-await t('emptying the key while a send is pending: the old key does not come back', async () => {
-  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+await t('a send never writes a key into storage (it lives in the secrets)', async () => {
+  const storage = fakeStorage({ 'hm.investigator': {} });
   const g = gated(storage);
-  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: g.fetch, now: () => NOON });
   const p = inv.send(items);
   await tick();
-  await storage.set({ 'hm.investigator': { ...storage.data['hm.investigator'], token: '' } });
   g.open();
   await p;
+  // The key lives in the secrets now: the worker's write never puts one in storage.
   const st = storage.data['hm.investigator'];
-  return (st.token === '' && Object.keys(st.sent || {}).length === 2 && typeof st.lastSentAt === 'number') || J(st);
+  return (!('token' in st) && Object.keys(st.sent || {}).length === 2 && typeof st.lastSentAt === 'number') || J(st);
 });
-await t('rotating the key while a send is pending keeps the new key', async () => {
-  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+await t('a send while the key changes leaves storage key-free', async () => {
+  const storage = fakeStorage({ 'hm.investigator': {} });
   const g = gated(storage);
-  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: g.fetch, now: () => NOON });
   const p = inv.send(items);
   await tick();
-  await storage.set({ 'hm.investigator': { ...storage.data['hm.investigator'], token: 'n3w' } });
   g.open();
   await p;
-  return storage.data['hm.investigator'].token === 'n3w' || J(storage.data['hm.investigator']);
+  return !('token' in storage.data['hm.investigator']) || J(storage.data['hm.investigator']);
 });
 await t('two sends of one artist at once: one fetch', async () => {
-  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const storage = fakeStorage({ 'hm.investigator': {} });
   const g = gated(storage);
-  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: g.fetch, now: () => NOON });
   const a = inv.send([items[0]]);
   const b = inv.send([items[0]]);
   await tick();
@@ -181,11 +183,11 @@ await t('the send carries a timeout, no credentials and no redirects', async () 
   return (init.signal && typeof init.signal === 'object' && init.credentials === 'omit' && init.redirect === 'error') || J({ credentials: init.credentials, redirect: init.redirect, signal: typeof init.signal });
 });
 await t('a failed read of the saved state does not block later sends', async () => {
-  const real = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const real = fakeStorage({ 'hm.investigator': {} });
   let fail = true;
   const storage = { ...real, get: async k => { if (fail) { fail = false; throw new Error('boom'); } return real.get(k); } };
   const calls = [];
-  const inv = HM.createInvestigator({ storage, fetch: async (u, i) => { calls.push(u); return { ok: true, status: 202 }; }, now: () => NOON });
+  const inv = HM.createInvestigator({ storage, secrets: secretsWith('t0k'), fetch: async (u, i) => { calls.push(u); return { ok: true, status: 202 }; }, now: () => NOON });
   try { await inv.send(items); } catch (e) { /* the first one may fail */ }
   const res = await inv.send(items);
   return (res.sent === 2 && calls.length === 1) || J({ res, calls: calls.length });
