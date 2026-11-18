@@ -130,6 +130,12 @@ await run([
     const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
     return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
   }],
+  ['the push is one atomic push of the branch and the tag', async () => {
+    const { steps, deps } = fakes();
+    await runRelease({ kind: 'patch', ...deps });
+    const pushes = steps.filter(s => s.startsWith('git push'));
+    return (pushes.length === 1 && /--atomic/.test(pushes[0]) && /origin main v0\.1\.3$/.test(pushes[0])) || JSON.stringify(pushes);
+  }],
   ['an untracked or modified file under extension/ refuses before anything is tested, tagged or pushed', async () => {
     const out = [];
     for (const f of [{ untracked: '?? extension/src/stray.js\n' }, { dirty: ' M extension/src/content.js\n' }]) {

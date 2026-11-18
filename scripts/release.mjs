@@ -219,7 +219,7 @@ export async function runRelease({ kind = 'patch', git, run, client, confirm, re
   }
   git(['tag', `v${version}`]);
   try { guardTagged(git, commit, version); } catch (e) { git(['tag', '-d', `v${version}`]); git(['reset', '--hard', head]); throw e; }
-  git(['push', '-q', 'origin', 'main', `v${version}`]);
+  git(['push', '-q', '--atomic', 'origin', 'main', `v${version}`]);
   log(`committed and pushed ${version}`);
 
   const name = `human-music-${version}.crx`;
