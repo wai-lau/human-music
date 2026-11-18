@@ -225,7 +225,29 @@
     return s;
   }
 
+  // A list's or the investigator's last error in plain words (review 2026-11-17: raw text such
+  // as "TypeError: Failed to fetch" showed in the popup). Unknown text is kept, shortened.
+  function plainError(message) {
+    const m = typeof message === 'string' ? message.trim() : '';
+    if (!m) return 'unknown problem';
+    const http = /^HTTP (\d{3})/.exec(m);
+    if (http) {
+      const code = http[1];
+      if (code === '404' || code === '410') return `the address was not found (HTTP ${code})`;
+      if (code === '401' || code === '403') return `the server refused it (HTTP ${code})`;
+      if (code[0] === '5') return `the server had a problem; it will be tried again (HTTP ${code})`;
+      return `the server said no (HTTP ${code})`;
+    }
+    if (/over \d+ bytes/i.test(m)) return 'the list is over 5 MB, the most a list can be';
+    if (/^Not a filter list|JSON|Unexpected token/i.test(m)) return 'the file there isn\u2019t a filter list';
+    if (/^Not an https/i.test(m)) return 'the address must start with https://';
+    if (/timeout|timed out|aborted/i.test(m)) return 'it took too long to answer';
+    if (/Failed to fetch|NetworkError|network|ERR_/i.test(m)) return 'couldn\u2019t reach it (offline, or the site is down)';
+    return m.length > 80 ? m.slice(0, 79) + '\u2026' : m;
+  }
+
   globalThis.HM.popup = {
+    plainError: plainError,
     groupLog: groupLog,
     sectionCounts: sectionCounts,
     timeLabel: timeLabel,

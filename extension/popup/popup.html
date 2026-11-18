@@ -22,19 +22,19 @@
     <div id="mode-label" class="mode-label">List only</div>
   </div>
 
-  <nav class="tabs">
-    <button class="tab active" data-tab="log">Log</button>
-    <button class="tab" data-tab="lists">Lists</button>
-    <button class="tab" data-tab="behaviour">Behaviour</button>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" data-tab="log" role="tab" id="tabbtn-log" aria-controls="tab-log" aria-selected="true">Log</button>
+    <button class="tab" data-tab="lists" role="tab" id="tabbtn-lists" aria-controls="tab-lists" aria-selected="false" tabindex="-1">Lists</button>
+    <button class="tab" data-tab="behaviour" role="tab" id="tabbtn-behaviour" aria-controls="tab-behaviour" aria-selected="false" tabindex="-1">Behaviour</button>
   </nav>
   <div id="status" class="status" role="status"></div>
 
   <main class="content">
-    <section id="tab-log" class="tab-content active">
+    <section id="tab-log" class="tab-content active" role="tabpanel" aria-labelledby="tabbtn-log">
       <div class="seg" role="group" aria-label="Log section">
-        <button class="seg-btn" data-section="blocks">Blocked <span class="n"></span></button>
-        <button class="seg-btn" data-section="actions">Actions <span class="n"></span></button>
-        <button class="seg-btn" data-section="errors">Errors <span class="n"></span></button>
+        <button class="seg-btn" data-section="blocks" aria-pressed="false">Blocked <span class="n"></span></button>
+        <button class="seg-btn" data-section="actions" aria-pressed="false">Actions <span class="n"></span></button>
+        <button class="seg-btn" data-section="errors" aria-pressed="false">Errors <span class="n"></span></button>
       </div>
       <p id="section-hint" class="hint section-hint"></p>
       <ul id="log-entries"></ul>
@@ -44,13 +44,13 @@
       </div>
     </section>
 
-    <section id="tab-lists" class="tab-content">
+    <section id="tab-lists" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-lists">
       <h3>Filter lists</h3>
       <ul id="filter-lists"></ul>
       <div class="add-list">
-        <input type="url" id="list-url" placeholder="List address (https://…)">
+        <input type="url" id="list-url" placeholder="List address (https://…)" aria-label="List address">
         <div class="row">
-          <input type="text" id="list-name" placeholder="Name (optional)">
+          <input type="text" id="list-name" placeholder="Name (optional)" aria-label="List name (optional)">
           <button id="add-list-btn" class="primary">Add list</button>
         </div>
         <label class="check"><input type="checkbox" id="list-act-now"> Act at once</label>
@@ -70,7 +70,7 @@
       <div class="block">
         <h3>Your artists</h3>
         <div class="entry-form">
-          <input type="text" id="artist-input" placeholder="Artist name">
+          <input type="text" id="artist-input" placeholder="Artist name" aria-label="Artist to add">
           <button data-kind="artists" class="add-entry-btn">Add</button>
         </div>
         <ul id="artists" class="entries"></ul>
@@ -78,8 +78,8 @@
       <div class="block">
         <h3>Your songs</h3>
         <div class="entry-form">
-          <input type="text" id="song-title" placeholder="Song title">
-          <input type="text" id="song-artist" placeholder="Artist (optional)">
+          <input type="text" id="song-title" placeholder="Song title" aria-label="Song title">
+          <input type="text" id="song-artist" placeholder="Artist (optional)" aria-label="Song artist (optional)">
           <button id="add-song-btn">Add</button>
         </div>
         <ul id="songs" class="entries"></ul>
@@ -87,7 +87,7 @@
       <div class="block">
         <h3>Your keywords</h3>
         <div class="entry-form">
-          <input type="text" id="keyword-input" placeholder="Whole word, in a title or artist name">
+          <input type="text" id="keyword-input" placeholder="Whole word, in a title or artist name" aria-label="Keyword to add">
           <button data-kind="keywords" class="add-entry-btn">Add</button>
         </div>
         <ul id="keywords" class="entries"></ul>
@@ -95,7 +95,7 @@
       <div class="block">
         <h3>Never skip</h3>
         <div class="entry-form">
-          <input type="text" id="never-skip-input" placeholder="Artist to always play">
+          <input type="text" id="never-skip-input" placeholder="Artist to always play" aria-label="Artist to always play">
           <button data-kind="neverSkip" class="add-entry-btn">Add</button>
         </div>
         <ul id="never-skip" class="entries"></ul>
@@ -104,14 +104,14 @@
         <h3>Backup</h3>
         <div class="backup-controls">
           <button id="export-btn">Export</button>
-          <input type="file" id="import-file" accept=".json">
+          <input type="file" id="import-file" accept=".json" aria-label="Backup file to import">
           <button id="import-btn">Import</button>
         </div>
       </div>
       <p class="credit">Soul Over AI list by souloverai.com, CC BY 4.0.</p>
     </section>
 
-    <section id="tab-behaviour" class="tab-content">
+    <section id="tab-behaviour" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-behaviour">
       <div class="setting">
         <div class="setting-text">
           <label for="lookahead">Check songs ahead in the queue</label>

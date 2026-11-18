@@ -73,10 +73,26 @@
 
   // --- tabs --------------------------------------------------------------------
 
-  for (const btn of document.querySelectorAll('.tab')) {
-    btn.addEventListener('click', () => {
-      for (const b of document.querySelectorAll('.tab')) b.classList.toggle('active', b === btn);
-      for (const c of document.querySelectorAll('.tab-content')) c.classList.toggle('active', c.id === 'tab-' + btn.dataset.tab);
+  // A tablist (review 2026-11-17): the open tab is aria-selected and the only one in the Tab
+  // order; Left and Right move between tabs, as screen-reader users expect.
+  const tabButtons = [...document.querySelectorAll('.tab')];
+  function openTab(btn) {
+    for (const b of tabButtons) {
+      const on = b === btn;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+      if (on) b.removeAttribute('tabindex'); else b.setAttribute('tabindex', '-1');
+    }
+    for (const c of document.querySelectorAll('.tab-content')) c.classList.toggle('active', c.id === 'tab-' + btn.dataset.tab);
+  }
+  for (const btn of tabButtons) {
+    btn.addEventListener('click', () => openTab(btn));
+    btn.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const i = tabButtons.indexOf(btn);
+      const next = tabButtons[(i + (e.key === 'ArrowRight' ? 1 : tabButtons.length - 1)) % tabButtons.length];
+      openTab(next);
+      next.focus();
     });
   }
 
@@ -120,7 +136,7 @@
         node('div', { class: 'list-main' }, on, node('span', { class: 'list-name', textContent: list.name }),
           list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null),
         node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
-          list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${list.lastError}` }) : null),
+          list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${HM.popup.plainError(list.lastError)}` }) : null),
         node('div', { class: 'list-actions' },
           node('button', { class: 'link', textContent: 'Refresh', onclick: () => refreshList(list.id) }),
           list.builtIn ? null : node('button', {
@@ -312,7 +328,7 @@
     const inv = state.investigator;
     const bits = [inv.token ? 'A key is saved.' : 'No key saved.'];
     if (typeof inv.lastSentAt === 'number') bits.push(`Last sent ${HM.popup.timeLabel(inv.lastSentAt, Date.now())}.`);
-    if (inv.lastError) bits.push(`Last error: ${inv.lastError}`);
+    if (inv.lastError) bits.push(`Last error: ${HM.popup.plainError(inv.lastError)}`);
     const el = $('investigator-status');
     if (el) el.textContent = bits.join(' ');
   }
@@ -380,6 +396,7 @@
     for (const btn of document.querySelectorAll('.seg-btn')) {
       const k = btn.dataset.section;
       btn.classList.toggle('active', k === section);
+      btn.setAttribute('aria-pressed', String(k === section));
       btn.classList.toggle('has', counts[k] > 0);
       btn.querySelector('.n').textContent = counts[k] ? String(counts[k]) : '';
     }
@@ -392,7 +409,7 @@
       for (const l of listErrors()) {
         ul.append(node('li', { class: 'log-group' },
           node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: l.name }), node('span', { class: 'log-time', textContent: l.lastRefresh ? `last good ${HM.popup.timeLabel(l.lastRefresh, now)}` : '' })),
-          node('div', { class: 'log-reason error', textContent: `List update failed: ${l.lastError}` })));
+          node('div', { class: 'log-reason error', textContent: `List update failed: ${HM.popup.plainError(l.lastError)}` })));
       }
     }
     const groups = HM.popup.groupLog(state.log, { now, section, neverSkip: state.user.neverSkip });

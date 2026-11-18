@@ -14,6 +14,16 @@ const MINE = { listId: 'user:artists', listName: 'Your artists', rule: 'artist' 
 const e = (ago, event, title, artistLine, match = SOA, entry = 'The Velvet Sundown') => ({ at: NOW - ago, event, title, artistLine, ...match, entry });
 
 run([
+  ['plainError: list and investigator errors in plain words, the code kept in brackets', () => {
+    const P = popup.plainError;
+    const got = ['HTTP 404', 'HTTP 503', 'HTTP 401', 'Content-Length over 5242880 bytes', 'Body over 5242880 bytes', 'Not a filter list',
+      'Not an https:// URL', 'TypeError: Failed to fetch', 'The operation was aborted due to timeout', 'Unexpected token < in JSON at position 0', 'weird thing', ''].map(m => P(m));
+    const ok = /not found/i.test(got[0]) && /404/.test(got[0]) && /server/i.test(got[1]) && /503/.test(got[1]) && /refused/i.test(got[2])
+      && /5 MB/.test(got[3]) && /5 MB/.test(got[4]) && /isn.t a filter list/i.test(got[5]) && /https:\/\//.test(got[6])
+      && /couldn.t reach/i.test(got[7]) && /too long/i.test(got[8]) && /isn.t a filter list/i.test(got[9]) && /weird thing/.test(got[10]) && got[11] === 'unknown problem'
+      && got.every(g => !/TypeError|Content-Length|Unexpected token/.test(g));
+    return ok || J(got);
+  }],
   // Review 2026-11-17: "Always show" puts the group's artist on Never skip, so the group must be
   // the listed artist that matched, not the whole credit line ("Some Person, The Velvet Sundown"
   // on Never skip never matched anything, while the switch showed as on).

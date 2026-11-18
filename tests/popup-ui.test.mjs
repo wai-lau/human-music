@@ -30,6 +30,39 @@ const data = (p, k) => p.storage.data[k];
 const LOGGED = (title = 'X') => ({ at: Date.now(), event: 'hidden', title, artistLine: 'Y', listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'Y' });
 
 run([
+  // Review 2026-11-17: list and investigator errors showed raw text ("TypeError: Failed to
+  // fetch", "Content-Length over 5242880 bytes"). They are said in plain words.
+  ['a list error is said in plain words, in the list row and in the log', async () => {
+    const lists = [{ id: 'mine', name: 'Mine', url: 'https://x.example/l.json', enabled: true, mode: 'act', lastError: 'TypeError: Failed to fetch' }];
+    const p = await open({ 'hm.filterLists': lists });
+    const text = p.doc.body.textContent;
+    return (/couldn.t reach/i.test(text) && !/TypeError/.test(text)) || text.slice(0, 400);
+  }],
+  // Review 2026-11-17 (accessibility): the tabs and the log's section buttons said nothing to a
+  // screen reader about which one is open, and eight text fields had only a placeholder.
+  ['tabs are a tablist: the open tab says so, its panel is labelled, and switching moves both', async () => {
+    const p = await open();
+    const tabs = [...p.doc.querySelectorAll('.tab')];
+    const sel = () => tabs.map(t => t.getAttribute('aria-selected')).join();
+    const before = sel();
+    const roles = p.doc.querySelector('.tabs').getAttribute('role') === 'tablist' && tabs.every(t => t.getAttribute('role') === 'tab' && p.$(t.getAttribute('aria-controls')))
+      && [...p.doc.querySelectorAll('.tab-content')].every(c => c.getAttribute('role') === 'tabpanel' && p.$(c.getAttribute('aria-labelledby')));
+    await p.click(tabs[1]);
+    return (roles && before === 'true,false,false' && sel() === 'false,true,false') || JSON.stringify({ roles, before, after: sel() });
+  }],
+  ['the log section buttons say which is shown', async () => {
+    const p = await open({ 'hm.log': [LOGGED('Song A')] });
+    const btns = [...p.doc.querySelectorAll('.seg-btn')];
+    const pressed = () => btns.map(b => b.getAttribute('aria-pressed')).join();
+    const before = pressed();
+    await p.click(btns[2]);
+    return (before === 'true,false,false' && pressed() === 'false,false,true') || JSON.stringify({ before, after: pressed() });
+  }],
+  ['every text field and the backup file picker has a label', async () => {
+    const p = await open();
+    const bare = [...p.doc.querySelectorAll('input')].filter(i => !['checkbox', 'range', 'radio'].includes(i.getAttribute('type')) && !i.getAttribute('aria-label') && !p.doc.querySelector(`label[for="${i.id}"]`)).map(i => i.id);
+    return bare.length === 0 || 'unlabelled: ' + bare.join(', ');
+  }],
   // Review 2026-11-17: every log write (a tab logs a song) redrew the whole popup, so keyboard
   // focus fell out of whatever you were using and a half-typed lookahead number was reset.
   ['a log write while typing in the lookahead field keeps what you typed and the focus', async () => {
@@ -153,7 +186,7 @@ run([
     await p.click(p.doc.querySelector('.seg-btn[data-section="errors"]'));
     const errs = p.doc.querySelector('#log-entries').textContent;
     return (n('blocks') === '2' && n('actions') === '' && n('errors') === '2' && blocked === 'A,B'
-      && errs.includes('List update failed: HTTP 500') && errs.includes('Couldn’t skip')) || JSON.stringify({ n: [n('blocks'), n('actions'), n('errors')], blocked, errs });
+      && errs.includes('List update failed: the server had a problem; it will be tried again (HTTP 500)') && errs.includes('Couldn’t skip')) || JSON.stringify({ n: [n('blocks'), n('actions'), n('errors')], blocked, errs });
   }],
   // No site permission any more (Wai, 2026-11-13: "minimize required permissions"): a list
   // server must allow any origin (GitHub raw files do), or its refresh fails visibly.
@@ -291,7 +324,7 @@ run([
   ['investigator status shows last sent and last error', async () => {
     const p = await open({ 'hm.investigator': { token: 'k', base: 'https://wai-lau.net/human-music', sent: {}, lastSentAt: Date.now() - 60000, lastError: 'HTTP 401' } });
     const t = p.$('investigator-status').textContent;
-    return (/Last sent/.test(t) && t.includes('Last error: HTTP 401')) || t;
+    return (/Last sent/.test(t) && t.includes('Last error: the server refused it (HTTP 401)')) || t;
   }],
   ['investigator section stays hidden unless the worker says development copy', async () => {
     const no = await open({}, { dev: false });

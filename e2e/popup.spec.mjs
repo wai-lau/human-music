@@ -78,7 +78,7 @@ test('behaviour settings are saved', async ({ context, extensionId, setState, re
   await setState();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
-  await popup.getByRole('button', { name: 'Behaviour' }).click();
+  await popup.getByRole('tab', { name: 'Behaviour' }).click();
   await popup.locator('#lookahead').fill('7');
   await popup.locator('#lookahead').dispatchEvent('change');
   await popup.locator('#auto-skip').uncheck();
@@ -117,7 +117,7 @@ test('the investigator key section shows in this development copy and never show
   await setState();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
-  await popup.getByRole('button', { name: 'Behaviour' }).click();
+  await popup.getByRole('tab', { name: 'Behaviour' }).click();
   await expect(popup.locator('#investigator')).toBeVisible();
   await popup.locator('#investigator-token').fill('e2e-secret-key');
   await popup.locator('#investigator-save').click();
@@ -134,7 +134,7 @@ for (const scheme of ['light', 'dark']) {
     await popup.emulateMedia({ colorScheme: scheme });
     await popup.setViewportSize({ width: 400, height: 640 });
     await popup.goto(popupUrl(extensionId));
-    await popup.getByRole('button', { name: 'Behaviour' }).click();
+    await popup.getByRole('tab', { name: 'Behaviour' }).click();
     await popup.locator('#investigator').scrollIntoViewIfNeeded();
     await popup.screenshot({ path: `e2e/.results/popup-${scheme}.png` });
   });
