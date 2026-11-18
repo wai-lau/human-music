@@ -99,5 +99,19 @@ await t('the manifest asks for unlimitedStorage', () => {
   return (m.permissions || []).includes('unlimitedStorage') || J(m.permissions);
 });
 
+// --- the wiring: the extension really uses the store ---
+await t('the content script writes the log through the store (segments, never a bare hm.log)', () => {
+  const src = readFileSync(process.cwd() + '/extension/src/content.js', 'utf8');
+  return (/createLogStore\(/.test(src) && /hm\.logCap/.test(src) && !/HM\.log\.append\(entries, entry, 1000\)/.test(src)) || 'content.js still writes the capped hm.log array';
+});
+await t('the popup reads, exports and clears the log through the store', () => {
+  const src = readFileSync(process.cwd() + '/extension/popup/popup.js', 'utf8');
+  return (/createLogStore\(/.test(src) && /\.readAll\(/.test(src) && /\.clear\(/.test(src) && /startsWith\('hm\.log'\)/.test(src)) || 'popup.js does not use the store';
+});
+await t('the worker migrates the old log and records the cap for this copy', () => {
+  const src = readFileSync(process.cwd() + '/extension/src/background.js', 'utf8');
+  return (/\.migrate\(/.test(src) && /hm\.logCap/.test(src) && /capFor\(/.test(src)) || 'background.js does not migrate or set hm.logCap';
+});
+
 console.log(fails.length ? fails.map((f) => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);
