@@ -7,7 +7,7 @@ A browser extension for [YouTube Music](https://music.youtube.com) and the
 music made by people.
 
 **Status:** on the [Chrome Web Store](https://chromewebstore.google.com/detail/gfmfiblcoldnfgafoapjmelpedonegca).
-Firefox support is coming.
+Firefox support is being built and hasn't been tried in Firefox yet.
 
 ## What it does
 
@@ -15,18 +15,26 @@ On YouTube Music and Spotify, Human Music keeps songs by AI-generated artists
 out of your listening: out of your queue before they play, skipped if one
 starts anyway, and hidden on the home page and in search.
 
+**Modes.** A four-stop slider in the popup sets how much it filters. No
+filtering turns it off. List only acts on the lists below and is the default.
+Optimal and Aggressive also act on the verdict list described below, at a
+confidence of 95 or higher (Optimal) or 60 or higher (Aggressive). Those two
+stay on List only until the verdict list has been calibrated.
+
 **Lists.** It works from lists you choose: [Soul Over AI](https://souloverai.com)
 (CC BY 4.0), Cevval's AI music list, Human Music's own verdicts, your own
-artists, songs and keywords, or any list you subscribe to by web address. A new
-list only watches, and logs what it would skip, until you let it act.
+artists, songs and keywords, or any list you subscribe to by web address. The
+first three are built in. A new list only watches, and logs what it would
+skip, until you let it act.
 
-**The investigator.** Lists can't keep up with every new artist, so Human
-Music's investigator checks artists that aren't on any list yet. It looks for
-several independent sources, gives each artist a verdict with a confidence, and
-publishes the verdicts as a public list,
-[human-music-verdicts](https://github.com/wai-lau/human-music-verdicts). You
-decide how sure a verdict must be before a song is skipped. The code is in
-[`research/investigator`](research/investigator).
+**The investigator.** Lists can't keep up with every new artist, so I run an
+investigator service that checks artists that aren't on any list yet. It looks
+for several independent sources, gives each artist a verdict with a
+confidence, and publishes the verdicts as a public list,
+[human-music-verdicts](https://github.com/wai-lau/human-music-verdicts). The
+extension only downloads that list. The service is my own, runs on my server
+and isn't part of the extension package: the Chrome Web Store copy never
+contacts it. The code is in [`research/investigator`](research/investigator).
 
 **Your data.** No account, no tracking, no ads. Human Music collects nothing
 and sends nothing; it only downloads the lists you use. Your settings and its
@@ -64,8 +72,7 @@ copy: the development aids stay off unless the folder holds the owner's
 
 In Firefox (121 or later), run `scripts/build-firefox.sh`, open
 `about:debugging`, choose This Firefox, then Load Temporary Add-on, and pick
-`dist/firefox/manifest.json`. Firefox support is new and hasn't been tried in
-Firefox itself yet.
+`dist/firefox/manifest.json`. Firefox support hasn't been tried in Firefox itself yet.
 
 ## Spotify
 
@@ -79,8 +86,8 @@ and in search. Spotify has no dislike button, so auto-dislike only skips there.
 
 Human Music checks songs against lists:
 
-- Filter lists you subscribe to. The Soul Over AI list is built in, and
-  you can add others by URL. Each one can be switched off, or put in watch
+- Filter lists you subscribe to. The Soul Over AI, Cevval and Human Music
+  verdict lists are built in, and you can add others by URL. Each one can be switched off, or put in watch
   mode, where it only logs what it would have done.
 - Your own lists of artists, songs and keywords. Add to them from the
   popup, or press the block button (a circle with a slash) next to Repeat
@@ -102,8 +109,7 @@ it in Human Music's Lists tab to keep your lists.
 
 ## Credits
 
-The built-in list is the [Soul Over AI](https://souloverai.com) list by
-souloverai.com, used under
+The Soul Over AI list is by souloverai.com, used under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## Development
@@ -117,7 +123,8 @@ npm test
 ```
 
 The linter and the end-to-end tests use a few dev tools listed in
-`package.json`; none of them ship with the extension. Install them once:
+`package.json` (they need Node 20.19 or later); none of them ship with the
+extension. Install them once:
 
 ```sh
 npm install
@@ -127,17 +134,19 @@ npx playwright install chromium
 Then:
 
 ```sh
-npm run lint   # ESLint over the extension, tests and e2e
+npm run lint   # ESLint over the whole repository
 npm run e2e    # Chromium with the extension loaded, on stand-in pages
 ```
 
 The end-to-end tests stay offline. Each one starts Chromium with a fresh
-profile and the extension unpacked, and serves small stand-in pages in place
+profile and its own temporary copy of the extension, and serves small stand-in pages in place
 of music.youtube.com and open.spotify.com, built from the page selectors in
 the spec. Set `HM_E2E_HEADED=1` to watch them run.
 
-Release to the Chrome Web Store: `npm run release` (see `docs/store-listing.md`;
-needs the signing key and the store credentials in `~/.keys`).
+Release to the Chrome Web Store: `npm run release`. It first checks the commit
+and runs the tests with no key unlocked, then asks for a passphrase to unlock
+the signing key and store credentials for the signing and upload step only (see
+`docs/store-listing.md`).
 
 ## License
 
