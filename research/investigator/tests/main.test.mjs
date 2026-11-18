@@ -171,6 +171,17 @@ await run([
   }],
   // Review 2026-11-17 (service, finding 7): the daily timer lived only in memory, so a service
   // restarted more often than daily never published. The due time is stored.
+  // Wai, 2026-11-18: the research weights approved; scoring is the default, HM_SCORING=off goes back.
+  ['the worker asks for the evidence checklist by default, and for a verdict with HM_SCORING=off', async () => {
+    const modes = [];
+    const inv = async (a, ev, o) => { modes.push((o && o.mode) || 'verdict'); return { ok: false, kind: 'invalid', detail: 'x' }; };
+    const cheapNone = async () => null;
+    const on = await make({}, { investigate: inv, cheapPass: cheapNone });
+    try { on.app.queue.enqueue([{ name: 'A', site: 'ytm', songs: [], playing: false }]); await on.app.kick(); } finally { await on.stop(); }
+    const off = await make({ HM_SCORING: 'off' }, { investigate: inv, cheapPass: cheapNone });
+    try { off.app.queue.enqueue([{ name: 'B', site: 'ytm', songs: [], playing: false }]); await off.app.kick(); } finally { await off.stop(); }
+    return JSON.stringify(modes) === JSON.stringify(['checklist', 'verdict']) || JSON.stringify(modes);
+  }],
   ['a restart keeps the publish due time: published once, a day after the first verdict', async () => {
     const t = await make();
     const T0 = new Date('2026-11-16T12:00:00Z').getTime();

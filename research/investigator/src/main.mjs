@@ -128,8 +128,9 @@ export function createApp(env, deps = {}) {
   const buildWorker = () => createWorker({
     store, queue, cheapPass, investigate, shlabs, fetchArt, lookArt, schedulePublish, now,
     mapping: store.getState('calibration.mapping'),
-    // Evidence scoring, off until Wai approves the weights going live (2026-11-18).
-    scoring: text(env.HM_SCORING) === 'on',
+    // Evidence scoring is the default (Wai, 2026-11-18: the research weights approved);
+    // HM_SCORING=off goes back to Claude's own number.
+    scoring: text(env.HM_SCORING) !== 'off',
   });
 
   function kick() {
