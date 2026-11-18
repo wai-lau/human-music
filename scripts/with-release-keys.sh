@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Run a release command with the release keys unlocked for that run only
 # (security audit 2026-11-17). `npm run release` uses it:
-#   scripts/with-release-keys.sh node scripts/release.mjs release
+#   scripts/with-release-keys.sh node scripts/release.mjs sign <kind> <head>
+# (release.mjs starts that itself, AFTER the unit tests, lint and end-to-end tests: those run with
+# no key on disk, and the keys exist only for the signing and shipping step.)
 # It asks for the passphrase (not cached), decrypts ~/.keys/human-music-release.tar.gpg
 # into a private temp folder in memory-backed storage, points HM_CRX_KEY (pack-crx.sh) and
 # HM_CWS_SA_KEY (release.mjs) at the two files, runs the command, and shreds them when it
@@ -23,7 +25,12 @@ tmpbase=/dev/shm; [[ -d $tmpbase && -w $tmpbase ]] || tmpbase=${XDG_RUNTIME_DIR:
 umask 077
 dir=$(mktemp -d "$tmpbase/hm-release-keys.XXXXXX")
 cleanup() { for f in "$dir"/*; do [[ -f $f ]] && shred -u "$f"; done; rm -rf "$dir"; }
-trap cleanup EXIT INT TERM HUP
+# Every way out removes the keys: normal end, failure (set -e), and the signals (which also end the
+# script with the usual 128+signal status instead of carrying on without keys).
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
 
 echo "Release keys: enter the passphrase." >&2
 $gpg --decrypt --no-symkey-cache --pinentry-mode loopback --quiet "$bundle" | tar -C "$dir" -xf -

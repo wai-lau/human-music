@@ -6,9 +6,11 @@
 //   node scripts/release.mjs upload    pack the signed .crx from git HEAD and upload it
 //   node scripts/release.mjs publish   upload, then submit it for review (goes live on approval)
 //       (upload and publish need a clean tree on main, HEAD = GitHub main, HEAD tagged v<manifest version>)
-//   node scripts/release.mjs release [patch|minor|major]   (npm run release) the whole release:
-//       refuses on a dirty tree, off main, HEAD not GitHub main or while a version waits for review;
-//       lists the commits since the last v* tag and needs a typed yes; runs unit tests, lint and end-to-end tests (refusing if HEAD moved meanwhile); bumps the version, commits,
+//   node scripts/release.mjs release [patch|minor|major]   (npm run release) the whole release, in two phases:
+//       1 (no keys unlocked): refuses on a dirty tree, off main or HEAD not GitHub main;
+//       lists the commits since the last v* tag and needs a typed yes; runs unit tests, lint and end-to-end tests;
+//       2 (`sign`, run under scripts/with-release-keys.sh, the only time the keys are on disk): refuses while a
+//       version waits for review (or if HEAD moved meanwhile); bumps the version, commits,
 //       packs the signed .crx and the Firefox zip into a staging folder, and only when every pack has worked tags
 //       v<version> and pushes; uploads the .crx and submits it for review
 //
@@ -176,17 +178,24 @@ export async function runShip({ cmd, git, run, client, readVersion, readCrx, log
 }
 
 // The whole release, with every outside step passed in (so tests can watch the order).
-// git(args) returns stdout; run(cmd, args) throws when the command fails;
+// git(args) returns stdout; run(cmd, args, env) throws when the command fails;
 // confirm(text) answers true only for a typed yes.
-export async function runRelease({ kind = 'patch', git, run, client, confirm, readVersion, writeVersion, readCrx, stage, log = console.log }) {
+//
+// Two phases, so the release keys are on disk only while they are used (security audit
+// 2026-11-17): runChecks needs no keys (refusals, the typed yes, unit tests, lint, end-to-end);
+// runSigned needs them (the Web Store service account, the .crx signing key). `npm run release`
+// runs the first, then runs the second under scripts/with-release-keys.sh. `signed(head)` is how
+// the second phase is started; the default runs it in this process.
+export async function runRelease(deps) {
+  const head = await runChecks(deps);
+  const signed = deps.signed || (h => runSigned({ ...deps, head: h }));
+  return signed(head);
+}
+
+// Everything that needs no key. Returns the commit that was checked.
+export async function runChecks({ git, run, confirm, log = console.log }) {
   const head = guardMain(git);
   guardExtensionClean(git);
-
-  const before = await client.status();
-  log(describe(before));
-  if (before.submittedItemRevisionStatus) {
-    throw new Error(`a version is still waiting for review (${knownVersions({ publishedItemRevisionStatus: before.submittedItemRevisionStatus }).join(', ') || 'unknown'}): release again once it is through`);
-  }
 
   let lastTag = '';
   try { lastTag = git(['describe', '--tags', '--abbrev=0', '--match', 'v*']).trim(); } catch (e) { /* no release yet */ }
@@ -200,6 +209,19 @@ export async function runRelease({ kind = 'patch', git, run, client, confirm, re
     run(cmd, args);
   }
   if (git(['rev-parse', 'HEAD']).trim() !== head) throw new Error('main moved while testing: run again');
+  return head;
+}
+
+// The signing and shipping half: needs the keys. `head` is the commit runChecks tested.
+export async function runSigned({ kind = 'patch', head, git, run, client, readVersion, writeVersion, readCrx, stage, log = console.log }) {
+  if (guardMain(git) !== head) throw new Error('main moved while testing: run again');
+  guardExtensionClean(git);
+
+  const before = await client.status();
+  log(describe(before));
+  if (before.submittedItemRevisionStatus) {
+    throw new Error(`a version is still waiting for review (${knownVersions({ publishedItemRevisionStatus: before.submittedItemRevisionStatus }).join(', ') || 'unknown'}): release again once it is through`);
+  }
 
   const held = [readVersion(), ...knownVersions(before)];
   const top = held.reduce((a, b) => (newer(b, a) ? b : a));
@@ -255,24 +277,33 @@ async function typedYes(text) {
   return answer.trim().toLowerCase() === 'yes';
 }
 
-async function main(cmd, arg) {
-  if (!['status', 'upload', 'publish', 'release'].includes(cmd)) { console.error('usage: node scripts/release.mjs status|upload|publish|release [patch|minor|major]'); process.exit(2); }
-  const { config, serviceAccount } = loadConfig();
-  const client = createClient({ config, serviceAccount, fetch: globalThis.fetch });
+async function main(cmd, arg, arg2) {
+  if (!['status', 'upload', 'publish', 'release', 'sign'].includes(cmd)) { console.error('usage: node scripts/release.mjs status|upload|publish|release [patch|minor|major]'); process.exit(2); }
   const manifest = join(repo, 'extension', 'manifest.json');
   const deps = {
     git: args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
     run: (c, args = [], env = {}) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit', env: { ...process.env, ...env } }),
-    client,
     readVersion: () => JSON.parse(readFileSync(manifest, 'utf8')).version,
     readCrx: (v, dir = join(repo, 'dist')) => readFileSync(join(dir, `human-music-${v}.crx`)),
   };
   if (cmd === 'release') {
+    // Phase 1 holds no key: the tests and lint run with nothing unlocked. Then phase 2 (`sign`) is
+    // started under with-release-keys.sh, which asks for the passphrase and removes the keys when it ends.
+    const kind = arg || 'patch';
+    await runRelease({
+      kind, ...deps, confirm: typedYes,
+      signed: head => deps.run('scripts/with-release-keys.sh', ['node', join(repo, 'scripts', 'release.mjs'), 'sign', kind, head]),
+    });
+    return;
+  }
+  const { config, serviceAccount } = loadConfig();
+  const client = createClient({ config, serviceAccount, fetch: globalThis.fetch });
+  if (cmd === 'sign') {
     const stage = mkdtempSync(join(tmpdir(), 'hm-release-'));
     let version;
     try {
-      ({ version } = await runRelease({
-        kind: arg || 'patch', ...deps, confirm: typedYes, stage,
+      ({ version } = await runSigned({
+        kind: arg || 'patch', head: arg2, ...deps, client, stage,
         writeVersion: v => writeFileSync(manifest, readFileSync(manifest, 'utf8').replace(/"version": "[^"]*"/, `"version": "${v}"`)),
       }));
       mkdirSync(join(repo, 'dist'), { recursive: true });
@@ -282,9 +313,9 @@ async function main(cmd, arg) {
     return;
   }
   if (cmd === 'status') { console.log(describe(await client.status())); return; }
-  await runShip({ cmd, ...deps });
+  await runShip({ cmd, ...deps, client });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main(process.argv[2], process.argv[3]).catch(e => { console.error(String(e && e.message || e)); process.exit(1); });
+  main(process.argv[2], process.argv[3], process.argv[4]).catch(e => { console.error(String(e && e.message || e)); process.exit(1); });
 }

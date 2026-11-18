@@ -7,7 +7,7 @@
     "test": "for f in tests/*.test.mjs; do node \"$f\" || exit 1; done",
     "lint": "eslint .",
     "e2e": "playwright test -c e2e/playwright.config.mjs",
-    "release": "scripts/with-release-keys.sh node scripts/release.mjs release"
+    "release": "node scripts/release.mjs release"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

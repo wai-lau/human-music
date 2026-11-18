@@ -62,6 +62,15 @@ run([
       return (r.status === 7 && dir && !existsSync(dir)) || JSON.stringify({ status: r.status, dir });
     } finally { t.done(); }
   }],
+  ['with-release-keys: a TERM signal while the command runs still removes the keys', () => {
+    const t = setup();
+    try {
+      t.sh('lock-release-keys.sh');
+      const r = t.sh('with-release-keys.sh', ['sh', '-c', 'echo "DIR=$(dirname "$HM_CRX_KEY")"; kill -TERM $PPID; sleep 1']);
+      const dir = (r.stdout.match(/DIR=(.*)/) || [])[1];
+      return (r.status !== 0 && dir && !existsSync(dir)) || JSON.stringify({ status: r.status, dir });
+    } finally { t.done(); }
+  }],
   ['with-release-keys: a wrong passphrase runs nothing', () => {
     const t = setup();
     try {
@@ -77,5 +86,5 @@ run([
       return (r.status === 0 && r.stdout.includes('RAN') && /not locked yet/.test(r.stderr)) || JSON.stringify({ status: r.status, err: r.stderr });
     } finally { t.done(); }
   }],
-  ['release.mjs takes the unlocked service account from HM_CWS_SA_KEY', () => /process\.env\.HM_CWS_SA_KEY \|\|/.test(readFileSync(join(repo, 'scripts/release.mjs'), 'utf8')) && /with-release-keys\.sh node scripts\/release\.mjs release/.test(readFileSync(join(repo, 'package.json'), 'utf8'))],
+  ['release.mjs takes the unlocked service account from HM_CWS_SA_KEY; only the sign phase runs under the keys, so tests and lint never do', () => /process\.env\.HM_CWS_SA_KEY \|\|/.test(readFileSync(join(repo, 'scripts/release.mjs'), 'utf8')) && /with-release-keys\.sh', \['node'/.test(readFileSync(join(repo, 'scripts/release.mjs'), 'utf8')) && !/with-release-keys/.test(readFileSync(join(repo, 'package.json'), 'utf8'))],
 ]);

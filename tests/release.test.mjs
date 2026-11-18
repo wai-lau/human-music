@@ -125,7 +125,7 @@ await run([
   ['a release runs checks, then bumps, commits, packs everything into a staging folder, and only then tags, pushes, uploads and submits', async () => {
     const { steps, deps } = fakes();
     const res = await runRelease({ kind: 'patch', ...deps });
-    const order = ['status', 'confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'run scripts/pack-crx.sh new >/stage', 'run scripts/pack-firefox.sh new >/stage', 'git tag v0.1.3', 'git push', 'read crx 0.1.3 /stage', 'upload human-music-0.1.3.crx', 'publish'];
+    const order = ['confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'status', 'version 0.1.3', 'git commit', 'run scripts/pack-crx.sh new >/stage', 'run scripts/pack-firefox.sh new >/stage', 'git tag v0.1.3', 'git push', 'read crx 0.1.3 /stage', 'upload human-music-0.1.3.crx', 'publish'];
     let at = -1;
     const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
     return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
@@ -154,6 +154,13 @@ await run([
       if (!steps.includes('git reset --hard aaa')) out.push(failing + ' left the version commit: ' + JSON.stringify(steps));
     }
     return out.length === 0 || out.join('; ');
+  }],
+  ['tests, lint and e2e run before the keyed step, and nothing but signing runs inside it', async () => {
+    const { steps, deps } = fakes();
+    let head = null;
+    await runRelease({ kind: 'patch', ...deps, signed: async h => { head = h; steps.push('KEYS ON'); return { version: '0.1.3' }; } });
+    const on = steps.indexOf('KEYS ON');
+    return (head === 'aaa' && on > steps.indexOf('run npm run e2e') && steps.slice(on).every(s => !/^run npm|^confirm/.test(s))) || JSON.stringify(steps);
   }],
   ['the new version is above everything the store holds, not just HEAD', async () => {
     const { deps } = fakes({ head: '0.1.2', status: { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.5' }] } } });
