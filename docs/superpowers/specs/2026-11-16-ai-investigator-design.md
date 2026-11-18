@@ -357,6 +357,24 @@ a flag".
   later) counts as the `short_heavy_catalogue` signal.
 - **No review step:** verdicts publish without Wai's approval, once a day.
 
+### First calibration and the model comparison (2026-11-17)
+
+The same 100 labelled artists (50 Soul Over AI, 50 known people from 2020 on; seed
+20261117), gut-confidence answers, no covers:
+
+| | Opus | Sonnet |
+|---|---|---|
+| Known AI found as AI at 60+ | 16 of 50 | 6 of 50 |
+| Known AI left unsure | 28 | 44 |
+| Known people called AI | 0 of 50 | 0 of 50 |
+| Same verdict as the other | 84 of 100 | |
+
+Opus stays (Wai: "Keep opus for now? Maybe test model fidelity"). Neither model reached
+95 on any artist: web search alone rarely finds a strong sign. The fit the run produced
+mapped raw 45 to 95 on easy negatives (every known person has a Wikipedia article), so it
+was not accepted; the fix (1a63c31) keeps any verdict that didn't meet the rule under 95
+after mapping. Next: score each sign (open question), harder people in the sample.
+
 ### Test cases (Wai, 2026-11-16)
 
 Forrest Rose and The Broken Radios are AI-generated and on no list: the first
