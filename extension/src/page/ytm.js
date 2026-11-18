@@ -335,14 +335,28 @@
     return out;
   }
 
+  // An item is read from its own parts only: a search shelf holds song rows of its own, and
+  // their links are theirs (review 2026-11-17: a person's shelf hid for a duet inside it).
+  const ITEM_PARTS = 'ytmusic-responsive-list-item-renderer, ytmusic-two-row-item-renderer, ytmusic-card-shelf-renderer';
+  function ownAll(itemEl, sel) {
+    const all = itemEl.querySelectorAll(sel);
+    const out = [];
+    for (let i = 0; i < all.length; i++) {
+      const inner = all[i].parentElement && all[i].parentElement.closest(ITEM_PARTS);
+      if (!inner || inner === itemEl) out.push(all[i]);
+    }
+    return out;
+  }
+  const own = (itemEl, sel) => ownAll(itemEl, sel)[0] || null;
+
   function extractPageItem(itemEl, doc) {
     try {
       // Title
-      const titleEl = itemEl.querySelector('.title');
+      const titleEl = own(itemEl, '.title');
       const title = titleEl ? (titleEl.textContent || '').trim() : '';
 
       // Channel links
-      const channelLinks = itemEl.querySelectorAll('a[href*="channel/"]');
+      const channelLinks = ownAll(itemEl, 'a[href*="channel/"]');
       const channelIds = [];
       let linkCredits = [];
       for (let i = 0; i < channelLinks.length; i++) {
@@ -362,8 +376,8 @@
       }
 
       // No channel links → read subtitle
-      let subtitleEl = itemEl.querySelector('.subtitle');
-      if (!subtitleEl) subtitleEl = itemEl.querySelector('.secondary-flex-columns');
+      let subtitleEl = own(itemEl, '.subtitle');
+      if (!subtitleEl) subtitleEl = own(itemEl, '.secondary-flex-columns');
       const subtitle = subtitleEl ? (subtitleEl.textContent || '').trim() : '';
 
       if (!subtitle) {
@@ -396,6 +410,12 @@
       if (parts.length === 1 && subtitle.includes(', ')) {
         const mixCredits = dedupe(subtitle.split(', ').map(p => p.trim()));
         return { title, credits: mixCredits, channelIds: [], featured: true };
+      }
+
+      // A playlist listing several artists is a mix of their songs, not their work: it never
+      // hides for one name in it (review 2026-11-17). A playlist by one artist still does.
+      if (typeWord && typeWord.toLowerCase() === 'playlist' && creditParts.length > 0 && creditParts[0].includes(', ')) {
+        return { title, credits: dedupe(creditParts[0].split(', ').map(p => p.trim()).filter(Boolean)), channelIds: [], featured: true };
       }
 
       // Normal: first remaining part is the credit
