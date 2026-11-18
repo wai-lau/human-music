@@ -212,6 +212,13 @@ export async function runChecks({ git, run, confirm, log = console.log }) {
   return head;
 }
 
+// Undo the version commit and the manifest's version, and nothing else: other sessions share
+// this checkout, and a hard reset would throw away whatever they changed while the packs ran.
+function undoVersion(git, head) {
+  git(['reset', '-q', '--mixed', head]);
+  git(['checkout', head, '--', 'extension/manifest.json']);
+}
+
 // The signing and shipping half: needs the keys. `head` is the commit runChecks tested.
 export async function runSigned({ kind = 'patch', head, git, run, client, readVersion, writeVersion, readCrx, stage, log = console.log }) {
   if (guardMain(git) !== head) throw new Error('main moved while testing: run again');
@@ -236,11 +243,11 @@ export async function runSigned({ kind = 'patch', head, git, run, client, readVe
     run('scripts/pack-crx.sh', [commit], { HM_DIST_DIR: stage });
     run('scripts/pack-firefox.sh', [commit], { HM_DIST_DIR: stage });
   } catch (e) {
-    git(['reset', '--hard', head]); // drop the version commit: nothing was tagged or pushed
+    undoVersion(git, head); // drop the version commit: nothing was tagged or pushed
     throw new Error(`packing failed, nothing tagged or pushed (the version commit is undone): ${e.message}`, { cause: e });
   }
   git(['tag', `v${version}`]);
-  try { guardTagged(git, commit, version); } catch (e) { git(['tag', '-d', `v${version}`]); git(['reset', '--hard', head]); throw e; }
+  try { guardTagged(git, commit, version); } catch (e) { git(['tag', '-d', `v${version}`]); undoVersion(git, head); throw e; }
   git(['push', '-q', '--atomic', 'origin', 'main', `v${version}`]);
   log(`committed and pushed ${version}`);
 

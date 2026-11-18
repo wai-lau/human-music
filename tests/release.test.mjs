@@ -94,7 +94,7 @@ function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', d
     if (args[0] === 'describe') { if (!lastTag) throw new Error('no tags'); return lastTag + '\n'; }
     if (args[0] === 'log') return commits;
     if (args[0] === 'commit') sha = 'new';
-    if (args[0] === 'reset') sha = args[2];
+    if (args[0] === 'reset') sha = args[args.length - 1];
     if (args[0] === 'tag') tagAt = sha;
     return '';
   };
@@ -151,7 +151,8 @@ await run([
       const { steps, deps } = fakes({ failing });
       try { await runRelease({ kind: 'patch', ...deps }); out.push(failing + ' did not stop'); continue; } catch (e) { /* expected */ }
       if (steps.some(s => /^git tag|^git push|^upload|^publish/.test(s))) out.push(failing + ' went too far: ' + JSON.stringify(steps));
-      if (!steps.includes('git reset --hard aaa')) out.push(failing + ' left the version commit: ' + JSON.stringify(steps));
+      // Only the version commit and the manifest are undone; no hard reset (a shared checkout).
+      if (!steps.includes('git reset -q --mixed aaa') || !steps.includes('git checkout aaa -- extension/manifest.json') || steps.some(s => /reset --hard/.test(s))) out.push(failing + ' left the version commit or reset hard: ' + JSON.stringify(steps));
     }
     return out.length === 0 || out.join('; ');
   }],
