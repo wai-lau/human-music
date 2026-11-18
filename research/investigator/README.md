@@ -78,6 +78,7 @@ Set in `/etc/human-music/env`. `deploy/env.example` is the template with empty v
 | `HM_PUBLISH_REMOTE` | Git remote that receives the published list. |
 | `HM_PUBLISH_KEY_PATH` | Path to the deploy key used for publishing. |
 | `HM_SOCKET` | Unix socket to listen on. Default `/run/human-music/investigator.sock`. |
+| `HM_SCORING` | `on` makes Claude fill in the evidence checklist and `src/score.mjs` decide, instead of Claude's own number. Empty (off) until the weights are approved for live use. |
 
 ## Tests
 

@@ -39,8 +39,8 @@ await run([
     return lines.every((l, i) => !/^(RuntimeDirectory|IPAddressDeny|IPAddressAllow)=/.test(l) || (i > 0 && lines[i - 1].trim().startsWith('#')));
   }],
   ['nginx: 64k body limit and a rate limit', () => /client_max_body_size\s+64k;/.test(code(nginx)) && /limit_req\s+zone=/.test(code(nginx)) && /limit_req_zone/.test(nginx) && /http block/i.test(nginx)],
-  ['env.example: exactly the nine names, all empty', () => {
-    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET'];
+  ['env.example: exactly the ten names, all empty', () => {
+    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'HM_SCORING'];
     const lines = env.split('\n').filter((l) => l.trim() && !l.startsWith('#'));
     return lines.length === names.length && names.every((n) => lines.includes(n + '='));
   }],
@@ -52,6 +52,6 @@ await run([
   ['no file has a key-looking value (long hex, sk- strings, long token after =)', () => Object.values(files).every((s) => !/\b[0-9a-f]{32,}\b/i.test(s) && !/sk-[A-Za-z0-9_-]{10,}/.test(s) && !/=\s*[A-Za-z0-9_-]{24,}\s*$/m.test(s))],
   ['no file names an access detail or another service', () => Object.values(files).every((s) => !/\bssh\s|root@|exec-fn/i.test(s))],
   ['readme: neutral words only', () => !/slop|fake|garbage/i.test(readme) && /made by people/.test(readme) && /AI-generated/.test(readme)],
-  ['readme: lists the routes, every env variable and the test command', () => ['/api/investigate', '/api/status', '/api/recheck', '/verdicts/', 'HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'IPAddressDeny', 'investigator.sock', 'npm test'].every((t) => readme.includes(t))],
+  ['readme: lists the routes, every env variable and the test command', () => ['/api/investigate', '/api/status', '/api/recheck', '/verdicts/', 'HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'HM_SCORING', 'IPAddressDeny', 'investigator.sock', 'npm test'].every((t) => readme.includes(t))],
   ['readme: no ASCII-art diagram', () => !/[─│┌└├]|^\s*[+|]?-{3,}>|-->\s*$/m.test(readme.replace(/```mermaid[\s\S]*?```/g, ''))],
 ]);
