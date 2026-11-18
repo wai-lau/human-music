@@ -48,6 +48,27 @@ await t('an item that still matches stays hidden across passes', async () => {
   await settle(p.clock, 60); await settle(p.clock, 60); await p.app.flush();
   return p.row.hasAttribute('data-hm-hidden') || 'shown again while still listed';
 });
+await t('Spotify: a hidden item that still matches stays hidden across passes (the recheck uses the site\'s own reader)', async () => {
+  const ctx = load(CORE, { setTimeout, clearTimeout });
+  runInContext(readFileSync(process.cwd() + '/extension/src/content.js', 'utf8'), ctx);
+  const storage = fakeStorage({
+    'hm.filterLists': [{ ...ctx.HM.lists.SOUL_OVER_AI, lastRefresh: 1, count: 1 }],
+    'hm.list.soul-over-ai': { artists: [{ name: 'The Velvet Sundown', spotifyId: '5ExXpwxyFXhwPKYKx6ItaN' }] },
+    'hm.settings': { ...ctx.HM.settings.DEFAULTS },
+    'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [] },
+  });
+  const card = el('div', { 'data-encore-id': 'card' }, el('a', { href: '/artist/5ExXpwxyFXhwPKYKx6ItaN' }, el('span', { 'data-encore-id': 'cardTitle' }, 'The Velvet Sundown')), el('div', { 'data-encore-id': 'cardSubtitle' }, 'Artist'));
+  const doc = makeDocument(el('main', {}, card));
+  doc.location.hostname = 'open.spotify.com';
+  doc.location.pathname = '/search/velvet';
+  const clock = fakeClock();
+  const app = ctx.HM.createApp({ doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now() });
+  await app.start(); await settle(clock, 60); await app.flush();
+  const first = card.hasAttribute('data-hm-hidden');
+  for (let i = 0; i < 3; i++) { await settle(clock, 60); }
+  await app.flush();
+  return (first && card.hasAttribute('data-hm-hidden')) || J({ first, after: card.hasAttribute('data-hm-hidden') });
+});
 
 console.log(fails.length ? fails.map((f) => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);
