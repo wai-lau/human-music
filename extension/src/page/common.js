@@ -49,14 +49,18 @@
     setDisplayNone(el, true);
   }
 
+  function unhideItem(el) {
+    try {
+      el.hidden = false;
+      el.removeAttribute('data-hm-hidden');
+    } catch (e) { /* ignore */ }
+    setDisplayNone(el, false);
+  }
+
   function unhideAll(doc) {
     try {
       const hidden = doc.querySelectorAll('[data-hm-hidden]');
-      for (let i = 0; i < hidden.length; i++) {
-        hidden[i].hidden = false;
-        hidden[i].removeAttribute('data-hm-hidden');
-        setDisplayNone(hidden[i], false);
-      }
+      for (let i = 0; i < hidden.length; i++) unhideItem(hidden[i]);
     } catch (e) { /* ignore */ }
   }
 
@@ -121,6 +125,7 @@
     glyph,
     setDisplayNone,
     hideItem,
+    unhideItem,
     unhideAll,
     videoState,
     removeQueueRowWrap,

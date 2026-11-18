@@ -432,6 +432,10 @@
     HM.pageCommon.hideItem(el);
   }
 
+  function unhideItem(el) {
+    HM.pageCommon.unhideItem(el);
+  }
+
   function unhideAll(doc) {
     HM.pageCommon.unhideAll(doc);
   }
@@ -545,6 +549,7 @@
     pageAdapter,
     readPageItems,
     hideItem,
+    unhideItem,
     unhideAll,
     readListRows,
     markRow,

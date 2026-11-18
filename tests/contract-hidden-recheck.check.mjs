@@ -1,7 +1,7 @@
 // Contract check (review 2026-11-17, page side, finding 1): a hidden page item is checked again
 // on later passes. YouTube Music reuses item elements for other songs (Polymer's dom-repeat), so
 // an item hidden for a listed artist can come back as a person's song; it must be shown again.
-// Run from the repo root: node tests/wip-contract-hidden-recheck.check.mjs
+// Run from the repo root: node tests/contract-hidden-recheck.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');

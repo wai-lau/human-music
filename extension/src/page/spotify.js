@@ -245,6 +245,10 @@
     PC.hideItem(el);
   }
 
+  function unhideItem(el) {
+    PC.unhideItem(el);
+  }
+
   function unhideAll(doc) {
     PC.unhideAll(doc);
   }
@@ -267,6 +271,6 @@
 
   HM.spotify = {
     SEL, REMOVE_ICON, readSong, readArt, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
-    videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideAll,
+    videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideItem, unhideAll,
   };
 })();

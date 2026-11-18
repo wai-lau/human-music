@@ -273,11 +273,18 @@
       if (state.settings.paused || !state.settings.hidePageItems || !state.index) return;
       const path = safe(() => doc.location.pathname, '');
       for (const item of safe(() => site.readPageItems(doc, path), [])) {
-        if (safe(() => item.el.hasAttribute('data-hm-hidden'), true)) continue;
+        const wasHidden = safe(() => item.el.hasAttribute('data-hm-hidden'), true);
         const match = safe(() => HM.match.matchItem(state.index, item), null);
-        if (!match || match.mode !== 'act') continue;
-        site.hideItem(item.el);
-        log('hidden', { title: item.title, artistLine: item.credits.join(', ') }, match, { oncePerDay: true });
+        if (!wasHidden && (!match || match.mode !== 'act')) continue;
+        if (match && match.mode === 'act') {
+          if (!wasHidden) {
+            site.hideItem(item.el);
+            log('hidden', { title: item.title, artistLine: item.credits.join(', ') }, match, { oncePerDay: true });
+          }
+        } else {
+          // No longer matches: the DOM element is reused for another song
+          site.unhideItem(item.el);
+        }
       }
     }
 

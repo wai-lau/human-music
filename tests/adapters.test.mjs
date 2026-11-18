@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 import { run, load } from './load.mjs';
 
 const REQUIRED = ['readSong', 'readQueue', 'clickNext', 'pressNextKey', 'clickDislike', 'videoDuration', 'videoState',
-  'seekTo', 'removeQueueRow', 'mountPlayerButtons', 'readPageItems', 'hideItem', 'unhideAll'];
+  'seekTo', 'removeQueueRow', 'mountPlayerButtons', 'readPageItems', 'hideItem', 'unhideItem', 'unhideAll'];
 // Each group is all-or-nothing: content.js uses a group only when every method in it is there.
 const OPTIONAL = {
   'queue panel (Spotify draws the queue only in a panel)': ['queueOpen', 'openQueue', 'closeQueue', 'timeLeft'],
