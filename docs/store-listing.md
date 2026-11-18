@@ -58,8 +58,9 @@ Upload the signed `.crx`. Name ("Human Music: AI Music Blocker"), version and ic
 3. `3-actions.png`: the log's Actions section.
 4. `4-behaviour.png`: the Behaviour settings.
 
-Shots 2-4 (retaken 2026-11-17) show the popup with the filtering-mode
-slider, from a store-like copy (no investigator section); upload them with
+Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub
+switch) show the popup with the filtering-mode slider and Zoundhub as the
+list, from a store-like copy (no investigator section); upload them with
 0.1.4. **Small promo
 tile** (440x280): optional.
 
