@@ -91,6 +91,40 @@
     return artists.length ? { name: 'Zoundhub', artists } : null;
   }
 
+  function checkUpdate(oldArtists, newArtists, wellKnownNames) {
+    if (!Array.isArray(oldArtists)) oldArtists = [];
+    if (!Array.isArray(newArtists)) newArtists = [];
+    if (!Array.isArray(wellKnownNames)) wellKnownNames = [];
+    const N = globalThis.HM.text.normalize;
+    const oldNames = new Set();
+    for (const a of oldArtists) {
+      if (a && typeof a.name === 'string' && a.name !== '') oldNames.add(N(a.name));
+    }
+    const newNames = new Set();
+    for (const a of newArtists) {
+      if (a && typeof a.name === 'string' && a.name !== '') newNames.add(N(a.name));
+    }
+    const added = [];
+    for (const n of newNames) {
+      if (!oldNames.has(n)) added.push(n);
+    }
+    for (const w of wellKnownNames) {
+      const nw = N(w);
+      if (added.includes(nw)) {
+        for (const orig of wellKnownNames) {
+          if (N(orig) === nw) {
+            return { reason: 'names a well-known artist: ' + orig };
+          }
+        }
+        return { reason: 'names a well-known artist: ' + nw };
+      }
+    }
+    if (oldNames.size > 0 && added.length > Math.max(100, oldNames.size / 2)) {
+      return { reason: 'added ' + added.length + ' names at once' };
+    }
+    return null;
+  }
+
   function parseFilterList(data) {
     if (isZoundhub(data)) {
       const list = fromZoundhub(data);
@@ -338,6 +372,7 @@
   }
 
   globalThis.HM.lists = {
+    checkUpdate: checkUpdate,
     fromZoundhub: fromZoundhub,
     SOUL_OVER_AI: SOUL_OVER_AI,
     HM_VERDICTS: HM_VERDICTS,

@@ -4,7 +4,7 @@
 // list goes to Watch only (it logs what it would skip and never acts), the data is still stored,
 // and the popup's Errors section says why. The person can let it act again with its Watch only
 // switch; the hold is then cleared.
-// Run from the repo root: node tests/wip-contract-list-guard.check.mjs
+// Run from the repo root: node tests/contract-list-guard.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
@@ -55,6 +55,17 @@ await t('an update naming a star: stored, but the list goes to Watch only with t
   await r.refreshOne('mine');
   const m = storage.data['hm.filterLists'][0];
   return (m.mode === 'watch' && m.held && /Drake/.test(m.held.reason) && m.held.at === 50 && storage.data['hm.list.mine'].artists.length === 201) || J(m);
+});
+await t('a refresh started at once, while the guard list is still loading, is still guarded', async () => {
+  const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });
+  const fetch = async (url) => {
+    if (url === 'lists/well-known.json') { await new Promise((r) => setTimeout(r, 30)); return { ok: true, status: 200, headers: { get: () => null }, text: async () => JSON.stringify(WELL_KNOWN) }; }
+    return { ok: true, status: 200, headers: { get: () => null }, text: async () => JSON.stringify({ artists: [...names(200), { name: 'Drake' }] }) };
+  };
+  const r = HM.createRefresher({ storage, fetch, now: () => 50, assetUrl: (p) => p });
+  await r.refreshOne('mine'); // a worker start refreshes straight away
+  const m = storage.data['hm.filterLists'][0];
+  return (m.mode === 'watch' && m.held && /Drake/.test(m.held.reason)) || J(m);
 });
 await t('an ordinary update leaves the mode alone', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });

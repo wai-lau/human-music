@@ -14,6 +14,25 @@
     // every friend. Unknown means no.
     const isDev = typeof opts.isDev === 'function' ? opts.isDev : async function () { return false; };
 
+    // Well-known artists made by people: a list update that names one is held in Watch only
+    // (security hardening, Wai 2026-11-18). Loaded once per worker; a failed load means an
+    // empty guard list, never a blocked refresh.
+    let wellKnownNames = [];
+    async function loadWellKnown() {
+      if (typeof opts.assetUrl !== 'function') return;
+      try {
+        const resp = await fetchFn(opts.assetUrl('lists/well-known.json'));
+        if (!resp.ok) return;
+        const data = JSON.parse(await resp.text());
+        if (Array.isArray(data.names)) wellKnownNames = data.names;
+      } catch (e) {
+        // empty guard list is fine
+      }
+    }
+    // Every refresh waits for it: a worker start refreshes at once, before a fire-and-forget
+    // load could finish, and an unguarded first refresh is exactly the one a hacked list needs.
+    const wellKnownReady = loadWellKnown();
+
     // Every change to hm.filterLists goes through here, one at a time: fn gets the stored
     // list records (undefined if none are stored yet) and returns the new records, or
     // undefined for no change. Read-modify-write from several jobs at once lost each other's
@@ -266,6 +285,13 @@ list = lists[HM.store.KEYS.filterLists][i];
           }
         }
 
+        // Check the update against the guard: does it name a well-known person, or suddenly
+        // balloon? If so, store the data but put the list in Watch only and record why.
+        await wellKnownReady;
+        const stored = (await storage.get(HM.store.listKey(id)))[HM.store.listKey(id)];
+        const oldArtists = stored && Array.isArray(stored.artists) ? stored.artists : [];
+        const held = globalThis.HM.lists.checkUpdate(oldArtists, listData.artists, wellKnownNames);
+
         const setObj = {};
         setObj[HM.store.listKey(id)] = listData;
         await storage.set(setObj);
@@ -274,7 +300,13 @@ list = lists[HM.store.KEYS.filterLists][i];
         await updateMetas(function (metas) {
           if (!Array.isArray(metas)) return undefined;
           return metas.map(function (m) {
-            return m.id === id ? { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, calibrated: listData.calibrated } : m;
+            if (m.id !== id) return m;
+            const next = { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, calibrated: listData.calibrated };
+            if (held) {
+              next.mode = 'watch';
+              next.held = { at: refreshedAt, reason: held.reason };
+            }
+            return next;
           });
         });
         return true;

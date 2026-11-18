@@ -167,7 +167,13 @@
         node('label', { class: 'switch' },
           node('input', {
             type: 'checkbox', checked: list.mode === 'watch', 'aria-label': `Watch only: ${list.name}`,
-            onchange: e => updateList(list.id, { mode: e.target.checked ? 'watch' : 'act' }),
+            onchange: e => {
+              if (e.target.checked) {
+                updateList(list.id, { mode: 'watch' });
+              } else {
+                updateList(list.id, { mode: 'act', held: null });
+              }
+            },
           }),
           node('span', { class: 'track', 'aria-hidden': 'true' }))));
     }
@@ -376,6 +382,9 @@
   function listErrors() {
     return state.lists.filter(l => l.enabled && l.lastError);
   }
+  function listHeld() {
+    return state.lists.filter(l => l.enabled && l.held && l.mode === 'watch');
+  }
 
   function renderToday() {
     const el = $('today');
@@ -391,7 +400,7 @@
 
   function renderLog() {
     const counts = HM.popup.sectionCounts(state.log);
-    counts.errors += listErrors().length;
+    counts.errors += listErrors().length + listHeld().length;
     if (!section) section = state.log.length ? HM.log.section(state.log[0].event) : (counts.errors ? 'errors' : 'blocks');
     for (const btn of document.querySelectorAll('.seg-btn')) {
       const k = btn.dataset.section;
@@ -411,9 +420,14 @@
           node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: l.name }), node('span', { class: 'log-time', textContent: l.lastRefresh ? `last good ${HM.popup.timeLabel(l.lastRefresh, now)}` : '' })),
           node('div', { class: 'log-reason error', textContent: `List update failed: ${HM.popup.plainError(l.lastError)}` })));
       }
+      for (const l of listHeld()) {
+        ul.append(node('li', { class: 'log-group' },
+          node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: l.name }), node('span', { class: 'log-time', textContent: l.held ? `held ${HM.popup.timeLabel(l.held.at, now)}` : '' })),
+          node('div', { class: 'log-reason error', textContent: `${l.name} is held in Watch only: ${l.held.reason}` })));
+      }
     }
     const groups = HM.popup.groupLog(state.log, { now, section, neverSkip: state.user.neverSkip });
-    if (!groups.length && !(section === 'errors' && listErrors().length)) {
+    if (!groups.length && !(section === 'errors' && (listErrors().length || listHeld().length))) {
       ul.append(node('li', { class: 'log-empty', textContent: EMPTY[section] }));
       return;
     }
