@@ -2,6 +2,8 @@
 
 Status: approved by Wai 2026-11-11 ("Build after review fixes").
 
+2026-11-17: this design was replaced by `2026-11-16-ai-investigator-design.md`. The judging runs in a separate service (`research/investigator`), not in the extension, and only Wai's development copy talks to it.
+
 ## Why
 
 The extension blocks artists on two kinds of list: the user's own lists and
