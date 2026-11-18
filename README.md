@@ -6,8 +6,8 @@ A browser extension for [YouTube Music](https://music.youtube.com) and the
 [Spotify web player](https://open.spotify.com) that keeps your listening to
 music made by people.
 
-**Status:** on the [Chrome Web Store](https://chromewebstore.google.com/detail/gfmfiblcoldnfgafoapjmelpedonegca).
-Firefox support is being built and hasn't been tried in Firefox yet.
+Human Music is on the [Chrome Web Store](https://chromewebstore.google.com/detail/gfmfiblcoldnfgafoapjmelpedonegca).
+A Firefox build exists, but I haven't tried it in Firefox yet.
 
 ## What it does
 
@@ -15,19 +15,20 @@ On YouTube Music and Spotify, Human Music keeps songs by AI-generated artists
 out of your listening: out of your queue before they play, skipped if one
 starts anyway, and hidden on the home page and in search.
 
-**Modes.** A four-stop slider in the popup sets how much it filters. No
-filtering turns it off. List only acts on the lists below and is the default.
-Optimal and Aggressive also act on the verdict list described below, at a
-confidence of 95 or higher (Optimal) or 60 or higher (Aggressive). Those two
-stay on List only until the verdict list has been calibrated.
+A slider in the popup sets how much it filters. No filtering turns it off.
+List only acts on the lists below. Optimal and Aggressive also act on the
+investigator's verdicts (see below) at a confidence of 95 or higher (Optimal)
+or 60 or higher (Aggressive). Until the verdict list has been calibrated, both
+of those fall back to List only. List only is the default until then, and
+Optimal after that, unless you've picked a mode yourself.
 
-**Lists.** It works from lists you choose: [Soul Over AI](https://souloverai.com)
+It works from lists you choose: [Soul Over AI](https://souloverai.com)
 (CC BY 4.0), Cevval's AI music list, Human Music's own verdicts, your own
 artists, songs and keywords, or any list you subscribe to by web address. The
 first three are built in. A new list only watches, and logs what it would
 skip, until you let it act.
 
-**The investigator.** Lists can't keep up with every new artist, so I run an
+Lists can't keep up with every new artist, so I run an
 investigator service that checks artists that aren't on any list yet. It looks
 for several independent sources, gives each artist a verdict with a
 confidence, and publishes the verdicts as a public list,
@@ -36,15 +37,12 @@ extension only downloads that list. The service is my own, runs on my server
 and isn't part of the extension package: the Chrome Web Store copy never
 contacts it. The code is in [`research/investigator`](research/investigator).
 
-**Your data.** No account, no tracking, no ads. Human Music collects nothing
-and sends nothing; it only downloads the lists you use. Your settings and its
-log stay on your computer and go away when you uninstall it.
+There's no account, tracking or ads. Human Music collects nothing and sends
+nothing; it only downloads the lists you use. Your settings and its log stay
+on your computer and go away when you uninstall it. It asks for access to
+YouTube Music and Spotify only, and treats every list as plain data.
 
-**Safety.** When it isn't sure, the song plays. It asks only for access to
-YouTube Music and Spotify and treats every list as plain data.
-
-**Free and open source.** Human Music is free and will stay free, under the
-MIT license.
+Human Music is free and will stay free, under the MIT license.
 
 ## Why
 
@@ -72,7 +70,7 @@ copy: the development aids stay off unless the folder holds the owner's
 
 In Firefox (121 or later), run `scripts/build-firefox.sh`, open
 `about:debugging`, choose This Firefox, then Load Temporary Add-on, and pick
-`dist/firefox/manifest.json`. Firefox support hasn't been tried in Firefox itself yet.
+`dist/firefox/manifest.json`.
 
 ## Spotify
 
@@ -99,10 +97,10 @@ An artist matches only when they're credited on the song. A list entry
 called "After Midnight" catches the artist After Midnight, not every song
 with that title.
 
-For now the repository also holds a copy of my own lists in
-`extension/lists/`. The extension imports it when it installs, so the lists
-survive removing the extension. If you load the folder yourself and don't
-want my lists, empty `my-lists.json` first.
+The repository also holds a copy of my own lists in `extension/lists/`, so
+they survive removing the extension. Only my own working copy (the one with
+the `dev-copy` marker) imports them; a copy you load yourself starts with the
+built-in lists only.
 
 Coming from YTM AI Artist & Song Blocker? Export a backup there and import
 it in Human Music's Lists tab to keep your lists.
