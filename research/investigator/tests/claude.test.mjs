@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { run } from './harness.mjs';
+import { CODES } from '../src/checklist.mjs';
 import { ANSWER_SCHEMA } from '../src/answer.mjs';
 import { SYSTEM_PROMPT, buildPrompt, buildArgv, childEnv, investigate } from '../src/claude.mjs';
 
@@ -44,6 +45,29 @@ const env = { PATH: '/bin', HOME: '/h', CLAUDE_CODE_OAUTH_TOKEN: 'tok', HM_KEY_H
 const go = (spawn, o = {}) => investigate(a, {}, { spawn, env, ...o });
 
 await run([
+  // Wai, 2026-11-18: scoring from a checklist of signs. The checklist mode asks for every sign
+  // with the strict checklist schema and returns the checked checklist; the verdict mode is unchanged.
+  ['checklist mode: its own schema and prompt, the same locked-down tools', () => {
+    const v = buildArgv('opus');
+    const c = buildArgv('opus', 'checklist');
+    const at = (argv, flag) => argv[argv.indexOf(flag) + 1];
+    const schema = JSON.parse(at(c, '--json-schema'));
+    const sys = at(c, '--append-system-prompt');
+    return (schema.properties.signs.required.length === CODES.length && /untrusted data/i.test(sys) && sys.includes('P14: ')
+      && at(c, '--tools') === at(v, '--tools') && c.includes('--strict-mcp-config') && c.includes('--restricted')
+      && at(v, '--json-schema') !== at(c, '--json-schema')) || JSON.stringify({ sys: sys.slice(0, 200) });
+  }],
+  ['checklist mode returns the checked checklist', async () => {
+    const signs = Object.fromEntries(CODES.map((k) => [k, { status: 'unknown', source: '' }]));
+    signs.M4 = { status: 'found', source: 'https://api.deezer.com/artist/1/albums' };
+    const out = JSON.stringify([{ type: 'result', is_error: false, structured_output: { signs, genres: ['pop'], summary: 's' } }]);
+    const r = await go(fakeSpawn(out), { mode: 'checklist' });
+    return (r.ok && r.checklist && r.checklist.signs.M4 === 'found' && r.answer === undefined) || JSON.stringify(r);
+  }],
+  ['checklist mode refuses a verdict-shaped answer', async () => {
+    const r = await go(fakeSpawn({ structured_output: { verdict: 'ai', confidence: 90, signals: [], reasons: [], sources: [] } }), { mode: 'checklist' });
+    return (r.ok === false && r.kind === 'invalid') || JSON.stringify(r);
+  }],
   // Review 2026-11-17: the research call has web tools, so it never gets the cover's address
   // (the look is a separate, tool-less call).
   ['the research prompt never carries a cover address', () => {
