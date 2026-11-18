@@ -14,14 +14,31 @@
     // every friend. Unknown means no.
     const isDev = typeof opts.isDev === 'function' ? opts.isDev : async function () { return false; };
 
-    async function install() {
-      const stored = await storage.get([HM.store.KEYS.filterLists, HM.store.KEYS.user, HM.store.KEYS.settings]);
+    // Every change to hm.filterLists goes through here, one at a time: fn gets the stored
+    // list records (undefined if none are stored yet) and returns the new records, or
+    // undefined for no change. Read-modify-write from several jobs at once lost each other's
+    // lastRefresh, count and repairs (review 2026-11-17).
+    let metaQueue = Promise.resolve();
+    function updateMetas(fn) {
+      const run = metaQueue.then(async function () {
+        const key = HM.store.KEYS.filterLists;
+        const cur = (await storage.get(key))[key];
+        const next = fn(cur);
+        if (next === undefined) return cur;
+        await storage.set({ [key]: next });
+        return next;
+      });
+      metaQueue = run.then(function () {}, function () {});
+      return run;
+    }
 
-      if (!stored[HM.store.KEYS.filterLists]) {
-        await storage.set({
-          [HM.store.KEYS.filterLists]: [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }]
-        });
-      }
+    async function install() {
+      const stored = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings]);
+
+      await updateMetas(function (metas) {
+        if (metas) return undefined;
+        return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }];
+      });
 
       if (!stored[HM.store.KEYS.user]) {
         await storage.set({
@@ -48,31 +65,27 @@
     // Built-in upkeep at every start, whatever happened to the bundled import.
     async function ensureBuiltIns() {
       const HM = globalThis.HM;
-      // Ensure the built-in verdict list is always present after bundled import
-      // (no list meta yet means install has not run: leave the storage to it)
-      let metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists];
-      if (Array.isArray(metas) && !metas.some(m => m.id === 'hm-verdicts')) {
-        metas = metas.concat([{ ...HM.lists.HM_VERDICTS }]);
-        await storage.set({ [HM.store.KEYS.filterLists]: metas });
-      }
-      if (Array.isArray(metas) && !metas.some(m => m.id === 'cevval')) {
-        metas = metas.concat([{ ...HM.lists.CEVVAL }]);
-        await storage.set({ [HM.store.KEYS.filterLists]: metas });
-      }
-      // Built-in lists take their name and address from the code, so a list that moves
-      // (the verdict list did, 2026-11-17) follows on the next start. The person's own
-      // choices (on or off, Watch only) and the refresh record stay.
-      if (Array.isArray(metas)) {
-        const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL];
+      const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL];
+      // No list meta yet means install has not run: leave the storage to it. Built-in lists
+      // take their name, address and format from the code, so a list that moves (the verdict
+      // list did, 2026-11-17) follows on the next start, and a missing one comes back. The
+      // person's own choices (on or off, Watch only) and the refresh record stay.
+      await updateMetas(function (metas) {
+        if (!Array.isArray(metas)) return undefined;
         let changed = false;
-        const next = metas.map(m => {
-          const code = m && m.builtIn === true ? BUILT_INS.find(b => b.id === m.id) : null;
-          if (!code || (m.url === code.url && m.name === code.name)) return m;
+        let next = metas.map(function (m) {
+          const code = m && m.builtIn === true ? BUILT_INS.find(function (b) { return b.id === m.id; }) : null;
+          if (!code || (m.url === code.url && m.name === code.name && m.format === code.format)) return m;
           changed = true;
-          return { ...m, url: code.url, name: code.name };
+          const fixed = { ...m, url: code.url, name: code.name };
+          if (code.format === undefined) delete fixed.format; else fixed.format = code.format;
+          return fixed;
         });
-        if (changed) await storage.set({ [HM.store.KEYS.filterLists]: next });
-      }
+        for (const code of [HM.lists.HM_VERDICTS, HM.lists.CEVVAL]) {
+          if (!next.some(function (m) { return m && m.id === code.id; })) { next = next.concat([{ ...code }]); changed = true; }
+        }
+        return changed ? next : undefined;
+      });
     }
 
     async function importBundled() {
@@ -117,10 +130,12 @@
               const setObj = {};
               setObj[key] = parsed;
               await storage.set(setObj);
-              const metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists] || [];
-              await storage.set({ [HM.store.KEYS.filterLists]: metas.map(function (m) {
-                return m.id === f.id ? Object.assign({}, m, { count: parsed.artists.length }) : m;
-              }) });
+              await updateMetas(function (metas) {
+                if (!Array.isArray(metas)) return undefined;
+                return metas.map(function (m) {
+                  return m.id === f.id ? Object.assign({}, m, { count: parsed.artists.length }) : m;
+                });
+              });
             }
           } else {
             continue;
@@ -136,9 +151,19 @@
       return done;
     }
 
-    async function refreshOne(id) {
+    // One refresh per list at a time: a second ask (start-up and the popup's Refresh, say)
+    // shares the first one's answer instead of fetching again.
+    const refreshing = new Map();
+    function refreshOne(id) {
+      if (refreshing.has(id)) return refreshing.get(id);
+      const p = refreshOneNow(id).finally(function () { refreshing.delete(id); });
+      refreshing.set(id, p);
+      return p;
+    }
+
+    async function refreshOneNow(id) {
       try {
-        let lists = await storage.get(HM.store.KEYS.filterLists);
+        const lists = await storage.get(HM.store.KEYS.filterLists);
 if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
           return false;
         }
@@ -243,17 +268,13 @@ list = lists[HM.store.KEYS.filterLists][i];
         setObj[HM.store.listKey(id)] = listData;
         await storage.set(setObj);
 
-        lists = await storage.get(HM.store.KEYS.filterLists);
-        for (let j = 0; j < lists[HM.store.KEYS.filterLists].length; j++) {
-          if (lists[HM.store.KEYS.filterLists][j].id === id) {
-            lists[HM.store.KEYS.filterLists][j].count = listData.artists.length;
-            lists[HM.store.KEYS.filterLists][j].lastRefresh = nowFn();
-            lists[HM.store.KEYS.filterLists][j].lastError = null;
-            lists[HM.store.KEYS.filterLists][j].calibrated = listData.calibrated;
-            break;
-          }
-        }
-        await storage.set({ [HM.store.KEYS.filterLists]: lists[HM.store.KEYS.filterLists] });
+        const refreshedAt = nowFn();
+        await updateMetas(function (metas) {
+          if (!Array.isArray(metas)) return undefined;
+          return metas.map(function (m) {
+            return m.id === id ? { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, calibrated: listData.calibrated } : m;
+          });
+        });
         return true;
       } catch (e) {
         try {
@@ -290,20 +311,12 @@ list = lists[HM.store.KEYS.filterLists][i];
     }
 
     async function recordFailure(id, message) {
-      const lists = await storage.get(HM.store.KEYS.filterLists);
-      if (!lists[HM.store.KEYS.filterLists] || lists[HM.store.KEYS.filterLists].length === 0) {
-        return;
-      }
-      for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
-        if (lists[HM.store.KEYS.filterLists][i].id === id) {
-          lists[HM.store.KEYS.filterLists][i].lastError = message;
-          lists[HM.store.KEYS.filterLists][i].lastFailedAt = nowFn();
-          break;
-        }
-      }
-      const setObj = {};
-      setObj[HM.store.KEYS.filterLists] = lists[HM.store.KEYS.filterLists];
-      await storage.set(setObj);
+      const failedAt = nowFn();
+      const after = await updateMetas(function (metas) {
+        if (!Array.isArray(metas) || metas.length === 0) return undefined;
+        return metas.map(function (m) { return m.id === id ? { ...m, lastError: message, lastFailedAt: failedAt } : m; });
+      });
+      if (!Array.isArray(after) || after.length === 0) return;
 
       const listKey = HM.store.listKey(id);
       const stored = await storage.get(listKey);
@@ -323,9 +336,13 @@ list = lists[HM.store.KEYS.filterLists][i];
       const now = nowFn();
       const refreshed = [];
 
-      for (let i = 0; i < lists[HM.store.KEYS.filterLists].length; i++) {
-        const list = lists[HM.store.KEYS.filterLists][i];
-        if (!list.enabled) {
+      const ids = lists[HM.store.KEYS.filterLists].map(function (l) { return l.id; });
+      for (let i = 0; i < ids.length; i++) {
+        // Judged on the list's record as it is now: a refresh another job finished since
+        // the first read (the popup's Refresh, say) is not done again.
+        const metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists] || [];
+        const list = metas.find(function (l) { return l && l.id === ids[i]; });
+        if (!list || !list.enabled) {
           continue;
         }
         // A list that failed in the last hour rests, so a broken list isn't fetched at every
@@ -340,7 +357,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       return refreshed;
     }
 
-    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue, importBundled: importBundled };
+    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue, importBundled: importBundled, ensureBuiltIns: ensureBuiltIns };
   }
 
   globalThis.HM.createRefresher = createRefresher;
@@ -620,7 +637,10 @@ list = lists[HM.store.KEYS.filterLists][i];
     // No alarms (Wai, 2026-11-13: "minimize required permissions"): the worker starts whenever
     // a music tab opens or talks to it (and when the popup asks), and each start refreshes
     // the lists that are due.
-    Promise.resolve().then(function () { return globalThis.HM.refresher.refreshDue(); })
+    // The built-in upkeep (address, name, format) runs at every start too, not only at install.
+    Promise.resolve().then(function () { return globalThis.HM.refresher.ensureBuiltIns(); })
+      .catch(function () { /* next start tries again */ })
+      .then(function () { return globalThis.HM.refresher.refreshDue(); })
       .then(function () { return api.storage.local.get([HM.store.KEYS.investigator, HM.store.KEYS.filterLists]); })
       .then(function (got) {
         if (verdictsRefreshDue(got[HM.store.KEYS.investigator], got[HM.store.KEYS.filterLists], Date.now())) {

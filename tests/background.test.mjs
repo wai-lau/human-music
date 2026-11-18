@@ -197,11 +197,14 @@ async function runTests() {
     for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));
     const atStart = refreshedUrls.slice();
     await refresher.refreshDue();
-    if (atStart.length !== 2 || refreshedUrls.length !== 2) {
+    // The start-up upkeep adds the two built-in lists this storage lacked (verdicts, Cevval),
+    // which are due too.
+    if (atStart.length !== 4 || refreshedUrls.length !== 4) {
       throw new Error('wrong number of fetches: ' + atStart.length + ' at start, ' + refreshedUrls.length + ' after');
     }
-    if (atStart[0] !== 'https://a.json' || atStart[1] !== 'https://b.json') {
-      throw new Error('wrong lists refreshed');
+    // (Soul Over AI's address is the code's: the built-in upkeep repairs it at start.)
+    if (!/soul-over-ai/.test(atStart[0]) || atStart[1] !== 'https://b.json' || atStart.includes('https://c.json')) {
+      throw new Error('wrong lists refreshed: ' + atStart.join(' '));
     }
   });
 }
