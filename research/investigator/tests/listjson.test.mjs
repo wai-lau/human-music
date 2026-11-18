@@ -23,6 +23,12 @@ const MAP = { ok: true, points: [[0, 0], [60, 60], [90, 95], [100, 100]] };
 const build = (rows, o = {}) => JSON.parse(buildList(rows, { now: NOW, calibrated: false, mapping: null, ...o }));
 
 await run([
+  // Wai, 2026-11-18 ("All A" on publishing only AI verdicts): the public list was a dated record
+  // of every artist from her queues; made-by-people and unsure verdicts stay on the droplet.
+  ['only AI verdicts are published; made-by-people and unsure ones stay private', () => {
+    const l = build([v({ name: 'Bot' }), v({ name: 'Person', verdict: 'human', confidence: 98 }), v({ name: 'Maybe', verdict: 'unsure', confidence: 40 })]);
+    return (l.artists.length === 1 && l.artists[0].name === 'Bot') || JSON.stringify(l.artists);
+  }],
   ['sorted by normalised name', () => {
     const l = build([v({ name: 'beta' }), v({ name: 'Alpha' }), v({ name: '  gamma ' })]);
     return l.artists.map((a) => a.name).join('|') === 'Alpha|beta|  gamma ' || JSON.stringify(l.artists.map((a) => a.name));
@@ -67,15 +73,11 @@ await run([
     const oneSite = build([v({ rawConfidence: 90, signals: ['deezer_ai_label'], sources: ['https://www.deezer.com/a/1', 'https://deezer.com/a/2'] })], { mapping: MAP }).artists[0].confidence;
     return (weak <= 94 && oneSite <= 94) || `${weak} ${oneSite}`;
   }],
-  ['human and unsure confidences pass unchanged', () => {
-    const l = build([v({ name: 'h', verdict: 'human', confidence: 97, rawConfidence: 97 }), v({ name: 'u', verdict: 'unsure', confidence: 40, rawConfidence: 40 })], { mapping: null });
-    return (l.artists[0].confidence === 97 && l.artists[1].confidence === 40) || JSON.stringify(l.artists);
-  }],
   ['output round-trips through the extension parseFilterList', () => {
     const rows = [
       v({ name: 'Zed', spotifyId: SP, rawConfidence: 90 }),
-      v({ name: 'Ann', channelId: YT, verdict: 'human', confidence: 88, rawConfidence: 88 }),
-      v({ name: 'Mid', verdict: 'unsure', confidence: 30, rawConfidence: 30 }),
+      v({ name: 'Ann', channelId: YT, rawConfidence: 88 }),
+      v({ name: 'Mid', rawConfidence: 30 }),
     ];
     const text = buildList(rows, { now: NOW, calibrated: true, mapping: MAP });
     const want = JSON.parse(text);

@@ -16,6 +16,9 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
   for (const v of Array.isArray(verdicts) ? verdicts : []) {
     if (!v || v.source === 'calibration') continue;
     if (typeof v.name !== 'string' || v.name.trim() === '' || !WORDS.has(v.verdict)) continue;
+    // Only AI verdicts are public (Wai, 2026-11-18): the others would be a dated record of
+    // the people in her queues. They stay in the droplet's store, which skips them next time.
+    if (v.verdict !== 'ai') continue;
     let confidence;
     if (v.verdict === 'ai') {
       const raw = Number.isFinite(v.rawConfidence) ? v.rawConfidence : v.confidence;

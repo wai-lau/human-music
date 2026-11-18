@@ -150,7 +150,9 @@ await run([
     } finally { await t.stop(); }
   }],
   // Wai, 2026-11-17: "publish once a day".
-  ['publish is once a day, covers every verdict, and says calibrated: false', async () => {
+  // The three artists are judged made by people (the cheap pass), so nothing of them is public
+  // (Wai, 2026-11-18: only AI verdicts are published).
+  ['publish is once a day, carries no made-by-people verdicts, and says calibrated: false', async () => {
     const t = await make();
     try {
       queueThree(t.app);
@@ -162,7 +164,7 @@ await run([
       await t.timers.advance(3600000);
       if (t.calls.publish.length !== 1) return 'publishes: ' + t.calls.publish.length;
       const list = JSON.parse(t.calls.publish[0]);
-      if (list.artists.length !== 3 || list.calibrated !== false) return 'list: ' + t.calls.publish[0];
+      if (list.artists.length !== 0 || list.calibrated !== false) return 'list: ' + t.calls.publish[0];
       await t.timers.advance(600000);
       return t.calls.publish.length === 1 || 'published again: ' + t.calls.publish.length;
     } finally { await t.stop(); }
