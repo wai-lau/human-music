@@ -50,7 +50,38 @@
   const YT_CHANNEL_RE = /^UC[\w-]{22}$/;
   const SPOTIFY_ID_RE = /^[A-Za-z0-9]{22}$/;
 
+  // Zoundhub's data file (zoundhub.com/data/artists-all.json) as a Human Music list (Wai,
+  // 2026-11-18: switch to Zoundhub now). Zoundhub calls its rating "an AI signal, not a verified
+  // classification", and rating 4 includes real people, so only rating 5 with Deezer's own AI
+  // label counts; a debut before 2020 is left out (Wai: "pre-2020, auto-allow"); and a name that
+  // also belongs to an artist Zoundhub rates 1-3 (or 4 without the label) matches by Spotify ID
+  // only. Returns null for anything else, or when nothing is usable.
+  function isZoundhub(data) {
+    return !!data && typeof data === 'object' && !Array.isArray(data) && typeof data.reference_year === 'number' && Array.isArray(data.artists);
+  }
+  function fromZoundhub(data) {
+    if (!isZoundhub(data)) return null;
+    const N = globalThis.HM.text.normalize;
+    const rows = data.artists.filter(a => a && typeof a === 'object' && typeof a.name === 'string' && a.name.trim());
+    const lowNames = new Set(rows.filter(a => a.rating <= 3 || (a.rating === 4 && a.deezer !== true)).map(a => N(a.name)));
+    const fromYear = d => { const y = parseInt(String(d == null ? '' : d).slice(0, 4), 10); return Number.isFinite(y) ? y : null; };
+    const artists = [];
+    for (const a of rows) {
+      if (a.rating !== 5 || a.deezer !== true || typeof a.id !== 'string' || !SPOTIFY_ID_RE.test(a.id)) continue;
+      const year = fromYear(a.debut);
+      if (year !== null && year < 2020) continue;
+      const entry = { name: a.name.trim(), spotifyId: a.id };
+      if (lowNames.has(N(a.name))) entry.idOnly = true;
+      artists.push(entry);
+    }
+    return artists.length ? { name: 'Zoundhub', artists } : null;
+  }
+
   function parseFilterList(data) {
+    if (isZoundhub(data)) {
+      const list = fromZoundhub(data);
+      return list ? { artists: parseEntries(list.artists) } : null;
+    }
     if (Array.isArray(data)) {
       return { artists: parseEntries(data) };
     }
@@ -293,6 +324,7 @@
   }
 
   globalThis.HM.lists = {
+    fromZoundhub: fromZoundhub,
     SOUL_OVER_AI: SOUL_OVER_AI,
     HM_VERDICTS: HM_VERDICTS,
     CEVVAL: CEVVAL,
