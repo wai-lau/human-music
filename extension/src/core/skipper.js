@@ -55,20 +55,23 @@
       function pressNext() {
         const before = videoNow();
         try { page.pressNextKey(); } catch (e) {}
-        buttonTimeout = setTimeout(() => {
-          buttonTimeout = null;
-          if (!busy || !stillSameSong()) return;
-          const now = videoNow();
-          if (before && now && !now.paused && now.time > before.time) {
-            try { page.clickNext(); } catch (e) {}
-          }
-        }, 750);
+        if (!page.keyIsButton) {
+          buttonTimeout = setTimeout(() => {
+            buttonTimeout = null;
+            if (!busy || !stillSameSong()) return;
+            const now = videoNow();
+            if (before && now && !now.paused && now.time > before.time) {
+              try { page.clickNext(); } catch (e) {}
+            }
+          }, 750);
+        }
+        const seekDelay = page.keyIsButton ? 3000 : 1500;
         seekTimeout = setTimeout(() => {
           seekTimeout = null;
           if (busy && stillSameSong()) {
             tryMaybeSeek();
           }
-        }, 1500);
+        }, seekDelay);
       }
 
       function tryMaybeSeek() {

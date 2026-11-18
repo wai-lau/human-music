@@ -32,6 +32,7 @@
       videoDuration: () => site.videoDuration(doc),
       videoState: () => (site.videoState ? site.videoState(doc) : null),
       seekTo: seconds => site.seekTo(doc, seconds),
+      keyIsButton: !!site.keyIsButton,
     };
   }
 

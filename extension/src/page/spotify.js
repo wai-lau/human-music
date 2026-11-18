@@ -223,7 +223,8 @@
   }
 
   // Home and search only. Credits come from artist links (and an artist card's own title);
-  // subtitles are never read: on Spotify they are often playlist descriptions.
+  // subtitles are never read: on Spotify they are often playlist descriptions. A list row's
+  // title is the track's name, not a credit (review 2026-11-17).
   function readPageItems(doc, path) {
     return safe(() => {
       if (typeof path !== 'string' || !(path === '/' || path.startsWith('/search'))) return [];
@@ -232,9 +233,15 @@
         if (el.closest(SEL.notPage)) continue;
         const title = text(el.querySelector(SEL.itemTitle));
         const { names, ids } = artistsIn(el);
+        const isListRow = el.getAttribute('data-encore-id') === 'listRow';
         const own = el.querySelector('a[href]');
         const ownId = own ? idOf(own.getAttribute('href')) : null;
-        const credits = uniq(ownId && title ? [title, ...names] : names);
+        let credits;
+        if (isListRow) {
+          credits = names;
+        } else {
+          credits = uniq(ownId && title ? [title, ...names] : names);
+        }
         out.push({ title, credits, channelIds: uniq(ownId ? [ownId, ...ids] : ids), featured: false, el });
       }
       return out;
@@ -270,6 +277,7 @@
   }
 
   HM.spotify = {
+    keyIsButton: true,
     SEL, REMOVE_ICON, readSong, readArt, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
     videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideItem, unhideAll,
   };

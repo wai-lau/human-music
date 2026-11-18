@@ -6,6 +6,7 @@ import { run, load } from './load.mjs';
 
 const REQUIRED = ['readSong', 'readQueue', 'clickNext', 'pressNextKey', 'clickDislike', 'videoDuration', 'videoState',
   'seekTo', 'removeQueueRow', 'mountPlayerButtons', 'readPageItems', 'hideItem', 'unhideItem', 'unhideAll'];
+const BOOLEAN_FLAGS = ['keyIsButton'];
 // Each group is all-or-nothing: content.js uses a group only when every method in it is there.
 const OPTIONAL = {
   'queue panel (Spotify draws the queue only in a panel)': ['queueOpen', 'openQueue', 'closeQueue', 'timeLeft'],
@@ -21,12 +22,16 @@ run([
     const missing = REQUIRED.filter(m => typeof a[m] !== 'function');
     return missing.length === 0 || `missing: ${missing.join(', ')}`;
   }]),
+  ...Object.entries(ADAPTERS).map(([name, a]) => [`${name} declares every boolean flag`, () => {
+    const missing = BOOLEAN_FLAGS.filter(f => typeof a[f] !== 'boolean');
+    return missing.length === 0 || `missing: ${missing.join(', ')}`;
+  }]),
   ...Object.entries(ADAPTERS).map(([name, a]) => [`${name}: each optional group is complete or absent`, () => {
     const half = Object.entries(OPTIONAL).filter(([, ms]) => { const have = ms.filter(m => typeof a[m] === 'function').length; return have > 0 && have < ms.length; });
     return half.length === 0 || `incomplete: ${half.map(([g]) => g).join('; ')}`;
   }]),
   ['content.js calls nothing on the adapter beyond this list', () => {
-    const known = new Set([...REQUIRED, ...Object.values(OPTIONAL).flat()]);
+    const known = new Set([...REQUIRED, ...Object.values(OPTIONAL).flat(), ...BOOLEAN_FLAGS]);
     const used = [...new Set([...content.matchAll(/\bsite\.([a-zA-Z]+)/g)].map(m => m[1]))];
     const unknown = used.filter(m => !known.has(m));
     return unknown.length === 0 || `add to tests/adapters.test.mjs: ${unknown.join(', ')}`;

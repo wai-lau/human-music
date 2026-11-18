@@ -6,7 +6,7 @@
 //    press is all, and nothing seeks while the next song is still on its way (up to 2 s here).
 // 2. A search row's title is the track's name, not an artist: a person's track called
 //    "Closure" (a name on Soul Over AI) was read as credited to Closure.
-// Run from the repo root: node tests/wip-contract-spotify-next.check.mjs
+// Run from the repo root: node tests/contract-spotify-next.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');

@@ -553,6 +553,7 @@
   }
 
   HM.ytm = {
+    keyIsButton: false,
     SEL,
     REMOVE_ICON,
     readSong,
