@@ -192,7 +192,10 @@ run([
     t += 16 * 60000; out.push(await w.runOne());
     t += 16 * 60000; out.push(await w.runOne());
     t += 16 * 60000; out.push(await w.runOne());
-    return (J(out) === J(['retry', 'idle', 'retry', 'done', 'idle']) && calls.investigate === 3 && verdictOf(store, a) === null && queue.status().queued === 0) || J({ out, n: calls.investigate, q: queue.status() });
+    // Wai, 2026-11-18 ("track in cap"): each failed run used the subscription, so each counts
+    // toward the day's cap (a retry is not free).
+    const counted = store.count(NOW.toISOString().slice(0, 10)); // all three runs fall on the same day
+    return (J(out) === J(['retry', 'idle', 'retry', 'done', 'idle']) && calls.investigate === 3 && verdictOf(store, a) === null && queue.status().queued === 0 && counted === 3) || J({ out, n: calls.investigate, q: queue.status(), counted });
   }],
   ['a setup problem pauses the queue and keeps the artist; it never lifts by itself', async () => {
     let t = NOW.getTime();
