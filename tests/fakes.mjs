@@ -66,7 +66,17 @@ export function fakeStorage(initial = {}) {
     for (const fn of listeners) fn(changes, 'local');
   }
 
-  return { get, set, onChanged: { addListener: fn => listeners.push(fn) }, data };
+  async function remove(keys) {
+    const changes = {};
+    for (const k of typeof keys === 'string' ? [keys] : keys) {
+      if (!(k in data)) continue;
+      changes[k] = { oldValue: structuredClone(data[k]), newValue: undefined };
+      delete data[k];
+    }
+    if (Object.keys(changes).length) for (const fn of listeners) fn(changes, 'local');
+  }
+
+  return { get, set, remove, onChanged: { addListener: fn => listeners.push(fn) }, data };
 }
 
 // A fake YouTube Music page for tests.

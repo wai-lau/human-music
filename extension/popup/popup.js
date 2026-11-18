@@ -101,7 +101,10 @@
             onclick: () => {
               let rest;
               try { rest = HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
-              saveLists(rest);
+              // The downloaded copy goes too (up to 5 MB), first: if it fails the list stays
+              // in view to try again, and adding the same address later starts clean.
+              Promise.resolve().then(() => store.remove(HM.store.listKey(list.id))).then(() => saveLists(rest))
+                .catch(() => status('Could not remove that list. Try again.'));
             },
           }))));
     }

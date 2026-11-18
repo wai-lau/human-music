@@ -166,6 +166,15 @@ run([
     return (afterA === '[]' && p.calls.removed === undefined && ids === 'soul-over-ai')
       || JSON.stringify({ afterA, removed: p.calls.removed, ids });
   }],
+  ['removing a list also deletes its downloaded data, so adding it again starts clean', async () => {
+    const mk = (id, url) => ({ id, name: id, url, enabled: true, mode: 'act', builtIn: false, lastRefresh: 5, count: 1, lastError: null });
+    const soa = { id: 'soul-over-ai', name: 'Soul Over AI', url: 'https://raw.githubusercontent.com/xoundbyte/soul-over-ai/main/dist/artists.json', enabled: true, mode: 'act', builtIn: true, lastRefresh: null, count: 0, lastError: null };
+    const p = await open({ 'hm.filterLists': [soa, mk('a', 'https://lists.example/a.json')], 'hm.list.a': { artists: [{ name: 'X' }] }, 'hm.list.soul-over-ai': { artists: [] } });
+    const btn = [...p.doc.querySelectorAll('#filter-lists li')].find(li => li.querySelector('.list-name').textContent === 'a').querySelectorAll('button').slice(-1)[0];
+    await p.click(btn);
+    const keys = Object.keys(p.storage.data).sort().join(',');
+    return (!('hm.list.a' in p.storage.data) && 'hm.list.soul-over-ai' in p.storage.data && data(p, 'hm.filterLists').length === 1) || keys;
+  }],
   ['watch-only switches live under Behaviour, one per list, and save the mode (Wai, 2026-11-16)', async () => {
     const p = await open();
     if (p.doc.querySelector('#filter-lists .watch')) return 'still on the list card';
