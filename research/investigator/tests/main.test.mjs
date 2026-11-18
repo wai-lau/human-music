@@ -167,6 +167,32 @@ await run([
       return t.calls.publish.length === 1 || 'published again: ' + t.calls.publish.length;
     } finally { await t.stop(); }
   }],
+  // Review 2026-11-17 (service, finding 7): the daily timer lived only in memory, so a service
+  // restarted more often than daily never published. The due time is stored.
+  ['a restart keeps the publish due time: published once, a day after the first verdict', async () => {
+    const t = await make();
+    const T0 = new Date('2026-11-16T12:00:00Z').getTime();
+    let t2 = null;
+    try {
+      queueThree(t.app);
+      await t.app.kick();
+      await t.timers.advance(0);
+      await t.timers.advance(0);
+      await t.timers.advance(20 * 3600000);
+      await t.app.close();
+      if (t.calls.publish.length !== 0) return 'published before the restart: ' + t.calls.publish.length;
+      const timers = new t.timers.constructor();
+      const calls = [];
+      const app2 = createApp(t.env, { ...t.deps, timers, now: () => new Date(T0 + 20 * 3600000),
+        publisher: { publish: async (json) => { calls.push(json); return { ok: true, changed: true }; } } });
+      t2 = app2;
+      await app2.listen();
+      await timers.advance(3 * 3600000);
+      if (calls.length !== 0) return 'published early after the restart: ' + calls.length;
+      await timers.advance(3600000);
+      return calls.length === 1 || 'publishes after the restart: ' + calls.length;
+    } finally { if (t2) await t2.close(); await t.stop(); }
+  }],
   ['a failed push is retried after 10 minutes, then stops once it works', async () => {
     let fail = 2;
     const t = await make();

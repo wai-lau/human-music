@@ -40,7 +40,9 @@ run([
     const c = f.calls[0];
     if (c.url !== 'https://shlabs.music/api/v1/detect' || c.opts.method !== 'POST') return c.url;
     if (c.opts.headers['X-API-Key'] !== KEY) return 'no key header';
-    return JSON.parse(c.opts.body).spotifyTrackId === T1 || c.opts.body;
+    if (JSON.parse(c.opts.body).spotifyTrackId !== T1) return c.opts.body;
+    // Review 2026-11-17: no timeout meant one hung call held the worker forever.
+    return (c.opts.signal instanceof AbortSignal && c.opts.redirect === 'error' && c.opts.credentials === 'omit') || JSON.stringify({ redirect: c.opts.redirect, signal: String(c.opts.signal) });
   }],
   ['a missing generator is null', async () => {
     const body = { result: { probability_ai_generated: 3, prediction: 'Human Made' } };

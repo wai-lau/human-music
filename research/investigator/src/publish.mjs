@@ -4,14 +4,25 @@
 
 import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const AUTHOR_NAME = 'Human Music Investigator';
 const AUTHOR_EMAIL = 'human-music-investigator@users.noreply.github.com';
 
-export function defaultRunGit(args, { cwd, env }) {
+// GitHub's published SSH host keys (api.github.com/meta, checked 2026-11-17; ed25519
+// fingerprint SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU). Pinned, so a push never
+// trusts whatever answers first, and BatchMode never meets an unknown host.
+const GITHUB_KNOWN_HOSTS = [
+  'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl',
+  'github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=',
+  'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=',
+].join('\n') + '\n';
+
+// Every git command is stopped after timeoutMs (review 2026-11-17: a hung push held the
+// publisher, and with it every later publish, forever).
+export function defaultRunGit(args, { cwd, env, timeoutMs = 120000 }) {
   return new Promise((resolve, reject) => {
-    execFile('git', args, { cwd, env, maxBuffer: 8 * 1024 * 1024 }, (err, stdout, stderr) => {
+    execFile('git', args, { cwd, env, maxBuffer: 8 * 1024 * 1024, timeout: timeoutMs, killSignal: 'SIGKILL' }, (err, stdout, stderr) => {
       if (err) {
         const e = new Error(String(stderr || err.message).trim());
         e.code = err.code;
@@ -38,12 +49,13 @@ export function createPublisher({ repoDir, remote, branch = 'main', path = 'verd
   if (branch !== 'main') throw new Error('the publisher only writes the main branch');
   if (path !== 'verdicts.json') throw new Error('the publisher only writes verdicts.json');
   if (typeof remote !== 'string' || !remote) throw new Error('remote is required');
-  if (typeof repoDir !== 'string' || !repoDir) throw new Error('repoDir is required');
+  if (typeof repoDir !== 'string' || !repoDir || /['\n\r\0]/.test(repoDir)) throw new Error('repoDir is required and must not contain quotes or newlines');
+  const knownHosts = `${repoDir}.known_hosts`;
   if (typeof sshKeyPath !== 'string' || !sshKeyPath || /['\n\r\0]/.test(sshKeyPath)) throw new Error('sshKeyPath is required and must not contain quotes or newlines');
 
   const env = {
     ...process.env,
-    GIT_SSH_COMMAND: `ssh -i '${sshKeyPath}' -o IdentitiesOnly=yes -o BatchMode=yes`,
+    GIT_SSH_COMMAND: `ssh -i '${sshKeyPath}' -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile='${knownHosts}' -o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=2`,
     GIT_TERMINAL_PROMPT: '0',
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_CONFIG_GLOBAL: '/dev/null',
@@ -70,6 +82,8 @@ export function createPublisher({ repoDir, remote, branch = 'main', path = 'verd
   }
 
   async function ensureClone() {
+    mkdirSync(dirname(knownHosts), { recursive: true });
+    writeFileSync(knownHosts, GITHUB_KNOWN_HOSTS, { mode: 0o644 });
     if (!existsSync(join(repoDir, '.git'))) {
       mkdirSync(repoDir, { recursive: true });
       await git(['init', '-q', '-b', 'main']);

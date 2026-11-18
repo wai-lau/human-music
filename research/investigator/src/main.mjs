@@ -68,7 +68,8 @@ export function createApp(env, deps = {}) {
     publisher = createPublisher({ repoDir: join(dataDir, 'verdicts-repo'), remote, sshKeyPath: keyPath });
   }
 
-  // --- publishing: once per 60 s at most; a failed push retries every 10 minutes ---
+  // --- publishing: once a day (Wai, 2026-11-17); a failed push retries every 10 minutes. The due
+  // time is stored, so a restart doesn't push it back a day (review 2026-11-17). ---
   let pubTimer = null;
   let retryTimer = null;
 
@@ -89,6 +90,10 @@ export function createApp(env, deps = {}) {
     }
     if (r && r.ok) {
       try { store.setState('publish.stale', null); } catch { /* the next publish clears it */ }
+      try {
+        store.setState('publish.dueAt', null);
+        store.setState('publish.lastAt', now().toISOString());
+      } catch { /* the next schedule starts a fresh day */ }
       log(`publish: ${r.changed ? 'pushed' : 'no change'}`);
     } else {
       log(`publish failed, retrying in 10 minutes: ${String((r && r.error) || 'unknown').slice(0, 200)}`);
@@ -98,7 +103,19 @@ export function createApp(env, deps = {}) {
 
   function schedulePublish() {
     if (!publisher || pubTimer || retryTimer) return;
-    pubTimer = timers.setTimeout(doPublish, PUBLISH_DELAY_MS);
+    const t = now().getTime();
+    let due = NaN;
+    try {
+      due = Date.parse(store.getState('publish.dueAt') || '');
+      if (!Number.isFinite(due)) {
+        const last = Date.parse(store.getState('publish.lastAt') || '');
+        due = Number.isFinite(last) ? Math.max(t, last + PUBLISH_DELAY_MS) : t + PUBLISH_DELAY_MS;
+        store.setState('publish.dueAt', new Date(due).toISOString());
+      }
+    } catch { /* without the store, a day from now */ }
+    // Never more than a day away, even if the clock moved back since the due time was stored.
+    const wait = Number.isFinite(due) ? Math.min(PUBLISH_DELAY_MS, Math.max(0, due - t)) : PUBLISH_DELAY_MS;
+    pubTimer = timers.setTimeout(doPublish, wait);
   }
 
   // --- the worker: one artist at a time ---

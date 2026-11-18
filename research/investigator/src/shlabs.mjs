@@ -36,6 +36,10 @@ export function createShLabs({ fetch, key, sleep, now = Date.now }) {
       method: 'POST',
       headers: { 'X-API-Key': key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ spotifyTrackId: trackId }),
+      // A hung call must not hold the worker (review 2026-11-17).
+      signal: AbortSignal.timeout(15000),
+      redirect: 'error',
+      credentials: 'omit',
     });
   }
 

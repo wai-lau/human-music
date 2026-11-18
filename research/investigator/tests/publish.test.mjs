@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { run } from './harness.mjs';
@@ -158,7 +158,21 @@ await run([
     if (a.some((x) => /^--?f/.test(x) || /force|^\+/.test(x))) return 'force flag: ' + a.join(' ');
     if (a[a.length - 1] !== 'HEAD:refs/heads/main') return a.join(' ');
     const ssh = pushes[0].env.GIT_SSH_COMMAND;
-    return (ssh === "ssh -i '/keys/deploy key' -o IdentitiesOnly=yes -o BatchMode=yes") || ssh;
+    // Review 2026-11-17: GitHub's host key is pinned (the droplet had none, and BatchMode
+    // can't accept one), and a dead connection gives up instead of hanging.
+    const m = /-o UserKnownHostsFile='([^']+)'/.exec(ssh);
+    const pinned = m && existsSync(m[1]) && readFileSync(m[1], 'utf8').includes('github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl');
+    return (ssh.startsWith("ssh -i '/keys/deploy key' -o IdentitiesOnly=yes -o BatchMode=yes")
+      && ssh.includes('-o StrictHostKeyChecking=yes') && ssh.includes('-o ConnectTimeout=') && ssh.includes('-o ServerAliveInterval=') && pinned) || ssh;
+  }],
+  ['a git command that hangs is stopped', async () => {
+    const dir = fresh();
+    mkdirSync(dir, { recursive: true });
+    const t0 = Date.now();
+    let err = null;
+    try { await defaultRunGit(['-c', 'alias.hang=!sleep 3', 'hang'], { cwd: dir, env: process.env, timeoutMs: 300 }); } catch (e) { err = e; }
+    const took = Date.now() - t0;
+    return (err !== null && took < 2000) || `err ${err && err.message} after ${took} ms`;
   }],
   ['an error never carries the key path', async () => {
     const runGit = async (args) => {
