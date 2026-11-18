@@ -79,6 +79,7 @@ permission, and one for all hosts):
 |---|---|
 | storage | Saves the user's lists, settings and log on their own computer. Nothing is sent anywhere. |
 | scripting | When Human Music is installed or updated, YouTube Music and Spotify tabs that are already open don't have it yet. scripting adds it to those tabs, so music keeps being checked without the user reloading the page. It only ever adds Human Music's own packaged files, and only on those two sites. |
+| unlimitedStorage | Human Music keeps its log of what it skipped, removed and hid on the person's own computer, and never clears it on its own (store copies keep up to 100,000 entries). That can grow past Chrome's default 10 MB of extension storage. Nothing leaves the computer. |
 | Host permission | Human Music works only on music.youtube.com and open.spotify.com. On those pages it reads the playing song, the queue and the songs shown, compares them with the user's lists, and then presses Next, removes a listed song from the queue, or hides or greys out a listed item. It asks for no other site. |
 
 The list downloads need no permission: GitHub allows any site to read its
@@ -106,6 +107,19 @@ https://github.com/wai-lau/human-music#what-it-does
 
 Visibility: Public, Unlisted (only people with the link) or Private
 (chosen testers). Regions: all.
+
+**Going public with the next release** (Wai, 2026-11-18: "for the next release, I want it
+public, not unlisted"):
+
+1. Run `npm run release` as usual. It uploads the new version.
+2. In the dashboard, Distribution tab: set Visibility to **Public** and save.
+3. Submit for review by hand from the dashboard: a visibility change made by hand needs one
+   publish by hand before the API can publish again. If step 1 already submitted, cancel that
+   review first, then submit.
+4. Privacy tab: give the new permission a reason if the dashboard asks (see Permissions).
+
+A public listing is reviewed more closely: the description, the screenshots in
+`~/store-shots` and every permission's reason must match what the extension does.
 
 ## Releasing from the terminal
 
