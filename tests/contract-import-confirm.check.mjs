@@ -5,7 +5,7 @@
 // Interface: HM.popup.importChanges(current, data) -> string[] (current: { settings, filterLists };
 // data: what HM.lists.importBackup returns). The popup shows them in #import-confirm with buttons
 // #import-apply and #import-cancel.
-// Run from the repo root: node tests/wip-contract-import-confirm.check.mjs
+// Run from the repo root: node tests/contract-import-confirm.check.mjs
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { fakeStorage } = await import(process.cwd() + '/tests/fakes.mjs');
@@ -22,6 +22,10 @@ const LISTS = [{ ...M.lists.SOUL_OVER_AI }, { ...M.lists.ZOUNDHUB }];
 
 await t('names only: no changes to ask about', () => {
   const data = { user: { artists: ['A'], songs: [], keywords: ['suno'], neverSkip: ['B'] } };
+  return J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data)) === '[]' || J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data));
+});
+await t('a list with no mode in the backup is not reported as a change', () => {
+  const data = { user: M.store.emptyUser(), filterLists: [{ id: 'zoundhub', enabled: true }] };
   return J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data)) === '[]' || J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data));
 });
 await t('settings that differ are listed in plain words; equal ones are not', () => {

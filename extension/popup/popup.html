@@ -107,6 +107,14 @@
           <input type="file" id="import-file" accept=".json" aria-label="Backup file to import">
           <button id="import-btn">Import</button>
         </div>
+        <div id="import-confirm" class="import-confirm" hidden aria-live="polite" role="region" aria-label="Backup changes to apply">
+          <p class="hint">Importing this backup will change these things:</p>
+          <ul id="import-changes" class="import-changes"></ul>
+          <div class="import-buttons">
+            <button id="import-apply" class="primary">Apply</button>
+            <button id="import-cancel">Cancel</button>
+          </div>
+        </div>
       </div>
       <p class="credit">Zoundhub list from zoundhub.com (its clearest AI flags only). Soul Over AI list by souloverai.com, CC BY 4.0.</p>
     </section>

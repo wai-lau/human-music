@@ -252,6 +252,8 @@
     } catch (e) { status('Could not save the file.'); }
   }
 
+  let pendingImport = null;
+
   $('export-btn').addEventListener('click', () => {
     const backup = HM.lists.exportBackup({ user: state.user, settings: state.settings, filterLists: state.lists });
     download('human-music-backup.json', 'application/json', JSON.stringify(backup, null, 2));
@@ -267,14 +269,43 @@
       status(e instanceof SyntaxError ? 'That file is not a backup (it is not JSON).' : e.message);
       return;
     }
+    const changes = HM.popup.importChanges({ settings: state.settings, filterLists: state.lists }, data);
+    if (changes.length === 0) {
+      await applyImport(data);
+      return;
+    }
+    pendingImport = data;
+    const box = $('import-confirm');
+    const list = $('import-changes');
+    clear(list);
+    for (const change of changes) {
+      list.append(node('li', { textContent: change }));
+    }
+    box.hidden = false;
+  });
+
+  $('import-apply').addEventListener('click', () => {
+    if (pendingImport) {
+      applyImport(pendingImport).then(() => { $('import-confirm').hidden = true; });
+    }
+  });
+
+  $('import-cancel').addEventListener('click', () => {
+    pendingImport = null;
+    $('import-confirm').hidden = true;
+    status('Nothing imported.');
+  });
+
+  async function applyImport(data) {
     const u = data.user;
     const apply = (u, s, l) => HM.lists.applyBackup({ user: u, settings: s, filterLists: l }, data);
-    await editUser(u => apply(u, state.settings, state.lists).user);
+    await editUser(cur => apply(cur, state.settings, state.lists).user);
     if (data.settings) await editSettings(s => apply(state.user, s, state.lists).settings);
     if (data.filterLists) await editLists(l => apply(state.user, state.settings, l).filterLists);
+    pendingImport = null;
     const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
     status(`Imported ${n(u.artists.length, 'artist', 'artists')}, ${n(u.songs.length, 'song', 'songs')}, ${n(u.keywords.length, 'keyword', 'keywords')} and ${n(u.neverSkip.length, 'never-skip artist', 'never-skip artists')}.`);
-  });
+  }
 
   // --- Behaviour tab ------------------------------------------------------------------
 

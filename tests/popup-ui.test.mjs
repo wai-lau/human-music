@@ -152,6 +152,7 @@ run([
     const q = await open();
     q.$('import-file').files = [{ text: async () => text }];
     await q.click(q.$('import-btn'));
+    if (q.$('import-apply')) await q.click(q.$('import-apply'));
     return (JSON.parse(text).format === 'human-music-backup' && JSON.stringify(data(q, 'hm.user').neverSkip) === '["N"]' && data(q, 'hm.settings').lookahead === 7) || text;
   }],
   // Wai, 2026-11-16: "for the logs collapse and sum each artist / Always play button should be

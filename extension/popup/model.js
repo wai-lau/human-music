@@ -246,6 +246,45 @@
     return m.length > 80 ? m.slice(0, 79) + '\u2026' : m;
   }
 
+  const MODE_NAMES = { off: 'No filtering', lists: 'List only', optimal: 'Optimal', aggressive: 'Aggressive' };
+  const TOGGLE_NAMES = { autoSkip: 'Skip a listed song that starts', autoDislike: 'Also dislike it', hidePageItems: 'Hide listed artists on pages', playerButtons: 'Block artist button on the player' };
+  const REFRESH_NAMES = { '6h': 'Every 6 hours', '12h': 'Every 12 hours', daily: 'Daily', weekly: 'Weekly', manual: 'Only when I ask' };
+  function importChanges(current, data) {
+    const changes = [];
+    const cur = current.settings || {};
+    const imp = data.settings || {};
+    if (imp.autoSkip !== undefined && cur.autoSkip !== imp.autoSkip) changes.push(`${TOGGLE_NAMES.autoSkip}: ${cur.autoSkip ? 'on' : 'off'} becomes ${imp.autoSkip ? 'on' : 'off'}`);
+    if (imp.autoDislike !== undefined && cur.autoDislike !== imp.autoDislike) changes.push(`${TOGGLE_NAMES.autoDislike}: ${cur.autoDislike ? 'on' : 'off'} becomes ${imp.autoDislike ? 'on' : 'off'}`);
+    if (imp.hidePageItems !== undefined && cur.hidePageItems !== imp.hidePageItems) changes.push(`${TOGGLE_NAMES.hidePageItems}: ${cur.hidePageItems ? 'on' : 'off'} becomes ${imp.hidePageItems ? 'on' : 'off'}`);
+    if (imp.playerButtons !== undefined && cur.playerButtons !== imp.playerButtons) changes.push(`${TOGGLE_NAMES.playerButtons}: ${cur.playerButtons ? 'on' : 'off'} becomes ${imp.playerButtons ? 'on' : 'off'}`);
+    if (imp.lookahead !== undefined && cur.lookahead !== imp.lookahead) changes.push(`Check songs ahead in the queue: ${cur.lookahead} becomes ${imp.lookahead}`);
+    if (imp.refresh !== undefined && cur.refresh !== imp.refresh) changes.push(`Update lists: ${REFRESH_NAMES[cur.refresh]} becomes ${REFRESH_NAMES[imp.refresh]}`);
+    if (imp.paused !== undefined && cur.paused !== imp.paused) changes.push(`Paused: ${cur.paused ? 'on' : 'off'} becomes ${imp.paused ? 'on' : 'off'}`);
+    if (imp.mode !== undefined && cur.mode !== imp.mode) {
+      changes.push(`Filtering mode: ${MODE_NAMES[cur.mode]} becomes ${MODE_NAMES[imp.mode]}`);
+    }
+    const curLists = current.filterLists || [];
+    const impLists = data.filterLists || [];
+    for (const l of curLists) {
+      const b = impLists.find(x => x && x.id === l.id);
+      if (b) {
+        if (l.enabled !== b.enabled) changes.push(`${l.name}: ${l.enabled ? 'on' : 'off'} becomes ${b.enabled ? 'on' : 'off'}`);
+        // A backup with no mode means act, as applyBackup reads it.
+        if ((l.mode === 'watch') !== (b.mode === 'watch')) {
+          const from = l.mode === 'watch' ? 'Watch only' : 'Act';
+          const to = b.mode === 'watch' ? 'Watch only' : 'Act';
+          changes.push(`${l.name}: ${from} becomes ${to}`);
+        }
+      }
+    }
+    for (const b of impLists) {
+      if (!b || b.builtIn || typeof b.url !== 'string' || !/^https:\/\//.test(b.url)) continue;
+      if (curLists.some(l => l.id === b.id || l.url === b.url)) continue;
+      changes.push(`Add list: ${b.name || b.id}`);
+    }
+    return changes;
+  }
+
   globalThis.HM.popup = {
     plainError: plainError,
     groupLog: groupLog,
@@ -256,6 +295,7 @@
     addSong: addSong,
     removeEntry: removeEntry,
     addFilterList: addFilterList,
-    removeFilterList: removeFilterList
+    removeFilterList: removeFilterList,
+    importChanges: importChanges
   };
 })();

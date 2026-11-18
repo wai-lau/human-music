@@ -63,6 +63,8 @@ test('import merges a backup and refuses lists that are not https', async ({ con
   };
   await popup.locator('#import-file').setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(backup)) });
   await popup.locator('#import-btn').click();
+  await expect(popup.locator('#import-confirm')).toBeVisible();
+  await popup.locator('#import-apply').click();
   await expect(popup.locator('#status')).toContainText('Imported 2 artists');
   await expect.poll(async () => (await readStore('hm.user')).artists).toEqual(['Already There', 'Imported Act']);
   expect((await readStore('hm.settings')).lookahead).toBe(5);
