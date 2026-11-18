@@ -17,7 +17,15 @@ function setup(passphrase = 'test-passphrase') {
   for (const d of [keys, gnupg]) spawnSync('mkdir', ['-m', '700', d]);
   writeFileSync(join(keys, 'human-music-crx.pem'), PEM); writeFileSync(join(keys, 'human-music-cws-sa.json'), SA);
   const fakeGpg = join(dir, 'gpg');
-  writeFileSync(fakeGpg, `#!/bin/sh\nexec gpg --homedir "${gnupg}" --batch --passphrase "$HM_TEST_PASS" "$@"\n`); chmodSync(fakeGpg, 0o755);
+  // Each --decrypt takes the next line of $HM_TEST_DECRYPT_PASSES as its passphrase, when that file
+  // has one (a mistyped passphrase at the check prompt); everything else uses $HM_TEST_PASS.
+  writeFileSync(fakeGpg, `#!/bin/sh
+pass="$HM_TEST_PASS"
+case " $* " in *" --decrypt "*)
+  if [ -n "$HM_TEST_DECRYPT_PASSES" ] && [ -s "$HM_TEST_DECRYPT_PASSES" ]; then pass=$(head -1 "$HM_TEST_DECRYPT_PASSES"); sed -i 1d "$HM_TEST_DECRYPT_PASSES"; fi;;
+esac
+exec gpg --homedir "${gnupg}" --batch --passphrase "$pass" "$@"
+`); chmodSync(fakeGpg, 0o755);
   const env = { ...process.env, HM_KEYS_DIR: keys, HM_GPG: fakeGpg, HM_TEST_PASS: passphrase, GNUPGHOME: gnupg };
   const sh = (script, args = [], extra = {}) => spawnSync(join(repo, 'scripts', script), args, { env: { ...env, ...extra }, encoding: 'utf8' });
   return { dir, keys, sh, done: () => rmSync(dir, { recursive: true, force: true }) };
@@ -33,6 +41,27 @@ run([
       return (r.status === 0 && existsSync(bundle) && (statSync(bundle).mode & 0o777) === 0o600
         && !existsSync(join(t.keys, 'human-music-crx.pem')) && !existsSync(join(t.keys, 'human-music-cws-sa.json'))
         && !body.includes('FAKE-SIGNING-KEY') && !body.includes('FAKE-SA-KEY')) || JSON.stringify({ status: r.status, err: r.stderr.slice(-300) });
+    } finally { t.done(); }
+  }],
+  ['lock: a mistyped passphrase at the check is retried; the plain keys go only after a verified check', () => {
+    const t = setup();
+    try {
+      const passes = join(t.dir, 'passes'); writeFileSync(passes, 'wrong\ntest-passphrase\n');
+      const r = t.sh('lock-release-keys.sh', [], { HM_TEST_DECRYPT_PASSES: passes });
+      return (r.status === 0 && existsSync(join(t.keys, 'human-music-release.tar.gpg'))
+        && !existsSync(join(t.keys, 'human-music-crx.pem')) && /Locked/.test(r.stdout)) || JSON.stringify({ status: r.status, err: r.stderr.slice(-400) });
+    } finally { t.done(); }
+  }],
+  ['lock: three failed checks keep the plain keys, drop the unverified bundle and say so', () => {
+    const t = setup();
+    try {
+      const passes = join(t.dir, 'passes'); writeFileSync(passes, 'a\nb\nc\n');
+      const r = t.sh('lock-release-keys.sh', [], { HM_TEST_DECRYPT_PASSES: passes });
+      const kept = readFileSync(join(t.keys, 'human-music-crx.pem'), 'utf8') === PEM && readFileSync(join(t.keys, 'human-music-cws-sa.json'), 'utf8') === SA;
+      const again = t.sh('lock-release-keys.sh'); // nothing is stuck: a later run can lock them
+      return (r.status !== 0 && kept
+        && /plain keys are still in place/i.test(r.stderr) && /not verified/i.test(r.stderr)
+        && again.status === 0 && !existsSync(join(t.keys, 'human-music-crx.pem'))) || JSON.stringify({ status: r.status, err: r.stderr.slice(-500), again: again.status });
     } finally { t.done(); }
   }],
   ['lock: refuses when already locked, changing nothing', () => {

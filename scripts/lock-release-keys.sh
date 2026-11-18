@@ -22,6 +22,28 @@ files=(human-music-crx.pem human-music-cws-sa.json)
 for f in "${files[@]}"; do [[ -f $keys/$f ]] || { echo "missing $keys/$f" >&2; exit 1; }; done
 export GPG_TTY=${GPG_TTY:-$(tty 2>/dev/null || true)}
 
+# State report at every exit: what is on disk, in plain words.
+verified=0
+report() {
+  local code=$?
+  if (( verified )); then return; fi
+  if [[ -f $keys/${files[0]} && -f $keys/${files[1]} ]]; then
+    echo "State: the plain keys are still in place in $keys (nothing was shredded)." >&2
+    [[ -e $bundle ]] && echo "State: $bundle exists but is not verified." >&2
+    [[ -e $bundle ]] || echo "State: no encrypted bundle exists; run this script again to lock them." >&2
+  else
+    echo "State: PLAIN KEYS MISSING from $keys; check $bundle and your backups." >&2
+  fi
+  return "$code"
+}
+check=
+cleanup() {
+  [[ -n $check ]] && { for f in "$check"/*; do [[ -f $f ]] && shred -u "$f"; done; rm -rf "$check"; }
+  report
+}
+trap cleanup EXIT
+trap 'echo "Interrupted." >&2; exit 130' INT TERM HUP
+
 echo "Choose a passphrase for the release keys (asked twice to confirm, then once more to check)."
 umask 077
 tar -C "$keys" -cf - "${files[@]}" \
@@ -29,14 +51,28 @@ tar -C "$keys" -cf - "${files[@]}" \
 chmod 600 "$bundle"
 
 # Check: decrypt into memory-backed temp space and compare byte for byte before shredding.
+# A mistyped passphrase at the check prompt gets up to 3 tries; the plain keys are shredded only
+# after a check has passed, and never otherwise.
 tmpbase=/dev/shm; [[ -d $tmpbase && -w $tmpbase ]] || tmpbase=${XDG_RUNTIME_DIR:-/tmp}
 check=$(mktemp -d "$tmpbase/hm-keys-check.XXXXXX")
-trap 'for f in "$check"/*; do [[ -f $f ]] && shred -u "$f"; done; rm -rf "$check"' EXIT
-$gpg --decrypt --no-symkey-cache --pinentry-mode loopback --quiet "$bundle" | tar -C "$check" -xf -
+ok=0
+for try in 1 2 3; do
+  rm -f "$check"/*
+  echo "Check $try of 3: enter the passphrase again to verify the encrypted copy."
+  if $gpg --decrypt --no-symkey-cache --pinentry-mode loopback --quiet "$bundle" 2>/dev/null | tar -C "$check" -xf - 2>/dev/null \
+     && [[ -f $check/${files[0]} && -f $check/${files[1]} ]]; then ok=1; break; fi
+  echo "The check could not decrypt the encrypted copy (mistyped passphrase?). Nothing was shredded." >&2
+done
+if (( ! ok )); then
+  rm -f "$bundle"
+  echo "Not verified after 3 tries: removed the unverified $bundle. Run this script again." >&2
+  exit 1
+fi
 for f in "${files[@]}"; do
-  cmp -s "$keys/$f" "$check/$f" || { echo "check failed for $f: plain copies kept, $bundle removed" >&2; rm -f "$bundle"; exit 1; }
+  cmp -s "$keys/$f" "$check/$f" || { rm -f "$bundle"; echo "The decrypted $f differs from the plain copy: removed $bundle." >&2; exit 1; }
 done
 
 for f in "${files[@]}"; do shred -u "$keys/$f"; done
+verified=1
 echo "Locked: $bundle. The plain copies are shredded."
 echo "Back up $bundle off this PC, and keep the passphrase somewhere safe."
