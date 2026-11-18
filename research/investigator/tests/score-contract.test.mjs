@@ -37,6 +37,17 @@ await run([
     const extra = Object.keys(SIGNS).filter((k) => !(k in want));
     return (bad.length === 0 && extra.length === 0) || J({ bad, extra });
   }],
+  // Wai, 2026-11-18: "treat the lists and YTM tags as absolute". A curated list naming the artist
+  // (S4) or YouTube Music's own AI tag (S3, either level) decides: AI at 100, whatever else is found.
+  ['a list listing (S4) or a YouTube Music AI tag (S3) is absolute: AI at 100', () => {
+    const people = { P3: 'found', P6: 'found', P12: 'found' };
+    const rs = [score({ S4: 'found', ...people }), score({ S3: 'found', ...people }), score({ S3: 'from_label' }), score({ S4: 'found' }, { genres: ['lofi'] })];
+    return rs.every((r) => r.verdict === 'ai' && r.confidence === 100 && r.absolute === true) || J(rs.map((r) => [r.verdict, r.confidence, r.absolute]));
+  }],
+  ['other signs are weighed, never absolute', () => {
+    const r = score({ S1: 'found', S2: 'found', M2: 'found' }, { sources: TWO_SITES });
+    return (r.absolute !== true && r.confidence < 100 + 1) || J(r);
+  }],
   ['the prior alone: 10% is -9.54 points', () => {
     const r = score({});
     return (near(r.score, -9.542, 0.01) && near(r.probability, 0.1) && r.verdict === 'unsure') || J(r);
@@ -112,7 +123,7 @@ await run([
   // Guard 5: strong people evidence (any one people sign of -10 or stronger) caps an AI verdict
   // at 94, unless the artist says the music is AI-generated (S2).
   ['strong people evidence caps at 94 unless the artist discloses AI', () => {
-    const signs = { S1: 'found', S4: 'found', M4: 'found', W1: 'found', M6: 'found', P6: 'found' };
+    const signs = { S1: 'found', M4: 'found', W1: 'found', M6: 'found', P6: 'found' }; // no list sign: that one is absolute
     const r = score(signs, { sources: TWO_SITES });
     const s = score({ ...signs, S2: 'found' }, { sources: TWO_SITES });
     return (r.probability > 0.95 && r.verdict === 'ai' && r.confidence === 94 && s.confidence >= 95) || J([r, s]);

@@ -97,6 +97,13 @@ export function scoreChecklist(input, opts) {
     if (groups.E > 0 && !otherAboveZero) groups.E = 0;
 
     score += groups.A + groups.B + groups.C + groups.D + groups.E + groups.F + groups.people;
+
+    // A curated list naming the artist (S4) or YouTube Music's own AI tag (S3) decides on its own
+    // (Wai, 2026-11-18: "treat the lists and YTM tags as absolute").
+    if (signs.S4 === 'found' || signs.S3 === 'found' || signs.S3 === 'from_label') {
+      return { score, probability: 1, verdict: 'ai', confidence: 100, faceless, groups, absolute: true };
+    }
+
     const probability = 1 / (1 + Math.pow(10, -score / 10));
     let confidence = Math.round(probability * 100);
 
