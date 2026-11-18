@@ -60,8 +60,10 @@ export function report(samples, mapping) {
   const ai = rows.filter((s) => s.truthAi).length;
   const people = rows.filter((s) => !s.truthAi);
   const lines = [
-    `n known AI: ${ai}`,
-    `n known people: ${people.length}`,
+    // These count the fit's samples: the artists called AI (review 2026-11-17: the bare
+    // "n known AI" read as the run's sample size).
+    `called AI, known AI: ${ai}`,
+    `called AI, known people: ${people.length}`,
     `wrong at 95: ${mapping && mapping.ok ? pct(mapping.wrongAt95) : 'not ready (no cut reaches 1 wrong in 20 with 20 samples)'}`,
     `wrong at 60: ${pct(mapping ? mapping.wrongAt60 : null)}`,
     'disagreements (known people called AI):',

@@ -77,7 +77,7 @@ await run([
     try {
       const r = await t.call('calibrate');
       const got = t.peek((s) => ({ fit: s.getState('calibration.fit'), map: s.getState('calibration.mapping'), cal: s.getState('calibrated') }));
-      const ok = r.text.includes('n known AI: 30') && r.text.includes('n known people: 10') && r.text.includes('wrong at 95: 0.0%') && /accept-calibration/.test(r.text);
+      const ok = r.text.includes('called AI, known AI: 30') && r.text.includes('called AI, known people: 10') && r.text.includes('wrong at 95: 0.0%') && /accept-calibration/.test(r.text);
       return (r.code === 0 && ok && got.fit && got.fit.ok === true && got.map === null && got.cal === null) || r.text + JSON.stringify(got);
     } finally { t.done(); }
   }],

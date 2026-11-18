@@ -113,5 +113,20 @@ await run([
   ['an error flag with exit 0 is not an answer', async () => { const r = await go(fakeSpawn({ is_error: true, result: 'usage limit reached', structured_output: goodAnswer })); return r.ok === false && r.kind === 'limit'; }],
   ['another non-zero exit is an error', async () => { const r = await go(fakeSpawn('', { code: 2, stderr: 'boom' })); return r.ok === false && r.kind === 'error'; }],
   ['a spawn that throws is an error', async () => (await go(() => { throw new Error('ENOENT'); })).kind === 'error'],
+  // Review 2026-11-17: claude missing from the PATH failed every artist in seconds. That is a
+  // setup problem, not the artist's: it pauses the queue until Wai fixes it.
+  ['claude missing (spawn ENOENT) or not runnable (EACCES) is a setup problem', async () => {
+    const missing = (code) => () => {
+      const child = new EventEmitter();
+      child.stdout = new EventEmitter(); child.stderr = new EventEmitter();
+      child.stdin = { write: () => true, end: () => {}, on() {} };
+      child.kill = () => {};
+      setImmediate(() => child.emit('error', Object.assign(new Error(`spawn claude ${code}`), { code })));
+      return child;
+    };
+    const a1 = await go(missing('ENOENT'));
+    const a2 = await go(missing('EACCES'));
+    return (a1.kind === 'setup' && a2.kind === 'setup' && /ENOENT/.test(a1.detail)) || JSON.stringify([a1, a2]);
+  }],
   ['a hung child is killed after the timeout', async () => { const sp = fakeSpawn('', { hang: true }); const r = await go(sp, { timeoutMs: 20 }); return r.kind === 'error' && sp.killed() === true; }],
 ]);

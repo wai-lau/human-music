@@ -93,7 +93,8 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
       if (!res || res.ok !== true) {
         const kind = res && res.kind;
         const reason = `${kind || 'error'}: ${cut(res && res.detail)}`;
-        if (kind === 'auth' || kind === 'limit') {
+        // A login, usage-limit or setup problem stops everything: keep the artist and pause.
+        if (kind === 'auth' || kind === 'limit' || kind === 'setup') {
           queue.pause(reason);
           queue.requeue(artist);
           return 'paused';

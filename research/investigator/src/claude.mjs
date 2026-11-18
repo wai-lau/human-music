@@ -167,7 +167,8 @@ export function investigate(artist, evidence, { spawn = nodeSpawn, env = process
     };
     child.stdout.on('data', collect('out'));
     child.stderr.on('data', collect('err'));
-    child.on('error', (e) => done({ ok: false, kind: 'error', detail: `child error: ${e && e.message}`.slice(0, 300) }));
+    // claude missing or not runnable is the service's setup, not the artist (review 2026-11-17).
+    child.on('error', (e) => done({ ok: false, kind: e && (e.code === 'ENOENT' || e.code === 'EACCES') ? 'setup' : 'error', detail: `child error: ${e && e.message}`.slice(0, 300) }));
     child.on('close', (code) => {
       if (code !== 0) {
         // Classify only claude's own error text: stderr and the result entry's error fields.

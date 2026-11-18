@@ -147,6 +147,17 @@ run([
     t += 16 * 60000; out.push(await w.runOne());
     return (J(out) === J(['retry', 'idle', 'retry', 'done', 'idle']) && calls.investigate === 3 && verdictOf(store, a) === null && queue.status().queued === 0) || J({ out, n: calls.investigate, q: queue.status() });
   }],
+  ['a setup problem pauses the queue and keeps the artist; it never lifts by itself', async () => {
+    let t = NOW.getTime();
+    const a = art('Anyone');
+    const { queue, w } = setup({ now: () => new Date(t), investigate: () => ({ ok: false, kind: 'setup', detail: 'child error: spawn claude ENOENT' }) });
+    queue.enqueue([a]);
+    const r = await w.runOne();
+    t += 3 * 3600000;
+    const lifted = queue.resumeIfDue();
+    const st = queue.status();
+    return (r === 'paused' && lifted === false && st.queued === 1 && /setup/.test(String(st.paused))) || J({ r, lifted, st });
+  }],
   ['a waiting retry doesn\'t hold up the next artist', async () => {
     const a = art('Flaky');
     const b = art('Fine');
