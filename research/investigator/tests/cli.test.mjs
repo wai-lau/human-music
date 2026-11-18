@@ -35,6 +35,20 @@ const goodSamples = () => [
 ];
 
 await run([
+  ['shlabs-run scores the labelled artists\' top tracks; without a key it says so', async () => {
+    const t = setup();
+    try {
+      const dir = mkdtempSync(join(tmpdir(), 'hm-sh-'));
+      writeFileSync(join(dir, 'ai.json'), JSON.stringify({ artists: [{ name: 'Bot', spotifyId: 'B'.repeat(22) }] }));
+      writeFileSync(join(dir, 'people.json'), JSON.stringify({ artists: [{ name: 'Band', spotifyId: 'P'.repeat(22) }] }));
+      const fetchPage = async () => '"spotify:track:' + 'T'.repeat(22) + '"';
+      const shlabs = { scoreTracks: async (ids) => ids.map((id) => ({ trackId: id, probability: 50 })) };
+      const nokey = await t.call('shlabs-run', '--ai', join(dir, 'ai.json'), '--people', join(dir, 'people.json'));
+      const r = await t.callWith({ fetchPage, shlabs }, 'shlabs-run', '--ai', join(dir, 'ai.json'), '--people', join(dir, 'people.json'));
+      const rep = await t.call('shlabs-report');
+      return (nokey.code === 1 && /SHLABS_API_KEY/.test(nokey.text) && r.code === 0 && /2 artists scored, 2 SH Labs requests/.test(r.text) && /scored: 1 known AI, 1 known people/.test(rep.text)) || JSON.stringify({ nokey, r, rep });
+    } finally { t.done(); }
+  }],
   ['checklist-run runs the labelled artists in checklist mode; without both files it prints usage', async () => {
     const t = setup();
     try {

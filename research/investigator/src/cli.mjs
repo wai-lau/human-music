@@ -1,6 +1,7 @@
 // The owner's commands, run on the droplet against the service's own database:
 //   status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] | calibrate | accept-calibration
 //   checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet]
+//   shlabs-run --ai <path> --people <path> [--max N] | shlabs-report  (SH Labs accuracy; key from SHLABS_API_KEY)
 // `checklist-run` is the evidence-weights experiment (Wai, 2026-11-18): Claude fills in the
 // checklist for labelled artists, resumably; `checklist-report` prints what each sign is worth.
 // `calibrate-run` investigates the calibration sample (50 Soul Over AI artists, up to 50 known
@@ -11,7 +12,9 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { fitMapping, report } from './calibrate.mjs';
 import { pickSample, runCalibration, fitSamples } from './calibrun.mjs';
-import { runChecklist, reportChecklist } from './checklistrun.mjs';
+import { runChecklist, reportChecklist, measuredPoints } from './checklistrun.mjs';
+import { runShLabs, reportShLabs } from './shlabsrun.mjs';
+import { createShLabs } from './shlabs.mjs';
 import { investigate as realInvestigate, pickModel } from './claude.mjs';
 import { decide } from './answer.mjs';
 import { DEFAULT_DATA_DIR, dbPath } from './main.mjs';
@@ -19,7 +22,7 @@ import { createQueue } from './queue.mjs';
 import { openStore } from './store.mjs';
 
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
-const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet]';
+const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report';
 // In the repo the sample files sit beside the service; on the droplet pass their paths.
 const DEFAULT_SOA = new URL('../../../extension/lists/soul-over-ai.json', import.meta.url);
 const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
@@ -27,9 +30,9 @@ const flag = (args, name) => { const i = args.indexOf(name); return i >= 0 ? arg
 
 const val = (v) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined);
 
-export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate } = {}) {
+export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate, fetchPage, shlabs } = {}) {
   const [command, ...rest] = argv;
-  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report'].includes(command)) {
+  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report', 'shlabs-run', 'shlabs-report'].includes(command)) {
     out(USAGE);
     return 1;
   }
@@ -111,6 +114,30 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
       const r = await runChecklist({ store, investigate, sample, model, log: out });
       out(`${r.done} of ${r.total} done${r.stopped ? ` (stopped: ${r.stopped}; run again to go on)` : ''}`);
       return r.stopped ? 2 : 0;
+    }
+
+    if (command === 'shlabs-run') {
+      const aiPath = flag(rest, '--ai');
+      const peoplePath = flag(rest, '--people');
+      if (!aiPath || !peoplePath) { out(USAGE); return 1; }
+      const key = val(env.SHLABS_API_KEY);
+      if (!shlabs && !key) { out('SHLABS_API_KEY is not set'); return 1; }
+      const pick = (file) => (JSON.parse(readFileSync(file, 'utf8')).artists || []).map((a) => ({ name: a.name, spotifyId: a.spotifyId }));
+      const maxNum = Number.parseInt(flag(rest, '--max') || '', 10);
+      const client = shlabs || createShLabs({ fetch: globalThis.fetch, key, sleep: (ms) => new Promise((r) => setTimeout(r, ms)) });
+      const page = fetchPage || (async (url) => {
+        const res = await fetch(url, { headers: { 'User-Agent': 'HumanMusicResearch/1 (+https://github.com/wai-lau/human-music)' }, redirect: 'error', signal: AbortSignal.timeout(20000) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      });
+      const r = await runShLabs({ store, fetchPage: page, shlabs: client, sample: { ai: pick(aiPath), people: pick(peoplePath) }, maxRequests: Number.isInteger(maxNum) && maxNum > 0 ? maxNum : 190, log: out });
+      out(`${r.done} artists scored, ${r.requests} SH Labs requests this run${r.stopped ? ` (stopped: ${r.stopped}; run again later)` : ''}`);
+      return r.stopped ? 2 : 0;
+    }
+
+    if (command === 'shlabs-report') {
+      out(reportShLabs(store.getState('shlabs.results') || {}, measuredPoints));
+      return 0;
     }
 
     if (command === 'checklist-report') {
