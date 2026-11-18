@@ -22,8 +22,12 @@ function setup(seed) {
     const code = await runCli(argv, { HM_DATA_DIR: dir, HM_DAILY_CAP: '' }, { out: (l) => lines.push(l), now });
     return { code, text: lines.splice(0).join('\n') };
   };
+  const callWith = async (deps, ...argv) => {
+    const code = await runCli(argv, { HM_DATA_DIR: dir, HM_DAILY_CAP: '' }, { out: (l) => lines.push(l), now, ...deps });
+    return { code, text: lines.splice(0).join('\n') };
+  };
   const peek = (fn) => { const s = openStore(dbPath(dir)); try { return fn(s); } finally { s.close(); } };
-  return { dir, call, peek, done: () => rmSync(dir, { recursive: true, force: true }) };
+  return { dir, call, callWith, peek, done: () => rmSync(dir, { recursive: true, force: true }) };
 }
 const goodSamples = () => [
   ...Array.from({ length: 30 }, (_, i) => ({ raw: 90, truthAi: true, name: 'ai' + i })),
@@ -31,6 +35,19 @@ const goodSamples = () => [
 ];
 
 await run([
+  ['checklist-run runs the labelled artists in checklist mode; without both files it prints usage', async () => {
+    const t = setup();
+    try {
+      const dir = mkdtempSync(join(tmpdir(), 'hm-cl-'));
+      writeFileSync(join(dir, 'ai.json'), JSON.stringify({ artists: [{ name: 'Bot', spotifyId: 'B'.repeat(22) }] }));
+      writeFileSync(join(dir, 'people.json'), JSON.stringify({ artists: [{ name: 'Band' }, { name: '' }] }));
+      const seen = [];
+      const inv = async (a, ev, o) => { seen.push([a.name, o.mode]); return { ok: true, checklist: { signs: {}, genres: [], sources: [], summary: '' } }; };
+      const bad = await t.call('checklist-run', '--ai', join(dir, 'ai.json'));
+      const r = await t.callWith({ investigate: inv }, 'checklist-run', '--ai', join(dir, 'ai.json'), '--people', join(dir, 'people.json'));
+      return (bad.code === 1 && r.code === 0 && JSON.stringify(seen) === JSON.stringify([['Bot', 'checklist'], ['Band', 'checklist']]) && /2 of 2 done/.test(r.text)) || JSON.stringify({ bad, r, seen });
+    } finally { t.done(); }
+  }],
   ['resume clears a pause and says so', async () => {
     const t = setup((s) => { s.setState('queue.paused', 'auth: logged out'); });
     try {

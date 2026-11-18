@@ -1,5 +1,8 @@
 // The owner's commands, run on the droplet against the service's own database:
 //   status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] | calibrate | accept-calibration
+//   checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet]
+// `checklist-run` is the evidence-weights experiment (Wai, 2026-11-18): Claude fills in the
+// checklist for labelled artists, resumably; `checklist-report` prints what each sign is worth.
 // `calibrate-run` investigates the calibration sample (50 Soul Over AI artists, up to 50 known
 // people from 2020 on) one at a time, resumably; its rows never publish.
 // `calibrate` only fits and reports; it never runs Claude. `accept-calibration` is the only
@@ -8,6 +11,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { fitMapping, report } from './calibrate.mjs';
 import { pickSample, runCalibration, fitSamples } from './calibrun.mjs';
+import { runChecklist, reportChecklist } from './checklistrun.mjs';
 import { investigate as realInvestigate, pickModel } from './claude.mjs';
 import { decide } from './answer.mjs';
 import { DEFAULT_DATA_DIR, dbPath } from './main.mjs';
@@ -15,7 +19,7 @@ import { createQueue } from './queue.mjs';
 import { openStore } from './store.mjs';
 
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
-const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration';
+const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet]';
 // In the repo the sample files sit beside the service; on the droplet pass their paths.
 const DEFAULT_SOA = new URL('../../../extension/lists/soul-over-ai.json', import.meta.url);
 const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
@@ -25,7 +29,7 @@ const val = (v) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefi
 
 export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate } = {}) {
   const [command, ...rest] = argv;
-  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration'].includes(command)) {
+  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report'].includes(command)) {
     out(USAGE);
     return 1;
   }
@@ -92,6 +96,28 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
       out(`known AI called AI: ${aiCalled(true, 95)} at 95+, ${aiCalled(true, 60)} at 60+, of ${of(true)}`);
       out(`known people called AI: ${aiCalled(false, 95)} at 95+, ${aiCalled(false, 60)} at 60+, of ${of(false)}`);
       return r.stopped ? 2 : 0;
+    }
+
+    if (command === 'checklist-run') {
+      const model = pickModel(flag(rest, '--model'));
+      const aiPath = flag(rest, '--ai');
+      const peoplePath = flag(rest, '--people');
+      if (!aiPath || !peoplePath) { out(USAGE); return 1; }
+      const pick = (file) => (JSON.parse(readFileSync(file, 'utf8')).artists || [])
+        .filter((a) => a && typeof a.name === 'string' && a.name.trim())
+        .map((a) => ({ name: a.name, spotifyId: a.spotifyId, youtubeChannelId: a.youtubeChannelId }));
+      const sample = { ai: pick(aiPath), people: pick(peoplePath) };
+      out(`checklist run: model ${model}, ${sample.ai.length} known AI and ${sample.people.length} known people`);
+      const r = await runChecklist({ store, investigate, sample, model, log: out });
+      out(`${r.done} of ${r.total} done${r.stopped ? ` (stopped: ${r.stopped}; run again to go on)` : ''}`);
+      return r.stopped ? 2 : 0;
+    }
+
+    if (command === 'checklist-report') {
+      const model = pickModel(flag(rest, '--model'));
+      const { SIGNS, scoreChecklist } = await import('./score.mjs');
+      out(reportChecklist(store.getState(`checklist.results.${model}`) || {}, { signsTable: SIGNS, score: scoreChecklist }));
+      return 0;
     }
 
     if (command === 'calibrate') {
