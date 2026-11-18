@@ -68,7 +68,7 @@ export function createClient({ config, serviceAccount, fetch, now = () => Date.n
   async function call(url, init = {}) {
     const res = await fetch(url, init);
     const text = await res.text();
-    let body = null;
+    let body;
     try { body = text ? JSON.parse(text) : {}; } catch (e) { body = { raw: text.slice(0, 500) }; }
     if (!res.ok) throw new Error(`${init.method || 'GET'} ${url.replace(API, '')} failed: ${res.status} ${JSON.stringify(body && body.error ? body.error : body).slice(0, 500)}`);
     return body;
@@ -237,7 +237,7 @@ export async function runSigned({ kind = 'patch', head, git, run, client, readVe
     run('scripts/pack-firefox.sh', [commit], { HM_DIST_DIR: stage });
   } catch (e) {
     git(['reset', '--hard', head]); // drop the version commit: nothing was tagged or pushed
-    throw new Error(`packing failed, nothing tagged or pushed (the version commit is undone): ${e.message}`);
+    throw new Error(`packing failed, nothing tagged or pushed (the version commit is undone): ${e.message}`, { cause: e });
   }
   git(['tag', `v${version}`]);
   try { guardTagged(git, commit, version); } catch (e) { git(['tag', '-d', `v${version}`]); git(['reset', '--hard', head]); throw e; }
@@ -256,7 +256,7 @@ export async function runSigned({ kind = 'patch', head, git, run, client, readVe
 function loadConfig() {
   const path = home(process.env.HM_CWS_CONFIG || '~/.keys/human-music-cws.json');
   let config;
-  try { config = JSON.parse(readFileSync(path, 'utf8')); } catch (e) { throw new Error(`no config at ${path} (see the top of scripts/release.mjs)`); }
+  try { config = JSON.parse(readFileSync(path, 'utf8')); } catch (e) { throw new Error(`no config at ${path} (see the top of scripts/release.mjs)`, { cause: e }); }
   for (const k of ['publisherId', 'itemId', 'serviceAccountKey']) if (!config[k]) throw new Error(`${path} has no ${k}`);
   // scripts/with-release-keys.sh unlocks the key for one run and points HM_CWS_SA_KEY at it.
   const serviceAccount = JSON.parse(readFileSync(process.env.HM_CWS_SA_KEY || home(config.serviceAccountKey), 'utf8'));

@@ -51,6 +51,17 @@ export default [
     rules: { ...shared, 'no-var': 'off', 'prefer-const': 'off', 'no-script-url': 'off' },
   },
   {
+    // Release and pack scripts (Node, dev only), under the full rule set. A plain .js here is CommonJS.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { ecmaVersion: 2024, sourceType: 'module', globals: { ...globals.node } },
+    rules: shared,
+  },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: { ecmaVersion: 2024, sourceType: 'commonjs', globals: { ...globals.node } },
+    rules: shared,
+  },
+  {
     // The research tools (the investigator service): Node modules, never bundled.
     files: ['research/**/*.mjs'],
     languageOptions: {
