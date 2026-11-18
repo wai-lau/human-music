@@ -12,7 +12,7 @@ Each artist goes through the same steps:
 2. Otherwise the service runs `claude -p` with web search and page fetch only. Claude gets no shell, no file tools and no git.
 3. The service checks Claude's answer against a strict schema and drops anything else, without repairing it.
 4. A decision rule in code sets the verdict. `ai` needs two different signals, or one strong one (an AI label from Deezer, the artist's own disclosure, a tracker listing). Anything weaker is stored as `unsure`.
-5. The verdict goes into a SQLite file. A debounced publisher writes the list to a git branch.
+5. The verdict goes into a SQLite file. A publisher writes the list to a git branch once a day. The due time is stored, so a restart does not push it back, and a failed push is retried every 10 minutes.
 
 ```mermaid
 flowchart TD
@@ -27,6 +27,15 @@ flowchart TD
 ```
 
 Verdict words are `ai`, `human` and `unsure`. Confidence is an integer from 0 to 100. Reasons, sources and SH Labs scores stay on the server and never go into the published list.
+
+## When something goes wrong
+
+- Failures are judged only from Claude's own error text, never from page text it read, so a web page cannot pause the queue.
+- A login problem, a usage limit, or a setup problem (for example `claude` missing from the service's PATH) pauses the queue and keeps the artist. A usage-limit pause lifts itself an hour after it began. The others wait for the owner to fix the cause and run `resume`.
+- A timeout or crash sends the artist to the back of the queue to wait 15 minutes, at most twice. An answer that fails the schema check is dropped.
+- IDs that Claude finds on the web are never stored. A record keeps only the IDs the extension sent from the page.
+- Git stops after 2 minutes, ssh after 20 seconds to connect or 30 seconds of silence, and SH Labs calls after 15 seconds. Publishing uses GitHub's published SSH host keys, pinned in a `known_hosts` file the publisher writes, with `StrictHostKeyChecking=yes`.
+- A verdict that did not meet the rule for `ai` stays under 95 after the confidence mapping.
 
 ## How the owner's keys stay out of Claude's reach
 
@@ -82,7 +91,7 @@ Each file in `tests/` prints `N/N pass` and the run stops at the first failing f
 
 ## Owner commands
 
-Run as the service's user with the same environment file loaded: `node src/cli.mjs status`, `recheck <key>`, `calibrate` and `accept-calibration`. `calibrate` fits the confidence mapping from the stored samples and prints the report; it does not run Claude. `accept-calibration` is the only command that turns the mapping on and marks the published list `calibrated: true`.
+Run as the service's user with the same environment file loaded: `node src/cli.mjs status`, `resume`, `recheck <key>`, `calibrate-run`, `calibrate` and `accept-calibration`. `resume` lifts a pause. `calibrate-run` investigates the labelled calibration sample (`--model opus|sonnet`, `--seed N`). `calibrate` fits the confidence mapping from the stored samples and prints the report; it does not run Claude. `accept-calibration` is the only command that turns the mapping on and marks the published list `calibrated: true`.
 
 ## Install
 
