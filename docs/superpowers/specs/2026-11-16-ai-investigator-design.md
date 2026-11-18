@@ -357,6 +357,30 @@ a flag".
   later) counts as the `short_heavy_catalogue` signal.
 - **No review step:** verdicts publish without Wai's approval, once a day.
 
+### Service changes after the 2026-11-17 review
+
+2026-11-17: where the text above says otherwise, these win.
+
+- IDs Claude finds on the web are never stored; a record keeps only the IDs the
+  extension sent from the page (the Storage paragraph's merging of artists
+  applies to those IDs only).
+- A verdict that did not meet the rule for `ai` (a strong signal and sources on
+  two different sites) stays at 94 or below even after an accepted calibration
+  mapping.
+- A failed run is judged from Claude's own error text only, never from page text
+  it read. A login, usage-limit or setup problem (such as a missing `claude`)
+  pauses the queue and keeps the artist; a usage-limit pause lifts after an hour,
+  the others wait for the owner's new `resume` command. A timeout or crash is
+  retried after 15 minutes, at most twice; an answer that fails the schema check is
+  dropped.
+- Publishing happens once a day, as decided above; the due time is stored so a
+  restart does not push it back, and a failed push retries every 10 minutes.
+- The publisher pins GitHub's published SSH host keys. Git stops after 2 minutes,
+  ssh after 20 seconds to connect or 30 seconds of silence, and SH Labs calls after
+  15 seconds.
+- The extension's send to the investigator times out after 15 seconds, follows no
+  redirects and sends no credentials.
+
 ### First calibration and the model comparison (2026-11-17)
 
 The same 100 labelled artists (50 Soul Over AI, 50 known people from 2020 on; seed
