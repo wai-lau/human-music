@@ -82,6 +82,9 @@
         } else if (typeof entry.spotify === 'string' && SPOTIFY_ID_RE.test(entry.spotify)) {
           artist.spotifyId = entry.spotify;
         }
+        // Matched by its IDs only, never by name (a name shared by more than one act); only an
+        // entry that has an ID can be one (Zoundhub switch, 2026-11-18).
+        if (entry.idOnly === true && (artist.spotifyId || artist.channelId)) artist.idOnly = true;
         if (entry.verdict === 'ai' || entry.verdict === 'human' || entry.verdict === 'unsure') {
           artist.verdict = entry.verdict;
         }

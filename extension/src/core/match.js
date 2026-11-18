@@ -24,7 +24,8 @@
       for (const a of artists) {
         if (!a) continue;
         const name = typeof a.name === 'string' ? a.name : '';
-        const key = name ? normalize(name) : null;
+        // An idOnly entry is matched by its IDs only: its name may belong to someone else too.
+        const key = name && !a.idOnly ? normalize(name) : null;
 
         if (a.channelId) known.add(a.channelId);
         if (a.spotifyId) known.add(a.spotifyId);
