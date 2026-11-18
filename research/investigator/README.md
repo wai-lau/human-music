@@ -6,13 +6,15 @@ The service never makes a song skip by itself. A song is skipped only when the e
 
 ## What it does
 
-Each artist goes through the same steps:
+Each artist goes through a layered decision:
 
 1. A cheap pass looks up the release history. An artist with clear releases before 2020 is marked `human` with no further work.
-2. Otherwise the service runs `claude -p` with web search and page fetch only. Claude gets no shell, no file tools and no git.
-3. The service checks Claude's answer against a strict schema and drops anything else, without repairing it.
-4. A decision rule in code sets the verdict. `ai` needs two different signals, or one strong one (an AI label from Deezer, the artist's own disclosure, a tracker listing). Anything weaker is stored as `unsure`.
-5. The verdict goes into a SQLite file. A publisher writes the list to a git branch once a day. The due time is stored, so a restart does not push it back, and a failed push is retried every 10 minutes.
+2. If the artist is on a maintained AI-artist list (Zoundhub, Soul Over AI, or Cevval by channel ID), it is marked `ai` at 100 confidence. Lists are downloaded at most once a day; if a list fails to download the last good copy is used.
+3. The service then asks SH Labs to score the artist's top two Spotify tracks. If both scores are 85 or higher, it is `ai` at 94; if both are under 50, it is `human` at 95. Any other result, a missing Spotify ID or the day's request cap passes the artist on to Claude.
+4. Only when the cheaper layers cannot answer does the service run `claude -p` with web search and page fetch only. Claude gets no shell, no file tools and no git.
+5. The service checks Claude's answer against a strict schema and drops anything else, without repairing it.
+6. A decision rule in code sets the verdict. `ai` needs two different signals, or one strong one (an AI label from Deezer, the artist's own disclosure, a tracker listing). Anything weaker is stored as `unsure`.
+7. The verdict goes into a SQLite file. A publisher writes the list to a git branch once a day. The due time is stored, so a restart does not push it back, and a failed push is retried every 10 minutes.
 
 ```mermaid
 flowchart TD
@@ -20,10 +22,14 @@ flowchart TD
     B --> C[(queue, daily cap)]
     C --> D{released before 2020?}
     D -- yes --> G[(verdicts)]
-    D -- no --> E[claude -p, search and fetch only]
-    E --> F[strict answer check, decision rule]
-    F --> G
-    G --> H[publish to the verdicts branch]
+    D -- no --> E{on an AI list?}
+    E -- yes --> G
+    E -- no --> F{SH Labs both above 85 or both under 50?}
+    F -- yes --> G
+    F -- no --> H[claude -p, search and fetch only]
+    H --> I[strict answer check, decision rule]
+    I --> G
+    G --> J[publish to the verdicts branch]
 ```
 
 Verdict words are `ai`, `human` and `unsure`. Confidence is an integer from 0 to 100. Reasons, sources and SH Labs scores stay on the server and never go into the published list.
@@ -72,6 +78,7 @@ Set in `/etc/human-music/env`. `deploy/env.example` is the template with empty v
 | `HM_KEY_HASH` | SHA-256 of the access key. Written by `tools/make-key.mjs`. The service will not start without it. |
 | `CLAUDE_CODE_OAUTH_TOKEN` | Claude login for the service, from `claude setup-token`. |
 | `SHLABS_API_KEY` | Key for the SH Labs second opinion. |
+| `HM_SHLABS_DAILY_CAP` | SH Labs requests per day (two-track check per artist). Default 190. |
 | `HM_DAILY_CAP` | Deep investigations per day. Default 100. |
 | `HM_ALLOWED_ORIGIN` | The one browser origin allowed to call the service. |
 | `HM_DATA_DIR` | Folder for the database and reports. |

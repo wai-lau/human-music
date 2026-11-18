@@ -24,9 +24,12 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
       const raw = Number.isFinite(v.rawConfidence) ? v.rawConfidence : v.confidence;
       // A scored verdict is already a probability with its own caps; the calibration mapping is
       // for Claude's own number only.
-      confidence = v.model === 'claude-score' ? clampInt(v.confidence) : applyMapping(mapping, raw);
+      // A list verdict is absolute (Wai, 2026-11-18: "treat the lists and YTM tags as absolute"),
+      // and SH Labs' two-track verdict carries its own fixed confidence: neither goes through it.
+      const own = v.model === 'claude-score' || v.model === 'list' || v.model === 'shlabs';
+      confidence = own ? clampInt(v.confidence) : applyMapping(mapping, raw);
       // A verdict that didn't meet the rule stays under Optimal, whatever the fit says.
-      if (!mayPass94(v)) confidence = Math.min(confidence, 94);
+      if (v.model !== 'list' && !mayPass94(v)) confidence = Math.min(confidence, 94);
     } else {
       confidence = Number.isFinite(v.confidence) ? clampInt(v.confidence) : 0;
     }

@@ -5,6 +5,7 @@
 import { chmodSync, lstatSync, mkdirSync, realpathSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createAiLists } from './ailists.mjs';
 import { cheapPass as cheapPassImpl } from './cheap.mjs';
 import { fetchArt as fetchArtImpl, lookArt as lookArtImpl } from './art.mjs';
 import { investigate as investigateImpl } from './claude.mjs';
@@ -36,6 +37,8 @@ export function createApp(env, deps = {}) {
   const socketPath = text(env.HM_SOCKET) || DEFAULT_SOCKET;
   const capNum = Number.parseInt(text(env.HM_DAILY_CAP) || '', 10);
   const cap = Number.isInteger(capNum) && capNum > 0 ? capNum : DEFAULT_CAP;
+  const shlabsCapNum = Number.parseInt(text(env.HM_SHLABS_DAILY_CAP) || '', 10);
+  const shlabsDailyCap = Number.isInteger(shlabsCapNum) && shlabsCapNum > 0 ? shlabsCapNum : 190;
   const keyPath = text(env.HM_PUBLISH_KEY_PATH);
 
   const secrets = [keyHash, text(env.CLAUDE_CODE_OAUTH_TOKEN), text(env.SHLABS_API_KEY), keyPath].filter(Boolean);
@@ -57,6 +60,13 @@ export function createApp(env, deps = {}) {
 
   const shlabsKey = text(env.SHLABS_API_KEY);
   const shlabs = deps.shlabs !== undefined ? deps.shlabs : (shlabsKey ? createShLabs({ fetch: doFetch, key: shlabsKey, sleep }) : null);
+  const aiLists = deps.aiLists !== undefined ? deps.aiLists : createAiLists({ fetch: doFetch, now: () => Date.now() });
+  const fetchPage = deps.fetchPage || ((url) =>
+    doFetch(url, { redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(20000) }).then(async (res) => {
+      if (!res.ok) throw new Error(`fetch failed ${res.status} for ${url}`);
+      return res.text();
+    })
+  );
   const cheapPass = deps.cheapPass || ((artist) => cheapPassImpl(artist, { fetch: doFetch, sleep, now: () => Date.now() }));
   const investigate = deps.investigate || ((artist, evidence, o = {}) => investigateImpl(artist, evidence, { env, ...o }));
   const fetchArt = deps.fetchArt || ((url) => fetchArtImpl(url, { fetch: doFetch }));
@@ -131,6 +141,9 @@ export function createApp(env, deps = {}) {
     // Evidence scoring is the default (Wai, 2026-11-18: the research weights approved);
     // HM_SCORING=off goes back to Claude's own number.
     scoring: text(env.HM_SCORING) !== 'off',
+    aiLists,
+    fetchPage,
+    shlabsDailyCap,
   });
 
   function kick() {

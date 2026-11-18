@@ -113,6 +113,30 @@ await run([
     t.queue.enqueue([art('Count A'), art('Count B', { spotifyId: 'Q'.repeat(22) })]); await t.w.runOne(); await t.w.runOne();
     return t.store.getState(`shlabs.requests.${DAY}`) === 4 || J(t.store.getState(`shlabs.requests.${DAY}`));
   }],
+  ['5: a request that would pass the cap is not sent (3 used, cap 4, two needed)', async () => {
+    const t = setup({ cap: 4, scores: scoresOf([99, 99]) });
+    t.store.setState(`shlabs.requests.${DAY}`, 3);
+    t.queue.enqueue([art('Edge')]); await t.w.runOne();
+    return (t.calls.shlabs === 0 && t.calls.claude === 1) || J(t.calls);
+  }],
+  ['4: the two scores are kept on the artist (store.getScores by its row id)', async () => {
+    const t = setup({ scores: scoresOf([96.1, 91.4]) });
+    t.queue.enqueue([art('Kept')]); await t.w.runOne();
+    const v = verdictOf(t.store, art('Kept'));
+    const got = t.store.getScores(v.id);
+    return (Array.isArray(got) && got.length === 2) || J(got);
+  }],
+  ['published: a list verdict at 100, an SH Labs verdict at 94', async () => {
+    const { buildList } = await import('../src/listjson.mjs');
+    const a = setup({ list: () => ({ listName: 'Zoundhub', url: 'https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/zoundhub.json' }) });
+    a.queue.enqueue([art('Listed')]); await a.w.runOne();
+    const b = setup({ scores: scoresOf([96.1, 91.4]) });
+    b.queue.enqueue([art('Loud Bot')]); await b.w.runOne();
+    const la = JSON.parse(buildList(a.store.listPublishable(), { now: NOW, calibrated: false, mapping: null }));
+    const lb = JSON.parse(buildList(b.store.listPublishable(), { now: NOW, calibrated: false, mapping: null }));
+    const ea = (la.artists || la.entries || [])[0], eb = (lb.artists || lb.entries || [])[0];
+    return (ea && ea.confidence === 100 && eb && eb.confidence === 94) || J({ ea, eb });
+  }],
   ['the SH Labs layer never runs without a client (no key): Claude decides', async () => {
     const t = setup({});
     t.queue.enqueue([art('No Key')]);

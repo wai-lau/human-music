@@ -1,9 +1,11 @@
 // The worker: one artist from the queue to a stored verdict. Cheap pass first, then one
 // locked-down `claude -p`, then the decision rule (decide() is the final word), then the
 // calibration mapping. Unsure means play: any failure leaves no verdict rather than a wrong one.
+// Layered decision (Wai, 2026-11-18): cheap pass -> stored verdict -> AI list -> SH Labs -> Claude.
 import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
 import { scoreChecklist } from './score.mjs';
+import { trackIdsFromEmbed } from './shlabsrun.mjs';
 
 // Scored verdicts keep the old names of their strong signs too, so the published list's 95 rule
 // (mayPass94) sees them.
@@ -11,7 +13,7 @@ const STRONG_NAMES = { S1: 'deezer_ai_label', S2: 'own_disclosure', S3: 'youtube
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
 
-export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false }) {
+export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false, aiLists, fetchPage, shlabsDailyCap }) {
   const lastError = (msg) => {
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
@@ -92,6 +94,75 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         queue.done(artist);
         schedulePublish();
         return 'done';
+      }
+
+      // AI list layer: a listing on a known AI blocklist settles the artist as AI at 100.
+      if (aiLists) {
+        try {
+          const listing = await aiLists.match(artist);
+          if (listing) {
+            save(artist, null, {
+              verdict: 'ai',
+              confidence: 100,
+              rawConfidence: 100,
+              signals: ['S4', 'tracker_listing'],
+              reasons: [`on ${listing.listName}`],
+              sources: [listing.url],
+            }, 'list', today);
+            queue.done(artist);
+            schedulePublish();
+            return 'done';
+          }
+        } catch { /* list check failed; fall through */ }
+      }
+
+      // SH Labs layer: score the artist's top two tracks via Spotify's embed page.
+      // Both scores 85+ -> AI at 94; both under 50 -> human at 95; otherwise fall through to Claude.
+      if (shlabs && artist.spotifyId && fetchPage) {
+        try {
+          const cap = shlabsDailyCap !== undefined ? shlabsDailyCap : 190;
+          const key = `shlabs.requests.${today}`;
+          const used = typeof store.getState(key) === 'number' ? store.getState(key) : 0;
+          if (used + 2 <= cap) {
+            const html = await fetchPage(`https://open.spotify.com/embed/artist/${artist.spotifyId}`);
+            const ids = trackIdsFromEmbed(html, 2);
+            if (ids.length === 2) {
+              const scores = await shlabs.scoreTracks(ids);
+              store.setState(key, used + 2);
+              if (scores.length === 2) {
+                const p1 = scores[0].probability;
+                const p2 = scores[1].probability;
+                const keep = (id) => { try { store.putScores(id, scores); } catch { /* optional */ } };
+                if (p1 >= 85 && p2 >= 85) {
+                  keep(save(artist, null, {
+                    verdict: 'ai',
+                    confidence: 94,
+                    rawConfidence: Math.round(Math.min(p1, p2)),
+                    signals: ['M3'],
+                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
+                    sources: ['https://shlabs.music'],
+                  }, 'shlabs', today));
+                  queue.done(artist);
+                  schedulePublish();
+                  return 'done';
+                }
+                if (p1 < 50 && p2 < 50) {
+                  keep(save(artist, null, {
+                    verdict: 'human',
+                    confidence: 95,
+                    rawConfidence: Math.round(Math.max(p1, p2)),
+                    signals: ['P16'],
+                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
+                    sources: ['https://shlabs.music'],
+                  }, 'shlabs', today));
+                  queue.done(artist);
+                  schedulePublish();
+                  return 'done';
+                }
+              }
+            }
+          }
+        } catch { /* SH Labs failed or limit; fall through to Claude */ }
       }
 
       // Scoring (Wai, 2026-11-18): Claude fills in the evidence checklist and score.mjs decides.

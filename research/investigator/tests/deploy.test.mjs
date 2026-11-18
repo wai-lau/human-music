@@ -40,7 +40,7 @@ await run([
   }],
   ['nginx: 64k body limit and a rate limit', () => /client_max_body_size\s+64k;/.test(code(nginx)) && /limit_req\s+zone=/.test(code(nginx)) && /limit_req_zone/.test(nginx) && /http block/i.test(nginx)],
   ['env.example: exactly the ten names, all empty', () => {
-    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'HM_SCORING'];
+    const names = ['HM_KEY_HASH', 'CLAUDE_CODE_OAUTH_TOKEN', 'SHLABS_API_KEY', 'HM_SHLABS_DAILY_CAP', 'HM_DAILY_CAP', 'HM_ALLOWED_ORIGIN', 'HM_DATA_DIR', 'HM_PUBLISH_REMOTE', 'HM_PUBLISH_KEY_PATH', 'HM_SOCKET', 'HM_SCORING'];
     const lines = env.split('\n').filter((l) => l.trim() && !l.startsWith('#'));
     return lines.length === names.length && names.every((n) => lines.includes(n + '='));
   }],
