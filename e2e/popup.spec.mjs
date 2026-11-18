@@ -6,7 +6,7 @@ const AI = 'E2E Generated Band';
 const PERSON = 'E2E Person';
 const popupUrl = id => `chrome-extension://${id}/popup/popup.html`;
 
-test('the built-in Soul Over AI list shows its bundled artists', async ({ context, extensionId, setState }) => {
+test('the built-in Soul Over AI list shows its downloaded artists', async ({ context, extensionId, setState }) => {
   await setState();
   const popup = await context.newPage();
   await popup.goto(popupUrl(extensionId));
@@ -90,7 +90,7 @@ test('behaviour settings are saved', async ({ context, extensionId, setState, re
   await expect.poll(async () => (await readStore('hm.settings')).lookahead).toBe(10); // capped
 });
 
-test('the run stays offline: the list download fails and the bundled copy is kept', async ({ setState, readStore }) => {
+test('the run stays offline: the list download fails and the last downloaded copy is kept', async ({ setState, readStore }) => {
   await setState();
   const soa = (await readStore('hm.filterLists')).find(l => l.id === 'soul-over-ai');
   expect(soa.lastRefresh).toBeNull();

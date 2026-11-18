@@ -48,7 +48,8 @@ export const test = base.extend({
       headless: !process.env.HM_E2E_HEADED,
       args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, '--autoplay-policy=no-user-gesture-required',
         // The service worker's fetches skip context.route: no host resolves, so its list
-        // download fails and the bundled copy stays (the stand-in pages are routed first).
+        // downloads fail (the stand-in pages are routed first). setState then stores the
+        // Soul Over AI snapshot as if its download had worked.
         '--host-resolver-rules=MAP * ~NOTFOUND'],
     });
     await context.route('**/*', async route => {
@@ -73,15 +74,28 @@ export const test = base.extend({
     await use(new URL(worker.url()).host);
   },
 
-  // Wait until the install (defaults, bundled lists, first list download) has settled,
-  // then replace your lists and settings with the test's own. The filter lists stay as
-  // installed: Soul Over AI from the bundled copy in extension/lists.
+  // Wait until the install (defaults, bundled backup, first list download) has settled,
+  // then replace your lists and settings with the test's own. The package ships no filter
+  // list and the download fails offline, so Soul Over AI is stored here from the snapshot in
+  // research/calibration, the way a download stores it.
   setState: async ({ worker }, use) => {
     await expect.poll(() => worker.evaluate(async () => {
       const r = await chrome.storage.local.get(['hm.bundled', 'hm.filterLists']);
       const soa = (r['hm.filterLists'] || []).find(l => l.id === 'soul-over-ai');
-      return !!(r['hm.bundled'] && soa && (soa.lastError || soa.lastRefresh));
+      // install() refreshes Soul Over AI after the bundled import, so its refresh record means
+      // the import is done (a store copy imports nothing and writes no hm.bundled).
+      return !!(soa && (soa.lastError || soa.lastRefresh));
     }), { timeout: 15_000 }).toBe(true);
+    await worker.evaluate(async (data) => {
+      const HM = globalThis.HM;
+      const parsed = HM.lists.parseFilterList(data);
+      const key = HM.store.listKey('soul-over-ai');
+      const metas = (await chrome.storage.local.get('hm.filterLists'))['hm.filterLists'] || [];
+      await chrome.storage.local.set({
+        [key]: parsed,
+        'hm.filterLists': metas.map((m) => (m.id === 'soul-over-ai' ? { ...m, count: parsed.artists.length } : m)),
+      });
+    }, SOA);
     await use(async ({ user = {}, settings = {} } = {}) => {
       await worker.evaluate(async ({ user, settings }) => {
         const cur = await chrome.storage.local.get('hm.settings');

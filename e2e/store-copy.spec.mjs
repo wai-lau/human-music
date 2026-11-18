@@ -11,7 +11,7 @@ test.describe('store copy', () => {
 
   test('does not import the bundled my-lists.json backup, and downloads the built-in lists', async ({ setState, readStore }) => {
     await setState();
-    const seen = Object.keys(await readStore('hm.bundled'));
+    const seen = Object.keys((await readStore('hm.bundled')) || {});
     expect(seen).not.toContain('soul-over-ai.json');
     expect(seen).not.toContain('my-lists.json');
   });
