@@ -4,6 +4,28 @@ Status: Wai, 2026-11-11: "Just make some assumptions and go for now". Her
 decisions are quoted; everything marked **(Claude's call)** is an
 assumption she has not reviewed yet.
 
+2026-11-17 note: where the text below differs from the code, the code wins. The
+Pause switch became the four-stop filtering-mode slider (see the investigator
+design); the display name is "Human Music: AI Music Blocker"; Spotify is
+supported next to YouTube Music (see "Firefox and Spotify"); and these behaviours
+changed after the 2026-11-17 review:
+
+- Hidden page items are checked again on later passes and shown once they no longer
+  match an acting list (YouTube Music reuses item elements).
+- A search card for a person is read from its own title, subtitle and links, not the
+  song rows inside it. A playlist card naming several artists counts as a mix; one by a
+  single listed artist still hides.
+- Queue removal does nothing while any menu is open, and stops before the next removal
+  once filtering is off or the lists are gone.
+- The skipper presses Next again or seeks only while the song is readable and is still
+  the listed one.
+- A song entry with a blank title never matches.
+- "Always show" protects the listed artist that matched (else the first credited
+  artist), also on duets.
+- The log cuts a title, artist line, list name and entry to 300 characters each.
+- Removing a list also deletes its downloaded data. A refresh time in the future counts
+  as due.
+
 ## Why
 
 Wai, 2026-11-11: "I want to say that AI music is music and not immoral on its
