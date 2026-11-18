@@ -100,8 +100,8 @@ Files for the install are in `deploy/`. Each step below changes the droplet and 
 
 1. Create the system user `human-music` with no login, and the data folder `/var/lib/human-music`.
 2. Copy this folder to `/opt/human-music-investigator`, then run `npm test` there. Every file must pass. This also confirms `node:sqlite` works on that Node.
-3. The owner runs `tools/make-key.mjs` herself. It reads the admin key from standard input, prints the derived key once and writes `HM_KEY_HASH`.
-4. Create `/etc/human-music/env` from `deploy/env.example` (owner root, group `human-music`, mode 640). The owner runs `claude setup-token` and pastes the token herself.
+3. Create `/etc/human-music/env` from `deploy/env.example` (owner root, group `human-music`, mode 640).
+4. The owner runs `tools/make-key.mjs /etc/human-music/env --force` herself (`--force` because env.example has an empty `HM_KEY_HASH=` line). It reads the admin key from standard input, prints the derived key once and writes only `HM_KEY_HASH`. She then runs `claude setup-token` and pastes the token into the env file herself.
 5. Set up the GitHub write key for the verdicts branch, and confirm with a test push that `main` is refused.
 6. Install `deploy/human-music-investigator.service`, start it, and check that the status and log show no key and that `/run/human-music/investigator.sock` exists (mode 0660, group `human-music`). Add the nginx user to the `human-music` group.
 7. Add `deploy/nginx-human-music.conf` (the `limit_req_zone` line goes in the http block), run `nginx -t`, then reload. It proxies to the socket from step 6.
