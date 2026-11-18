@@ -34,7 +34,7 @@ export async function runShLabs({ store, fetchPage, shlabs, sample, perArtist = 
     const prev = results[a.name];
     if (prev && !prev.failed) continue;
     if (prev && prev.failed >= 2) continue;
-    let ids = [];
+    let ids;
     try { ids = trackIdsFromEmbed(await fetchPage(`https://open.spotify.com/embed/artist/${a.spotifyId}`), perArtist); } catch { ids = []; }
     if (!ids.length) {
       results[a.name] = { truthAi: a.truthAi, tracks: [], note: 'no tracks on the embed page' };
@@ -42,7 +42,7 @@ export async function runShLabs({ store, fetchPage, shlabs, sample, perArtist = 
       continue;
     }
     if (requests + ids.length > maxRequests) { stopped = 'request cap'; break; }
-    let scores = [];
+    let scores;
     try { scores = await shlabs.scoreTracks(ids); } catch { scores = []; }
     requests += ids.length;
     if (!Array.isArray(scores) || scores.length === 0) {
