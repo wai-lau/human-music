@@ -169,13 +169,25 @@
       // again shortly, once the player shows the new song in full.
       if (safe(() => state.skipper.busy(), false)) { safe(() => timers.setTimeout(schedule, 200)); return; }
       state.last = { title: song.title, artistLine: song.artistLine };
+      // state.last is cleared when the lists change, so the song is checked again; this one
+      // isn't, so a refresh that changes nothing doesn't log the same song again (review 2026-11-17).
+      const songKey = song.title + '\u0000' + song.artistLine;
+      if (songKey !== state.lastSongKey) { state.lastSongKey = songKey; state.lastLogged = null; }
       const match = matchSong(song);
       if (!match) { reportUnknown(song, true); return; }
-      if (match.mode === 'watch') { log('watched', song, match); return; }
-      if (!state.settings.autoSkip) { log('seen', song, match); return; }
+      if (match.mode === 'watch') { logPlaying('watched', song, match); return; }
+      if (!state.settings.autoSkip) { logPlaying('seen', song, match); return; }
       state.skipMatch = match; // named in the log if this skip doesn't take
       safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
       log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
+    }
+
+    // Logs a song that plays on (watched, or seen with auto-skip off) once per play.
+    function logPlaying(event, song, match) {
+      const k = [event, match.listId, match.entry].join('\u0000');
+      if (state.lastLogged === k) return;
+      state.lastLogged = k;
+      log(event, song, match);
     }
 
     // --- lookahead ----------------------------------------------------------------------
@@ -394,7 +406,10 @@
         if (!Object.keys(changes).some(rebuilds)) return; // hm.log alone changes nothing
         reload().then(() => {
           state.last = null; // check the playing song again against the new lists
-          safe(() => site.unhideAll(doc)); // shown again unless it still matches
+          // Hidden items are checked again at once (each is shown if it no longer matches), so a
+          // refresh that changes nothing doesn't flash them. Hiding turned off shows them all.
+          if (state.settings.paused || !state.settings.hidePageItems || !state.index) safe(() => site.unhideAll(doc));
+          else safe(hidePass);
           schedule();
         }).catch(() => {});
       });
