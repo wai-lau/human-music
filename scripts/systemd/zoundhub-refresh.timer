@@ -1,0 +1,11 @@
+[Unit]
+Description=Human Music: run the Zoundhub refresh once a day
+
+[Timer]
+OnCalendar=*-*-* 06:30:00
+# Missed while the PC was off: run at the next start.
+Persistent=true
+RandomizedDelaySec=20min
+
+[Install]
+WantedBy=timers.target

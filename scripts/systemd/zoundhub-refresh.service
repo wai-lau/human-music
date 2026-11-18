@@ -1,0 +1,8 @@
+[Unit]
+Description=Human Music: daily Zoundhub refresh (scripts/zoundhub-refresh.sh)
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=HM_NODE=%h/.nvm/versions/node/v26.13.1/bin/node
+ExecStart=%h/src/human-music/scripts/zoundhub-refresh.sh
