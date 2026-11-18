@@ -249,6 +249,15 @@ run([
     const cleared = data(p, 'hm.investigator').token === '' && data(p, 'hm.settings').investigate === false;
     return (type && saved && cleared) || JSON.stringify({ type, saved, cleared, inv });
   }],
+  ['investigator: saving a key keeps the worker\'s newer sent record and last error', async () => {
+    const p = await open({ 'hm.investigator': { token: 'old', base: 'https://wai-lau.net/human-music', sent: {} } });
+    // The worker records a send after the popup loaded (no change event reaches this popup).
+    p.storage.data['hm.investigator'] = { token: 'old', base: 'https://wai-lau.net/human-music', sent: { 'some artist': '2026-11-17' }, lastSentAt: 5, lastError: 'HTTP 503' };
+    p.$('investigator-token').value = 'new-key';
+    await p.click(p.$('investigator-save'));
+    const inv = data(p, 'hm.investigator');
+    return (inv.token === 'new-key' && inv.sent['some artist'] === '2026-11-17' && inv.lastSentAt === 5 && inv.lastError === 'HTTP 503') || JSON.stringify(inv);
+  }],
   ['investigator status shows last sent and last error', async () => {
     const p = await open({ 'hm.investigator': { token: 'k', base: 'https://wai-lau.net/human-music', sent: {}, lastSentAt: Date.now() - 60000, lastError: 'HTTP 401' } });
     const t = p.$('investigator-status').textContent;

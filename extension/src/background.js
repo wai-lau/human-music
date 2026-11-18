@@ -349,139 +349,149 @@ list = lists[HM.store.KEYS.filterLists][i];
     const storage = opts.storage;
     const fetchFn = opts.fetch;
     const nowFn = opts.now;
-    let state = null;
-    let loading = null;
+    const DEFAULT_BASE = 'https://wai-lau.net/human-music';
+    const WEEK = 7 * 24 * 3600 * 1000;
+    // Artist keys whose POST is pending, so a second send of the same artist skips at once.
+    const inFlight = new Set();
+    // Reads and writes of the stored record run one at a time. The record is read fresh each
+    // time and never held between sends: the popup owns the token, and a copy kept here
+    // brought a removed or rotated key back (review 2026-11-17).
+    let queue = Promise.resolve();
+    function serial(fn) {
+      const run = queue.then(fn);
+      queue = run.then(function () {}, function () {});
+      return run;
+    }
 
-    async function loadState() {
+    async function readState() {
       const key = HM.store.KEYS.investigator;
-      const existing = (await storage.get(key))[key];
-      if (existing && typeof existing === 'object') {
-        state = existing;
-        if (typeof state.token !== 'string') state.token = '';
-        if (typeof state.base !== 'string') state.base = 'https://wai-lau.net/human-music';
-        if (!state.sent || typeof state.sent !== 'object') state.sent = {};
-      } else {
-        state = { token: '', base: 'https://wai-lau.net/human-music', sent: {} };
-      }
+      const existing = ((await storage.get(key)) || {})[key];
+      const state = existing && typeof existing === 'object' ? existing : {};
+      if (typeof state.token !== 'string') state.token = '';
+      if (typeof state.base !== 'string') state.base = DEFAULT_BASE;
+      if (!state.sent || typeof state.sent !== 'object') state.sent = {};
       return state;
     }
 
-    async function saveState() {
-      const key = HM.store.KEYS.investigator;
-      const obj = {};
-      obj[key] = state;
-      await storage.set(obj);
+    function dropOld(sent) {
+      for (const k in sent) {
+        if (sent[k] && sent[k].length === 10) {
+          try {
+            if (nowFn() - new Date(sent[k] + 'T00:00:00Z').getTime() > WEEK) delete sent[k];
+          } catch (e) {
+            delete sent[k];
+          }
+        }
+      }
+    }
+
+    // Writes back only what the worker owns (sent, lastError, lastSentAt) on top of what is
+    // stored right now; the token and address stay as the popup left them.
+    function record(change) {
+      return serial(async function () {
+        const state = await readState();
+        dropOld(state.sent);
+        change(state);
+        const obj = {};
+        obj[HM.store.KEYS.investigator] = state;
+        await storage.set(obj);
+      });
+    }
+
+    function keyOf(item) {
+      // Keyed by the credited artists (not the artist line, which names the
+      // album on YouTube Music), so one artist is sent once a day.
+      const credits = Array.isArray(item.credits) ? item.credits.filter(function (c) { return typeof c === 'string'; }) : [];
+      let key = credits.map(function (c) { return HM.text.normalize(c).trim(); }).filter(Boolean).sort().join(',');
+      if (!key && typeof item.artistLine === 'string') key = HM.text.normalize(item.artistLine).trim();
+      if (item.channelIds && item.channelIds.length > 0) {
+        for (let j = 0; j < item.channelIds.length; j++) {
+          if (item.channelIds[j]) {
+            key += '|' + item.channelIds[j];
+            break;
+          }
+        }
+      }
+      return key || 'unknown';
     }
 
     async function send(items) {
       if (!Array.isArray(items) || items.length === 0) return { sent: 0, skipped: 0 };
       items = items.filter(function (it) { return it && typeof it === 'object'; });
 
-      if (loading) await loading;
-      loading = loadState();
-      await loading;
-      loading = null;
-
-      if (!state.token || state.token.length === 0) {
-        return { sent: 0, skipped: items.length };
-      }
-
-      // The token only ever travels over https.
-      if (!/^https:\/\//.test(state.base)) {
-        state.lastError = 'The investigator address must start with https://';
-        try { await saveState(); } catch (e) { /* storage failure is acceptable */ }
-        return { sent: 0, skipped: items.length };
-      }
-
       const today = new Date(nowFn()).toISOString().slice(0, 10);
-
-      // Prune sent entries older than 7 days
-      for (const k in state.sent) {
-        if (state.sent[k] && state.sent[k].length === 10) {
-          try {
-            if (nowFn() - new Date(state.sent[k] + 'T00:00:00Z').getTime() > 7 * 24 * 3600 * 1000) {
-              delete state.sent[k];
-            }
-          } catch (e) {
-            delete state.sent[k];
-          }
-        }
-      }
-
-      let sentCount;
       let skippedCount = 0;
       const toSend = [];
+      let token = '';
+      let base = '';
+      let badBase = false;
 
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        // Keyed by the credited artists (not the artist line, which names the
-        // album on YouTube Music), so one artist is sent once a day.
-        const credits = Array.isArray(item.credits) ? item.credits.filter(function (c) { return typeof c === 'string'; }) : [];
-        let key = credits.map(function (c) { return HM.text.normalize(c).trim(); }).filter(Boolean).sort().join(',');
-        if (!key && typeof item.artistLine === 'string') key = HM.text.normalize(item.artistLine).trim();
-        if (item.channelIds && item.channelIds.length > 0) {
-          for (let j = 0; j < item.channelIds.length; j++) {
-            if (item.channelIds[j]) {
-              key += '|' + item.channelIds[j];
-              break;
-            }
+      // Decide what to send and mark it in flight in one step, so two sends never both post an artist.
+      await serial(async function () {
+        const state = await readState();
+        dropOld(state.sent);
+        token = state.token;
+        base = state.base;
+        if (!token) return;
+        // The token only ever travels over https.
+        if (!/^https:\/\//.test(base)) { badBase = true; return; }
+        const seen = new Set();
+        for (let i = 0; i < items.length; i++) {
+          const key = keyOf(items[i]);
+          if (state.sent[key] === today || inFlight.has(key) || seen.has(key)) {
+            skippedCount++;
+          } else {
+            seen.add(key);
+            toSend.push({ key: key, item: items[i] });
           }
         }
-        if (!key) key = 'unknown';
+        for (let i = 0; i < toSend.length; i++) inFlight.add(toSend[i].key);
+      });
 
-        if (state.sent[key] && state.sent[key] === today) {
-          skippedCount++;
-        } else {
-          toSend.push({ key: key, item: item });
-        }
+      if (!token) return { sent: 0, skipped: items.length };
+      if (badBase) {
+        try {
+          await record(function (state) { state.lastError = 'The investigator address must start with https://'; });
+        } catch (e) { /* storage failure is acceptable */ }
+        return { sent: 0, skipped: items.length };
       }
+      if (toSend.length === 0) return { sent: 0, skipped: skippedCount };
 
-      if (toSend.length === 0) {
-        return { sent: 0, skipped: skippedCount };
-      }
-
-      const payload = {
-        items: toSend.map(function (t) {
-          return t.item;
-        })
-      };
-
+      let error = null;
+      let ok = false;
       try {
-        const url = state.base + '/api/investigate';
-        const headers = {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + state.token
-        };
-        const resp = await fetchFn(url, {
+        const init = {
           method: 'POST',
-          headers: headers,
-          body: JSON.stringify(payload)
-        });
-
-        state.lastError = resp.ok ? null : 'HTTP ' + resp.status;
-
-        // Mark all sent for today regardless of response
-        for (let i = 0; i < toSend.length; i++) {
-          state.sent[toSend[i].key] = today;
-        }
-        state.lastSentAt = nowFn();
-        sentCount = toSend.length;
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ items: toSend.map(function (t) { return t.item; }) }),
+          credentials: 'omit',
+          redirect: 'error'
+        };
+        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(15000);
+        const resp = await fetchFn(base + '/api/investigate', init);
+        ok = true;
+        error = resp.ok ? null : 'HTTP ' + resp.status;
       } catch (e) {
-        state.lastError = e.message;
-        // Still mark as sent to prevent retry storm
-        for (let i = 0; i < toSend.length; i++) {
-          state.sent[toSend[i].key] = today;
-        }
-        sentCount = 0;
+        error = e && e.message ? e.message : String(e);
       }
 
       try {
-        await saveState();
+        // Marked sent for today whatever the answer, so a failure is not retried in a storm.
+        await record(function (state) {
+          state.lastError = error;
+          if (ok) state.lastSentAt = nowFn();
+          for (let i = 0; i < toSend.length; i++) state.sent[toSend[i].key] = today;
+        });
       } catch (e) {
         // storage failure is acceptable
+      } finally {
+        for (let i = 0; i < toSend.length; i++) inFlight.delete(toSend[i].key);
       }
 
-      return { sent: sentCount, skipped: skippedCount };
+      return { sent: ok ? toSend.length : 0, skipped: skippedCount };
     }
 
     return { send: send };

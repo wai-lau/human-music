@@ -327,13 +327,14 @@
     const field = $('investigator-token');
     const token = field.value.trim();
     field.value = '';
-    const cur = state.investigator;
-    const next = { ...cur, token, base: typeof cur.base === 'string' ? cur.base : 'https://wai-lau.net/human-music', sent: cur.sent && typeof cur.sent === 'object' ? cur.sent : {} };
-    state.investigator = next;
-    status(token ? 'A key is saved.' : 'The key is removed.');
-    store.set({ [HM.store.KEYS.investigator]: next });
+    // Only the key is the popup's to write: the worker's sent record and last error are
+    // read fresh and kept, so they are not overwritten with this popup's older copy.
+    edit(HM.store.KEYS.investigator, v => (v && typeof v === 'object' ? v : {}),
+      cur => ({ ...cur, token, base: typeof cur.base === 'string' ? cur.base : 'https://wai-lau.net/human-music', sent: cur.sent && typeof cur.sent === 'object' ? cur.sent : {} }),
+      next => { state.investigator = next; renderInvestigator(); }).then(next => {
+      if (next) status(token ? 'A key is saved.' : 'The key is removed.');
+    });
     editSettings(s => ({ ...s, investigate: !!token }));
-    renderInvestigator();
   });
 
   $('lookahead').addEventListener('change', e => { const value = e.target.value; editSettings(s => ({ ...s, lookahead: value })); });

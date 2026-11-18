@@ -10,7 +10,7 @@ const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fai
 
 let ctx;
 const importScripts = (...files) => { for (const f of files) runInContext(readFileSync(process.cwd() + '/extension/src/' + f, 'utf8'), ctx); };
-ctx = load([], { importScripts, setTimeout, clearTimeout, AbortController });
+ctx = load([], { importScripts, setTimeout, clearTimeout, AbortController, AbortSignal });
 runInContext(readFileSync(process.cwd() + '/extension/src/background.js', 'utf8'), ctx);
 const { HM } = ctx;
 const DAY = 86400000;
@@ -128,6 +128,67 @@ await t('fresh verdicts: a start refreshes hm-verdicts only after a recent send,
   ];
   const bad = cases.map(([got, want], i) => got === want ? null : i).filter(i => i !== null);
   return bad.length === 0 || 'wrong for cases ' + J(bad);
+});
+
+// A fetch that waits until open() is called, so a test can change storage while a POST is pending.
+function gated(storage) {
+  let open;
+  const gate = new Promise(r => { open = r; });
+  const calls = [];
+  const fetch = async (url, init = {}) => { calls.push({ url, init }); await gate; return { ok: true, status: 202, headers: { get: () => null }, text: async () => '{}' }; };
+  return { fetch, open, calls };
+}
+const tick = () => new Promise(r => setTimeout(r, 5));
+
+await t('emptying the key while a send is pending: the old key does not come back', async () => {
+  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const g = gated(storage);
+  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const p = inv.send(items);
+  await tick();
+  await storage.set({ 'hm.investigator': { ...storage.data['hm.investigator'], token: '' } });
+  g.open();
+  await p;
+  const st = storage.data['hm.investigator'];
+  return (st.token === '' && Object.keys(st.sent || {}).length === 2 && typeof st.lastSentAt === 'number') || J(st);
+});
+await t('rotating the key while a send is pending keeps the new key', async () => {
+  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const g = gated(storage);
+  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const p = inv.send(items);
+  await tick();
+  await storage.set({ 'hm.investigator': { ...storage.data['hm.investigator'], token: 'n3w' } });
+  g.open();
+  await p;
+  return storage.data['hm.investigator'].token === 'n3w' || J(storage.data['hm.investigator']);
+});
+await t('two sends of one artist at once: one fetch', async () => {
+  const storage = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  const g = gated(storage);
+  const inv = HM.createInvestigator({ storage, fetch: g.fetch, now: () => NOON });
+  const a = inv.send([items[0]]);
+  const b = inv.send([items[0]]);
+  await tick();
+  g.open();
+  const [ra, rb] = await Promise.all([a, b]);
+  return (g.calls.length === 1 && ra.sent + rb.sent === 1 && ra.skipped + rb.skipped === 1) || J({ calls: g.calls.length, ra, rb });
+});
+await t('the send carries a timeout, no credentials and no redirects', async () => {
+  const r = rig();
+  await r.inv.send(items);
+  const init = r.calls[0].init;
+  return (init.signal && typeof init.signal === 'object' && init.credentials === 'omit' && init.redirect === 'error') || J({ credentials: init.credentials, redirect: init.redirect, signal: typeof init.signal });
+});
+await t('a failed read of the saved state does not block later sends', async () => {
+  const real = fakeStorage({ 'hm.investigator': { token: 't0k' } });
+  let fail = true;
+  const storage = { ...real, get: async k => { if (fail) { fail = false; throw new Error('boom'); } return real.get(k); } };
+  const calls = [];
+  const inv = HM.createInvestigator({ storage, fetch: async (u, i) => { calls.push(u); return { ok: true, status: 202 }; }, now: () => NOON });
+  try { await inv.send(items); } catch (e) { /* the first one may fail */ }
+  const res = await inv.send(items);
+  return (res.sent === 2 && calls.length === 1) || J({ res, calls: calls.length });
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
