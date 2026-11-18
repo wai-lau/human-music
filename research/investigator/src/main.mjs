@@ -58,7 +58,7 @@ export function createApp(env, deps = {}) {
   const shlabsKey = text(env.SHLABS_API_KEY);
   const shlabs = deps.shlabs !== undefined ? deps.shlabs : (shlabsKey ? createShLabs({ fetch: doFetch, key: shlabsKey, sleep }) : null);
   const cheapPass = deps.cheapPass || ((artist) => cheapPassImpl(artist, { fetch: doFetch, sleep, now: () => Date.now() }));
-  const investigate = deps.investigate || ((artist, evidence) => investigateImpl(artist, evidence, { env }));
+  const investigate = deps.investigate || ((artist, evidence, o = {}) => investigateImpl(artist, evidence, { env, ...o }));
   const fetchArt = deps.fetchArt || ((url) => fetchArtImpl(url, { fetch: doFetch }));
   const lookArt = deps.lookArt || ((image) => lookArtImpl(image, { env }));
 
@@ -128,6 +128,8 @@ export function createApp(env, deps = {}) {
   const buildWorker = () => createWorker({
     store, queue, cheapPass, investigate, shlabs, fetchArt, lookArt, schedulePublish, now,
     mapping: store.getState('calibration.mapping'),
+    // Evidence scoring, off until Wai approves the weights going live (2026-11-18).
+    scoring: text(env.HM_SCORING) === 'on',
   });
 
   function kick() {

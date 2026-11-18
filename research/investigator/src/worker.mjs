@@ -3,10 +3,15 @@
 // calibration mapping. Unsure means play: any failure leaves no verdict rather than a wrong one.
 import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
+import { scoreChecklist } from './score.mjs';
+
+// Scored verdicts keep the old names of their strong signs too, so the published list's 95 rule
+// (mayPass94) sees them.
+const STRONG_NAMES = { S1: 'deezer_ai_label', S2: 'own_disclosure', S3: 'youtube_ai_label', S4: 'tracker_listing' };
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
 
-export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt }) {
+export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false }) {
   const lastError = (msg) => {
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
@@ -89,8 +94,10 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         return 'done';
       }
 
-      const res = await investigate(artist, {});
-      if (!res || res.ok !== true) {
+      // Scoring (Wai, 2026-11-18): Claude fills in the evidence checklist and score.mjs decides.
+      // Off until Wai approves the weights going live (HM_SCORING=on).
+      const res = scoring ? await investigate(artist, {}, { mode: 'checklist' }) : await investigate(artist, {});
+      if (!res || res.ok !== true || (scoring && !res.checklist)) {
         const kind = res && res.kind;
         const reason = `${kind || 'error'}: ${cut(res && res.detail)}`;
         // A login, usage-limit or setup problem stops everything: keep the artist and pause.
@@ -108,6 +115,30 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         if (kind === 'invalid') store.bump(today); // Claude ran and used the subscription
         lastError(reason);
         queue.done(artist);
+        return 'done';
+      }
+
+      if (scoring) {
+        const signs = { ...res.checklist.signs };
+        const cover = await lookAtCover(artist);
+        if (cover && cover.look === 'ai') signs.W4 = 'found';
+        const sources = res.checklist.sources.slice(0, 5);
+        const s = scoreChecklist({ signs, genres: res.checklist.genres, sources });
+        store.bump(today);
+        const found = Object.keys(signs).filter((k) => signs[k] !== 'unknown' && signs[k] !== 'not_found');
+        const id = save(artist, null, {
+          verdict: s.verdict,
+          // The score is already a probability with its own caps: no calibration mapping.
+          confidence: s.confidence,
+          rawConfidence: Math.round(s.probability * 100),
+          signals: [...found, ...found.filter((k) => STRONG_NAMES[k]).map((k) => STRONG_NAMES[k])],
+          reasons: res.checklist.summary ? [res.checklist.summary] : [],
+          sources,
+        }, 'claude-score', today);
+        if (cover) { try { store.setState(`art:${id}`, cover); } catch { /* optional */ } }
+        queue.done(artist);
+        schedulePublish();
+        await second(id, artist, {});
         return 'done';
       }
 

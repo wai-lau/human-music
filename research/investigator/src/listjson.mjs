@@ -22,7 +22,9 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
     let confidence;
     if (v.verdict === 'ai') {
       const raw = Number.isFinite(v.rawConfidence) ? v.rawConfidence : v.confidence;
-      confidence = applyMapping(mapping, raw);
+      // A scored verdict is already a probability with its own caps; the calibration mapping is
+      // for Claude's own number only.
+      confidence = v.model === 'claude-score' ? clampInt(v.confidence) : applyMapping(mapping, raw);
       // A verdict that didn't meet the rule stays under Optimal, whatever the fit says.
       if (!mayPass94(v)) confidence = Math.min(confidence, 94);
     } else {

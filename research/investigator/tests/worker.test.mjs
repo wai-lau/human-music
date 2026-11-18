@@ -3,6 +3,8 @@ import { openStore } from '../src/store.mjs';
 import { createQueue } from '../src/queue.mjs';
 import { createWorker } from '../src/worker.mjs';
 import { artistKeys } from '../src/names.mjs';
+import { CODES } from '../src/checklist.mjs';
+import { buildList } from '../src/listjson.mjs';
 
 const NOW = new Date('2026-11-16T12:00:00Z');
 const SPOTIFY = 'A'.repeat(22);
@@ -22,10 +24,11 @@ function setup(opts = {}) {
     store,
     queue,
     cheapPass: async (a) => { calls.cheap++; return opts.cheap ? opts.cheap(a) : null; },
-    investigate: async (a, ev) => {
+    investigate: async (a, ev, o) => {
       calls.investigate++;
       calls.prompts.push(JSON.stringify([a, ev]));
-      if (opts.investigate) return opts.investigate(a, ev);
+      calls.modes = [...(calls.modes || []), (o && o.mode) || 'verdict'];
+      if (opts.investigate) return opts.investigate(a, ev, o);
       return { ok: true, answer: answer() };
     },
     shlabs: {
@@ -39,6 +42,7 @@ function setup(opts = {}) {
     fetchArt: opts.fetchArt ? async (u) => { calls.fetchArt.push(u); return opts.fetchArt(u); } : undefined,
     lookArt: opts.lookArt ? async (i) => { calls.lookArt.push(i); return opts.lookArt(i); } : undefined,
     mapping: opts.mapping ?? null,
+    scoring: opts.scoring === true,
     now: nowFn,
   });
   return { store, queue, w, calls };
@@ -135,6 +139,49 @@ run([
   }],
   // Review 2026-11-17 (service, finding 6): a timeout or crash dropped the artist until the
   // extension happened to send it again. It is retried twice, 15 minutes apart, then dropped.
+  // Scoring (Wai, 2026-11-18: scoring with the faceless guard), behind HM_SCORING until she approves
+  // going live: Claude fills in the checklist, score.mjs decides, nothing else changes.
+  ['scoring: the checklist is scored and stored as a claude-score verdict; the gut-number path is not used', async () => {
+    const a = art('Forrest');
+    const signs = Object.fromEntries(CODES.map((c) => [c, 'unknown']));
+    Object.assign(signs, { M4: 'found', W1: 'found', W2: 'found', M6: 'found', W5: 'found', W8: 'found' });
+    const { store, queue, w, calls } = setup({ scoring: true, investigate: () => ({ ok: true, checklist: { signs, genres: ['pop'], sources: ['https://api.deezer.com/artist/1/albums'], summary: 'Many albums.' } }) });
+    queue.enqueue([a]);
+    const r = await w.runOne();
+    const v = verdictOf(store, a);
+    return (r === 'done' && J(calls.modes) === J(['checklist']) && v && v.verdict === 'ai' && v.confidence === 94 && v.rawConfidence === 97 && v.model === 'claude-score'
+      && v.signals.includes('M4') && J(v.reasons) === J(['Many albums.'])) || J({ r, modes: calls.modes, v });
+  }],
+  ['scoring: a strong sign on two sites passes 95, in the store and in the published list', async () => {
+    const a = art('Tagged');
+    const signs = Object.fromEntries(CODES.map((c) => [c, 'unknown']));
+    Object.assign(signs, { S1: 'found', M4: 'found', W1: 'found', M6: 'found' });
+    const { store, queue, w } = setup({ scoring: true, investigate: () => ({ ok: true, checklist: { signs, genres: ['pop'], sources: ['https://zoundhub.com/artist/t', 'https://api.deezer.com/artist/2'], summary: '' } }) });
+    queue.enqueue([a]);
+    await w.runOne();
+    const v = verdictOf(store, a);
+    const list = JSON.parse(buildList(store.listPublishable(), { now: NOW, calibrated: true, mapping: { ok: true, points: [[0, 0], [60, 40], [100, 100]] } }));
+    const pub = list.artists.find((x) => x.name === 'Tagged');
+    return (v.confidence >= 95 && v.signals.includes('deezer_ai_label') && pub && pub.confidence === v.confidence) || J({ v, pub });
+  }],
+  ['scoring: an AI-looking cover adds W4; faceless genres are guarded', async () => {
+    const a = art('Lofi Person', { songs: [{ title: 'S', album: '', artUrl: 'https://i.scdn.co/image/x' }] });
+    const signs = Object.fromEntries(CODES.map((c) => [c, 'unknown']));
+    Object.assign(signs, { M5: 'found', W1: 'found', M6: 'found', W5: 'found', W6: 'found' });
+    const { store, queue, w } = setup({ scoring: true, fetchArt: () => ({ ok: true, mediaType: 'image/png', base64: 'QUJD' }), lookArt: () => ({ ok: true, look: 'ai' }),
+      investigate: () => ({ ok: true, checklist: { signs, genres: ['lo-fi hip hop'], sources: ['https://x.example/a'], summary: '' } }) });
+    queue.enqueue([a]);
+    await w.runOne();
+    const v = verdictOf(store, a);
+    return (v.signals.includes('W4') && v.verdict === 'unsure' && v.confidence < 60) || J(v);
+  }],
+  ['scoring off (the default): the verdict path as before', async () => {
+    const a = art('Plain');
+    const { queue, w, calls } = setup({});
+    queue.enqueue([a]);
+    await w.runOne();
+    return J(calls.modes) === J(['verdict']) || J(calls.modes);
+  }],
   ['a temporary failure is retried twice, 15 minutes apart, then dropped', async () => {
     let t = NOW.getTime();
     const a = art('Flaky');
