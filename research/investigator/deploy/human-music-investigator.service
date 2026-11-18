@@ -14,6 +14,10 @@ Group=human-music
 # Claude Code and git both want a HOME to keep small state files in. Point it
 # at the one folder the service may write to.
 Environment=HOME=/var/lib/human-music
+# The service's own claude (npm install -g --prefix /opt/claude @anthropic-ai/claude-code): a
+# personal install under a home folder is hidden by ProtectHome, and /usr/local/bin may hold a
+# wrapper that points into one, so it is left off the PATH.
+Environment=PATH=/opt/claude/bin:/usr/bin:/bin
 # Owned by root, readable by the service's group, mode 640. It holds the key
 # hash and tokens (see env.example), so it stays out of the unit file.
 EnvironmentFile=/etc/human-music/env

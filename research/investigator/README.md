@@ -99,7 +99,7 @@ Run as the service's user with the same environment file loaded: `node src/cli.m
 Files for the install are in `deploy/`. Each step below changes the droplet and waits for the owner's explicit approval (Task 18 of the plan).
 
 1. Create the system user `human-music` with no login, and the data folder `/var/lib/human-music`.
-2. Copy this folder to `/opt/human-music-investigator`, then run `npm test` there. Every file must pass. This also confirms `node:sqlite` works on that Node.
+2. Install the service's own `claude` with `npm install -g --prefix /opt/claude @anthropic-ai/claude-code` (the unit's PATH uses only `/opt/claude/bin`, `/usr/bin` and `/bin`). Copy this folder to `/opt/human-music-investigator`, then run `npm test` there. Every file must pass. This also confirms `node:sqlite` works on that Node.
 3. Create `/etc/human-music/env` from `deploy/env.example` (owner root, group `human-music`, mode 640).
 4. The owner runs `tools/make-key.mjs /etc/human-music/env --force` herself (`--force` because env.example has an empty `HM_KEY_HASH=` line). It reads the admin key from standard input, prints the derived key once and writes only `HM_KEY_HASH`. She then runs `claude setup-token` and pastes the token into the env file herself.
 5. Set up the GitHub write key for the verdicts branch, and confirm with a test push that `main` is refused.
