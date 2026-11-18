@@ -80,13 +80,13 @@ const basics = [
 
 function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.2' }] } },
   head = '0.1.2', dirty = '', branch = 'main', origin = 'aaa', moves = false, answer = true, lastTag = 'v0.1.2', tagAt = 'aaa',
-  commits = 'bbb2 fix: one\nccc3 feat: two\n', failing = null } = {}) {
+  commits = 'bbb2 fix: one\nccc3 feat: two\n', failing = null, untracked = '' } = {}) {
   const steps = [];
   let version = head;
   let sha = 'aaa';
   const git = args => {
     steps.push('git ' + args.join(' '));
-    if (args[0] === 'status') return dirty;
+    if (args[0] === 'status') return args.includes('extension') ? untracked : dirty;
     if (args[0] === 'rev-parse' && args.includes('--abbrev-ref')) return branch + '\n';
     if (args[0] === 'rev-parse' && args[1] === 'HEAD') return sha + '\n';
     if (args[0] === 'rev-parse' && args[1] === 'origin/main') return origin + '\n';
@@ -94,11 +94,12 @@ function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', d
     if (args[0] === 'describe') { if (!lastTag) throw new Error('no tags'); return lastTag + '\n'; }
     if (args[0] === 'log') return commits;
     if (args[0] === 'commit') sha = 'new';
+    if (args[0] === 'reset') sha = args[2];
     if (args[0] === 'tag') tagAt = sha;
     return '';
   };
-  const run = (cmd, args = []) => {
-    const s = [cmd, ...args].join(' '); steps.push('run ' + s);
+  const run = (cmd, args = [], env) => {
+    const s = [cmd, ...args].join(' '); steps.push('run ' + s + (env && env.HM_DIST_DIR ? ' >' + env.HM_DIST_DIR : ''));
     if (moves && s === 'npm run e2e') sha = 'zzz';
     if (failing && s.includes(failing)) throw new Error(s + ' failed');
   };
@@ -110,7 +111,7 @@ function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', d
   const shown = [];
   const confirm = async text => { steps.push('confirm'); shown.push(text); return answer; };
   const deps = { git, run, client, confirm, readVersion: () => version, writeVersion: v => { steps.push('version ' + v); version = v; },
-    readCrx: v => { steps.push('read crx ' + v); return Buffer.from('crx'); }, log: () => {} };
+    readCrx: (v, dir) => { steps.push('read crx ' + v + ' ' + dir); return Buffer.from('crx'); }, stage: '/stage', log: () => {} };
   return { steps, deps, shown };
 }
 
@@ -121,13 +122,32 @@ const refused = async (fn, steps, bad) => {
 await run([
   ...basics,
   ['bump: patch, minor, major', () => bump('0.1.2', 'patch') === '0.1.3' && bump('0.1.2', 'minor') === '0.2.0' && bump('0.1.2', 'major') === '1.0.0' && bump('1.2', 'patch') === '1.2.1'],
-  ['a release runs checks, then bumps, commits, tags, pushes, packs, uploads and submits, in order', async () => {
+  ['a release runs checks, then bumps, commits, packs everything into a staging folder, and only then tags, pushes, uploads and submits', async () => {
     const { steps, deps } = fakes();
     const res = await runRelease({ kind: 'patch', ...deps });
-    const order = ['status', 'confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'git tag v0.1.3', 'git push', 'run scripts/pack-crx.sh', 'read crx 0.1.3', 'upload human-music-0.1.3.crx', 'publish'];
+    const order = ['status', 'confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'version 0.1.3', 'git commit', 'run scripts/pack-crx.sh new >/stage', 'run scripts/pack-firefox.sh new >/stage', 'git tag v0.1.3', 'git push', 'read crx 0.1.3 /stage', 'upload human-music-0.1.3.crx', 'publish'];
     let at = -1;
     const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
     return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
+  }],
+  ['an untracked or modified file under extension/ refuses before anything is tested, tagged or pushed', async () => {
+    const out = [];
+    for (const f of [{ untracked: '?? extension/src/stray.js\n' }, { dirty: ' M extension/src/content.js\n' }]) {
+      const { steps, deps } = fakes(f);
+      const r = await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^run |^version|^git commit|^git tag|^git push|^upload|^publish/);
+      if (r !== true) out.push(r);
+    }
+    return out.length === 0 || out.join('; ');
+  }],
+  ['a pack failure leaves no tag and no push, and the version commit is undone', async () => {
+    const out = [];
+    for (const failing of ['pack-crx', 'pack-firefox']) {
+      const { steps, deps } = fakes({ failing });
+      try { await runRelease({ kind: 'patch', ...deps }); out.push(failing + ' did not stop'); continue; } catch (e) { /* expected */ }
+      if (steps.some(s => /^git tag|^git push|^upload|^publish/.test(s))) out.push(failing + ' went too far: ' + JSON.stringify(steps));
+      if (!steps.includes('git reset --hard aaa')) out.push(failing + ' left the version commit: ' + JSON.stringify(steps));
+    }
+    return out.length === 0 || out.join('; ');
   }],
   ['the new version is above everything the store holds, not just HEAD', async () => {
     const { deps } = fakes({ head: '0.1.2', status: { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.5' }] } } });
@@ -171,11 +191,11 @@ await run([
     await runRelease({ kind: 'patch', ...deps });
     return steps.includes('git log --oneline HEAD') || JSON.stringify(steps);
   }],
-  ['the packed commit is the tagged commit: pack refuses if the tag is not at HEAD', async () => {
+  ['the packed commit is the tagged commit: nothing is pushed or uploaded if the tag is not at it', async () => {
     const { steps, deps } = fakes();
     const git = deps.git;
     deps.git = args => (args[0] === 'rev-parse' && /^v.*\^\{commit\}$/.test(args[1]) ? 'other\n' : git(args));
-    return await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^run scripts\/pack|^upload|^publish/);
+    return await refused(() => runRelease({ kind: 'patch', ...deps }), steps, /^git push|^upload|^publish/);
   }],
   ['upload and publish: refused off main, behind GitHub, dirty or untagged; nothing uploaded', async () => {
     const out = [];

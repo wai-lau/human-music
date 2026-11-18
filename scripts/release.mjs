@@ -8,17 +8,18 @@
 //       (upload and publish need a clean tree on main, HEAD = GitHub main, HEAD tagged v<manifest version>)
 //   node scripts/release.mjs release [patch|minor|major]   (npm run release) the whole release:
 //       refuses on a dirty tree, off main, HEAD not GitHub main or while a version waits for review;
-//       lists the commits since the last v* tag and needs a typed yes; runs unit tests, lint and end-to-end tests (refusing if HEAD moved meanwhile); bumps the version, commits, tags v<version>
-//       and pushes; packs the signed .crx, uploads it and submits it for review
+//       lists the commits since the last v* tag and needs a typed yes; runs unit tests, lint and end-to-end tests (refusing if HEAD moved meanwhile); bumps the version, commits,
+//       packs the signed .crx and the Firefox zip into a staging folder, and only when every pack has worked tags
+//       v<version> and pushes; uploads the .crx and submits it for review
 //
 // Config, kept outside the repo like the signing key: ~/.keys/human-music-cws.json
 //   { "publisherId": "...", "itemId": "...", "serviceAccountKey": "~/.keys/<service account>.json" }
 // ($HM_CWS_CONFIG points elsewhere.) The service account's JSON key is Google's own file.
 // Nothing here prints a key or a token.
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, cpSync, rmSync } from 'fs';
 import { createSign } from 'crypto';
 import { execFileSync } from 'child_process';
-import { homedir } from 'os';
+import { homedir, tmpdir } from 'os';
 import { createInterface } from 'readline';
 import { join, dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -140,6 +141,13 @@ function guardMain(git) {
   return head;
 }
 
+// A release packs commits, so a stray file under extension/ (untracked or modified) means
+// the tree is not what ships: refuse before anything is tested, tagged or pushed.
+function guardExtensionClean(git) {
+  const stray = git(['status', '--porcelain', '--untracked-files=all', '--', 'extension']).trim();
+  if (stray) throw new Error(`extension/ has files not held as committed (commit, remove or ignore them first):\n${stray}`);
+}
+
 // Is v<version> a tag on exactly this commit?
 function guardTagged(git, head, version) {
   let at = '';
@@ -170,8 +178,9 @@ export async function runShip({ cmd, git, run, client, readVersion, readCrx, log
 // The whole release, with every outside step passed in (so tests can watch the order).
 // git(args) returns stdout; run(cmd, args) throws when the command fails;
 // confirm(text) answers true only for a typed yes.
-export async function runRelease({ kind = 'patch', git, run, client, confirm, readVersion, writeVersion, readCrx, log = console.log }) {
+export async function runRelease({ kind = 'patch', git, run, client, confirm, readVersion, writeVersion, readCrx, stage, log = console.log }) {
   const head = guardMain(git);
+  guardExtensionClean(git);
 
   const before = await client.status();
   log(describe(before));
@@ -197,15 +206,24 @@ export async function runRelease({ kind = 'patch', git, run, client, confirm, re
   const version = bump(top, kind);
   writeVersion(version);
   git(['commit', '-q', '-m', `release: ${version}`, '--', 'extension/manifest.json']);
+
+  // Pack everything from the release commit into the staging folder BEFORE tagging or pushing:
+  // a pack failure (or any other late failure) must not leave a tag or a pushed commit behind.
+  const commit = git(['rev-parse', 'HEAD']).trim();
+  try {
+    run('scripts/pack-crx.sh', [commit], { HM_DIST_DIR: stage });
+    run('scripts/pack-firefox.sh', [commit], { HM_DIST_DIR: stage });
+  } catch (e) {
+    git(['reset', '--hard', head]); // drop the version commit: nothing was tagged or pushed
+    throw new Error(`packing failed, nothing tagged or pushed (the version commit is undone): ${e.message}`);
+  }
   git(['tag', `v${version}`]);
+  try { guardTagged(git, commit, version); } catch (e) { git(['tag', '-d', `v${version}`]); git(['reset', '--hard', head]); throw e; }
   git(['push', '-q', 'origin', 'main', `v${version}`]);
   log(`committed and pushed ${version}`);
 
-  // pack-crx.sh packs git HEAD: it must be the tagged commit.
-  guardTagged(git, git(['rev-parse', 'HEAD']).trim(), version);
-  run('scripts/pack-crx.sh');
   const name = `human-music-${version}.crx`;
-  const up = await client.upload(readCrx(version), name);
+  const up = await client.upload(readCrx(version, stage), name);
   log(`uploaded ${up.crxVersion || version} (${up.uploadState})`);
   const pub = await client.publish();
   log(`submitted ${version} for review: ${pub.state}`);
@@ -244,16 +262,22 @@ async function main(cmd, arg) {
   const manifest = join(repo, 'extension', 'manifest.json');
   const deps = {
     git: args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
-    run: (c, args = []) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit' }),
+    run: (c, args = [], env = {}) => execFileSync(c.startsWith('scripts/') ? join(repo, c) : c, args, { cwd: repo, stdio: 'inherit', env: { ...process.env, ...env } }),
     client,
     readVersion: () => JSON.parse(readFileSync(manifest, 'utf8')).version,
-    readCrx: v => readFileSync(join(repo, 'dist', `human-music-${v}.crx`)),
+    readCrx: (v, dir = join(repo, 'dist')) => readFileSync(join(dir, `human-music-${v}.crx`)),
   };
   if (cmd === 'release') {
-    const { version } = await runRelease({
-      kind: arg || 'patch', ...deps, confirm: typedYes,
-      writeVersion: v => writeFileSync(manifest, readFileSync(manifest, 'utf8').replace(/"version": "[^"]*"/, `"version": "${v}"`)),
-    });
+    const stage = mkdtempSync(join(tmpdir(), 'hm-release-'));
+    let version;
+    try {
+      ({ version } = await runRelease({
+        kind: arg || 'patch', ...deps, confirm: typedYes, stage,
+        writeVersion: v => writeFileSync(manifest, readFileSync(manifest, 'utf8').replace(/"version": "[^"]*"/, `"version": "${v}"`)),
+      }));
+      mkdirSync(join(repo, 'dist'), { recursive: true });
+      cpSync(stage, join(repo, 'dist'), { recursive: true });
+    } finally { rmSync(stage, { recursive: true, force: true }); }
     console.log(`done: ${version} is in Google's review queue; it goes live once approved`);
     return;
   }

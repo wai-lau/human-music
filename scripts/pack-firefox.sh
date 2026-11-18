@@ -6,6 +6,8 @@
 # Usage: scripts/pack-firefox.sh [ref]
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
+dist=${HM_DIST_DIR:-$repo/dist}
+export HM_DIST_DIR=$dist
 ref=${1:-}
 if [[ -z $ref ]]; then
   head_version=$(git -C "$repo" show HEAD:extension/manifest.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
@@ -17,13 +19,13 @@ if [[ -z $ref ]]; then
   fi
 fi
 bash "$repo/scripts/build-firefox.sh" "$ref"
-version=$(node -p "require('$repo/dist/firefox/manifest.json').version")
-zip_path="$repo/dist/human-music-firefox-$version.zip"
+version=$(node -p "require('$dist/firefox/manifest.json').version")
+zip_path="$dist/human-music-firefox-$version.zip"
 rm -f "$zip_path"
 if command -v zip >/dev/null 2>&1; then
-  (cd "$repo/dist/firefox" && zip -qrD -X "$zip_path" .)
+  (cd "$dist/firefox" && zip -qrD -X "$zip_path" .)
 else
-  python3 - "$repo/dist/firefox" "$zip_path" <<'PY'
+  python3 - "$dist/firefox" "$zip_path" <<'PY'
 import os, sys, zipfile
 src, dst = sys.argv[1:]
 with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as z:
