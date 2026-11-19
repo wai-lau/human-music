@@ -82,6 +82,14 @@ await run([
     const r = score({ S1: 'found', M5: 'found', W1: 'found', M6: 'found', W5: 'found', W4: 'found', W6: 'found' }, { genres: ['ambient'], sources: TWO_SITES });
     return (r.probability > 0.99 && r.verdict === 'ai' && r.confidence >= 95) || J(r);
   }],
+  // Wai, 2026-11-18, on a new act with no bio under the measured weights: "yeah, a verdict like
+  // this should stop at 94". No strong sign means never above 94, so Optimal never skips it.
+  ['a new act with no bio (W1 + W5): AI but at most 94; in a faceless genre, unsure', () => {
+    const pop = score({ W1: 'found', W5: 'found' });
+    const lofi = score({ W1: 'found', W5: 'found' }, { genres: ['lofi'] });
+    const many = score({ W1: 'found', W5: 'found', W3: 'found', M6: 'found', W8: 'found', M5: 'found' });
+    return (pop.verdict === 'ai' && pop.confidence <= 94 && lofi.verdict === 'unsure' && many.confidence <= 94) || J({ pop, lofi, many: many.confidence });
+  }],
   ['outside faceless genres the same profile is not halved (capped at 94)', () => {
     const r = score({ M5: 'found', W1: 'found', M6: 'found', W5: 'found', W4: 'found', W6: 'found' }, { genres: ['country'] });
     return (r.faceless === false && r.groups.C === 15 && r.groups.D === 10 && r.verdict === 'ai' && r.confidence === 94) || J(r);
