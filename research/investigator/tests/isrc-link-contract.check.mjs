@@ -106,7 +106,7 @@ await run([
     const n = { calls: [], fetch: async (u, o) => { n.calls.push({ url: u, opts: o }); throw new Error('down'); } };
     const got = await (await linker(n)).isrcsFor(art());
     const o = n.calls[0] && n.calls[0].opts;
-    return (J(got) === '[]' && o && o.redirect === 'error' && o.credentials === 'omit' && o.signal) || J({ got, o });
+    return (J(got) === '[]' && o && o.redirect === 'error' && o.credentials === 'omit' && o.signal instanceof AbortSignal) || J({ got, o });
   }],
   ['shlabs.scoreIsrcs posts { isrc }, drops invalid ones, and marks results isrc:<code>', async () => {
     const { createShLabs } = await import('../src/shlabs.mjs');

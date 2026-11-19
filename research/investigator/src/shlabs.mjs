@@ -12,6 +12,7 @@
 
 const URL_DETECT = 'https://shlabs.music/api/v1/detect';
 const TRACK_ID = /^[A-Za-z0-9]{22}$/;
+const ISRC_ID = /^[A-Z]{2}[A-Z0-9]{3}[0-9]{7}$/;
 const MAX_PER_CALL = 2;
 const PER_WINDOW = 10;
 const WINDOW_MS = 60000;
@@ -37,6 +38,18 @@ export function createShLabs({ fetch, key, sleep, now = Date.now }) {
       headers: { 'X-API-Key': key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ spotifyTrackId: trackId }),
       // A hung call must not hold the worker (review 2026-11-17).
+      signal: AbortSignal.timeout(15000),
+      redirect: 'error',
+      credentials: 'omit',
+    });
+  }
+
+  async function postIsrc(isrc) {
+    await pace();
+    return fetch(URL_DETECT, {
+      method: 'POST',
+      headers: { 'X-API-Key': key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isrc }),
       signal: AbortSignal.timeout(15000),
       redirect: 'error',
       credentials: 'omit',
@@ -79,5 +92,40 @@ export function createShLabs({ fetch, key, sleep, now = Date.now }) {
     return out;
   }
 
-  return { scoreTracks };
+  async function scoreIsrcs(isrcs) {
+    if (typeof key !== 'string' || !key.trim()) return [];
+    const valid = (Array.isArray(isrcs) ? isrcs : [])
+      .filter((id) => typeof id === 'string' && ISRC_ID.test(id))
+      .slice(0, MAX_PER_CALL);
+    const out = [];
+    for (const isrc of valid) {
+      try {
+        let res = await postIsrc(isrc);
+        if (res && res.status === 503) {
+          await sleep(BACKOFF_503_MS);
+          res = await postIsrc(isrc);
+        }
+        if (!res) break;
+        if (res.status === 400) continue;
+        if (!res.ok) break;
+        const body = await res.json();
+        const r = body && body.result;
+        const p = r && r.probability_ai_generated;
+        if (typeof p !== 'number' || !Number.isFinite(p) || p < 0 || p > 100) continue;
+        out.push({
+          trackId: `isrc:${isrc}`,
+          probability: p,
+          label: typeof r.prediction === 'string' ? r.prediction : '',
+          generator: typeof r.most_likely_ai_type === 'string' ? r.most_likely_ai_type : null,
+          audioSource: body.audio_source === 'full' || body.audio_source === 'preview' ? body.audio_source : null,
+          at: new Date(now()).toISOString(),
+        });
+      } catch {
+        break;
+      }
+    }
+    return out;
+  }
+
+  return { scoreTracks, scoreIsrcs };
 }

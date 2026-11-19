@@ -13,7 +13,7 @@ const STRONG_NAMES = { S1: 'deezer_ai_label', S2: 'own_disclosure', S3: 'youtube
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
 
-export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false, aiLists, fetchPage, shlabsDailyCap }) {
+export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false, aiLists, fetchPage, shlabsDailyCap, isrcLinker }) {
   const lastError = (msg) => {
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
@@ -163,6 +163,53 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
             }
           }
         } catch { /* SH Labs failed or limit; fall through to Claude */ }
+      }
+
+      // SH Labs via ISRCs: for YouTube Music artists (no spotifyId), link to Deezer ISRCs and score.
+      if (shlabs && !artist.spotifyId && isrcLinker) {
+        try {
+          const cap = shlabsDailyCap !== undefined ? shlabsDailyCap : 190;
+          const key = `shlabs.requests.${today}`;
+          const used = typeof store.getState(key) === 'number' ? store.getState(key) : 0;
+          if (used + 2 <= cap) {
+            const isrcs = await isrcLinker.isrcsFor(artist);
+            if (isrcs.length === 2) {
+              const scores = await shlabs.scoreIsrcs(isrcs);
+              store.setState(key, used + 2);
+              if (scores.length === 2) {
+                const keep = (id) => { try { store.putScores(id, scores); } catch { /* optional */ } };
+                const p1 = scores[0].probability;
+                const p2 = scores[1].probability;
+                if (p1 >= 85 && p2 >= 85) {
+                  keep(save(artist, null, {
+                    verdict: 'ai',
+                    confidence: 94,
+                    rawConfidence: Math.round(Math.min(p1, p2)),
+                    signals: ['M3'],
+                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
+                    sources: ['https://shlabs.music'],
+                  }, 'shlabs', today));
+                  queue.done(artist);
+                  schedulePublish();
+                  return 'done';
+                }
+                if (p1 < 50 && p2 < 50) {
+                  keep(save(artist, null, {
+                    verdict: 'human',
+                    confidence: 95,
+                    rawConfidence: Math.round(Math.max(p1, p2)),
+                    signals: ['P16'],
+                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
+                    sources: ['https://shlabs.music'],
+                  }, 'shlabs', today));
+                  queue.done(artist);
+                  schedulePublish();
+                  return 'done';
+                }
+              }
+            }
+          }
+        } catch { /* ISRC link or SH Labs failed; fall through to Claude */ }
       }
 
       // Scoring (Wai, 2026-11-18): Claude fills in the evidence checklist and score.mjs decides.

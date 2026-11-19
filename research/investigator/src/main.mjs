@@ -15,6 +15,7 @@ import { createPublisher } from './publish.mjs';
 import { createQueue } from './queue.mjs';
 import { createServer } from './server.mjs';
 import { createShLabs } from './shlabs.mjs';
+import { createIsrcLinker } from './isrclink.mjs';
 import { openStore } from './store.mjs';
 import { createWorker } from './worker.mjs';
 
@@ -60,6 +61,7 @@ export function createApp(env, deps = {}) {
 
   const shlabsKey = text(env.SHLABS_API_KEY);
   const shlabs = deps.shlabs !== undefined ? deps.shlabs : (shlabsKey ? createShLabs({ fetch: doFetch, key: shlabsKey, sleep }) : null);
+  const isrcLinker = deps.isrcLinker !== undefined ? deps.isrcLinker : createIsrcLinker({ fetch: doFetch });
   const aiLists = deps.aiLists !== undefined ? deps.aiLists : createAiLists({ fetch: doFetch, now: () => Date.now() });
   const fetchPage = deps.fetchPage || ((url) =>
     doFetch(url, { redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(20000) }).then(async (res) => {
@@ -144,6 +146,7 @@ export function createApp(env, deps = {}) {
     aiLists,
     fetchPage,
     shlabsDailyCap,
+    isrcLinker,
   });
 
   function kick() {
