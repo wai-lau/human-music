@@ -18,51 +18,59 @@ Upload the signed `.crx`. Name ("Human Music: AI Music Blocker"), version and ic
 
 > Keeps your YouTube Music and Spotify listening to music made by people.
 
-**Description:**
+**Description** (the guide's shape: an overview paragraph, then a short list of main features;
+developer.chrome.com/docs/webstore/best-listing, read 2026-11-18):
 
-> Human Music is for people who want their music to come from other people.
-> AI-generated music is still music, and some listeners enjoy it. This
-> extension is for listeners who use music to connect with other humans.
+> Human Music keeps your YouTube Music and Spotify listening to music made by
+> people. AI-generated music is still music, and some listeners enjoy it. This
+> extension is for listeners who use music to connect with other humans. It
+> works from lists of AI-generated artists that you choose, and when it isn't
+> sure, the song plays.
 >
-> On YouTube Music and Spotify, it keeps songs by AI-generated artists out of
-> your listening: out of your queue before they play, skipped if one starts
-> anyway, and hidden on the home page and in search.
+> Main features:
+> • Takes songs by listed artists out of your queue before they play, and
+>   skips one if it starts anyway
+> • Hides or greys out their albums and songs on the home page, in search and
+>   on playlists
+> • Built-in lists: Zoundhub, Cevval's AI music list, Human Music's own
+>   verdicts and Soul Over AI (CC BY 4.0), plus your own artists and any list
+>   you subscribe to
+> • A new list only watches until you let it act, and one switch keeps a
+>   listed artist playing
+> • Human Music's verdicts cover new artists that no list has yet; you choose
+>   how sure a verdict must be before a song is skipped
+> • A log of every skip, grouped by artist, kept on your computer
+> • No account, no tracking, no ads: it sends nothing, only downloads the lists
+>   you use, and asks for access to YouTube Music and Spotify only
 >
-> It works from lists you choose: Zoundhub's clearest AI flags, Cevval's AI
-> music list, Human Music's own verdicts, Soul Over AI (CC BY 4.0), your own
-> artists, or any list you subscribe to. A new list only watches until you
-> let it act.
->
-> Lists can't keep up with every new artist, so Human Music's investigator
-> checks artists that aren't on any list yet. It looks for several
-> independent sources, gives each artist a verdict with a confidence, and
-> publishes the verdicts as a public list. You decide how sure a verdict must
-> be before a song is skipped.
->
-> No account, no tracking, no ads. Human Music collects nothing and sends
-> nothing; it only downloads the lists you use. Your settings and its log
-> stay on your computer and go away when you uninstall it.
->
-> When it isn't sure, the song plays. It only asks for access to YouTube
-> Music and Spotify, and it treats every list as plain data.
->
-> Human Music is free and will stay free. Its code is open source under the
-> MIT license: github.com/wai-lau/human-music
+> Free and open source under the MIT license: github.com/wai-lau/human-music
+
+**Website:** https://github.com/wai-lau/human-music
+**Support:** https://github.com/wai-lau/human-music/issues
+(The guide: a website and a support page "can help build trust with users".)
 
 **Category:** Entertainment. **Language:** English.
 
-**Screenshots** (1280x800, in this order; files in `~/store-shots/`):
+**Screenshots** (1280x800, in this order; files in `~/store-shots/`; the guide prefers the
+maximum of five):
 
 1. `1-greyed-out.png`: songs by listed artists greyed out on a playlist.
 2. `2-blocked.png`: the log's Blocked section.
 3. `3-actions.png`: the log's Actions section.
 4. `4-behaviour.png`: the Behaviour settings.
+5. `5-lists.png`: the Lists tab with the built-in lists (real counts on 2026-11-18) and Optimal
+   selected, as users see it once the verdict list is published as checked.
 
-Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub
-switch) show the popup with the filtering-mode slider and Zoundhub as the
-list, from a store-like copy (no investigator section); upload them with
-0.1.4. **Small promo
-tile** (440x280): optional.
+Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub switch) show the popup
+with the filtering-mode slider and Zoundhub as the list, from a store-like copy (no investigator
+section).
+
+**Small promo tile** (440x280, `~/store-shots/promo-small.png`): upload it. It is optional, but
+items without one are shown after items that have one. Per the guide it has no text: the icon on
+a saturated green field.
+
+**Icon:** from the package. The 128 px icon is 96 px of artwork in 16 px of transparent padding,
+as the guide asks (`docs/make-icons.sh`).
 
 ## Privacy tab
 

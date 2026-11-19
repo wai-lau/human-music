@@ -19,7 +19,12 @@ python3 - "$tmp/big.png" "$repo/extension/icons" <<'EOF'
 import sys
 from PIL import Image
 big = Image.open(sys.argv[1]).convert("RGBA")
-for size in (16, 48, 128):
+for size in (16, 48):
     big.resize((size, size), Image.LANCZOS).save(f"{sys.argv[2]}/icon{size}.png", optimize=True)
+# The 128 px icon is the store icon: 96 px artwork in 16 px of transparent padding per side
+# (developer.chrome.com/docs/webstore/images), since the store draws its own frame around it.
+store = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+store.paste(big.resize((96, 96), Image.LANCZOS), (16, 16))
+store.save(f"{sys.argv[2]}/icon128.png", optimize=True)
 EOF
 ls -l "$repo/extension/icons"
