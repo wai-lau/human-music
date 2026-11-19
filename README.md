@@ -94,8 +94,7 @@ and in search. Spotify has no dislike button, so auto-dislike only skips there.
 Human Music checks songs against lists:
 
 - Filter lists you subscribe to. The Zoundhub, Cevval, Human Music verdict
-  and Soul Over AI lists are built in, and you can add others by URL. Each one can be switched off, or put in watch
-  mode, where it only logs what it would have done.
+  and Soul Over AI lists are built in, and you can add others by URL. Each one can be switched off.
 - Your own lists of artists, songs and keywords. Add to them from the
   popup, or press the block button (a circle with a slash) next to Repeat
   on the player to add the artist that's playing.
