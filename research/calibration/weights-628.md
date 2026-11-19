@@ -93,3 +93,17 @@ Made 2026-11-19 by `tools/weights-analysis.mjs` from the checklist runs on `smal
 - Signs found or not found the same way both times: 1254 of 1320 (95.0%)
 - Same verdict both times: 38 of 40 (95.0%)
 - Confidence difference: median 0, largest 53
+
+## SH Labs on the larger sample (2026-11-19)
+
+Two songs per artist (Spotify), on the random AI sample and the MusicBrainz people (215 of the 250
+people are still to score, at about 45 a day of SH Labs quota):
+
+| Reading | Known AI | Known people |
+|---|---|---|
+| 85+ on both songs (the layer calls AI at 94) | 205 of 259 (79%) | 0 of 65 |
+| 85+ on one song only | 250 of 259 | 2 of 65 |
+| Under 50 on both (the layer says made by people at 95) | 5 of 259 | 56 of 65 (86%) |
+
+Requiring both songs matters: a single 85+ song would have called 2 people AI. Under 50 on both
+lets 5 AI artists through as made by people (a missed skip, not a person skipped).
