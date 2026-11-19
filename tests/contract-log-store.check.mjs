@@ -15,7 +15,7 @@
 //   }
 //   Storage keys: 'hm.log.index' and 'hm.log.seg.<n>'. Over the cap, whole oldest segments go, so
 //   the kept count stays between cap and cap + SEGMENT.
-// Run from the repo root: node tests/wip-contract-log-store.check.mjs
+// Run from the repo root: node tests/contract-log-store.check.mjs
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { fakeStorage } = await import(process.cwd() + '/tests/fakes.mjs');

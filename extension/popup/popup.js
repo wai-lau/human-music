@@ -7,6 +7,10 @@
   const store = api.storage.local;
   const $ = id => document.getElementById(id);
 
+  // The log lives in segments (HM.log.createLogStore). The popup only reads and clears the log, so the cap does not matter here.
+  const logStore = HM.log.createLogStore(store, {});
+  function getLogStore() { return Promise.resolve(logStore); }
+
   // Latest copies, kept so click handlers can act synchronously (Chrome only grants
   // a host permission from inside the click itself).
   const state = { user: HM.store.emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [], investigator: {} };
@@ -33,14 +37,18 @@
   // in for the person's lists (the next edit would have written it over them).
   async function load() {
     let r;
-    try { r = (await store.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.log, HM.store.KEYS.investigator])) || {}; } catch (e) {
+    try { r = (await store.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.investigator])) || {}; } catch (e) {
       status('Could not read your saved data. What shows may be out of date.');
       return false;
     }
     state.user = { ...HM.store.emptyUser(), ...(r[HM.store.KEYS.user] || {}) };
     state.settings = HM.settings.sanitize(r[HM.store.KEYS.settings]);
     state.lists = listsFrom(r[HM.store.KEYS.filterLists]);
-    state.log = Array.isArray(r[HM.store.KEYS.log]) ? r[HM.store.KEYS.log] : [];
+    try {
+      state.log = await (await getLogStore()).readAll();
+    } catch (e) {
+      state.log = [];
+    }
     const inv = r[HM.store.KEYS.investigator];
     state.investigator = inv && typeof inv === 'object' ? inv : {};
     return true;
@@ -528,7 +536,7 @@
     btn.addEventListener('click', () => { section = btn.dataset.section; renderLog(); });
   }
 
-  $('clear-log').addEventListener('click', () => store.set({ [HM.store.KEYS.log]: [] }));
+  $('clear-log').addEventListener('click', () => getLogStore().then(s => s.clear()));
   $('export-log').addEventListener('click', () => {
     const lines = state.log.map(e => [when(e.at), HM.log.describe(e), e.title, e.artistLine, e.entry ? `entry: ${e.entry}` : ''].filter(Boolean).join('\t'));
     download('human-music-log.txt', 'text/plain', lines.join('\n') + '\n');
@@ -557,7 +565,7 @@
   // Only the sections whose data changed are drawn again: a tab logs songs all the time, and
   // that must not rebuild the lists you are working in.
   const SECTIONS = [
-    [k => k === HM.store.KEYS.log, [renderToday, renderLog]],
+    [k => k === HM.store.KEYS.log || k.startsWith('hm.log'), [renderToday, renderLog]],
     [k => k === HM.store.KEYS.user, [renderUserLists, renderLog]],
     [k => k === HM.store.KEYS.settings, [renderSettings, renderMode, renderInvestigator, renderLog]],
     [k => k === HM.store.KEYS.filterLists || k.startsWith('hm.list.'), [renderFilterLists, renderMode, renderLog]],

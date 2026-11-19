@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs';
 import { run, load } from './load.mjs';
 import { el, makeDocument } from './dom.mjs';
-import { fakeStorage, fakeClock } from './fakes.mjs';
+import { fakeStorage, fakeClock, readLog } from './fakes.mjs';
 
 const FILES = ['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js',
   'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/page/spotify.js', 'src/content.js'];
@@ -72,7 +72,7 @@ run([
   ['a listed Spotify artist is skipped by ID, whatever name it shows', async () => {
     const p = spotifyPage();
     const { storage } = await start(p);
-    const log = storage.data['hm.log'] || [];
+    const log = await readLog(storage);
     return (p.clicks.next === 1 && log[0] && log[0].event === 'skipped' && log[0].rule === 'channel' && log[0].entry === 'Listed Name') || JSON.stringify({ next: p.clicks.next, log });
   }],
   ['an unlisted Spotify artist plays', async () => {

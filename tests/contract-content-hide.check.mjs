@@ -2,7 +2,7 @@
 //   node tests/contract-content-hide.check.mjs   (from the repo root; tests/contracts.test.mjs runs them all)
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
-const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mjs');
+const { fakeStorage, fakeClock, readLog } = await import(process.cwd() + '/tests/fakes.mjs');
 const fails = [];
 const J = v => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e && e.stack || e}`); } };
@@ -42,7 +42,7 @@ async function app(b, p, clock = fakeClock()) {
   await a.flush();
   return { a, clock };
 }
-const log = b => b.storage.data['hm.log'] || [];
+const log = async b => readLog(b.storage);
 const hidden = p => [...p.doc.querySelectorAll('[data-hm-hidden]')].map(e => e.querySelector('.title').textContent);
 const pass = async ({ a, clock }, p) => { p.doc.body.append(el('span')); await settle(clock, 60); await a.flush(); };
 
@@ -50,15 +50,15 @@ await t('search: listed artist hidden, logged once', async () => {
   const b = boot(); const p = page({ items: [card('Midnight Bloom', 'EP • 1950 SoulClub, 1960 SoulClub & Lewis Hanton • 2025'), card('Otis Blue', 'Album • Otis Redding')] });
   const r = await app(b, p);
   await pass(r, p); await pass(r, p);
-  const hid = log(b).filter(e => e.event === 'hidden');
-  return (J(hidden(p)) === J(['Midnight Bloom']) && hid.length === 1 && hid[0].title === 'Midnight Bloom' && hid[0].listName === 'Soul Over AI') || J({ hidden: hidden(p), log: log(b) });
+  const hid = (await log(b)).filter(e => e.event === 'hidden');
+  return (J(hidden(p)) === J(['Midnight Bloom']) && hid.length === 1 && hid[0].title === 'Midnight Bloom' && hid[0].listName === 'Soul Over AI') || J({ hidden: hidden(p), log: await log(b) });
 });
 await t('logged once a day even after unhide and hide again', async () => {
   const b = boot(); const p = page({ items: [card('X', 'Album • 10mm')] });
   const r = await app(b, p);
   await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: true } }); await settle(r.clock, 60);
   await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: false } }); await settle(r.clock, 60); await r.a.flush();
-  return (J(hidden(p)) === J(['X']) && log(b).filter(e => e.event === 'hidden').length === 1) || J({ hidden: hidden(p), log: log(b).map(e => e.event) });
+  return (J(hidden(p)) === J(['X']) && (await log(b)).filter(e => e.event === 'hidden').length === 1) || J({ hidden: hidden(p), log: (await log(b)).map(e => e.event) });
 });
 await t('watch list never hides', async () => {
   const b = boot({ mode: 'watch' }); const p = page({ items: [card('X', 'Album • 10mm')] });

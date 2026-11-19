@@ -104,9 +104,9 @@ export const test = base.extend({
     });
   },
 
-  // Read Human Music's log (newest first).
+  // Read Human Music's log (newest first), through the extension's own log store.
   readLog: async ({ worker }, use) => {
-    await use(() => worker.evaluate(async () => (await chrome.storage.local.get('hm.log'))['hm.log'] || []));
+    await use(() => worker.evaluate(async () => globalThis.HM.log.createLogStore(chrome.storage.local, {}).readAll()));
   },
 
   readStore: async ({ worker }, use) => {

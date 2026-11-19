@@ -4,7 +4,7 @@ const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
-const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mjs');
+const { fakeStorage, fakeClock, readLog } = await import(process.cwd() + '/tests/fakes.mjs');
 const fails = [];
 const J = v => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e && e.stack || e}`); } };
@@ -12,7 +12,7 @@ const REMOVE = 'M9 .75a8.25 8.25 0 100 16.5A8.25 8.25 0 009 .75Zm0 1.5a6.75 6.75
 const CORE = ['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js'];
 const settle = async (clock, ms = 0) => { for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); if (ms) clock.tick(ms); for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0)); };
 
-function boot({ settings = {}, user = {}, artists = ['The Velvet Sundown', 'After Midnight', '10mm'], mode = 'act', extraLists = [] } = {}) {
+function boot({ settings = {}, user = {}, artists = ['The Velvet Sundown', 'After Midnight', '10mm'], mode = 'act', extraLists = [], legacyLog = null, logCap = null } = {}) {
   const ctx = load(CORE, { setTimeout, clearTimeout });
   let builds = 0;
   const real = ctx.HM.match.buildIndex;
@@ -26,6 +26,12 @@ function boot({ settings = {}, user = {}, artists = ['The Velvet Sundown', 'Afte
     'hm.settings': { ...ctx.HM.settings.DEFAULTS, ...settings },
     'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [], ...user },
   });
+  if (legacyLog !== null) {
+    storage.data['hm.log'] = legacyLog;
+  }
+  if (logCap !== null) {
+    storage.data['hm.logCap'] = logCap;
+  }
   return { ctx, storage, builds: () => builds };
 }
 
@@ -65,7 +71,7 @@ async function app(b, p, clock = fakeClock()) {
   await settle(clock);
   return { a, clock };
 }
-const log = b => b.storage.data['hm.log'] || [];
+const log = async b => readLog(b.storage);
 // start() may already be running a lookahead pass; give real-time menu polling room, then run again.
 const drain = async a => { await new Promise(r => setTimeout(r, 900)); await a.runLookahead(); await a.flush(); };
 
@@ -74,30 +80,30 @@ else {
   await t('listed song playing: Next once, log skipped', async () => {
     const b = boot(); const p = page();
     const { a } = await app(b, p); await a.flush();
-    const l = log(b);
+    const l = await log(b);
     return (p.clicks.next === 1 && l.length === 1 && l[0].event === 'skipped' && l[0].listName === 'Soul Over AI' && l[0].title === 'Dust on the Wind') || J({ clicks: p.clicks, l });
   });
   await t('autoDislike: dislike, log disliked', async () => {
     const b = boot({ settings: { autoDislike: true } }); const p = page();
     const { a } = await app(b, p); await a.flush();
-    return (p.clicks.dislike === 1 && log(b)[0]?.event === 'disliked') || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.dislike === 1 && (await log(b))[0]?.event === 'disliked') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('autoSkip off: no Next, log seen', async () => {
     const b = boot({ settings: { autoSkip: false } }); const p = page();
     const { a } = await app(b, p); await a.flush();
-    return (p.clicks.next === 0 && log(b)[0]?.event === 'seen') || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.next === 0 && (await log(b))[0]?.event === 'seen') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('paused: nothing at all', async () => {
     const b = boot({ settings: { paused: true } }); const p = page({ queue: [['Cur', 'Someone'], ['B', '10mm']] });
     const { a } = await app(b, p); await a.runLookahead(); await a.flush();
-    return (p.clicks.next === 0 && p.clicks.removed.length === 0 && log(b).length === 0) || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.next === 0 && p.clicks.removed.length === 0 && (await log(b)).length === 0) || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('same song checked 50 times: one log line', async () => {
     const b = boot({ settings: { autoSkip: false } }); const p = page();
     const { a } = await app(b, p);
     for (let i = 0; i < 50; i++) a.checkPlaying();
     await a.flush();
-    return log(b).length === 1 || `log ${log(b).length}`;
+    return (await log(b)).length === 1 || `log ${(await log(b)).length}`;
   });
   await t('blocked song comes back: skipped again', async () => {
     const b = boot(); const p = page();
@@ -107,7 +113,7 @@ else {
     await settle(clock, 60); // mutation -> pass
     a.checkPlaying();
     await a.flush();
-    return (p.clicks.next === 2 && log(b).filter(e => e.event === 'skipped').length === 2) || J({ clicks: p.clicks, l: log(b).map(e => e.event) });
+    return (p.clicks.next === 2 && (await log(b)).filter(e => e.event === 'skipped').length === 2) || J({ clicks: p.clicks, l: (await log(b)).map(e => e.event) });
   });
   await t('listed songs back to back: each one is skipped (Wai, 2026-11-13: "when there are multiple songs in a row, it just stop skipping")', async () => {
     const b = boot(); const p = page({ nextMoves: false });
@@ -120,7 +126,7 @@ else {
     const { a, clock } = await app(b, p);
     for (let i = 0; i < 20; i++) await settle(clock, 60);
     await a.flush();
-    const skipped = log(b).filter(e => e.event === 'skipped').map(e => e.title);
+    const skipped = (await log(b)).filter(e => e.event === 'skipped').map(e => e.title);
     return (presses === 3 && J(skipped) === J(['Drift', 'Floating On Echoes', 'Dust on the Wind'])) || J({ presses, skipped });
   });
   await t('a page change alone triggers the check', async () => {
@@ -134,7 +140,7 @@ else {
     const b = boot(); const p = page({ title: 'Cur', artist: 'Some Person', queue: [['Cur', 'Some Person'], ['B', '10mm'], ['C', 'After Midnight'], ['D', 'Some Human'], ['E', 'The Velvet Sundown']] });   // E is 4 ahead
     const { a } = await app(b, p);
     await drain(a);
-    const removed = log(b).filter(e => e.event === 'removed').map(e => e.title).sort();
+    const removed = (await log(b)).filter(e => e.event === 'removed').map(e => e.title).sort();
     return (J(p.queueTitles()) === J(['Cur', 'D']) && J(removed) === J(['B', 'C', 'E']) && J(p.clicks.removed) === J(['B', 'C', 'E'])) || J({ q: p.queueTitles(), removed, clicks: p.clicks.removed });
   });
   await t('no removal while typing in a text field', async () => {
@@ -169,17 +175,17 @@ await t('a paused tab never presses Next; it acts once its video plays', async (
   video.paused = false;
   p.doc.body.append(el('span')); // the page moves on while it plays (time display and so on)
   await settle(clock, 60); await a.flush();
-  return (whilePaused === 0 && p.clicks.next === 1 && log(b).filter(e => e.event === 'skipped').length === 1) || J({ whilePaused, next: p.clicks.next, log: log(b).map(e => e.event) });
+  return (whilePaused === 0 && p.clicks.next === 1 && (await log(b)).filter(e => e.event === 'skipped').length === 1) || J({ whilePaused, next: p.clicks.next, log: (await log(b)).map(e => e.event) });
 });
 await t('never skip wins', async () => {
     const b = boot({ user: { neverSkip: ['The Velvet Sundown'] } }); const p = page();
     const { a } = await app(b, p); await a.flush();
-    return (p.clicks.next === 0 && log(b).length === 0) || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.next === 0 && (await log(b)).length === 0) || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('watch list: log watched, no Next', async () => {
     const b = boot({ mode: 'watch' }); const p = page();
     const { a } = await app(b, p); await a.flush();
-    return (p.clicks.next === 0 && log(b)[0]?.event === 'watched') || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.next === 0 && (await log(b))[0]?.event === 'watched') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('adding the playing artist to your list skips it', async () => {
     const b = boot({ artists: [] }); const p = page({ title: 'Song', artist: 'Real Fake Band' });
@@ -187,7 +193,7 @@ await t('never skip wins', async () => {
     if (p.clicks.next !== 0) return 'skipped before blocking';
     await b.storage.set({ 'hm.user': { artists: ['Real Fake Band'], songs: [], keywords: [], neverSkip: [] } });
     await settle(clock, 60); a.checkPlaying(); await a.flush();
-    return (p.clicks.next === 1 && log(b)[0]?.listId === 'user:artists') || J({ clicks: p.clicks, l: log(b) });
+    return (p.clicks.next === 1 && (await log(b))[0]?.listId === 'user:artists') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('hm.log writes never rebuild the index', async () => {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
@@ -202,14 +208,18 @@ await t('never skip wins', async () => {
     const b = boot(); const p = page({ queue: [['Dust on the Wind', 'The Velvet Sundown'], ['B', '10mm'], ['C', 'After Midnight']] });
     const { a } = await app(b, p);
     await drain(a);
-    const ev = log(b).map(e => e.event).sort();
+    const ev = (await log(b)).map(e => e.event).sort();
     return J(ev) === J(['removed', 'removed', 'skipped']) || J(ev);
   });
-  await t('log capped at 1000, newest first', async () => {
-    const b = boot(); b.storage.data['hm.log'] = Array.from({ length: 1000 }, (_, i) => ({ at: i, event: 'seen', title: 'x' + i }));
+  // The 1,000-entry cap is gone (Wai, 2026-11-18: "logs should never clear on their own"); the
+  // store's own cap is pinned in contract-log-store.check.mjs. An old log not migrated yet stays.
+  await t('a new entry goes first, before an old log not migrated yet; nothing is dropped', async () => {
+    const legacyLog = Array.from({ length: 1000 }, (_, i) => ({ at: i, event: 'seen', title: 'x' + i }));
+    const b = boot({ legacyLog, logCap: 1000 });
     const p = page();
     const { a } = await app(b, p); await a.flush();
-    return (log(b).length === 1000 && log(b)[0].event === 'skipped') || `len ${log(b).length} first ${log(b)[0]?.event}`;
+    const l = await log(b);
+    return (l.length === 1001 && l[0].event === 'skipped') || `len ${l.length} first ${l[0]?.event}`;
   });
   await t('speed: re-check < 0.5 ms, new song < 6 ms, 1375-name list', async () => {
     const b = boot({ artists: Array.from({ length: 1375 }, (_, i) => `Listed Artist ${i}`), settings: { autoSkip: false } });

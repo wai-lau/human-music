@@ -24,7 +24,7 @@ const cases = [
   // extension installs or reloads (Chrome does not, and cut-off copies stop working).
   // As few as the job needs (Wai, 2026-11-13: "minimize required permissions"): storage for
   // the lists, scripting to reach music tabs already open after an update, the two sites.
-  ['permissions', () => JSON.stringify(manifest.permissions.slice().sort()) === '["scripting","storage"]'],
+  ['permissions', () => JSON.stringify(manifest.permissions.slice().sort()) === '["scripting","storage","unlimitedStorage"]'],
   ['host_permissions: the two music sites only', () =>
     JSON.stringify(manifest.host_permissions.slice().sort()) === '["https://music.youtube.com/*","https://open.spotify.com/*"]'],
   ['no optional host permissions', () => !('optional_host_permissions' in manifest)],

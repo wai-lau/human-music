@@ -79,6 +79,54 @@ export function fakeStorage(initial = {}) {
   return { get, set, remove, onChanged: { addListener: fn => listeners.push(fn) }, data };
 }
 
+// Read all log entries from storage (segments or legacy array), newest first.
+export async function readAllLogs(storage) {
+  const HM = { log: null };
+  const core = await import('./load.mjs');
+  core.load(['src/core/text.js', 'src/core/store.js', 'src/core/log.js'], HM);
+  const store = HM.HM.log.createLogStore(storage);
+  return store.readAll();
+}
+
+// Read all log entries synchronously from segments (for tests that can't wait).
+export function readAllLogsSync(storage) {
+  const data = storage.data;
+  // Legacy format
+  if (data['hm.log'] && Array.isArray(data['hm.log'])) {
+    return [...data['hm.log']];
+  }
+  // Segmented format
+  const idx = data['hm.log.index'];
+  if (!idx || typeof idx.count !== 'number' || idx.count === 0) return [];
+  const result = [];
+  let segN = Math.ceil(idx.count / 1000) - 1;
+  while (segN >= 0) {
+    const key = 'hm.log.seg.' + segN;
+    if (data[key] && Array.isArray(data[key])) {
+      result.push(...data[key]);
+    }
+    segN--;
+  }
+  return result.reverse();
+}
+
+// Read the log from storage, supporting both the legacy 'hm.log' array and the new segmented store.
+// Returns a Promise resolving to an array of log entries (newest first).
+// The whole log, newest first, as HM.log.createLogStore keeps it: segments 'hm.log.seg.<n>'
+// from index.last down to index.first, then an old 'hm.log' array not migrated yet.
+export async function readLog(storage) {
+  const all = [];
+  const idx = storage.data['hm.log.index'];
+  if (idx && Number.isInteger(idx.first) && Number.isInteger(idx.last)) {
+    for (let n = idx.last; n >= idx.first; n--) {
+      const seg = storage.data['hm.log.seg.' + n] || [];
+      for (let k = seg.length - 1; k >= 0; k--) all.push(structuredClone(seg[k]));
+    }
+  }
+  if (Array.isArray(storage.data['hm.log'])) for (const x of storage.data['hm.log']) all.push(structuredClone(x));
+  return all;
+}
+
 // A fake YouTube Music page for tests.
 // layout: 'new' or 'old'
 // song: { title, artistLine } (null = no song)

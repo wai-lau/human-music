@@ -2,7 +2,7 @@
 // take and a queue row that can't be removed. Uses a fake site, so only content.js is tested.
 import { run, load } from './load.mjs';
 import { makeDocument } from './dom.mjs';
-import { fakeStorage, fakeClock } from './fakes.mjs';
+import { fakeStorage, fakeClock, readLog } from './fakes.mjs';
 
 const FILES = ['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js',
   'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/page/spotify.js', 'src/content.js'];
@@ -36,7 +36,7 @@ async function start(site) {
   const doc = makeDocument();
   const app = ctx.HM.createApp({ doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(), site });
   await app.start(); await settle(clock, 60);
-  return { app, clock, storage, log: () => storage.data['hm.log'] || [] };
+  return { app, clock, storage, log: () => readLog(storage) };
 }
 
 run([
@@ -45,8 +45,8 @@ run([
     const { app, clock, log } = await start(f.site);
     for (let i = 0; i < 12; i++) await settle(clock, 1000);
     await app.flush();
-    const events = log().map(e => e.event);
-    const failed = log().find(e => e.event === 'skip-failed');
+    const events = (await log()).map(e => e.event);
+    const failed = (await log()).find(e => e.event === 'skip-failed');
     return (events.filter(e => e === 'skip-failed').length === 1 && events.includes('skipped') && failed.title === 'Dust on the Wind' && failed.listName === 'Soul Over AI')
       || J(events);
   }],
@@ -56,7 +56,7 @@ run([
     const { app, clock, log } = await start(f.site);
     for (let i = 0; i < 12; i++) await settle(clock, 1000);
     await app.flush();
-    return !log().some(e => e.event === 'skip-failed') || J(log().map(e => e.event));
+    return !(await log()).some(e => e.event === 'skip-failed') || J((await log()).map(e => e.event));
   }],
   ['a row that can’t be removed is tried at most twice, 10 s apart, not on every check', async () => {
     const queue = [{ ...PERSON, selected: true }, { title: 'Let it Burn', artistLine: 'The Velvet Sundown • Dust and Silence', selected: false }];
@@ -78,7 +78,7 @@ run([
     const { app, log } = await start(f.site);
     await app.runLookahead(); await app.runLookahead();
     await app.flush();
-    const failed = log().filter(e => e.event === 'remove-failed');
-    return (failed.length === 1 && failed[0].title === 'Let it Burn' && f.calls.remove >= 1) || J(log().map(e => e.event));
+    const failed = (await log()).filter(e => e.event === 'remove-failed');
+    return (failed.length === 1 && failed[0].title === 'Let it Burn' && f.calls.remove >= 1) || J((await log()).map(e => e.event));
   }],
 ]);

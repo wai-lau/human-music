@@ -7,7 +7,7 @@ const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
-const { fakeStorage, fakeClock } = await import(process.cwd() + '/tests/fakes.mjs');
+const { fakeStorage, fakeClock, readLog } = await import(process.cwd() + '/tests/fakes.mjs');
 const fails = [];
 const J = (v) => JSON.stringify(v);
 const t = async (label, fn) => { try { const r = await fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e.message}`); } };
@@ -39,7 +39,7 @@ async function refreshes(variant) {
     shown.push(!doc.querySelector('#hid').hasAttribute('data-hm-hidden'));
     await settle(clock, 60); await app.flush();
   }
-  return { events: (storage.data['hm.log'] || []).map((e) => e.event), shown };
+  return { events: (await readLog(storage)).map((e) => e.event), shown };
 }
 
 await t('watch-only: a quiet refresh logs the playing song once, and nothing hidden is shown', async () => {
@@ -66,7 +66,7 @@ await t('a song newly listed by a refresh is still acted on', async () => {
   await app.start(); await settle(clock, 60); await app.flush();
   await storage.set({ 'hm.list.soul-over-ai': { artists: [{ name: 'Someone Else' }, { name: 'The Velvet Sundown' }] } });
   await settle(clock, 60); await app.flush();
-  const events = (storage.data['hm.log'] || []).map((e) => e.event);
+  const events = (await readLog(storage)).map((e) => e.event);
   return J(events) === J(['seen']) || J(events);
 });
 

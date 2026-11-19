@@ -61,6 +61,21 @@
     };
     let writes = Promise.resolve();
 
+    // The log is kept in segments (HM.log.createLogStore). The worker records this copy's cap as
+    // hm.logCap (0 = keep everything, the development copy); until it has, the store cap holds.
+    // The worker also migrates the old hm.log array, once, at its start.
+    let logStore = null;
+    async function getLogStore() {
+      if (logStore) return logStore;
+      let cap = HM.log.STORE_CAP;
+      try {
+        const r = await storage.get('hm.logCap');
+        if (typeof r['hm.logCap'] === 'number') cap = r['hm.logCap'];
+      } catch (e) { /* the store cap */ }
+      logStore = HM.log.createLogStore(storage, { cap: cap });
+      return logStore;
+    }
+
     const matchSong = song => (state.index ? safe(() => HM.match.matchSong(state.index, song), null) : null);
 
     // The cover is read from the player, so only the playing song may carry it: a queue row
@@ -121,12 +136,7 @@
         if (loggedOnce.size >= 2000) loggedOnce.clear();
         loggedOnce.set(k, entry.at);
       }
-      return queueWrite(async () => {
-        const stored = await storage.get(HM.store.KEYS.log);
-        const entries = Array.isArray(stored[HM.store.KEYS.log]) ? stored[HM.store.KEYS.log] : [];
-        if (oncePerDay && HM.log.seenRecently(entries, entry, entry.at)) return;
-        await storage.set({ [HM.store.KEYS.log]: HM.log.append(entries, entry, 1000) });
-      });
+      return queueWrite(async () => (await getLogStore()).append(entry, { oncePerDay }));
     }
 
     async function reload() {

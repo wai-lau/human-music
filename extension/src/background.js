@@ -1,7 +1,7 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   // The service worker loads only this file; the helpers come in here (paths relative to src/).
-  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js', 'core/secret.js');
+  if (typeof importScripts === 'function') importScripts('core/text.js', 'core/store.js', 'core/lists.js', 'core/settings.js', 'core/secret.js', 'core/log.js');
 
   function createRefresher(opts) {
     const storage = opts.storage;
@@ -685,6 +685,13 @@ list = lists[HM.store.KEYS.filterLists][i];
       });
     }
 
+    // At every start: record this copy's log cap for the content script (0 = keep everything, the
+    // development copy) and move an old single-array log into segments.
+    waitDev(function (dev) {
+      const cap = globalThis.HM.log.capFor(dev);
+      api.storage.local.set({ 'hm.logCap': cap });
+      globalThis.HM.log.createLogStore(api.storage.local, { cap: cap }).migrate();
+    });
     // No alarms (Wai, 2026-11-13: "minimize required permissions"): the worker starts whenever
     // a music tab opens or talks to it (and when the popup asks), and each start refreshes
     // the lists that are due.
