@@ -26,9 +26,9 @@ It works from lists you choose: [Zoundhub](https://zoundhub.com)'s clearest
 AI flags, Cevval's AI music list, Human Music's own verdicts, your own
 artists, songs and keywords, or any list you subscribe to by web address. The
 first three are built in. [Soul Over AI](https://souloverai.com) (CC BY 4.0),
-which stopped updating in March 2026, is built in too but starts switched off
-on new installs. A new list only watches, and logs what it would skip, until
-you let it act.
+which stopped updating in March 2026, is built in too and on: it still has
+artists the others lack. Each list is on or off, and the popup shows them
+largest first.
 
 From Zoundhub, Human Music uses only the artists it rates 5 dots that also
 carry Deezer's AI label and first released music in 2020 or later. Zoundhub

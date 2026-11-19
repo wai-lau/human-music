@@ -35,8 +35,8 @@ developer.chrome.com/docs/webstore/best-listing, read 2026-11-18):
 > • Built-in lists: Zoundhub, Cevval's AI music list, Human Music's own
 >   verdicts and Soul Over AI (CC BY 4.0), plus your own artists and any list
 >   you subscribe to
-> • A new list only watches until you let it act, and one switch keeps a
->   listed artist playing
+> • Turn any list off in one click, and one switch keeps a listed artist
+>   playing
 > • Human Music's verdicts cover new artists that no list has yet; you choose
 >   how sure a verdict must be before a song is skipped
 > • A log of every skip, grouped by artist, kept on your computer
@@ -58,8 +58,10 @@ maximum of five):
 2. `2-blocked.png`: the log's Blocked section.
 3. `3-actions.png`: the log's Actions section.
 4. `4-behaviour.png`: the Behaviour settings.
-5. `5-lists.png`: the Lists tab with the built-in lists (real counts on 2026-11-18) and Optimal
-   selected, as users see it once the verdict list is published as checked.
+5. `5-lists.png`: the Lists tab, largest list first, with refresh icons (real counts on
+   2026-11-19) and Optimal selected, as users see it with the verdict list published as checked.
+
+Shots 4 and 5 were retaken 2026-11-19 after Watch only was removed and refresh became an icon.
 
 Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub switch) show the popup
 with the filtering-mode slider and Zoundhub as the list, from a store-like copy (no investigator
