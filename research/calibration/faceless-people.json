@@ -1,0 +1,247 @@
+{
+ "description": "Faceless-genre acts made by people (lofi, chillhop, ambient), found 2026-11-18 by Claude from press and interview pages; release years not checked (the checklist records them).",
+ "artists": [
+  {
+   "name": "skyswimming",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.cavalierdaily.com/article/2021/04/making-lo-fi-on-the-low",
+     "what": "Cavalier Daily profiles student Adin Yager, who makes lo-fi as skyswimming"
+    }
+   ]
+  },
+  {
+   "name": "Fqke",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://dbbullseye.com/?p=19080",
+     "what": "Diamond Bar High School paper profiles the sophomore behind the lo-fi album"
+    }
+   ]
+  },
+  {
+   "name": "Nuncc",
+   "genre": "lofi / jazz",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://label.stereofox.com/?p=2405",
+     "what": "Stereofox Records: German beatmaker's Missed Opportunities EP"
+    }
+   ]
+  },
+  {
+   "name": "Alita Limona",
+   "genre": "lofi / jazz",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://label.stereofox.com/?p=2186",
+     "what": "Stereofox Records: her debut EP Grandpa's Closet (2024), from browsing her grandfather's jazz vinyl"
+    }
+   ]
+  },
+  {
+   "name": "Stan Forebee",
+   "genre": "chillhop",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://label.stereofox.com/release/stan-forebee-the-long-road-ep/",
+     "what": "Stereofox Records: debut EP The Long Road"
+    }
+   ]
+  },
+  {
+   "name": "Refeeld",
+   "genre": "chillhop",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://label.stereofox.com/?p=3191",
+     "what": "Stereofox Records: solo debut Be Honest EP"
+    }
+   ]
+  },
+  {
+   "name": "Miso Extra",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://stereofox.com/interviews/page/3",
+     "what": "Stereofox interview on debut EP Great Taste"
+    }
+   ]
+  },
+  {
+   "name": "Thirsty Girl",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://djnio.squarespace.com/blog/japan-lofi-records-interview-with-thirsty-girl",
+     "what": "Japan LoFi Records interview: beatmaker since June 2022"
+    }
+   ]
+  },
+  {
+   "name": "sync.exe",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.audible.com/podcast/Chillhop-Talks/episodes/B0BQYYPVZZ",
+     "what": "Chillhop Talks podcast episode with the Elkton, Maryland producer"
+    }
+   ]
+  },
+  {
+   "name": "mdjsty",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.stereofox.com/mdjsty-lavender/",
+     "what": "Stereofox feature; track on Chillhop Essentials Spring 2022"
+    }
+   ]
+  },
+  {
+   "name": "Sofasound",
+   "genre": "chillhop",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://fuxwithit.com/2022/06/22/guest-mix-interview-sofasound/",
+     "what": "Fux With It interview with the South Florida producer and multi-instrumentalist"
+    }
+   ]
+  },
+  {
+   "name": "Quintelium",
+   "genre": "ambient",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.flowstate.fm/p/quintelium-interview",
+     "what": "Flow State interview; three LPs since 2022"
+    }
+   ]
+  },
+  {
+   "name": "Gollden",
+   "genre": "ambient",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.flowstate.fm/p/gollden-interview",
+     "what": "Flow State interview; first EP In and out of Time in 2021"
+    }
+   ]
+  },
+  {
+   "name": "Piscean Daydreams",
+   "genre": "ambient",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://soundavenue.substack.com/p/ambient-in-real-time-an-interview",
+     "what": "Sound Avenue interview; project started summer 2022, debut ReGenesis"
+    }
+   ]
+  },
+  {
+   "name": "Marcyline",
+   "genre": "dark ambient",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.psychedelicbabymag.com/?p=57030",
+     "what": "Psychedelic Baby interview: NYC solo project's debut Treegiver (2023)"
+    }
+   ]
+  },
+  {
+   "name": "infinitikiss",
+   "genre": "ambient",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.psychedelicbabymag.com/?p=51255",
+     "what": "Psychedelic Baby album premiere and interview, Fort Lowell Records 2023"
+    }
+   ]
+  },
+  {
+   "name": "Kurzweil's Voice Actor",
+   "genre": "ambient / electronic",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://firstfloor.substack.com/p/voice-actor-shares-some-of-her-secrets",
+     "what": "First Floor interview; debut late 2022"
+    }
+   ]
+  },
+  {
+   "name": "Idepen",
+   "genre": "lofi / electronic",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://internettattoo.com/blog/idepen-interview-2024",
+     "what": "Internet Tattoo Q&A, 2024"
+    }
+   ]
+  },
+  {
+   "name": "i-fls",
+   "genre": "beats / experimental",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://judenoel.substack.com/p/the-dl-2-idling-with-i-fls-listeners",
+     "what": "Interview by email with the anonymous Japanese producer"
+    }
+   ]
+  },
+  {
+   "name": "Koi.Sum",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://bedroomproducing.podbean.com/e/s1e7-koisum-producing-lofi-sounds-and-atmospheric-music",
+     "what": "Bedroom Producing podcast episode, 2021"
+    }
+   ]
+  },
+  {
+   "name": "rocomoco",
+   "genre": "lofi",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://theplayground.co.uk/exclusive-interview-five-minutes-with-rocomoco/",
+     "what": "The Playground interview"
+    }
+   ]
+  },
+  {
+   "name": "Mitchel Logan",
+   "genre": "lofi / indie",
+   "faceless": true,
+   "evidence": [
+    {
+     "url": "https://www.clearvisioncollective.com/post/mitchel-logan-s-lo-fi-stomping-grounds",
+     "what": "Clear Vision Collective profile of the Vermont producer"
+    }
+   ]
+  }
+ ]
+}

@@ -119,3 +119,27 @@ What it shows:
 ## Reading
 
 The research's weights did the job: no person was called AI, and nearly every AI artist reached Aggressive. Where the measured weights differ (W1, W5, P6, P14 measure higher), the samples were chosen to be clear cases, so the measured numbers overstate; the research's lower numbers are the safer choice for real queues.
+
+## Full run and the faceless follow-up (2026-11-18, overnight)
+
+The run grew to 128 artists: 62 known AI, 44 small acts made by people (`small-people.json`) and 22
+more faceless-genre acts made by people (`faceless-people.json`: lofi, chillhop and ambient
+producers, each with a press piece or interview). Wai then chose the measured weights for every
+sign found 5 or more times ("1B").
+
+With the measured weights now in use:
+
+| Group | Count | Called AI at 60+ | Called AI at 95+ | Unsure |
+|---|---|---|---|---|
+| Known AI | 62 | 54 | 13 | |
+| Small acts made by people | 44 | 0 | 0 | |
+| Faceless acts made by people | 22 | 0 | 0 | 1 (Fqke, a student's album, at 53) |
+
+SH Labs on two songs (Spotify artists only; the faceless sample has no Spotify IDs, so it was not
+scored): 0 of 30 people at 85+ on both songs, 29 of 30 under 50 on both; 42 of 58 AI artists at
+85+ on both.
+
+Limits: zero people wrong in 66 still allows a true rate up to about 4.5% (the rule of three). All
+of these people were picked because public evidence of them exists; an act with no footprint at
+all is exactly the case the checklist cannot tell apart, which is why such a verdict stops at 94
+without a strong sign (Optimal skips at 95).
