@@ -120,7 +120,10 @@
     status('Refreshing…');
     try {
       chrome.runtime.sendMessage({ type: 'refresh', id }, ok => {
-        status(ok ? after : 'Could not refresh that list; the last good copy is kept.');
+        // A worker that isn't running ("No SW", just after a reload or update) leaves lastError
+        // set; reading it keeps Chrome from listing an unchecked error. It counts as a failure.
+        const failed = !!chrome.runtime.lastError;
+        status(ok && !failed ? after : 'Could not refresh that list; the last good copy is kept.');
       });
     } catch (e) { status('Could not refresh that list; the last good copy is kept.'); }
   }
