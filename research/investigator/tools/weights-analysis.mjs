@@ -70,7 +70,7 @@ for (const label of [...new Set(rows.map((r) => r.sample))]) {
 }
 
 out.push('\n## Cross-validated weights (5 folds: fit on four fifths, score the fifth)\n');
-const folds = 5, sh = shuffle(rows, 20261119); let cv = { ai60: 0, ai95: 0, pe60: 0, pe95: 0, nAi: 0, nPe: 0 };
+const folds = 5, sh = shuffle(rows, 20261119); const cv = { ai60: 0, ai95: 0, pe60: 0, pe95: 0, nAi: 0, nPe: 0 };
 for (let k = 0; k < folds; k++) {
   const test = sh.filter((_, i) => i % folds === k), train = sh.filter((_, i) => i % folds !== k);
   const t = tally(test, fit(train));
@@ -117,7 +117,7 @@ function logistic(train, iters = 400, lr = 0.1, l2 = 0.01) {
   }
   return (r) => { let z = b; for (const c of CODES) if (found(r.signs[c])) z += w[c]; return 1 / (1 + Math.exp(-z)); };
 }
-let lg = { ai60: 0, ai95: 0, pe60: 0, pe95: 0 };
+const lg = { ai60: 0, ai95: 0, pe60: 0, pe95: 0 };
 for (let k = 0; k < folds; k++) {
   const test = sh.filter((_, i) => i % folds === k), train = sh.filter((_, i) => i % folds !== k), p = logistic(train);
   for (const r of test) { const q = p(r); if (r.truthAi) { if (q >= 0.6) lg.ai60++; if (q >= 0.95) lg.ai95++; } else { if (q >= 0.6) lg.pe60++; if (q >= 0.95) lg.pe95++; } }
