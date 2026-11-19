@@ -24,11 +24,12 @@ await t('ZOUNDHUB is a built-in list read from the mirror, on and acting', () =>
   const z = HM.lists.ZOUNDHUB || {};
   return (z.id === 'zoundhub' && z.name === 'Zoundhub' && z.url === URL_ && z.builtIn === true && z.mode === 'act' && z.enabled === true) || J(z);
 });
-await t('a new install has Zoundhub on and Soul Over AI off', async () => {
+// Wai, 2026-11-19: "B" (Soul Over AI and Zoundhub stay two lists, Soul Over AI on again).
+await t('a new install has Zoundhub and Soul Over AI both on', async () => {
   const s = fakeStorage({});
   await refresher(s).install();
   const by = Object.fromEntries(s.data['hm.filterLists'].map((l) => [l.id, l]));
-  return (by.zoundhub && by.zoundhub.enabled === true && by['soul-over-ai'] && by['soul-over-ai'].enabled === false && by['hm-verdicts'] && by.cevval && true) || J(Object.keys(by));
+  return (by.zoundhub && by.zoundhub.enabled === true && by['soul-over-ai'] && by['soul-over-ai'].enabled === true && by['hm-verdicts'] && by.cevval && true) || J(Object.keys(by));
 });
 await t('an existing copy gains Zoundhub at its next start and keeps Soul Over AI as set', async () => {
   const s = fakeStorage({ 'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI, enabled: true, lastRefresh: 5 }, { ...HM.lists.HM_VERDICTS }, { ...HM.lists.CEVVAL }] });

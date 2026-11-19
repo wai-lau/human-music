@@ -4,6 +4,7 @@ Decisions Wai made on the open-questions page, newest first.
 
 | When | Question | Wai's answer | Reading taken |
 |---|---|---|---|
+| 2026-11-19 | How should Soul Over AI and Zoundhub be merged? | "A", then "B, order them by list size in the popup tho" | Two lists stay; Soul Over AI is on by default again (new installs); the popup orders lists by size, largest first. |
 | 2026-11-19 | song.link no longer answers without a key: which way should YouTube Music artists reach SH Labs? | "1A" | Deezer (free, no key): the playing song's title plus the artist name, both matching exactly, picks one Deezer artist (more than one: give up, Claude decides); its top two songs' ISRCs go to SH Labs. MusicBrainz by exact channel ID is tried first. Used only to fetch songs for SH Labs, never stored. |
 | 2026-11-19 | Should the scoring take the weights measured on 628 artists (cross-validated)? | "1A" | Every sign found 5 or more times among the 628 takes its refitted weight; rarer signs keep theirs; lists and YouTube Music's tag stay absolute. |
 | 2026-11-19 | Aggressive skips about 2% of random small acts made by people: change it? | "move optimal to 94, aggressive to 80" | Optimal skips at 94 and up (it now also skips verdicts held at the 94 cap: 197 of 312 AI, 1 of 316 people in the experiment); Aggressive at 80 and up (256 of 312 AI, 5 of 316 people). |

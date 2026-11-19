@@ -31,6 +31,13 @@ const data = (p, k) => p.storage.data[k];
 const LOGGED = (title = 'X') => ({ at: Date.now(), event: 'hidden', title, artistLine: 'Y', listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'Y' });
 
 run([
+  // Wai, 2026-11-19: "order them by list size in the popup".
+  ['filter lists are shown largest first', async () => {
+    const L = (id, count) => ({ id, name: id, url: `https://x.example/${id}.json`, enabled: true, mode: 'act', count, lastRefresh: 1, lastError: null });
+    const p = await open({ 'hm.filterLists': [L('small', 3), L('big', 6453), L('none', 0), L('mid', 1375)] });
+    const names = [...p.$('filter-lists').querySelectorAll('li')].map(li => li.textContent).map(t => ['big', 'mid', 'small', 'none'].find(n => t.includes(n))).filter(Boolean);
+    return JSON.stringify(names) === JSON.stringify(['big', 'mid', 'small', 'none']) || JSON.stringify(names);
+  }],
   // Review 2026-11-17: list and investigator errors showed raw text ("TypeError: Failed to
   // fetch", "Content-Length over 5242880 bytes"). They are said in plain words.
   ['a list error is said in plain words, in the list row and in the log', async () => {

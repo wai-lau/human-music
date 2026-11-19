@@ -56,9 +56,10 @@
 
       await updateMetas(function (metas) {
         if (metas) return undefined;
-        // Zoundhub replaces Soul Over AI (frozen since March 2026) for new installs; Soul Over AI
-        // stays on the list, off (Wai, 2026-11-18).
-        return [{ ...globalThis.HM.lists.SOUL_OVER_AI, enabled: false }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }];
+        // Every built-in list starts on. Soul Over AI was off for new installs from 2026-11-18
+        // (frozen since March 2026); Wai, 2026-11-19, on merging it with Zoundhub: "B" (keep two
+        // lists, Soul Over AI on): it still has 375 artists Zoundhub lacks and YouTube channel IDs.
+        return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }];
       });
 
       if (!stored[HM.store.KEYS.user]) {
