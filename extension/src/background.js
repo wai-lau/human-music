@@ -14,7 +14,7 @@
     // every friend. Unknown means no.
     const isDev = typeof opts.isDev === 'function' ? opts.isDev : async function () { return false; };
 
-    // Well-known artists made by people: a list update that names one is held in Watch only
+    // Well-known artists made by people: a list update that names one is switched off (held)
     // (security hardening, Wai 2026-11-18). Loaded once per worker; a failed load means an
     // empty guard list, never a blocked refresh.
     let wellKnownNames = [];
@@ -91,11 +91,14 @@
       // No list meta yet means install has not run: leave the storage to it. Built-in lists
       // take their name, address and format from the code, so a list that moves (the verdict
       // list did, 2026-11-17) follows on the next start, and a missing one comes back. The
-      // person's own choices (on or off, Watch only) and the refresh record stay.
+      // person's own choices (on or off) and the refresh record stay.
       await updateMetas(function (metas) {
         if (!Array.isArray(metas)) return undefined;
         let changed = false;
         let next = metas.map(function (m) {
+          // No Watch only any more (Wai, 2026-11-19: "remove the watch only toggle"): a list in
+          // Watch only was not acting, so it becomes off rather than starting to skip.
+          if (m && m.mode === 'watch') { changed = true; m = { ...m, mode: 'act', enabled: false }; }
           const code = m && m.builtIn === true ? BUILT_INS.find(function (b) { return b.id === m.id; }) : null;
           if (!code || (m.url === code.url && m.name === code.name && m.format === code.format)) return m;
           changed = true;
@@ -287,7 +290,7 @@ list = lists[HM.store.KEYS.filterLists][i];
         }
 
         // Check the update against the guard: does it name a well-known person, or suddenly
-        // balloon? If so, store the data but put the list in Watch only and record why.
+        // balloon? If so, store the data but switch the list off and record why.
         await wellKnownReady;
         const stored = (await storage.get(HM.store.listKey(id)))[HM.store.listKey(id)];
         const oldArtists = stored && Array.isArray(stored.artists) ? stored.artists : [];
@@ -303,8 +306,11 @@ list = lists[HM.store.KEYS.filterLists][i];
           return metas.map(function (m) {
             if (m.id !== id) return m;
             const next = { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, calibrated: listData.calibrated };
+            // A held list is switched off, with the reason shown in its row and in the log
+            // (Wai, 2026-11-19: no Watch only; it was put in Watch only before).
             if (held) {
-              next.mode = 'watch';
+              next.enabled = false;
+              next.mode = 'act';
               next.held = { at: refreshedAt, reason: held.reason };
             }
             return next;

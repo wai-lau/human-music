@@ -73,9 +73,18 @@ await t('a start gives stored built-ins the code\'s name and address, keeping th
   await refresher(storage, async () => ({ ok: false, status: 404, headers: { get: () => null }, text: async () => '' })).importBundled();
   const m = storage.data['hm.filterLists'];
   const v = m.find(l => l.id === 'hm-verdicts'); const mine = m.find(l => l.id === 'mine');
-  return (v.url === HM.lists.HM_VERDICTS.url && v.name === HM.lists.HM_VERDICTS.name && v.enabled === false && v.mode === 'watch' && v.count === 7 && v.lastRefresh === 5
+  return (v.url === HM.lists.HM_VERDICTS.url && v.name === HM.lists.HM_VERDICTS.name && v.enabled === false && v.mode === 'act' /* Watch only became off (Wai, 2026-11-19) */ && v.count === 7 && v.lastRefresh === 5
     // 5: the four stored, plus Zoundhub, which every start adds (2026-11-18).
     && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 5 && m.some(l => l.id === 'zoundhub')) || J(m);
+});
+
+// Wai, 2026-11-19: "remove the watch only toggle". A list that was on in Watch only was not acting,
+// so at the next start it becomes off (not acting), never on and skipping.
+await t('a start turns a Watch only list off, keeping it from acting', async () => {
+  const storage = fakeStorage({ 'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI, mode: 'watch' }, { id: 'mine', name: 'Mine', url: 'https://lists.example/m.json', enabled: true, mode: 'watch' }] });
+  await refresher(storage, async () => ({ ok: false, status: 404, headers: { get: () => null }, text: async () => '' })).importBundled();
+  const m = storage.data['hm.filterLists'];
+  return (m.every(l => l.mode !== 'watch') && m.find(l => l.id === 'mine').enabled === false && m.find(l => l.id === 'soul-over-ai').enabled === false) || J(m);
 });
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

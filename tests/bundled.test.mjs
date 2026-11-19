@@ -107,7 +107,8 @@ run([
         { id: 'mine', name: 'Mine', url: 'https://example.org/l.json', enabled: true, mode: 'act' },
         { id: 'plain', name: 'Plain', url: 'http://example.org/l.json', enabled: true, mode: 'act' }] });
     return (JSON.stringify(out.user.artists) === '["A","B"]' && out.settings.lookahead === 7 && out.settings.paused === false
-      && out.filterLists[0].enabled === false && out.filterLists[0].mode === 'watch'
+      // No Watch only any more (Wai, 2026-11-19): a backup's Watch only list comes in off, mode act.
+      && out.filterLists[0].enabled === false && out.filterLists[0].mode === 'act'
       && out.filterLists.length === 2 && out.filterLists[1].id === 'mine' && out.filterLists[1].enabled === false) || JSON.stringify(out);
   }],
 ]);

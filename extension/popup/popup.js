@@ -31,6 +31,22 @@
   }
   function clear(el) { if (el) el.textContent = ''; }
 
+  // A small icon button (refresh: a circular arrow; remove: a cross), named for screen readers.
+  const ICONS = {
+    refresh: 'M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.75 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35Z',
+    remove: 'M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z',
+  };
+  function iconButton(kind, label, onclick) {
+    const b = node('button', { class: 'icon-btn', title: label, 'aria-label': label, onclick });
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('width', '16'); svg.setAttribute('height', '16');
+    svg.setAttribute('fill', 'currentColor'); svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(NS, 'path'); path.setAttribute('d', ICONS[kind]); svg.append(path);
+    b.append(svg);
+    return b;
+  }
+
   const READ_FAILED = 'Could not read your saved data, so nothing was changed. Try again.';
 
   // A failed read keeps the last copy on screen and says so: an empty answer must never stand
@@ -140,72 +156,44 @@
         type: 'checkbox', checked: !!list.enabled, title: 'On or off', 'aria-label': `${list.name} on`,
         onchange: () => {
           if (!on.checked) { updateList(list.id, { enabled: false }); return; }
-          updateList(list.id, { enabled: true });
+          updateList(list.id, { enabled: true, held: null });
           refreshList(list.id);
         },
       });
       const count = (list.count || 0).toLocaleString('en');
       const updated = list.lastRefresh ? `updated ${HM.popup.timeLabel(list.lastRefresh, now)}` : 'not updated yet';
+      // Refresh and Remove are icons in the top row (Wai, 2026-11-19: "make refresh an icon on
+      // the topright to compact the empty space").
       ul.append(node('li', { class: 'list-row' },
         node('div', { class: 'list-main' }, on, node('span', { class: 'list-name', textContent: list.name }),
-          list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null),
-        node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
-          list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${HM.popup.plainError(list.lastError)}` }) : null),
-        node('div', { class: 'list-actions' },
-          node('button', { class: 'link', textContent: 'Refresh', onclick: () => refreshList(list.id) }),
-          list.builtIn ? null : node('button', {
-            class: 'link', textContent: 'Remove',
-            onclick: () => {
+          list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null,
+          iconButton('refresh', `Refresh ${list.name}`, () => refreshList(list.id)),
+          list.builtIn ? null : iconButton('remove', `Remove ${list.name}`,
+            () => {
               try { HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
               // The downloaded copy goes too (up to 5 MB), first: if it fails the list stays
               // in view to try again, and adding the same address later starts clean.
               Promise.resolve().then(() => store.remove(HM.store.listKey(list.id))).then(() => editLists(ls => HM.popup.removeFilterList(ls, list.id)))
                 .catch(() => status('Could not remove that list. Try again.'));
-            },
-          }))));
+            })),
+        node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
+          list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${HM.popup.plainError(list.lastError)}` }) : null,
+          list.held && !list.enabled ? node('span', { class: 'error', textContent: `Switched off: ${list.held.reason}` }) : null)));
     }
     const freq = $('refresh-frequency');
     if (freq) freq.value = state.settings.refresh;
-    renderWatchLists();
-  }
-
-  // Watch only, per filter list, under Behaviour (Wai, 2026-11-16: "watch only should go under
-  // behaviour, not lists"): a list in Watch only logs what it would skip and never acts.
-  function renderWatchLists() {
-    const ul = $('watch-lists');
-    if (!ul) return;
-    clear(ul);
-    for (const list of state.lists) {
-      ul.append(node('li', { class: 'setting' },
-        node('div', { class: 'setting-text' }, node('span', { class: 'watch-name', textContent: list.name })),
-        node('label', { class: 'switch' },
-          node('input', {
-            type: 'checkbox', checked: list.mode === 'watch', 'aria-label': `Watch only: ${list.name}`,
-            onchange: e => {
-              if (e.target.checked) {
-                updateList(list.id, { mode: 'watch' });
-              } else {
-                updateList(list.id, { mode: 'act', held: null });
-              }
-            },
-          }),
-          node('span', { class: 'track', 'aria-hidden': 'true' }))));
-    }
   }
 
   $('add-list-btn').addEventListener('click', () => {
-    const act = !!$('list-act-now').checked;
     const url = $('list-url').value.trim();
     const name = $('list-name').value;
     let added = null;
-    editLists(ls => { const next = HM.popup.addFilterList(ls, url, name, { act }); added = next[next.length - 1]; return next; }).then(lists => {
+    editLists(ls => { const next = HM.popup.addFilterList(ls, url, name); added = next[next.length - 1]; return next; }).then(lists => {
       if (!lists) return;
-      const said = act ? `Added ${added.name}. It acts at once.`
-        : `Added ${added.name} in Watch only: the log shows what it would skip. Untick Watch only when it looks right.`;
+      const said = `Added ${added.name}. Switch it off in its row if it skips something you want.`;
       refreshList(added.id, said);
       $('list-url').value = '';
       $('list-name').value = '';
-      $('list-act-now').checked = false;
       status(said);
     });
   });
@@ -430,7 +418,7 @@
   // artist, the reason and "Always play" each show once.
   const SECTION_HINTS = {
     blocks: 'Kept from playing: taken out of the queue or hidden on a page.',
-    actions: 'Done while a song played: skipped or disliked, and what Watch only lists would skip.',
+    actions: 'Done while a song played: skipped or disliked.',
     errors: 'What didn’t work. The song played on.',
   };
   const EMPTY = { blocks: 'Nothing blocked yet.', actions: 'Nothing done yet.', errors: 'No errors.' };
@@ -442,7 +430,7 @@
     return state.lists.filter(l => l.enabled && l.lastError);
   }
   function listHeld() {
-    return state.lists.filter(l => l.enabled && l.held && l.mode === 'watch');
+    return state.lists.filter(l => !l.enabled && l.held);
   }
 
   function renderToday() {
@@ -482,7 +470,7 @@
       for (const l of listHeld()) {
         ul.append(node('li', { class: 'log-group' },
           node('div', { class: 'log-head' }, node('span', { class: 'log-artist', textContent: l.name }), node('span', { class: 'log-time', textContent: l.held ? `held ${HM.popup.timeLabel(l.held.at, now)}` : '' })),
-          node('div', { class: 'log-reason error', textContent: `${l.name} is held in Watch only: ${l.held.reason}` })));
+          node('div', { class: 'log-reason error', textContent: `${l.name} was switched off: ${l.held.reason}` })));
       }
     }
     const groups = HM.popup.groupLog(state.log, { now, section, neverSkip: state.user.neverSkip });

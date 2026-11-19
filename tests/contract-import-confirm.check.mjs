@@ -34,7 +34,8 @@ await t('settings that differ are listed in plain words; equal ones are not', ()
   const text = c.join(' | ');
   return (c.length === 3 && /dislike/i.test(text) && /7/.test(text) && /Aggressive/.test(text) && !/modeChosen/.test(text)) || J(c);
 });
-await t('lists turned off, set to Watch only, or added are listed by name', () => {
+// Wai, 2026-11-19: no Watch only any more; a backup's Watch only list comes in off.
+await t('lists turned off (Watch only in the backup counts as off), or added, are listed by name', () => {
   const data = { user: M.store.emptyUser(), filterLists: [
     { ...M.lists.ZOUNDHUB, enabled: false },
     { ...M.lists.SOUL_OVER_AI, mode: 'watch' },
@@ -43,7 +44,7 @@ await t('lists turned off, set to Watch only, or added are listed by name', () =
   ] };
   const c = M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data);
   const text = c.join(' | ');
-  return (c.length === 3 && /Zoundhub/.test(text) && /off/i.test(text) && /Soul Over AI/.test(text) && /Watch only/.test(text) && /Other list/.test(text) && !/Plain http/.test(text)) || J(c);
+  return (c.length === 3 && /Zoundhub/.test(text) && /off/i.test(text) && /Soul Over AI: on becomes off/.test(text) && !/Watch only/.test(text) && /Other list/.test(text) && !/Plain http/.test(text)) || J(c);
 });
 
 async function open(initial) {

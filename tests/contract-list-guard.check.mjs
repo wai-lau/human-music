@@ -3,7 +3,8 @@
 // (extension/lists/well-known.json), or suddenly adds far more names than it had, is held: the
 // list goes to Watch only (it logs what it would skip and never acts), the data is still stored,
 // and the popup's Errors section says why. The person can let it act again with its Watch only
-// switch; the hold is then cleared.
+// switch; the hold is then cleared. Then Wai, 2026-11-19, "remove the watch only toggle, people can
+// just turn of their list": a held list is switched off instead; switching it back on clears the hold.
 // Run from the repo root: node tests/contract-list-guard.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
@@ -49,12 +50,12 @@ const { HM } = ctx;
 const META = { id: 'mine', name: 'Mine', url: 'https://lists.example/m.json', enabled: true, mode: 'act', builtIn: false, lastRefresh: 1, count: 200, lastError: null };
 const fetchWith = (body) => async (url) => ({ ok: true, status: 200, headers: { get: () => null },
   text: async () => (url === 'lists/well-known.json' ? JSON.stringify(WELL_KNOWN) : JSON.stringify(body)) });
-await t('an update naming a star: stored, but the list goes to Watch only with the reason', async () => {
+await t('an update naming a star: stored, but the list is switched off with the reason', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });
   const r = HM.createRefresher({ storage, fetch: fetchWith({ artists: [...names(200), { name: 'Drake' }] }), now: () => 50, assetUrl: (p) => p });
   await r.refreshOne('mine');
   const m = storage.data['hm.filterLists'][0];
-  return (m.mode === 'watch' && m.held && /Drake/.test(m.held.reason) && m.held.at === 50 && storage.data['hm.list.mine'].artists.length === 201) || J(m);
+  return (m.enabled === false && m.held && /Drake/.test(m.held.reason) && m.held.at === 50 && storage.data['hm.list.mine'].artists.length === 201) || J(m);
 });
 await t('a refresh started at once, while the guard list is still loading, is still guarded', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });
@@ -65,14 +66,14 @@ await t('a refresh started at once, while the guard list is still loading, is st
   const r = HM.createRefresher({ storage, fetch, now: () => 50, assetUrl: (p) => p });
   await r.refreshOne('mine'); // a worker start refreshes straight away
   const m = storage.data['hm.filterLists'][0];
-  return (m.mode === 'watch' && m.held && /Drake/.test(m.held.reason)) || J(m);
+  return (m.enabled === false && m.held && /Drake/.test(m.held.reason)) || J(m);
 });
 await t('an ordinary update leaves the mode alone', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });
   const r = HM.createRefresher({ storage, fetch: fetchWith({ artists: [...names(200), { name: 'Fresh Bot' }] }), now: () => 50, assetUrl: (p) => p });
   await r.refreshOne('mine');
   const m = storage.data['hm.filterLists'][0];
-  return (m.mode === 'act' && !m.held) || J(m);
+  return (m.mode === 'act' && m.enabled === true && !m.held) || J(m);
 });
 await t('a missing well-known file never blocks a refresh (no hold, no failure)', async () => {
   const storage = fakeStorage({ 'hm.filterLists': [{ ...META }], 'hm.list.mine': { artists: names(200) } });
@@ -92,19 +93,19 @@ async function popup(initial) {
   await settle();
   return { doc, storage };
 }
-const HELD = { ...META, mode: 'watch', held: { at: 50, reason: 'names a well-known artist: Drake' } };
+const HELD = { ...META, enabled: false, held: { at: 50, reason: 'names a well-known artist: Drake' } };
 await t('the popup\'s Errors section shows a held list and why', async () => {
   const p = await popup({ 'hm.filterLists': [HELD] });
   const btn = p.doc.querySelector('.seg-btn[data-section="errors"]'); btn.click(); await settle();
   const text = p.doc.querySelector('#log-entries').textContent;
-  return (/Mine/.test(text) && /Watch only/.test(text) && /Drake/.test(text)) || text.slice(0, 300);
+  return (/Mine/.test(text) && /switched off/.test(text) && /Drake/.test(text)) || text.slice(0, 300);
 });
-await t('turning its Watch only switch off lets it act again and clears the hold', async () => {
+await t('switching the list back on lets it act again and clears the hold', async () => {
   const p = await popup({ 'hm.filterLists': [HELD] });
-  const box = [...p.doc.querySelectorAll('#watch-lists input')].find((i) => /Mine/.test(i.getAttribute('aria-label') || ''));
-  box.checked = false; box.dispatchEvent(new Event('change')); await settle();
+  const box = [...p.doc.querySelectorAll('#filter-lists input')].find((i) => /Mine/.test(i.getAttribute('aria-label') || ''));
+  box.checked = true; box.dispatchEvent(new Event('change')); await settle();
   const m = p.storage.data['hm.filterLists'][0];
-  return (m.mode === 'act' && !m.held) || J(m);
+  return (m.enabled === true && m.mode === 'act' && !m.held) || J(m);
 });
 
 console.log(fails.length ? fails.map((f) => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

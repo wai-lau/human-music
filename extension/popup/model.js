@@ -117,9 +117,9 @@
       name: listName,
       url: url,
       enabled: true,
-      // Watch only until the person has seen what it matches, unless they chose to act at
-      // once (Wai, 2026-11-13).
-      mode: options && options.act ? 'act' : 'watch',
+      // A new list acts at once; it can be switched off in its row (Wai, 2026-11-19: "remove the
+      // watch only toggle, people can just turn of their list"; it started in Watch only before).
+      mode: 'act',
       builtIn: false,
       lastRefresh: null,
       count: 0,
@@ -268,13 +268,10 @@
     for (const l of curLists) {
       const b = impLists.find(x => x && x.id === l.id);
       if (b) {
-        if (l.enabled !== b.enabled) changes.push(`${l.name}: ${l.enabled ? 'on' : 'off'} becomes ${b.enabled ? 'on' : 'off'}`);
-        // A backup with no mode means act, as applyBackup reads it.
-        if ((l.mode === 'watch') !== (b.mode === 'watch')) {
-          const from = l.mode === 'watch' ? 'Watch only' : 'Act';
-          const to = b.mode === 'watch' ? 'Watch only' : 'Act';
-          changes.push(`${l.name}: ${from} becomes ${to}`);
-        }
+        // A backup's Watch only list comes in off (there is no Watch only any more), as
+        // applyBackup reads it.
+        const bOn = !!b.enabled && b.mode !== 'watch';
+        if (l.enabled !== bOn) changes.push(`${l.name}: ${l.enabled ? 'on' : 'off'} becomes ${bOn ? 'on' : 'off'}`);
       }
     }
     for (const b of impLists) {

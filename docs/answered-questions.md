@@ -4,6 +4,7 @@ Decisions Wai made on the open-questions page, newest first.
 
 | When | Question | Wai's answer | Reading taken |
 |---|---|---|---|
+| 2026-11-19 | "Watch only should be a single toggle": what happens to the lists that watch on their own? | "remove the watch only toggle, people can just turn of their list, or turn off the behaviour they don't want" | No Watch only anywhere: a list is on or off. A list you add acts at once; a list whose download looks wrong is switched off with the reason shown; a list now in Watch only becomes off (it was not acting, so it stays not acting). |
 | 2026-11-19 | How should Soul Over AI and Zoundhub be merged? | "A", then "B, order them by list size in the popup tho" | Two lists stay; Soul Over AI is on by default again (new installs); the popup orders lists by size, largest first. |
 | 2026-11-19 | song.link no longer answers without a key: which way should YouTube Music artists reach SH Labs? | "1A" | Deezer (free, no key): the playing song's title plus the artist name, both matching exactly, picks one Deezer artist (more than one: give up, Claude decides); its top two songs' ISRCs go to SH Labs. MusicBrainz by exact channel ID is tried first. Used only to fetch songs for SH Labs, never stored. |
 | 2026-11-19 | Should the scoring take the weights measured on 628 artists (cross-validated)? | "1A" | Every sign found 5 or more times among the 628 takes its refitted weight; rarer signs keep theirs; lists and YouTube Music's tag stay absolute. |

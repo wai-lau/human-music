@@ -179,8 +179,8 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .chip { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--muted); }
 .list-info { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .list-info .error { color: var(--danger); display: block; }
-.list-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
-.list-actions { justify-content: flex-end; }
+.icon-btn { border: 0; background: none; padding: 4px; border-radius: 50%; color: var(--muted); display: inline-flex; line-height: 0; cursor: pointer; }
+.icon-btn:hover { color: var(--accent); background: var(--chip); }
 
 .add-list { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
 .add-list .row { display: flex; gap: 6px; }

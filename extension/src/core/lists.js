@@ -328,13 +328,14 @@
     if (Array.isArray(imported.filterLists)) {
       lists = lists.map(l => {
         const b = imported.filterLists.find(x => x && x.id === l.id);
-        return b ? { ...l, enabled: !!b.enabled, mode: b.mode === 'watch' ? 'watch' : 'act' } : l;
+        // No Watch only any more (Wai, 2026-11-19): a backup's Watch only list comes in off.
+        return b ? { ...l, enabled: !!b.enabled && b.mode !== 'watch', mode: 'act' } : l;
       });
       for (const b of imported.filterLists) {
         if (!b || b.builtIn || typeof b.url !== 'string' || !/^https:\/\//.test(b.url)) continue;
         if (lists.some(l => l.id === b.id || l.url === b.url)) continue;
         lists.push({ id: String(b.id), name: String(b.name || b.id), url: b.url, enabled: false,
-          mode: b.mode === 'watch' ? 'watch' : 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
+          mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null });
       }
     }
     return { user, settings, filterLists: lists };

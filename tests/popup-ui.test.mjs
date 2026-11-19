@@ -81,13 +81,13 @@ run([
   }],
   ['a log write leaves the lists tab alone: a focused switch stays put and focused', async () => {
     const p = await open();
-    const box = p.doc.querySelector('#watch-lists input'); box.focus();
+    const box = p.doc.querySelector('#filter-lists input'); box.focus();
     await p.storage.set({ 'hm.log': [LOGGED()] }); await settle();
     return (box.isConnected && p.doc.activeElement === box) || JSON.stringify({ connected: box.isConnected });
   }],
-  ['switching Watch only by keyboard keeps focus on that switch after the redraw', async () => {
+  ['switching a list by keyboard keeps focus on that switch after the redraw', async () => {
     const p = await open();
-    const box = p.doc.querySelector('#watch-lists input'); const label = box.getAttribute('aria-label'); box.focus();
+    const box = p.doc.querySelector('#filter-lists input'); const label = box.getAttribute('aria-label'); box.focus();
     box.checked = !box.checked; box.dispatchEvent(new Event('change')); await settle();
     const a = p.doc.activeElement;
     return (a && a.getAttribute && a.getAttribute('aria-label') === label) || JSON.stringify({ want: label, got: a && a.getAttribute && a.getAttribute('aria-label') });
@@ -208,18 +208,16 @@ run([
     return (p.calls.permissions.length === 0 && lists.length === 2 && lists[1].id === 'community-list'
       && p.calls.messages.some(m => m.type === 'refresh' && m.id === 'community-list')) || JSON.stringify({ c: p.calls, lists });
   }],
-  ['a list added by URL starts in Watch only (Wai, 2026-11-13); "Act at once" makes it act', async () => {
+  // Wai, 2026-11-19: "remove the watch only toggle, people can just turn of their list" (a new list
+  // started in Watch only before, 2026-11-13).
+  ['a list added by URL acts at once and is on', async () => {
     const p = await open();
     p.$('list-url').value = 'https://example.org/ai.json';
     await p.click(p.$('add-list-btn'));
     const first = data(p, 'hm.filterLists')[1];
     const said = p.$('status').textContent;
-    p.$('list-url').value = 'https://example.org/other.json';
-    p.$('list-act-now').checked = true;
-    await p.click(p.$('add-list-btn'));
-    const second = data(p, 'hm.filterLists')[2];
-    return (first.mode === 'watch' && /Watch only/.test(said) && second.mode === 'act' && p.$('list-act-now').checked === false)
-      || JSON.stringify({ first: first.mode, said, second: second && second.mode, box: p.$('list-act-now').checked });
+    return (first.mode === 'act' && first.enabled === true && !/Watch only/.test(said) && !p.$('list-act-now'))
+      || JSON.stringify({ first, said });
   }],
   ['http list address refused', async () => {
     const p = await open();
@@ -275,12 +273,10 @@ run([
     const keys = Object.keys(p.storage.data).sort().join(',');
     return (!('hm.list.a' in p.storage.data) && 'hm.list.soul-over-ai' in p.storage.data && data(p, 'hm.filterLists').length === 1) || keys;
   }],
-  ['watch-only switches live under Behaviour, one per list, and save the mode (Wai, 2026-11-16)', async () => {
+  // Wai, 2026-11-19: no Watch only anywhere (it lived under Behaviour, 2026-11-16).
+  ['there is no Watch only switch anywhere', async () => {
     const p = await open();
-    if (p.doc.querySelector('#filter-lists .watch')) return 'still on the list card';
-    const box = p.doc.querySelector('#watch-lists input');
-    box.checked = true; box.dispatchEvent(new Event('change')); await settle();
-    return data(p, 'hm.filterLists')[0].mode === 'watch' || JSON.stringify(data(p, 'hm.filterLists'));
+    return (!p.$('watch-lists') && !/Watch only/.test(p.doc.body.textContent)) || p.doc.body.textContent.match(/.{40}Watch only.{40}/)?.[0];
   }],
   // Filtering mode (investigator plan, Task 6).
   ['the slider shows the mode and saves it; leaving No filtering clears paused', async () => {
