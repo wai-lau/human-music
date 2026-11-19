@@ -1,7 +1,8 @@
 // Contract check for the investigator plan, Task 1 (filtering mode in settings). Run from the repo root:
 //   node tests/wip-contract-mode.check.mjs
 // Wai, 2026-11-15: "no filtering / list-only / optimal, searches and blocks 95% confidence AI music /
-// aggressive, blocks 60%+ confidence".
+// aggressive, blocks 60%+ confidence". Then 2026-11-19, after the 628-artist experiment: "move optimal
+// to 94, aggressive to 80".
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { settings } = load(['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js']).HM;
 const fails = [];
@@ -21,7 +22,7 @@ tryEq('paused false keeps the mode', () => settings.sanitize({ paused: false, mo
 tryEq('paused follows mode', () => [settings.sanitize({ mode: 'off' }).paused, settings.sanitize({ mode: 'aggressive' }).paused], [true, false]);
 tryEq('junk mode', () => settings.sanitize({ mode: 'turbo' }).mode, 'lists');
 tryEq('inherited key is junk', () => settings.sanitize({ mode: 'toString' }).mode, 'lists');
-tryEq('thresholds', () => ['off', 'lists', 'optimal', 'aggressive'].map(m => settings.threshold(m)), [null, null, 95, 60]);
+tryEq('thresholds', () => ['off', 'lists', 'optimal', 'aggressive'].map(m => settings.threshold(m)), [null, null, 94, 80]);
 tryEq('modeChosen and investigate kept, default false', () => [settings.sanitize({}).modeChosen, settings.sanitize({}).investigate, settings.sanitize({ modeChosen: true, investigate: true }).investigate], [false, false, true]);
 tryEq('default follows calibration', () => [settings.effectiveMode(settings.sanitize({}), false), settings.effectiveMode(settings.sanitize({}), true)], ['lists', 'optimal']);
 tryEq('a chosen mode stays', () => settings.effectiveMode(settings.sanitize({ mode: 'lists', modeChosen: true }), true), 'lists');

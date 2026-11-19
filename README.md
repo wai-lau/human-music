@@ -17,8 +17,8 @@ starts anyway, and hidden on the home page and in search.
 
 A slider in the popup sets how much it filters. No filtering turns it off.
 List only acts on the lists below. Optimal and Aggressive also act on the
-investigator's verdicts (see below) at a confidence of 95 or higher (Optimal)
-or 60 or higher (Aggressive). Until the verdict list has been calibrated, both
+investigator's verdicts (see below) at a confidence of 94 or higher (Optimal)
+or 80 or higher (Aggressive). Until the verdict list has been calibrated, both
 of those fall back to List only. List only is the default until then, and
 Optimal after that, unless you've picked a mode yourself.
 

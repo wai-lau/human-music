@@ -1,6 +1,6 @@
 // Contract for src/score.mjs, evidence scoring (Wai, 2026-11-18: scoring with the faceless guard;
 // her earlier ask: "each thing that is being researched should assign some percentage of the
-// certainty"). Weights measured on 106 labelled artists (Wai, 2026-11-18: "1B"); rules from research/calibration/signals-research.md: section 3
+// certainty"). Weights measured on 628 labelled artists (Wai, 2026-11-19: "1A"; before that 106, "1B"); rules from research/calibration/signals-research.md: section 3
 // (the signs and their points), section 4 (groups, caps, guards) and section 5 (worked examples,
 // used as the cases below). Run: node tests/score-contract.test.mjs (from research/investigator).
 //
@@ -24,14 +24,14 @@ const score = (signs, o = {}) => scoreChecklist({ signs, genres: o.genres || ['p
 await run([
   ['the sign table: every research sign with its group and points', () => {
     const want = {
-      S1: ['A', 12], S2: ['A', 9], S3: ['A', { found: 15, from_label: 20 }], M1: ['A', { self_disclosed: 13, likely: 10 }],
-      S4: ['B', 10], M2: ['B', 9], M3: ['B', 10],
-      M4: ['C', 15], M5: ['C', 17], W1: ['C', 11], W2: ['C', 3], W7: ['C', 2],
-      M6: ['D', 18], M7: ['D', 7], M8: ['D', 6], W3: ['D', 13], W5: ['D', 13], W8: ['D', 11],
-      W4: ['E', 4], M9: ['E', 7], W6: ['F', 3],
-      P2: ['people', { hard_date: -11, streaming_date: -8 }], P3: ['people', -13], P4: ['people', -5], P5: ['people', -8],
-      P6: ['people', -13], P7: ['people', -13], P8: ['people', -11], P9: ['people', -11], P10: ['people', -12], P11: ['people', -10],
-      P12: ['people', -15], P13: ['people', -13], P14: ['people', -12], P15: ['people', -1], P16: ['people', -7],
+      S1: ['A', 18], S2: ['A', 20], S3: ['A', { found: 15, from_label: 20 }], M1: ['A', { self_disclosed: 13, likely: 10 }],
+      S4: ['B', 16], M2: ['B', 15], M3: ['B', 10],
+      M4: ['C', 14], M5: ['C', 11], W1: ['C', 11], W2: ['C', 11], W7: ['C', 9],
+      M6: ['D', 13], M7: ['D', 7], M8: ['D', 6], W3: ['D', 11], W5: ['D', 7], W8: ['D', 6],
+      W4: ['E', 4], M9: ['E', 7], W6: ['F', 11],
+      P2: ['people', { hard_date: -11, streaming_date: -8 }], P3: ['people', -17], P4: ['people', -15], P5: ['people', -18],
+      P6: ['people', -14], P7: ['people', -17], P8: ['people', -15], P9: ['people', -12], P10: ['people', -12], P11: ['people', -11],
+      P12: ['people', -15], P13: ['people', -10], P14: ['people', -11], P15: ['people', -10], P16: ['people', -7],
     };
     const bad = Object.entries(want).filter(([k, [g, p]]) => !SIGNS[k] || SIGNS[k].group !== g || J(SIGNS[k].points) !== J(p)).map(([k]) => k);
     const extra = Object.keys(SIGNS).filter((k) => !(k in want));
@@ -60,7 +60,7 @@ await run([
   }],
   ['Forrest Rose plus a Deezer AI tag, sources on two sites: past 95', () => {
     const r = score({ S1: 'found', M4: 'found', W1: 'found', W2: 'found', M6: 'found', W5: 'found', W8: 'found' }, { sources: TWO_SITES });
-    return (r.groups.A === 12 && r.probability > 0.995 && r.verdict === 'ai' && r.confidence >= 95) || J(r);
+    return (r.groups.A === 18 && r.probability > 0.995 && r.verdict === 'ai' && r.confidence >= 95) || J(r);
   }],
   ['a strong sign with sources on one site only stays at 94', () => {
     const r = score({ S1: 'found', M4: 'found', W1: 'found', W2: 'found', M6: 'found', W5: 'found', W8: 'found' }, { sources: ONE_SITE });
@@ -70,7 +70,7 @@ await run([
   // with a roster, shows confirmed by venues. -43.5 points, about 0.004%.
   ['a small real indie band is made by people', () => {
     const r = score({ P2: 'streaming_date', P13: 'found', P8: 'found', P3: 'found' });
-    return (r.groups.people === -45 && r.probability < 0.0001 && r.verdict === 'human' && r.confidence >= 99) || J(r);
+    return (r.groups.people === -50 && r.probability < 0.0001 && r.verdict === 'human' && r.confidence >= 99) || J(r);
   }],
   // Section 5, the hard case: a faceless lofi producer who is a person. Groups C and D halved
   // (after their caps): +8.25 points, 87% raw; guard 6 (no sign from A or B) keeps it under 60.
@@ -102,11 +102,11 @@ await run([
   // Section 4: within an AI-side group, the largest points plus half the second, the rest dropped,
   // then the group's cap. People signs add up with no cap.
   ['groups: largest plus half the second, rest dropped, then the cap', () => {
-    const a = score({ S1: 'found', S2: 'found' });       // 12 + 4.5 = 16.5 (cap 30)
+    const a = score({ S1: 'found', S2: 'found' });       // 20 + 9 = 29 (cap 30)
     const c = score({ M4: 'found', M5: 'found', W1: 'found' }); // 14 + 5 = 19, capped 15
     const d = score({ M6: 'found', M7: 'found', M8: 'found' }); // 9 + 3.5 = 12.5, capped 10
-    const p = score({ P3: 'found', P12: 'found', P7: 'found' }); // -13 - 15 - 13 = -41, no cap
-    return (a.groups.A === 16.5 && c.groups.C === 15 && d.groups.D === 10 && p.groups.people === -41) || J([a.groups, c.groups, d.groups, p.groups]);
+    const p = score({ P3: 'found', P12: 'found', P7: 'found' }); // -17 - 15 - 17 = -49, no cap
+    return (a.groups.A === 29 && c.groups.C === 15 && d.groups.D === 10 && p.groups.people === -49) || J([a.groups, c.groups, d.groups, p.groups]);
   }],
   ['levels: a YouTube Music label from the distributor counts 20, a plain one 15; a persona badge 13 or 10', () => {
     const a = score({ S3: 'from_label' }); const b = score({ S3: 'found' });
@@ -116,7 +116,7 @@ await run([
   ['lists add at most 3 when the Deezer tag is already counted (they relay it)', () => {
     const r = score({ S1: 'found', S4: 'found' });
     const s = score({ S4: 'found' });
-    return (r.groups.B === 3 && s.groups.B === 10) || J([r.groups, s.groups]);
+    return (r.groups.B === 3 && s.groups.B === 15) || J([r.groups, s.groups]); // S4 is 16, group B's cap 15
   }],
   ['unknown, not found and anything unrecognised score 0', () => {
     const r = score({ S1: 'unknown', S2: 'not_found', M4: 'yes', ZZ9: 'found', P3: 'maybe' });
@@ -137,10 +137,10 @@ await run([
     return (r.probability > 0.95 && r.verdict === 'ai' && r.confidence === 94 && s.confidence >= 95) || J([r, s]);
   }],
   ['verdicts: ai at 60% or more, human at 5% or less, unsure between; confidence is the chance of the verdict', () => {
-    const ai = score({ M4: 'found' });                         // -9.54 + 15 = 5.46: 77.8%
+    const ai = score({ M4: 'found' });                         // -9.54 + 14 = 4.46: 73.6%
     const human = score({ P6: 'found', P8: 'found' });        // -25.54: 0.28%
-    const unsure = score({ W7: 'found' });                     // -9.54 + 2 = -7.54: 15%
-    return (ai.verdict === 'ai' && ai.confidence === 78 && human.verdict === 'human' && human.confidence === 100 && unsure.verdict === 'unsure' && unsure.confidence === 15) || J([ai, human, unsure].map((r) => [r.verdict, r.confidence, r.probability]));
+    const unsure = score({ W7: 'found' });                     // -9.54 + 9 = -0.54: 46.9%
+    return (ai.verdict === 'ai' && ai.confidence === 74 && human.verdict === 'human' && human.confidence === 100 && unsure.verdict === 'unsure' && unsure.confidence === 47) || J([ai, human, unsure].map((r) => [r.verdict, r.confidence, r.probability]));
   }],
   ['a different prior moves the start', () => {
     const r = score({}, { opts: { prior: 0.4 } });

@@ -15,7 +15,9 @@
   };
 
   const MODES = ['off', 'lists', 'optimal', 'aggressive'];
-  const THRESHOLDS = { optimal: 95, aggressive: 60 };
+  // Wai, 2026-11-19, after the 628-artist experiment: "move optimal to 94, aggressive to 80"
+  // (it was 95 and 60, 2026-11-15).
+  const THRESHOLDS = { optimal: 94, aggressive: 80 };
 
   function sanitize(obj) {
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
