@@ -118,6 +118,18 @@ await t('new layout: the button sits right of Repeat and looks like it', () => {
     && repeatBtn.querySelector('svg path').getAttribute('d') === 'M1 1h22v22H1Z')
     || J({ last: kids[kids.length - 1].id, boxClass: box.className, btnClass: btn.className });
 });
+// Wai, 2026-11-19: "fix skip button bottom right (not aligned)". Live, the repeat icon was not
+// drawn yet when the button was copied: our icon went beside the empty icon holder, not into it.
+await t('new layout, repeat icon not drawn yet: our icon goes into the empty icon holder', () => {
+  const doc = makeDocument(player('new', { clicks: {} }));
+  const rep = [...doc.querySelectorAll('button')].find(b => /repeat/i.test(b.getAttribute('aria-label') || ''));
+  const svg = rep.querySelector('svg'); svg.parentNode.removeChild(svg);
+  ytm.mountPlayerButtons(doc, { onBlockArtist() {} });
+  const btn = doc.querySelector('#hm-block-artist');
+  const ours = btn.querySelector('svg');
+  return (ours && ours.parentNode !== btn && btn.querySelector('.ytSpecButtonShapeNextIcon svg') === ours && btn.querySelectorAll('svg').length === 1)
+    || J({ parent: ours && ours.parentNode && (ours.parentNode === btn ? 'button' : ours.parentNode.className), svgs: btn.querySelectorAll('svg').length });
+});
 await t('no player: everything safe', () => {
   const doc = makeDocument(el('div'));
   const a = ytm.pageAdapter(doc);

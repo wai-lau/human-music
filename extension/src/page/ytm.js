@@ -277,8 +277,14 @@
       for (const name of ['aria-pressed', 'aria-disabled', 'disabled']) button.removeAttribute(name);
       button.setAttribute('aria-label', 'Block artist');
       button.setAttribute('title', 'Block artist');
+      // Our icon goes inside YouTube's own icon holder, replacing whatever it holds. Swapping only
+      // the copied <svg> failed whenever the repeat icon wasn't drawn yet at copy time: our icon
+      // then sat beside the empty 24 px holder, pushed right in one player layout and below the
+      // row in another (Wai, 2026-11-19: "fix skip button bottom right (not aligned)").
       const icon = button.querySelector('svg');
+      const holder = icon ? null : [...button.querySelectorAll('*')].find(e => /icon/i.test(String(e.className || '')) || e.tagName.toLowerCase() === 'yt-icon');
       if (icon && icon.parentNode) icon.parentNode.replaceChild(glyph(doc), icon);
+      else if (holder) { while (holder.firstChild) holder.removeChild(holder.firstChild); holder.appendChild(glyph(doc)); }
       else button.appendChild(glyph(doc));
       button.addEventListener('click', onClick);
       wrapper.parentElement.insertBefore(box, wrapper.nextSibling);
