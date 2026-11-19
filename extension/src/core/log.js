@@ -1,8 +1,13 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
+  // Store copies ask for no unlimitedStorage (Wai, 2026-11-18: "don't ask for unlimited
+  // storage!"; scripts/store-manifest.mjs removes it when packing): Chrome's 10 MB holds the lists
+  // too, and a full quota fails every write, list updates included. 20,000 entries is about 4.3 MB
+  // (216 bytes each), leaving the lists room to grow. The development copy keeps unlimitedStorage
+  // and every entry (Wai: "keep all entries for my own version", "no cap for dev?"): cap 0.
   const SEGMENT = 1000;
-  const STORE_CAP = 100000;
+  const STORE_CAP = 20000;
 
   function capFor(isDev) {
     return isDev ? 0 : STORE_CAP;

@@ -1,11 +1,12 @@
 // Contract check (Wai, 2026-11-18: "logs should never clear on their own", then "keep an amount of
 // logs that is huge, but reasonable on today's machines" and "keep all entries for my own version").
 // The log is stored in chunks ("segments") of 1,000 entries, so writing one entry rewrites only the
-// newest segment (and a small index), never the whole log. Store copies keep up to 100,000 entries
-// (about 25 MB); the owner's development copy keeps every entry. The manifest asks for
-// unlimitedStorage (Chrome's default 10 MB would fill in months).
+// newest segment (and a small index), never the whole log. Then Wai, 2026-11-18: "don't ask for
+// unlimited storage!" and "no cap for dev?": store copies keep up to 20,000 entries (about 4.3 MB of
+// Chrome's 10 MB, which the lists share) and their packed manifest has no unlimitedStorage; the
+// development copy (unpacked, committed manifest with unlimitedStorage) keeps every entry.
 // Interface (extension/src/core/log.js):
-//   HM.log.SEGMENT = 1000; HM.log.STORE_CAP = 100000
+//   HM.log.SEGMENT = 1000; HM.log.STORE_CAP = 20000
 //   HM.log.capFor(isDev) -> 0 for the development copy (0 means no cap), STORE_CAP otherwise
 //   HM.log.createLogStore(storage, { cap }) -> {
 //     append(entry, { oncePerDay }) -> Promise<boolean>   (false when oncePerDay found it already today)
@@ -27,7 +28,7 @@ const e = (i, o = {}) => ({ at: 1_700_000_000_000 + i * 60000, event: 'skipped',
 const fill = async (store, n) => { for (let i = 0; i < n; i++) await store.append(e(i)); };
 
 await t('constants and the cap for each copy', () =>
-  (HM.log.SEGMENT === 1000 && HM.log.STORE_CAP === 100000 && HM.log.capFor(true) === 0 && HM.log.capFor(false) === 100000) || J([HM.log.SEGMENT, HM.log.STORE_CAP, HM.log.capFor(true), HM.log.capFor(false)]));
+  (HM.log.SEGMENT === 1000 && HM.log.STORE_CAP === 20000 && HM.log.capFor(true) === 0 && HM.log.capFor(false) === 20000) || J([HM.log.SEGMENT, HM.log.STORE_CAP, HM.log.capFor(true), HM.log.capFor(false)]));
 await t('2,500 entries: all read back newest first, in segments of at most 1,000', async () => {
   const storage = fakeStorage({});
   const store = HM.log.createLogStore(storage, { cap: 100000 });
@@ -94,9 +95,17 @@ await t('once a day: the same entry within a day is kept once, also across a seg
   const n = (await store.readAll()).filter((x) => x.title === 'Watched One').length;
   return (a === true && b === false && c === true && n === 2) || J({ a, b, c, n });
 });
-await t('the manifest asks for unlimitedStorage', () => {
+await t('the committed manifest keeps unlimitedStorage; the packed one (store-manifest) drops it and nothing else', async () => {
   const m = JSON.parse(readFileSync(process.cwd() + '/extension/manifest.json', 'utf8'));
-  return (m.permissions || []).includes('unlimitedStorage') || J(m.permissions);
+  const { storeManifest } = await import(process.cwd() + '/scripts/store-manifest.mjs');
+  const packed = storeManifest(m);
+  const rest = (m.permissions || []).filter((p) => p !== 'unlimitedStorage');
+  return ((m.permissions || []).includes('unlimitedStorage') && J(packed.permissions) === J(rest) && J({ ...packed, permissions: 0 }) === J({ ...m, permissions: 0 })) || J({ m: m.permissions, packed: packed.permissions });
+});
+await t('both pack scripts run store-manifest on the packed copy', () => {
+  const crx = readFileSync(process.cwd() + '/scripts/pack-crx.sh', 'utf8');
+  const ff = readFileSync(process.cwd() + '/scripts/build-firefox.sh', 'utf8');
+  return (/store-manifest\.mjs" "\$work\/extension\/manifest\.json"/.test(crx) && /store-manifest\.mjs" "\$out\/manifest\.json"/.test(ff)) || 'a pack script ships the development manifest';
 });
 
 // --- the wiring: the extension really uses the store ---

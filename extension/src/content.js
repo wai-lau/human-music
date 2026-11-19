@@ -62,7 +62,7 @@
     let writes = Promise.resolve();
 
     // The log is kept in segments (HM.log.createLogStore). The worker records this copy's cap as
-    // hm.logCap (0 = keep everything, the development copy); until it has, the store cap holds.
+    // hm.logCap (HM.log.capFor); until it has, the store cap holds.
     // The worker also migrates the old hm.log array, once, at its start.
     let logStore = null;
     async function getLogStore() {

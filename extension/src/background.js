@@ -685,8 +685,8 @@ list = lists[HM.store.KEYS.filterLists][i];
       });
     }
 
-    // At every start: record this copy's log cap for the content script (0 = keep everything, the
-    // development copy) and move an old single-array log into segments.
+    // At every start: record this copy's log cap for the content script (HM.log.capFor: 0 = keep all) and
+    // move an old single-array log into segments.
     waitDev(function (dev) {
       const cap = globalThis.HM.log.capFor(dev);
       api.storage.local.set({ 'hm.logCap': cap });

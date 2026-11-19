@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, mkdtempSync, cpSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 import { join, basename } from 'path';
+import { storeManifest } from '../scripts/store-manifest.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 // The extension the tests read from. HM_E2E_EXT: run against another copy of the extension (a
@@ -23,6 +24,8 @@ function makeCopy(storeCopy) {
   const ext = join(dir, 'extension');
   cpSync(EXT, ext, { recursive: true, filter: src => basename(src) !== 'dev-copy' });
   if (!storeCopy) writeFileSync(join(ext, 'dev-copy'), 'Development copy marker, added by the e2e run.\n');
+  // A store copy also gets the packed manifest (no development-only permission), as the pack scripts make it.
+  if (storeCopy) writeFileSync(join(ext, 'manifest.json'), JSON.stringify(storeManifest(JSON.parse(readFileSync(join(ext, 'manifest.json'), 'utf8'))), null, 2) + '\n');
   return { dir, ext };
 }
 const PAGES = { 'music.youtube.com': 'ytm.html', 'open.spotify.com': 'spotify.html' };

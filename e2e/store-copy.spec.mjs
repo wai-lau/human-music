@@ -16,6 +16,13 @@ test.describe('store copy', () => {
     expect(seen).not.toContain('my-lists.json');
   });
 
+  test('asks for no unlimited storage and caps the log at 20,000', async ({ setState, worker, readStore }) => {
+    await setState();
+    const perms = await worker.evaluate(() => chrome.runtime.getManifest().permissions);
+    expect(perms).not.toContain('unlimitedStorage');
+    await expect.poll(() => readStore('hm.logCap')).toBe(20000);
+  });
+
   test('says it is not a development copy and hides the investigator in the popup', async ({ context, extensionId, setState }) => {
     await setState();
     const popup = await context.newPage();

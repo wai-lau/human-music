@@ -14,6 +14,8 @@ out="${HM_DIST_DIR:-$repo/dist}/firefox"
 rm -rf "$out"
 mkdir -p "$out"
 git -C "$repo" archive "$ref" extension | tar -x -C "$out" --strip-components=1
+# A packed copy asks for no development-only permission (scripts/store-manifest.mjs).
+node "$repo/scripts/store-manifest.mjs" "$out/manifest.json"
 node - "$out/manifest.json" "$out/manifest.json" <<'JS'
 const fs = require('fs');
 const [src, dst] = process.argv.slice(2);

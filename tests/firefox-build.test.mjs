@@ -6,6 +6,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 import { run } from './load.mjs';
+import { storeManifest } from '../scripts/store-manifest.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '..', '..');
 const chrome = JSON.parse(readFileSync(join(root, 'extension/manifest.json'), 'utf8'));
@@ -42,9 +43,9 @@ run([
   ['declares no data collection (AMO requires it for new extensions)', () =>
     JSON.stringify(ff.browser_specific_settings.gecko.data_collection_permissions) === '{"required":["none"]}' || JSON.stringify(ff.browser_specific_settings.gecko)],
   ['no management permission is requested (getSelf needs none)', () => !(ff.permissions || []).includes('management') || 'management present'],
-  ['everything else matches the Chrome manifest', () => {
+  ['everything else matches the packed Chrome manifest (no development-only permission)', () => {
     const strip = m => { const c = { ...m }; delete c.background; delete c.browser_specific_settings; return JSON.stringify(c); };
-    return strip(ff) === strip(chrome) || 'manifests differ';
+    return strip(ff) === strip(storeManifest(chrome)) || 'manifests differ';
   }],
   ['every file the Firefox manifest names exists in the build', () => {
     const files = [...ff.background.scripts, ff.action.default_popup, ...Object.values(ff.icons), ...ff.content_scripts.flatMap(c => c.js)];
