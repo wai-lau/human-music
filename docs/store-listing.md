@@ -61,7 +61,7 @@ maximum of five):
 5. `5-lists.png`: the Lists tab, largest list first, with refresh icons (real counts on
    2026-11-19) and Optimal selected, as users see it with the verdict list published as checked.
 
-Shots 4 and 5 were retaken 2026-11-19 after Watch only was removed and refresh became an icon.
+Shots 4 and 5 were retaken 2026-11-19 after Watch only was removed and refresh became an icon; shots 2 and 3 on 2026-11-20 (Optimal selected, no Watch only text).
 
 Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub switch) show the popup
 with the filtering-mode slider and Zoundhub as the list, from a store-like copy (no investigator
@@ -120,11 +120,16 @@ Visibility: Public, Unlisted (only people with the link) or Private
 **Going public with the next release** (Wai, 2026-11-18: "for the next release, I want it
 public, not unlisted"):
 
+A review in progress can't be cancelled and blocks a new submission (Wai, 2026-11-20), so make
+every listing change before anything is submitted:
+
 1. Run `npm run release` as usual. It uploads the new version.
 2. In the dashboard, Distribution tab: set Visibility to **Public** and save.
-3. Submit for review by hand from the dashboard: a visibility change made by hand needs one
-   publish by hand before the API can publish again. If step 1 already submitted, cancel that
-   review first, then submit.
+3. Store listing tab: paste the description above, upload all five screenshots and the small
+   promo tile from `~/store-shots`, and fill in the website and support links.
+4. Submit for review by hand from the dashboard, once, after steps 2 and 3: a visibility change
+   made by hand needs one publish by hand before the API can publish again. If the release
+   already submitted, wait for that review to finish, then make steps 2 to 4.
 
 A public listing is reviewed more closely: the description, the screenshots in
 `~/store-shots` and every permission's reason must match what the extension does.
