@@ -128,7 +128,9 @@ test('a playlist row by a listed artist looks unavailable, with the skip glyph',
   const real = page.locator('[data-e2e="Real Song"]');
   await expect(made.locator('.hm-mark svg')).toBeVisible();
   await expect(made.locator('ytmusic-thumbnail-renderer')).toBeHidden();
-  expect(await made.evaluate(e => getComputedStyle(e).opacity)).toBe('0.6');
+  // Greyed text, never opacity (2026-11-20: a semi-transparent row set off a drawing glitch on an Intel Mac).
+  expect(await made.evaluate(e => getComputedStyle(e).opacity)).toBe('1');
+  expect(await made.evaluate(e => getComputedStyle(e).color)).toBe('rgb(122, 122, 122)');
   // Unclickable (Wai: "make the songs that look blocked unclickable"): nothing in the row takes the pointer.
   expect(await made.evaluate(e => { const r = e.getBoundingClientRect(); const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return getComputedStyle(e).pointerEvents === 'none' && !e.contains(hit); })).toBe(true);
   await expect(real.locator('ytmusic-thumbnail-renderer')).toBeVisible();

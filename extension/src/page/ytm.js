@@ -470,7 +470,12 @@
   // A row that will be skipped looks like YouTube Music's own unavailable rows: dimmed, its
   // thumbnail swapped for a grey disc, with the skip glyph where YouTube Music puts "!"
   // (Wai, 2026-11-13; checked live: the row at opacity 0.6, a 24 px #aaa disc centred in
-  // the 48 px thumbnail slot).
+  // the 48 px thumbnail slot). Dimmed by greying its text, not by opacity, since 2026-11-20: a
+  // user on Chrome on an Intel Mac saw the page below a dimmed row turn white and lose its text,
+  // the kind of drawing glitch a semi-transparent layer can set off there.
+  const DIM_TEXT = '#7a7a7a';
+  const DIM_SECONDARY = '#5f5f5f';
+  const DIM_PARTS = '.secondary-flex-columns yt-formatted-string, .secondary-flex-columns a, .fixed-columns yt-formatted-string, .fixed-columns a';
 
   const LIST_ROW = 'ytmusic-responsive-list-item-renderer';
   // A disc (r 11) with the skip glyph cut out: ring and slash scaled to 0.78, one even-odd path.
@@ -519,7 +524,13 @@
   function markRow(row, doc = row && row.ownerDocument) {
     try {
       row.setAttribute('data-hm-marked', '');
-      setStyle(row, 'opacity', '0.6');
+      // The title and icons follow these on the row; the artist line and duration set their own
+      // colour, so they get it inline.
+      setStyle(row, '--ytmusic-text-primary', DIM_TEXT);
+      setStyle(row, '--ytmusic-text-secondary', DIM_SECONDARY);
+      setStyle(row, 'color', DIM_TEXT);
+      const parts = row.querySelectorAll(DIM_PARTS);
+      for (let i = 0; i < parts.length; i++) setStyle(parts[i], 'color', DIM_SECONDARY);
       // Unclickable, like YouTube Music's own unavailable rows (Wai, 2026-11-13: "make the
       // songs that look blocked unclickable"): it would only be skipped.
       setStyle(row, 'pointer-events', 'none');
@@ -541,7 +552,12 @@
   function unmarkRow(row) {
     try {
       row.removeAttribute('data-hm-marked');
-      setStyle(row, 'opacity', null);
+      setStyle(row, 'opacity', null); // rows marked by an older copy
+      setStyle(row, '--ytmusic-text-primary', null);
+      setStyle(row, '--ytmusic-text-secondary', null);
+      setStyle(row, 'color', null);
+      const parts = row.querySelectorAll(DIM_PARTS);
+      for (let i = 0; i < parts.length; i++) setStyle(parts[i], 'color', null);
       setStyle(row, 'pointer-events', null);
       row.removeAttribute('aria-disabled');
       const thumb = row.querySelector('.left-items ytmusic-thumbnail-renderer');
