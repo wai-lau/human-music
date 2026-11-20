@@ -5,7 +5,7 @@
 // SH Labs alone gives AI at 90: below Optimal's 94, so Optimal never skips on SH Labs alone;
 // Aggressive (80) does. On 216 people from MusicBrainz, 2 scored 85+ on both songs (one a
 // Taipei singer-songwriter the checklist rates unsure), so SH Labs alone must not reach Optimal
-// (2026-11-20, interim until Wai's call; it was 94, equal to the new Optimal).
+// (Wai, 2026-11-20: "sounds good A"; it was 94, equal to the new Optimal).
 const SHLABS_AI_CONFIDENCE = 90;
 import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
