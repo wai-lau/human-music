@@ -2,6 +2,11 @@
 // locked-down `claude -p`, then the decision rule (decide() is the final word), then the
 // calibration mapping. Unsure means play: any failure leaves no verdict rather than a wrong one.
 // Layered decision (Wai, 2026-11-18): cheap pass -> stored verdict -> AI list -> SH Labs -> Claude.
+// SH Labs alone gives AI at 90: below Optimal's 94, so Optimal never skips on SH Labs alone;
+// Aggressive (80) does. On 216 people from MusicBrainz, 2 scored 85+ on both songs (one a
+// Taipei singer-songwriter the checklist rates unsure), so SH Labs alone must not reach Optimal
+// (2026-11-20, interim until Wai's call; it was 94, equal to the new Optimal).
+const SHLABS_AI_CONFIDENCE = 90;
 import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
 import { scoreChecklist } from './score.mjs';
@@ -136,7 +141,7 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
                 if (p1 >= 85 && p2 >= 85) {
                   keep(save(artist, null, {
                     verdict: 'ai',
-                    confidence: 94,
+                    confidence: SHLABS_AI_CONFIDENCE,
                     rawConfidence: Math.round(Math.min(p1, p2)),
                     signals: ['M3'],
                     reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
@@ -183,7 +188,7 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
                 if (p1 >= 85 && p2 >= 85) {
                   keep(save(artist, null, {
                     verdict: 'ai',
-                    confidence: 94,
+                    confidence: SHLABS_AI_CONFIDENCE,
                     rawConfidence: Math.round(Math.min(p1, p2)),
                     signals: ['M3'],
                     reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],

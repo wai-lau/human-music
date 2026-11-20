@@ -116,7 +116,7 @@ await run([
     const out = await sh.scoreIsrcs([ISRC1, 'bad', ISRC2]);
     return (J(bodies) === J([{ isrc: ISRC1 }, { isrc: ISRC2 }]) && J(out.map((r) => r.trackId)) === J([`isrc:${ISRC1}`, `isrc:${ISRC2}`]) && out[0].probability === 97.5) || J({ bodies, out });
   }],
-  ['worker: a YouTube Music artist with two ISRCs at 85+ is AI at 94 from SH Labs; nothing linked is stored', async () => {
+  ['worker: a YouTube Music artist with two ISRCs at 85+ is AI at 90 from SH Labs; nothing linked is stored', async () => {
     const store = openStore(':memory:');
     const queue = createQueue({ store, now: () => NOW, cap: 100 });
     let claude = 0;
@@ -130,7 +130,7 @@ await run([
     queue.enqueue([a]); await w.runOne();
     const v = store.findVerdict(artistKeys(a));
     const keys = Object.keys(v || {});
-    return (v && v.verdict === 'ai' && v.confidence === 94 && v.model === 'shlabs' && claude === 0 && v.channelId === CH && !keys.includes('spotifyId') && !J(v).includes('777') && store.getState(`shlabs.requests.${DAY}`) === 2)
+    return (v && v.verdict === 'ai' && v.confidence === 90 && v.model === 'shlabs' && claude === 0 && v.channelId === CH && !keys.includes('spotifyId') && !J(v).includes('777') && store.getState(`shlabs.requests.${DAY}`) === 2)
       || J({ v, claude, n: store.getState(`shlabs.requests.${DAY}`) });
   }],
   ['worker: no link ([]) means Claude decides', async () => {

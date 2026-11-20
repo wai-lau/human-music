@@ -6,7 +6,7 @@
 //   2. a stored verdict (the queue already skips those);
 //   3. an AI list (Zoundhub, Soul Over AI, Cevval): AI at 100, model 'list';
 //   4. SH Labs on the artist's top two songs (from Spotify's embed page): both 85 or more = AI
-//      (confidence 94, model 'shlabs'); both under 50 = made by people (confidence 95);
+//      (confidence 90 since 2026-11-20, below Optimal's 94; it was 94; model 'shlabs'); both under 50 = made by people (confidence 95);
 //   5. Claude's checklist research, ONLY when SH Labs can't answer: no Spotify ID or no songs on
 //      its page, scores that disagree or fewer than two, an empty answer (limit or error), or the
 //      day's SH Labs requests used up (shlabsDailyCap, default 190).
@@ -64,11 +64,11 @@ await run([
     const v = verdictOf(t.store, art('Listed'));
     return (v.verdict === 'ai' && v.confidence === 100 && v.model === 'list' && v.reasons.join(' ').includes('Zoundhub') && t.calls.shlabs === 0 && t.calls.claude === 0) || J({ v, calls: t.calls });
   }],
-  ['4: both songs 85 or more: AI at 94 from SH Labs; Claude never runs; scores kept', async () => {
+  ['4: both songs 85 or more: AI at 90 from SH Labs (below Optimal); Claude never runs; scores kept', async () => {
     const t = setup({ scores: scoresOf([96.1, 91.4]) });
     t.queue.enqueue([art('Loud Bot')]); await t.w.runOne();
     const v = verdictOf(t.store, art('Loud Bot'));
-    return (v.verdict === 'ai' && v.confidence === 94 && v.model === 'shlabs' && t.calls.claude === 0 && t.calls.pages === 1) || J({ v, calls: t.calls });
+    return (v.verdict === 'ai' && v.confidence === 90 && v.model === 'shlabs' && t.calls.claude === 0 && t.calls.pages === 1) || J({ v, calls: t.calls });
   }],
   ['4: both songs under 50: made by people at 95 from SH Labs; Claude never runs', async () => {
     const t = setup({ scores: scoresOf([3.2, 11.0]) });
@@ -126,7 +126,7 @@ await run([
     const got = t.store.getScores(v.id);
     return (Array.isArray(got) && got.length === 2) || J(got);
   }],
-  ['published: a list verdict at 100, an SH Labs verdict at 94', async () => {
+  ['published: a list verdict at 100, an SH Labs verdict at 90', async () => {
     const { buildList } = await import('../src/listjson.mjs');
     const a = setup({ list: () => ({ listName: 'Zoundhub', url: 'https://raw.githubusercontent.com/wai-lau/human-music-verdicts/main/zoundhub.json' }) });
     a.queue.enqueue([art('Listed')]); await a.w.runOne();
@@ -135,7 +135,7 @@ await run([
     const la = JSON.parse(buildList(a.store.listPublishable(), { now: NOW, calibrated: false, mapping: null }));
     const lb = JSON.parse(buildList(b.store.listPublishable(), { now: NOW, calibrated: false, mapping: null }));
     const ea = (la.artists || la.entries || [])[0], eb = (lb.artists || lb.entries || [])[0];
-    return (ea && ea.confidence === 100 && eb && eb.confidence === 94) || J({ ea, eb });
+    return (ea && ea.confidence === 100 && eb && eb.confidence === 90) || J({ ea, eb });
   }],
   ['the SH Labs layer never runs without a client (no key): Claude decides', async () => {
     const t = setup({});
