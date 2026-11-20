@@ -107,3 +107,19 @@ people are still to score, at about 45 a day of SH Labs quota):
 
 Requiring both songs matters: a single 85+ song would have called 2 people AI. Under 50 on both
 lets 5 AI artists through as made by people (a missed skip, not a person skipped).
+
+## SH Labs on all the people (2026-11-20)
+
+With 231 people scored (two songs each, the free plan's 30-second previews):
+
+| Reading | Known AI | Known people |
+|---|---|---|
+| 85+ on both songs | 205 of 259 | 2 of 231 |
+| Under 50 on both | 5 of 259 | 200 of 231 |
+
+The two people: Lucas Valiante (93.5 and 91.7; the checklist also calls him AI at 93: about 30
+self-released ambient releases in 16 months, so the MusicBrainz "Person" label may be wrong) and
+Willwi (93.5 and 96.1; a Taipei singer-songwriter with a Wikidata entry and credits since 2018,
+whom the checklist rates unsure at 31). No SH Labs threshold separates them from the AI artists
+without losing most of those (both 95+: 75 of 241 AI). SH Labs-alone AI verdicts went from 94 to 90
+(below Optimal's 94) the same day.
