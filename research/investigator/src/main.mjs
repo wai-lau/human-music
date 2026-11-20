@@ -83,10 +83,12 @@ export function createApp(env, deps = {}) {
   // --- publishing: once a day (Wai, 2026-11-17); a failed push retries every 10 minutes. The due
   // time is stored, so a restart doesn't push it back a day (review 2026-11-17). ---
   let pubTimer = null;
+  let pubTimerDueAt = null;
   let retryTimer = null;
 
   async function doPublish() {
     pubTimer = null;
+    pubTimerDueAt = null;
     retryTimer = null;
     if (!publisher) return;
     let r;
@@ -113,8 +115,8 @@ export function createApp(env, deps = {}) {
     }
   }
 
-  function schedulePublish() {
-    if (!publisher || pubTimer || retryTimer) return;
+  // Calculate what the publish should be due at (in ms since epoch), from the store.
+  function calcPublishDue() {
     const t = now().getTime();
     let due = NaN;
     try {
@@ -122,12 +124,26 @@ export function createApp(env, deps = {}) {
       if (!Number.isFinite(due)) {
         const last = Date.parse(store.getState('publish.lastAt') || '');
         due = Number.isFinite(last) ? Math.max(t, last + PUBLISH_DELAY_MS) : t + PUBLISH_DELAY_MS;
-        store.setState('publish.dueAt', new Date(due).toISOString());
       }
     } catch { /* without the store, a day from now */ }
+    if (!Number.isFinite(due)) return t + PUBLISH_DELAY_MS;
     // Never more than a day away, even if the clock moved back since the due time was stored.
-    const wait = Number.isFinite(due) ? Math.min(PUBLISH_DELAY_MS, Math.max(0, due - t)) : PUBLISH_DELAY_MS;
+    return Math.min(t + PUBLISH_DELAY_MS, Math.max(t, due));
+  }
+
+  function schedulePublish() {
+    if (!publisher || pubTimer || retryTimer) return pubTimerDueAt;
+    const t = now().getTime();
+    const due = calcPublishDue();
+    try {
+      if (!store.getState('publish.dueAt') && Number.isFinite(due)) {
+        store.setState('publish.dueAt', new Date(due).toISOString());
+      }
+    } catch { /* no store */ }
+    const wait = Math.max(0, due - t);
     pubTimer = timers.setTimeout(doPublish, wait);
+    pubTimerDueAt = due;
+    return pubTimerDueAt;
   }
 
   // --- the worker: one artist at a time ---
@@ -168,7 +184,17 @@ export function createApp(env, deps = {}) {
 
   function slowTick() {
     slowTimer = timers.setTimeout(slowTick, SLOW_TICK_MS);
-    try { if (store.getState('publish.stale')) schedulePublish(); } catch { /* try again next tick */ }
+    try {
+      if (store.getState('publish.stale')) {
+        const storedDue = calcPublishDue();
+        // Only replace the timer if the stored due time is earlier.
+        if (!pubTimer || storedDue < pubTimerDueAt) {
+          if (pubTimer) timers.clearTimeout(pubTimer);
+          pubTimer = null;
+          schedulePublish();
+        }
+      }
+    } catch { /* try again next tick */ }
     try { if (queue.resumeIfDue()) log('queue: usage-limit pause lifted after an hour'); } catch { /* next tick */ }
     kick();
   }
