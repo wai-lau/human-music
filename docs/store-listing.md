@@ -59,7 +59,7 @@ maximum of five):
 3. `3-actions.png`: the log's Actions section.
 4. `4-behaviour.png`: the Behaviour settings.
 5. `5-lists.png`: the Lists tab, largest list first, with refresh icons (real counts on
-   2026-11-19) and Optimal selected, as users see it with the verdict list published as checked.
+   2026-11-20, the verdict list's first 3 AI verdicts) and Optimal selected.
 
 Shots 4 and 5 were retaken 2026-11-19 after Watch only was removed and refresh became an icon; shots 2 and 3 on 2026-11-20 (Optimal selected, no Watch only text).
 
