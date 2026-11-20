@@ -120,7 +120,9 @@ await run([
     const store = openStore(':memory:');
     const queue = createQueue({ store, now: () => NOW, cap: 100 });
     let claude = 0;
-    const sc = (codes) => codes.map((c, i) => ({ trackId: `isrc:${c}`, probability: [96.1, 91.4][i], label: '', generator: null, audioSource: 'full', at: NOW.toISOString() }));
+    // Answers in song order across calls (one song per call since the graded SH Labs layer).
+    let n = 0;
+    const sc = (codes) => codes.map((c) => ({ trackId: `isrc:${c}`, probability: [96.1, 91.4][n++], label: '', generator: null, audioSource: 'full', at: NOW.toISOString() }));
     const w = createWorker({ store, queue, now: () => NOW, mapping: null, scoring: true, schedulePublish() {},
       cheapPass: async () => null, aiLists: { match: async () => null }, fetchPage: async () => '',
       isrcLinker: { isrcsFor: async () => [ISRC1, ISRC2] },

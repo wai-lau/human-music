@@ -121,51 +121,51 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
         } catch { /* list check failed; fall through */ }
       }
 
-      // SH Labs layer: score the artist's top two tracks via Spotify's embed page.
-      // Both scores 85+ -> AI at 94; both under 50 -> human at 95; otherwise fall through to Claude.
+      // SH Labs layer, graded by SH Labs' own percentage (Wai, 2026-11-20: "if they are highly
+      // confident we don't need to make another check", then "A"). Songs are scored one at a time:
+      // a first song under 8 is made by people at 95 with one request; otherwise the second song:
+      // both 95+ is AI at 95 (Optimal skips), both 85+ AI at SHLABS_AI_CONFIDENCE (Aggressive only),
+      // both under 50 made by people at 95, anything else goes on to Claude. Measured on 259 known
+      // AI and 231 people: research/calibration/weights-628.md. Returns true when it settled.
+      const gradeShlabs = async (ids, scoreOne) => {
+        const cap = shlabsDailyCap !== undefined ? shlabsDailyCap : 190;
+        const key = `shlabs.requests.${today}`;
+        const used = typeof store.getState(key) === 'number' ? store.getState(key) : 0;
+        if (used + 2 > cap || ids.length < 2) return false;
+        const settle = (scores, v) => {
+          const id = save(artist, null, { ...v, sources: ['https://shlabs.music'] }, 'shlabs', today);
+          try { store.putScores(id, scores); } catch { /* optional */ }
+          queue.done(artist);
+          schedulePublish();
+          return true;
+        };
+        const s1 = await scoreOne(ids[0]);
+        store.setState(key, used + 1);
+        if (s1.length !== 1) return false;
+        const p1 = s1[0].probability;
+        if (p1 < 8) {
+          return settle(s1, { verdict: 'human', confidence: 95, rawConfidence: Math.round(p1), signals: ['P16'], reasons: [`${p1.toFixed(1)}% on SH Labs`] });
+        }
+        const s2 = await scoreOne(ids[1]);
+        store.setState(key, used + 2);
+        if (s2.length !== 1) return false;
+        const p2 = s2[0].probability;
+        const both = [...s1, ...s2];
+        const reasons = [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`];
+        if (p1 >= 95 && p2 >= 95) return settle(both, { verdict: 'ai', confidence: 95, rawConfidence: Math.round(Math.min(p1, p2)), signals: ['M3'], reasons });
+        if (p1 >= 85 && p2 >= 85) return settle(both, { verdict: 'ai', confidence: SHLABS_AI_CONFIDENCE, rawConfidence: Math.round(Math.min(p1, p2)), signals: ['M3'], reasons });
+        if (p1 < 50 && p2 < 50) return settle(both, { verdict: 'human', confidence: 95, rawConfidence: Math.round(Math.max(p1, p2)), signals: ['P16'], reasons });
+        return false;
+      };
+
+      // Spotify artists: their top two tracks from Spotify's embed page.
       if (shlabs && artist.spotifyId && fetchPage) {
         try {
           const cap = shlabsDailyCap !== undefined ? shlabsDailyCap : 190;
-          const key = `shlabs.requests.${today}`;
-          const used = typeof store.getState(key) === 'number' ? store.getState(key) : 0;
+          const used = Number(store.getState(`shlabs.requests.${today}`)) || 0;
           if (used + 2 <= cap) {
             const html = await fetchPage(`https://open.spotify.com/embed/artist/${artist.spotifyId}`);
-            const ids = trackIdsFromEmbed(html, 2);
-            if (ids.length === 2) {
-              const scores = await shlabs.scoreTracks(ids);
-              store.setState(key, used + 2);
-              if (scores.length === 2) {
-                const p1 = scores[0].probability;
-                const p2 = scores[1].probability;
-                const keep = (id) => { try { store.putScores(id, scores); } catch { /* optional */ } };
-                if (p1 >= 85 && p2 >= 85) {
-                  keep(save(artist, null, {
-                    verdict: 'ai',
-                    confidence: SHLABS_AI_CONFIDENCE,
-                    rawConfidence: Math.round(Math.min(p1, p2)),
-                    signals: ['M3'],
-                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
-                    sources: ['https://shlabs.music'],
-                  }, 'shlabs', today));
-                  queue.done(artist);
-                  schedulePublish();
-                  return 'done';
-                }
-                if (p1 < 50 && p2 < 50) {
-                  keep(save(artist, null, {
-                    verdict: 'human',
-                    confidence: 95,
-                    rawConfidence: Math.round(Math.max(p1, p2)),
-                    signals: ['P16'],
-                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
-                    sources: ['https://shlabs.music'],
-                  }, 'shlabs', today));
-                  queue.done(artist);
-                  schedulePublish();
-                  return 'done';
-                }
-              }
-            }
+            if (await gradeShlabs(trackIdsFromEmbed(html, 2), (id) => shlabs.scoreTracks([id]))) return 'done';
           }
         } catch { /* SH Labs failed or limit; fall through to Claude */ }
       }
@@ -174,45 +174,10 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
       if (shlabs && !artist.spotifyId && isrcLinker) {
         try {
           const cap = shlabsDailyCap !== undefined ? shlabsDailyCap : 190;
-          const key = `shlabs.requests.${today}`;
-          const used = typeof store.getState(key) === 'number' ? store.getState(key) : 0;
+          const used = Number(store.getState(`shlabs.requests.${today}`)) || 0;
           if (used + 2 <= cap) {
             const isrcs = await isrcLinker.isrcsFor(artist);
-            if (isrcs.length === 2) {
-              const scores = await shlabs.scoreIsrcs(isrcs);
-              store.setState(key, used + 2);
-              if (scores.length === 2) {
-                const keep = (id) => { try { store.putScores(id, scores); } catch { /* optional */ } };
-                const p1 = scores[0].probability;
-                const p2 = scores[1].probability;
-                if (p1 >= 85 && p2 >= 85) {
-                  keep(save(artist, null, {
-                    verdict: 'ai',
-                    confidence: SHLABS_AI_CONFIDENCE,
-                    rawConfidence: Math.round(Math.min(p1, p2)),
-                    signals: ['M3'],
-                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
-                    sources: ['https://shlabs.music'],
-                  }, 'shlabs', today));
-                  queue.done(artist);
-                  schedulePublish();
-                  return 'done';
-                }
-                if (p1 < 50 && p2 < 50) {
-                  keep(save(artist, null, {
-                    verdict: 'human',
-                    confidence: 95,
-                    rawConfidence: Math.round(Math.max(p1, p2)),
-                    signals: ['P16'],
-                    reasons: [`${p1.toFixed(1)}% and ${p2.toFixed(1)}% on SH Labs`],
-                    sources: ['https://shlabs.music'],
-                  }, 'shlabs', today));
-                  queue.done(artist);
-                  schedulePublish();
-                  return 'done';
-                }
-              }
-            }
+            if (await gradeShlabs(isrcs, (isrc) => shlabs.scoreIsrcs([isrc]))) return 'done';
           }
         } catch { /* ISRC link or SH Labs failed; fall through to Claude */ }
       }

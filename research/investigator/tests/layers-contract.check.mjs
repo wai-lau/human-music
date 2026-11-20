@@ -49,7 +49,9 @@ function setup(o = {}) {
   return { store, queue, w, calls };
 }
 const verdictOf = (store, a) => store.findVerdict(artistKeys(a));
-const scoresOf = (ps) => (ids) => ids.map((id, i) => ({ trackId: id, probability: ps[i], label: '', generator: null, audioSource: 'full', at: NOW.toISOString() }));
+// SH Labs' answers in song order, across calls: since 2026-11-20 the worker scores one song per call
+// (graded SH Labs), so the fake counts songs asked for, not positions within one call.
+const scoresOf = (ps) => { let n = 0; return (ids) => ids.map((id) => ({ trackId: id, probability: ps[n++], label: '', generator: null, audioSource: 'full', at: NOW.toISOString() })).filter((s) => s.probability !== undefined); };
 
 await run([
   ['1: a release before 2020 settles it; nothing else runs', async () => {
@@ -83,7 +85,7 @@ await run([
     return (t.calls.claude === 1 && v && v.model === 'claude-score') || J({ v, calls: t.calls });
   }],
   ['5: one score only goes to Claude', async () => {
-    const t = setup({ scores: (ids) => scoresOf([97])(ids.slice(0, 1)) });
+    const t = setup({ scores: scoresOf([97]) }); // SH Labs answers for the first song only
     t.queue.enqueue([art('One')]); await t.w.runOne();
     return t.calls.claude === 1 || J(t.calls);
   }],
@@ -109,7 +111,7 @@ await run([
     return (t.calls.shlabs === 0 && t.calls.claude === 1) || J(t.calls);
   }],
   ['SH Labs requests are counted per day (two per artist scored)', async () => {
-    const t = setup({ scores: scoresOf([99, 98]) });
+    const t = setup({ scores: scoresOf([99, 98, 99, 98]) }); // two songs for each of the two artists
     t.queue.enqueue([art('Count A'), art('Count B', { spotifyId: 'Q'.repeat(22) })]); await t.w.runOne(); await t.w.runOne();
     return t.store.getState(`shlabs.requests.${DAY}`) === 4 || J(t.store.getState(`shlabs.requests.${DAY}`));
   }],
