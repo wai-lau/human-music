@@ -108,9 +108,10 @@ text list of channel IDs) and are never run; all code is in the package.
 three statements (not sold to third parties, not used for unrelated
 purposes, not used for creditworthiness or lending).
 
-**Privacy policy URL:** none needed while no user data is collected. If the
-dashboard asks anyway, use the README's "Your data" section:
-https://github.com/wai-lau/human-music#what-it-does
+**Privacy policy URL:** https://github.com/wai-lau/human-music/blob/main/PRIVACY.md
+(Chrome's policy counts reading page content and keeping a log on the computer as handling user
+data, even when nothing leaves it, so a policy is needed. `PRIVACY.md` also carries the Limited Use
+statement.)
 
 ## Distribution tab
 
