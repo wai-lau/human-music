@@ -4,6 +4,7 @@ Decisions Wai made on the open-questions page, newest first.
 
 | When | Question | Wai's answer | Reading taken |
 |---|---|---|---|
+| 2026-11-20 | How should SH Labs' own percentage count? | "A" | Graded: both songs 95+ is AI at 95 (Optimal skips); both 85+ stays AI at 90 (Aggressive only); a first song under 8 settles made by people without a second request; both under 50 still made by people; anything else goes to Claude. |
 | 2026-11-20 | How sure must SH Labs alone be to skip an artist? | "sounds good A" | SH Labs-alone AI verdicts stay at 90: Optimal (94) never skips on SH Labs alone; Aggressive (80) does. |
 | 2026-11-19 | "Watch only should be a single toggle": what happens to the lists that watch on their own? | "remove the watch only toggle, people can just turn of their list, or turn off the behaviour they don't want" | No Watch only anywhere: a list is on or off. A list you add acts at once; a list whose download looks wrong is switched off with the reason shown; a list now in Watch only becomes off (it was not acting, so it stays not acting). |
 | 2026-11-19 | How should Soul Over AI and Zoundhub be merged? | "A", then "B, order them by list size in the popup tho" | Two lists stay; Soul Over AI is on by default again (new installs); the popup orders lists by size, largest first. |
