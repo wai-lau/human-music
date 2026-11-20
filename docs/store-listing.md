@@ -71,8 +71,9 @@ section).
 items without one are shown after items that have one. Per the guide it has no text: the icon on
 a saturated green field.
 
-**Icon:** from the package. The 128 px icon is 96 px of artwork in 16 px of transparent padding,
-as the guide asks (`docs/make-icons.sh`).
+**Store icon:** Wai uploaded her own in the dashboard (2026-11-20): keep it, never replace it.
+The package's icons (`extension/icons/`, built by `docs/make-icons.sh`; the 128 px one is 96 px of
+artwork in 16 px of transparent padding) are the ones Chrome shows in the toolbar and extensions page.
 
 ## Privacy tab
 
