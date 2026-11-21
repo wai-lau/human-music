@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Human Music: AI Music Blocker",
   "short_name": "Human Music",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Keeps your YouTube Music and Spotify listening to music made by people.",
   "icons": {
     "16": "icons/icon16.png",
