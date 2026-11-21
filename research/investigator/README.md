@@ -6,6 +6,8 @@ The service never makes a song skip by itself. A song is skipped only when the e
 
 ## What it does
 
+A verdict lasts a month: after that, the artist is checked again the next time it is queued, and the old verdict stands until the new one replaces it.
+
 Each artist goes through a layered decision:
 
 1. A cheap pass looks up the release history. An artist with clear releases before 2020 is marked `human` with no further work.

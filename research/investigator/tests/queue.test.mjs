@@ -83,12 +83,21 @@ await run([
     const r = q.enqueue([art('Fresh Unsure')]);
     return (r.queued === 0 && r.known === 1) || JSON.stringify(r);
   }],
-  ['an old human or ai verdict never re-queues', () => {
+  // Wai, 2026-11-20: every verdict lives one month ("It should have a lifetime of 1month"); an
+  // AI or made-by-people verdict used to stand forever.
+  ['an old human or ai verdict re-queues after a month', () => {
     const { q, store } = setup();
     store.putVerdict(verdict('Old Human', { checked: '2020-01-01' }));
     store.putVerdict(verdict('Old Ai', { verdict: 'ai', confidence: 99, checked: '2020-01-01' }));
     const r = q.enqueue([art('Old Human'), art('Old Ai')]);
-    return (r.queued === 0 && r.known === 2) || JSON.stringify(r);
+    return (r.queued === 2 && r.known === 0) || JSON.stringify(r);
+  }],
+  ['a human or ai verdict 29 days old stays known; 31 days old re-queues', () => {
+    const { q, store } = setup(100, '2026-11-16T12:00:00Z');
+    store.putVerdict(verdict('Fresh Ai', { verdict: 'ai', confidence: 95, checked: '2026-10-18' }));
+    store.putVerdict(verdict('Stale Human', { checked: '2026-10-16' }));
+    const r = q.enqueue([art('Fresh Ai'), art('Stale Human')]);
+    return (r.queued === 1 && r.known === 1 && names(q, 1)[0] === 'Stale Human') || JSON.stringify(r);
   }],
   ['the same artist twice in a day is again', () => {
     const { q } = setup();
