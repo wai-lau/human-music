@@ -124,7 +124,10 @@ export function scoreChecklist(input, opts) {
     });
 
     if (!canExceed94) confidence = Math.min(confidence, 94);
-    if (strongPeople && signs.S2 !== 'found') confidence = Math.min(confidence, 94);
+    // Strong evidence of a person, without the artist's own AI disclosure: never an AI verdict, in
+    // any mode (Wai, 2026-11-20: "1"). The cap was 94, which kept these out of Optimal only while
+    // Optimal was 95.
+    if (strongPeople && signs.S2 !== 'found') confidence = Math.min(confidence, 59);
     if (faceless && groups.A <= 0 && groups.B <= 0) confidence = Math.min(confidence, 59);
 
     if (confidence >= 60) return { score, probability, verdict: 'ai', confidence, faceless, groups };

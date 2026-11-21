@@ -12,6 +12,9 @@
 //     { score, probability, verdict, confidence, faceless, groups: { A, B, C, D, E, F, people } }
 //   signs: { <code>: 'found' | 'not_found' | 'unknown' | <level name> }. Anything else, and any
 //   code not in SIGNS, counts as unknown (0 points).
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { runInNewContext } from 'node:vm';
 import { run } from './harness.mjs';
 import { SIGNS, isFaceless, scoreChecklist } from '../src/score.mjs';
 
@@ -128,13 +131,29 @@ await run([
     const s = score({ W4: 'found', W6: 'found' });
     return (r.groups.E === 0 && near(r.probability, 0.1) && s.groups.E === 4) || J([r.groups, s.groups]);
   }],
-  // Guard 5: strong people evidence (any one people sign of -10 or stronger) caps an AI verdict
-  // at 94, unless the artist says the music is AI-generated (S2).
-  ['strong people evidence caps at 94 unless the artist discloses AI', () => {
+  // Guard 5: strong people evidence (any one people sign of -10 or stronger) means the artist is
+  // never called AI, unless the artist says the music is AI-generated (S2). Wai, 2026-11-20: "1"
+  // (cap 59: mixed evidence is unsure, and unsure means play, in every mode). It was a cap of 94,
+  // which kept these out of Optimal at 95 and stopped doing so when Optimal moved to 94.
+  ['strong people evidence is unsure, never AI, unless the artist discloses AI', () => {
     const signs = { S1: 'found', M4: 'found', W1: 'found', M6: 'found', P6: 'found' }; // no list sign: that one is absolute
     const r = score(signs, { sources: TWO_SITES });
     const s = score({ ...signs, S2: 'found' }, { sources: TWO_SITES });
-    return (r.probability > 0.95 && r.verdict === 'ai' && r.confidence === 94 && s.confidence >= 95) || J([r, s]);
+    return (r.probability > 0.95 && r.verdict === 'unsure' && r.confidence === 59 && s.verdict === 'ai' && s.confidence >= 95) || J([r, s]);
+  }],
+  // The same guard against the extension's own thresholds, so a later threshold change can't
+  // quietly let strong people evidence through again (it did on 2026-11-19).
+  ['strong people evidence stays under every filtering mode in the extension', () => {
+    const ctx = {};
+    runInNewContext(readFileSync(join(import.meta.dirname, '../../../extension/src/core/settings.js'), 'utf8'), ctx);
+    const lowest = Math.min(...['optimal', 'aggressive'].map((m) => ctx.HM.settings.threshold(m)));
+    // Every strong AI sign short of S3 and S4, which are absolute (Wai, 2026-11-18) and S2, which
+    // lifts the guard.
+    const heavy = { S1: 'found', M1: 'self_disclosed', M2: 'found', M3: 'found', M4: 'found', M5: 'found', W1: 'found', W2: 'found', M6: 'found', W3: 'found' };
+    const cases = [{ P6: 'found' }, { P13: 'found' }, { P15: 'found' }, { P2: 'hard_date' }]
+      .map((p) => [p, score({ ...heavy, ...p }, { sources: TWO_SITES })]);
+    const bad = cases.filter(([, r]) => r.verdict === 'ai' || r.confidence >= lowest);
+    return (Number.isFinite(lowest) && bad.length === 0) || J({ lowest, bad });
   }],
   ['verdicts: ai at 60% or more, human at 5% or less, unsure between; confidence is the chance of the verdict', () => {
     const ai = score({ M4: 'found' });                         // -9.54 + 14 = 4.46: 73.6%
