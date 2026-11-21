@@ -64,13 +64,15 @@ export function createQueue({ store, now, cap }) {
     for (const k of keys) q.setKey.run(k, id);
   }
 
-  // 'known' when a verdict stands; any verdict at least 30 days old is due again (Wai,
-  // 2026-11-20: "do we have a cache for lookups? It should have a lifetime of 1month"; before,
-  // only an unsure one was, and AI or made-by-people verdicts stood forever). The old verdict
-  // stays in force, and on the published list, until the new one replaces it.
+  // 'known' when a verdict stands; the investigator's own verdicts at least 30 days old are due
+  // again (Wai, 2026-11-20: "do we have a cache for lookups? It should have a lifetime of 1month",
+  // then "Only the verdicts _I_ set / I mean the investigator"). A verdict copied from an AI list
+  // (model 'list') never expires: the list is the source. Before, only unsure verdicts came back.
+  // The old verdict stays in force, and on the published list, until the new one replaces it.
   function isKnown(keys) {
     const v = store.findVerdict(keys);
     if (!v) return false;
+    if (v.model === 'list') return true;
     const age = (now().getTime() - Date.parse(v.checked + 'T00:00:00Z')) / DAY_MS;
     return !(age >= REQUEUE_AFTER_DAYS);
   }

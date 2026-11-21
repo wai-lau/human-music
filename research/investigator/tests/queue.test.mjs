@@ -92,6 +92,13 @@ await run([
     const r = q.enqueue([art('Old Human'), art('Old Ai')]);
     return (r.queued === 2 && r.known === 0) || JSON.stringify(r);
   }],
+  // Wai, 2026-11-20: "Only the verdicts _I_ set / I mean the investigator".
+  ['a verdict copied from an AI list never expires', () => {
+    const { q, store } = setup();
+    store.putVerdict(verdict('Listed Act', { verdict: 'ai', confidence: 100, model: 'list', checked: '2020-01-01' }));
+    const r = q.enqueue([art('Listed Act')]);
+    return (r.queued === 0 && r.known === 1) || JSON.stringify(r);
+  }],
   ['a human or ai verdict 29 days old stays known; 31 days old re-queues', () => {
     const { q, store } = setup(100, '2026-11-16T12:00:00Z');
     store.putVerdict(verdict('Fresh Ai', { verdict: 'ai', confidence: 95, checked: '2026-10-18' }));
