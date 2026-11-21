@@ -530,8 +530,11 @@ Guards (most already in `answer.mjs`):
    (today's `mayPass94`).
 3. **Without a strong sign, the cap is 94** (today's `WEAK_AI_CAP`).
 4. **Art never decides.** Group E can't be the only AI-side group above 0.
-5. **Strong people evidence blocks 95.** Any single people sign of -10 or
-   stronger caps the verdict at 94 unless S2 (own disclosure) is present.
+5. **Strong people evidence is never AI.** Any single people sign of -10 or
+   stronger caps the verdict at 59 (unsure, so the song plays in every mode)
+   unless S2 (own disclosure) is present. S3 and S4 stay absolute. (Wai,
+   2026-11-20: "1". It was a cap of 94, written when Optimal was 95; once
+   Optimal moved to 94 on 2026-11-19, these artists were skipped by default.)
    This replaces today's "-20 per contradicting source", which is too
    strong for a weak contradiction (a denial) and about right for a strong
    one (confirmed shows).
