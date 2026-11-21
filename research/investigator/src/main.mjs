@@ -22,6 +22,7 @@ import { createWorker } from './worker.mjs';
 export const DEFAULT_SOCKET = '/run/human-music/investigator.sock';
 export const DEFAULT_DATA_DIR = '/var/lib/human-music';
 const DEFAULT_CAP = 100;
+const RECHECK_BATCH = 5;
 const PUBLISH_DELAY_MS = 24 * 60 * 60 * 1000;
 const PUBLISH_RETRY_MS = 10 * 60 * 1000;
 const SLOW_TICK_MS = 5 * 60 * 1000;
@@ -204,7 +205,9 @@ export function createApp(env, deps = {}) {
         const day = now().toISOString().slice(0, 10);
         const remaining = cap - queue.status().today;
         if (remaining > 0) {
-          const due = store.listDuePasses(day, remaining, recheckDays);
+          // At most RECHECK_BATCH a tick (every 5 minutes): the queue stays short, so an artist a
+          // copy sends without playing it never waits behind a long batch of rechecks.
+          const due = store.listDuePasses(day, Math.min(remaining, RECHECK_BATCH), recheckDays);
           if (due.length > 0) {
             const items = due.map((v) => {
               const item = { name: v.name, site: 'recheck', songs: [], playing: false };

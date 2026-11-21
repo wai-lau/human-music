@@ -2,7 +2,6 @@
 // the store's database, so a restart loses nothing (and keeps the once-a-day record).
 import { artistKeys } from './names.mjs';
 
-
 const DAY_MS = 86400000;
 
 export function createQueue({ store, now, cap, recheckDays = 30 }) {
@@ -64,8 +63,8 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
     for (const k of keys) q.setKey.run(k, id);
   }
 
-  // 'known' when a verdict stands; the investigator's own verdicts at least 30 days old are due
-  // again (Wai, 2026-11-20: "do we have a cache for lookups? It should have a lifetime of 1month",
+  // 'known' when a verdict stands; the investigator's own verdicts at least recheckDays old
+  // (HM_RECHECK_DAYS, default 30) are due again (Wai, 2026-11-20: "do we have a cache for lookups? It should have a lifetime of 1month",
   // then "Only the verdicts _I_ set / I mean the investigator"). A verdict copied from an AI list
   // (model 'list') never expires: the list is the source. Before, only unsure verdicts came back.
   // The old verdict stays in force, and on the published list, until the new one replaces it.
