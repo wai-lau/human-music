@@ -4,6 +4,7 @@ Decisions Wai made on the open-questions page, newest first.
 
 | When | Question | Wai's answer | Reading taken |
 |---|---|---|---|
+| 2026-11-20 | (Wai's ask) "i want monthly rechecks on passes as they expire / And changes get pushed up to the list" | — | The service rechecks its own passes (made by people or unsure) by itself once 30 days old, at most 20 a day; a recheck that finds AI replaces the verdict, which then goes onto the published list at the next publish. AI verdicts come back when the artist is next sent; list verdicts never expire. |
 | 2026-11-20 | (Wai's ask) "do we have a cache for lookups? It should have a lifetime of 1month" | then "Only the verdicts _I_ set / I mean the investigator" | The investigator's own verdicts (Claude's checklist, SH Labs, the pre-2020 check) last 30 days, then the artist is checked again when next queued; the old verdict stands until replaced. Verdicts copied from an AI list don't expire. Before, only unsure verdicts were rechecked. |
 | 2026-11-20 | How should SH Labs' own percentage count? | "A" | Graded: both songs 95+ is AI at 95 (Optimal skips); both 85+ stays AI at 90 (Aggressive only); a first song under 8 settles made by people without a second request; both under 50 still made by people; anything else goes to Claude. |
 | 2026-11-20 | How sure must SH Labs alone be to skip an artist? | "sounds good A" | SH Labs-alone AI verdicts stay at 90: Optimal (94) never skips on SH Labs alone; Aggressive (80) does. |
