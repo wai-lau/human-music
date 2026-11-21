@@ -202,6 +202,23 @@ export function openStore(path) {
       return q.publishable.all().map(toVerdict);
     },
 
+    listDuePasses(day, limit, days = 30) {
+      const cutoff = new Date(day + 'T00:00:00Z');
+      cutoff.setDate(cutoff.getDate() - days);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+      const stmt = db.prepare(`
+        SELECT * FROM artists
+        WHERE source = 'live'
+          AND verdict IN ('human', 'unsure')
+          AND model != 'list'
+          AND checked <= ?
+        ORDER BY checked ASC, id ASC
+        LIMIT ?
+      `);
+      const rows = stmt.all(cutoffStr, limit);
+      return rows.map(toVerdict);
+    },
+
     putScores(artistId, scores) {
       transaction(() => {
         for (const s of scores) {

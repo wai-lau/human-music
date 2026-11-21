@@ -6,7 +6,7 @@ The service never makes a song skip by itself. A song is skipped only when the e
 
 ## What it does
 
-The investigator's own verdicts last a month: after that, the artist is checked again the next time it is queued, and the old verdict stands until the new one replaces it. A verdict copied from an AI list doesn't expire.
+The investigator's own verdicts last a month (set by HM_RECHECK_DAYS, default 30); after that, the service requeues them automatically when the live queue is empty, using spare capacity, and the old verdict stands until the new one replaces it. A verdict copied from an AI list doesn't expire.
 
 Each artist goes through a layered decision:
 

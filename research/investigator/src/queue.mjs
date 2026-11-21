@@ -2,10 +2,10 @@
 // the store's database, so a restart loses nothing (and keeps the once-a-day record).
 import { artistKeys } from './names.mjs';
 
-const REQUEUE_AFTER_DAYS = 30;
+
 const DAY_MS = 86400000;
 
-export function createQueue({ store, now, cap }) {
+export function createQueue({ store, now, cap, recheckDays = 30 }) {
   const db = store.db;
   db.exec(`
     CREATE TABLE IF NOT EXISTS queue (
@@ -74,7 +74,7 @@ export function createQueue({ store, now, cap }) {
     if (!v) return false;
     if (v.model === 'list') return true;
     const age = (now().getTime() - Date.parse(v.checked + 'T00:00:00Z')) / DAY_MS;
-    return !(age >= REQUEUE_AFTER_DAYS);
+    return !(age >= recheckDays);
   }
 
   return {

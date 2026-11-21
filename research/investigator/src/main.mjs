@@ -38,6 +38,8 @@ export function createApp(env, deps = {}) {
   const socketPath = text(env.HM_SOCKET) || DEFAULT_SOCKET;
   const capNum = Number.parseInt(text(env.HM_DAILY_CAP) || '', 10);
   const cap = Number.isInteger(capNum) && capNum > 0 ? capNum : DEFAULT_CAP;
+  const recheckDaysNum = Number.parseInt(text(env.HM_RECHECK_DAYS) || '', 10);
+  const recheckDays = Number.isInteger(recheckDaysNum) && recheckDaysNum > 0 ? recheckDaysNum : 30;
   const shlabsCapNum = Number.parseInt(text(env.HM_SHLABS_DAILY_CAP) || '', 10);
   const shlabsDailyCap = Number.isInteger(shlabsCapNum) && shlabsCapNum > 0 ? shlabsCapNum : 190;
   const keyPath = text(env.HM_PUBLISH_KEY_PATH);
@@ -57,7 +59,7 @@ export function createApp(env, deps = {}) {
 
   mkdirSync(dataDir, { recursive: true });
   const store = openStore(dbPath(dataDir));
-  const queue = createQueue({ store, now, cap });
+  const queue = createQueue({ store, now, cap, recheckDays });
 
   const shlabsKey = text(env.SHLABS_API_KEY);
   const shlabs = deps.shlabs !== undefined ? deps.shlabs : (shlabsKey ? createShLabs({ fetch: doFetch, key: shlabsKey, sleep }) : null);
@@ -196,6 +198,28 @@ export function createApp(env, deps = {}) {
       }
     } catch { /* try again next tick */ }
     try { if (queue.resumeIfDue()) log('queue: usage-limit pause lifted after an hour'); } catch { /* next tick */ }
+    try {
+      // Recheck due passes only when the live queue is empty.
+      if (queue.status().queued === 0) {
+        const day = now().toISOString().slice(0, 10);
+        const remaining = cap - queue.status().today;
+        if (remaining > 0) {
+          const due = store.listDuePasses(day, remaining, recheckDays);
+          if (due.length > 0) {
+            const items = due.map((v) => {
+              const item = { name: v.name, site: 'recheck', songs: [], playing: false };
+              if (v.spotifyId) item.spotifyId = v.spotifyId;
+              if (v.channelId) item.channelId = v.channelId;
+              return item;
+            });
+            const result = queue.enqueue(items);
+            if (result.queued > 0) {
+              log(`recheck: queued ${result.queued} due pass(es)`);
+            }
+          }
+        }
+      }
+    } catch { /* next tick */ }
     kick();
   }
 
