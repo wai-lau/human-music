@@ -29,7 +29,7 @@ import { CODES } from '../src/checklist.mjs';
 
 const HASH = hashKey(deriveKey('admin-secret'));
 const T0 = new Date('2026-11-20T12:00:00Z').getTime();
-const MIN = 60000, HOUR = 3600000;
+const MIN = 60000;
 const J = (v) => JSON.stringify(v);
 const SP = 'S'.repeat(22);
 
