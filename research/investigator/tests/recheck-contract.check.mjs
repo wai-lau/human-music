@@ -1,18 +1,22 @@
 // Contract: monthly rechecks of the investigator's passes (Wai, 2026-11-20: "i want monthly
 // rechecks on passes as they expire / And changes get pushed up to the list").
+// Then: "Monthly is guess, depends on how much data i generate to search": rechecks use only spare
+// capacity, and the age is a setting.
 // A pass is a verdict that lets the song play: 'human' or 'unsure'. When one of the
-// investigator's own passes (any model but 'list') is 30 days old or more, the service queues it
-// again by itself, without waiting for a copy of the extension to send the artist. AI verdicts are
+// investigator's own passes (any model but 'list') is HM_RECHECK_DAYS old or more (default 30), the
+// service queues it again by itself, without waiting for a copy of the extension to send the artist,
+// but only when the live queue is empty, and only as many as are left of the day's cap. AI verdicts are
 // not rechecked this way (they come back when the artist is next sent), and list verdicts never
 // expire. A recheck that turns a pass into AI replaces the verdict, so the artist goes onto the
 // published list at the next publish.
 // Interface:
-//   store.listDuePasses(day, limit) -> verdicts ('human' or 'unsure', model not 'list', checked on or
-//     before day minus 30 days), oldest checked first, at most limit; each carries name and, when
-//     stored, spotifyId and channelId.
-//   src/main.mjs: at each slow tick, at most once per UTC day (state 'recheck.day' = YYYY-MM-DD),
-//     queue.enqueue up to 20 due passes as { name, site: 'recheck', songs: [], playing: false,
-//     spotifyId?, channelId? }.
+//   store.listDuePasses(day, limit, days = 30) -> verdicts ('human' or 'unsure', model not 'list',
+//     checked on or before day minus days), oldest checked first, at most limit; each carries name
+//     and, when stored, spotifyId and channelId.
+//   src/main.mjs: at each slow tick, when queue.status().queued is 0, queue.enqueue up to
+//     cap - today's count due passes (queue.status() gives both), as { name, site: 'recheck',
+//     songs: [], playing: false, spotifyId?, channelId? }. HM_RECHECK_DAYS (a whole number of days,
+//     default 30) sets the age.
 // Run from research/investigator: node tests/recheck-contract.check.mjs
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -48,7 +52,7 @@ class FakeTimers {
 }
 const v = (name, o = {}) => ({ name, verdict: 'human', confidence: 95, rawConfidence: 95, signals: [], reasons: ['r'], sources: ['https://x.example/a'], model: 'claude-score', checked: '2026-11-20', source: 'live', ...o });
 
-async function make({ verdicts = [], aiFor = [] } = {}) {
+async function make({ verdicts = [], aiFor = [], env: extraEnv = {}, live = [] } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'hm-recheck-'));
   const timers = new FakeTimers();
   const investigated = [];
@@ -62,8 +66,9 @@ async function make({ verdicts = [], aiFor = [] } = {}) {
     investigate: async (artist) => { investigated.push(artist.name); return { ok: true, checklist: { signs: signs(aiFor.includes(artist.name)), genres: ['pop'], sources: ['https://x.example/a', 'https://y.example/b'], summary: 's' } }; },
     publisher: { publish: async () => ({ ok: true, changed: true }) },
   };
-  const env = { HM_KEY_HASH: HASH, CLAUDE_CODE_OAUTH_TOKEN: 'oauth-token-AAAA1111BBBB2222', HM_DATA_DIR: dir, HM_SOCKET: join(dir, 's.sock') };
+  const env = { HM_KEY_HASH: HASH, CLAUDE_CODE_OAUTH_TOKEN: 'oauth-token-AAAA1111BBBB2222', HM_DATA_DIR: dir, HM_SOCKET: join(dir, 's.sock'), ...extraEnv };
   const app = createApp(env, deps);
+  if (live.length) app.queue.enqueue(live.map((name) => ({ name, site: 'ytm', songs: [], playing: false })));
   await app.listen();
   const stop = async () => { await app.close(); rmSync(dir, { recursive: true, force: true }); };
   return { app, timers, investigated, stop };
@@ -88,12 +93,27 @@ await run([
       return J(t.investigated) === J(['Old Human']) || J(t.investigated);
     } finally { await t.stop(); }
   }],
-  ['at most once a day, and at most 20 a day', async () => {
+  ['rechecks use only what is left of the day\'s cap', async () => {
     const many = Array.from({ length: 25 }, (_, i) => v(`Old ${String(i).padStart(2, '0')}`, { checked: '2026-10-01' }));
-    const t = await make({ verdicts: many });
+    const t = await make({ verdicts: many, env: { HM_DAILY_CAP: '7' } });
     try {
-      for (let i = 0; i < 6; i++) { await t.timers.advance(5 * MIN); await t.app.idle(); }
-      return t.investigated.length === 20 || 'investigated ' + t.investigated.length;
+      for (let i = 0; i < 8; i++) { await t.timers.advance(5 * MIN); await t.app.idle(); }
+      return t.investigated.length === 7 || 'investigated ' + t.investigated.length;
+    } finally { await t.stop(); }
+  }],
+  ['live artists come first: no recheck is queued while the live queue has artists waiting', async () => {
+    const t = await make({ verdicts: [v('Old Human', { checked: '2026-10-01' })], live: ['Live A', 'Live B'] });
+    try {
+      await t.timers.advance(6 * MIN); await t.app.idle(); await t.timers.advance(6 * MIN); await t.app.idle();
+      const i = t.investigated.indexOf('Old Human');
+      return (t.investigated.slice(0, 2).sort().join() === 'Live A,Live B' && (i === -1 || i >= 2)) || J(t.investigated);
+    } finally { await t.stop(); }
+  }],
+  ['HM_RECHECK_DAYS sets the age: at 7, an 8-day-old pass is due and a 6-day-old one is not', async () => {
+    const t = await make({ verdicts: [v('Eight Days', { checked: '2026-11-12' }), v('Six Days', { checked: '2026-11-14' })], env: { HM_RECHECK_DAYS: '7' } });
+    try {
+      await t.timers.advance(6 * MIN); await t.app.idle(); await t.timers.advance(MIN); await t.app.idle();
+      return J(t.investigated) === J(['Eight Days']) || J(t.investigated);
     } finally { await t.stop(); }
   }],
   ['a recheck that finds AI replaces the pass, so it is published', async () => {
