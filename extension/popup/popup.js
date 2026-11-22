@@ -311,7 +311,7 @@
 
   // --- Behaviour tab ------------------------------------------------------------------
 
-  const TOGGLES = { 'auto-skip': 'autoSkip', 'auto-dislike': 'autoDislike', 'hide-items': 'hidePageItems', 'player-buttons': 'playerButtons' };
+  const TOGGLES = { 'auto-skip': 'autoSkip', 'auto-dislike': 'autoDislike', 'hide-items': 'hidePageItems', 'player-buttons': 'playerButtons', 'plain-pages': 'plainPages' };
 
   function renderSettings() {
     // Not while you're typing in it (review 2026-11-17: a log write reset a half-typed number).

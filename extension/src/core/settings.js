@@ -7,6 +7,7 @@
     autoDislike: false,
     hidePageItems: true,
     playerButtons: true,
+    plainPages: false,
     paused: false,
     refresh: 'daily',
     mode: 'lists',
@@ -32,7 +33,7 @@
     } else {
       out.lookahead = DEFAULTS.lookahead;
     }
-    const booleans = ['autoSkip', 'autoDislike', 'hidePageItems', 'playerButtons'];
+    const booleans = ['autoSkip', 'autoDislike', 'hidePageItems', 'playerButtons', 'plainPages'];
     for (const name of booleans) {
       if (typeof obj[name] === 'boolean') {
         out[name] = obj[name];

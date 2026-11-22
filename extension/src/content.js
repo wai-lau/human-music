@@ -327,7 +327,7 @@
     // glyph. Every pass looks at every row: YouTube Music reuses a row for another song.
     function markPass() {
       if (!site.readListRows || !site.markRow || !site.unmarkRow) return;
-      const on = !state.settings.paused && state.settings.autoSkip && !!state.index;
+      const on = !state.settings.paused && state.settings.autoSkip && !!state.index && !state.settings.plainPages;
       for (const item of safe(() => site.readListRows(doc), [])) {
         const match = on ? safe(() => HM.match.matchItem(state.index, item), null) : null;
         const should = !!(match && match.mode === 'act');
@@ -364,7 +364,7 @@
     const copyId = Math.random().toString(36).slice(2, 10);
 
     function playerButtons() {
-      if (state.settings.playerButtons && !state.settings.paused) {
+      if (state.settings.playerButtons && !state.settings.paused && !state.settings.plainPages) {
         const old = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (old && old.getAttribute('data-hm-copy') !== copyId) safe(() => old.remove());
         safe(() => site.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));

@@ -8,7 +8,7 @@ const J = v => JSON.stringify(sortKeys(v));
 const eq = (label, got, want) => { if (J(got) !== J(want)) fails.push(`${label}: got ${J(got)} want ${J(want)}`); };
 const t = (label, fn) => { try { const r = fn(); if (r !== true) fails.push(`${label}: ${r}`); } catch (e) { fails.push(`${label}: threw ${e.message}`); } };
 
-const D = { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false };
+const D = { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, plainPages: false, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false };
 eq('DEFAULTS', settings.DEFAULTS, D);
 eq('sanitize {}', settings.sanitize({}), D);
 eq('sanitize null', settings.sanitize(null), D);
