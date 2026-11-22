@@ -10,3 +10,7 @@ node_modules/
 # Marks the owner's working copy as a development copy (never committed or packed).
 /extension/dev-copy
 /test-results/
+
+# Python environment for the fakeprint research tools
+research/fakeprint/.venv/
+research/fakeprint/data/
