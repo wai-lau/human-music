@@ -25,6 +25,26 @@ A small classifier (logistic regression) on that curve says how likely the song 
 Quicksilver is this idea packaged; we write ours from the paper's description. Deezer's
 research code is non-commercial licensed and is not used or copied.
 
+## Audio source
+
+Wai, 2026-11-22: "Audio source, record audio output (tiny clips from YTM)". Checked live the same
+day: the content script can take the YouTube Music player's own audio (`video.captureStream()`),
+48 kHz, at full level whatever the player's volume (a 4-second test at 2% volume came back clear).
+No new permission is needed. The fakeprint needs only a time-averaged spectrum, so the extension
+can build it while the song plays (Web Audio's analyser, FFT size 2^14) without recording or
+keeping any audio: about 30 seconds of listening gives one fakeprint.
+
+That allows two places for the detector:
+
+| Where | What happens | Notes |
+|---|---|---|
+| A. In every copy | after ~30 s of a song, the copy scores the fakeprint with the shipped model (a few hundred weights) and remembers the result for that artist on this computer; a confident AI score acts like a verdict | nothing leaves the computer; only the playing song can be heard, so the first song of an AI artist plays ~30 s before a skip |
+| B. In the investigator | Wai's own copy sends fakeprints (numbers, no audio) with the artist to the investigator, which adds the score as a layer | only artists Wai plays; the store copy sends nothing, as today |
+
+Recommended: both. B also builds the training data (fakeprints from YouTube Music's own audio,
+labelled by the lists and by verdicts), which fits the model to what copies hear; A ships once the
+model's numbers are approved. Deezer previews (below) start the training before that data grows.
+
 ## Data
 
 | Side | Source | Size to aim for |
@@ -61,6 +81,9 @@ ffmpeg on the droplet. The research runs in Python on Wai's PC.
 
 ## Steps
 
-1. Sampler: fetch previews, compute fakeprints, save them (research tool, Python).
+1. Sampler: fetch Deezer previews, compute fakeprints, save them (research tool, Python).
 2. Train and measure (cross-validation, threshold sweep); write the numbers up for Wai.
-3. If Wai approves: port the scoring to Node and add the layer (a Qwen task with a contract).
+3. In the extension (Wai's copy first): build the fakeprint from the playing song and send it to the
+   investigator (B); check live that its fakeprints match the ones from previews.
+4. If Wai approves the numbers: the investigator layer, then the in-copy score (A), each a Qwen task
+   with a contract. The privacy policy then says the audio is analysed on the computer.
