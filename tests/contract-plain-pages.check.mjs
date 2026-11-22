@@ -11,7 +11,7 @@
 //   extension/src/content.js: the greying pass and the player-button pass both treat plainPages as off.
 //   extension/popup/popup.html: <input type="checkbox" id="plain-pages"> in the Behaviour tab;
 //   extension/popup/popup.js: the TOGGLES map gives 'plain-pages': 'plainPages'.
-// Run from the repo root: node tests/wip-contract-plain-pages.check.mjs
+// Run from the repo root: node tests/contract-plain-pages.check.mjs
 const { readFileSync } = await import('fs');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
 const { el, makeDocument } = await import(process.cwd() + '/tests/dom.mjs');
