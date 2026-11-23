@@ -49,6 +49,15 @@ CREATE TABLE IF NOT EXISTS state (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS player_prints (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  at TEXT NOT NULL,
+  title TEXT NOT NULL,
+  artist_line TEXT NOT NULL,
+  label TEXT NOT NULL,
+  seconds INTEGER NOT NULL,
+  print TEXT NOT NULL
+);
 `;
 
 function checkVerdict(v) {
@@ -252,6 +261,30 @@ export function openStore(path) {
 
     setState(key, value) {
       q.setState.run(key, JSON.stringify(value === undefined ? null : value));
+    },
+
+    putPlayerPrint({ at, title, artistLine, label, seconds, print }) {
+      const row = db.prepare(`
+        INSERT INTO player_prints (at, title, artist_line, label, seconds, print)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(at, title, artistLine, label, seconds, JSON.stringify(print));
+      return row.lastInsertRowid;
+    },
+
+    listPlayerPrints() {
+      return db.prepare(`
+        SELECT id, at, title, artist_line as artistLine, label, seconds, print FROM player_prints ORDER BY id ASC
+      `).all().map(row => ({
+        ...row,
+        print: JSON.parse(row.print),
+      }));
+    },
+
+    countPlayerPrints(dayPrefix) {
+      const row = db.prepare(`
+        SELECT COUNT(*) as n FROM player_prints WHERE at LIKE ?
+      `).get(dayPrefix + '%');
+      return row.n;
     },
 
     transaction,

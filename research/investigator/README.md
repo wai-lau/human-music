@@ -65,6 +65,7 @@ The service listens on a unix socket, `/run/human-music/investigator.sock` by de
 | Route | Needs key | What it does |
 |---|---|---|
 | `POST /api/investigate` | yes | Takes a batch of up to 20 items. Answers 202 with `{ queued, known, again }`. |
+| `POST /api/fingerprint` | yes | Stores the owner's copy's audio fingerprint for training, at most 500 a day. |
 | `GET /api/status` | yes | Queue length, today's count, whether the queue is paused and why, the last error. |
 | `POST /api/recheck` | yes | Body `{ key }`. Marks an artist for another look. Deletes nothing. |
 | `GET /verdicts/<key>` | yes | Reasons, sources and SH Labs scores for one artist. |

@@ -5,8 +5,9 @@ import { checkBearer } from './keys.mjs';
 
 const MAX_BODY = 65536;
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
+const FINGERPRINT_LABELS = new Set(['ai', 'played']);
 
-export function createServer({ keyHash, queue, store, intake, allowedOrigin, kick }) {
+export function createServer({ keyHash, queue, store, intake, allowedOrigin, kick, now = () => new Date() }) {
   function send(res, status, obj, cors) {
     const payload = JSON.stringify(obj);
     res.writeHead(status, {
@@ -67,6 +68,66 @@ export function createServer({ keyHash, queue, store, intake, allowedOrigin, kic
       const counts = queue.enqueue(parsed.artists);
       if (counts.queued > 0) kick();
       return send(res, 202, counts, cors);
+    }
+
+    if (req.method === 'POST' && path === '/api/fingerprint') {
+      if (Number(req.headers['content-length']) > MAX_BODY) return tooLarge(req, res, cors);
+      const text = await readBody(req);
+      if (text === null) return tooLarge(req, res, cors);
+      let data;
+      try { data = JSON.parse(text); } catch { return send(res, 400, { error: 'not JSON' }, cors); }
+      if (!data || typeof data !== 'object') return send(res, 400, { error: 'body must be an object' }, cors);
+
+      const { title, artistLine, label, seconds, print } = data;
+
+      // Validate title
+      if (typeof title !== 'string' || title.length < 1 || title.length > 300) {
+        return send(res, 400, { error: 'title must be a string 1-300 chars' }, cors);
+      }
+
+      // Validate artistLine
+      if (typeof artistLine !== 'string' || artistLine.length < 1 || artistLine.length > 300) {
+        return send(res, 400, { error: 'artistLine must be a string 1-300 chars' }, cors);
+      }
+
+      // Validate label
+      if (!FINGERPRINT_LABELS.has(label)) {
+        return send(res, 400, { error: 'label must be ai or played' }, cors);
+      }
+
+      // Validate seconds
+      if (typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds < 5 || seconds > 60) {
+        return send(res, 400, { error: 'seconds must be a number 5-60' }, cors);
+      }
+
+      // Validate print
+      if (!Array.isArray(print) || print.length !== 510) {
+        return send(res, 400, { error: 'print must be an array of exactly 510 numbers' }, cors);
+      }
+      for (const n of print) {
+        if (typeof n !== 'number' || !Number.isFinite(n) || n < 0 || n > 1) {
+          return send(res, 400, { error: 'print must be 510 numbers each 0-1' }, cors);
+        }
+      }
+
+      // Check daily limit
+      const dayPrefix = now().toISOString().slice(0, 10);
+      const count = store.countPlayerPrints(dayPrefix);
+      if (count >= 500) {
+        return send(res, 429, { error: 'daily fingerprint limit reached' }, cors);
+      }
+
+      // Store
+      store.putPlayerPrint({
+        at: now().toISOString(),
+        title,
+        artistLine,
+        label,
+        seconds,
+        print,
+      });
+
+      return send(res, 202, { stored: 1 }, cors);
     }
 
     if (req.method === 'GET' && path === '/api/status') {

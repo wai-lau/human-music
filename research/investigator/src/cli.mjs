@@ -22,7 +22,7 @@ import { createQueue } from './queue.mjs';
 import { openStore } from './store.mjs';
 
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
-const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report';
+const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report | export-prints';
 // In the repo the sample files sit beside the service; on the droplet pass their paths.
 const DEFAULT_SOA = new URL('../calibration/soul-over-ai.json', import.meta.url);
 const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
@@ -32,7 +32,7 @@ const val = (v) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefi
 
 export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate, fetchPage, shlabs } = {}) {
   const [command, ...rest] = argv;
-  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report', 'shlabs-run', 'shlabs-report'].includes(command)) {
+  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report', 'shlabs-run', 'shlabs-report', 'export-prints'].includes(command)) {
     out(USAGE);
     return 1;
   }
@@ -137,6 +137,14 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
 
     if (command === 'shlabs-report') {
       out(reportShLabs(store.getState('shlabs.results') || {}, measuredPoints));
+      return 0;
+    }
+
+    if (command === 'export-prints') {
+      const prints = store.listPlayerPrints();
+      for (const p of prints) {
+        out(JSON.stringify(p));
+      }
       return 0;
     }
 
