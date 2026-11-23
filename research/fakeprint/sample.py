@@ -20,7 +20,7 @@ import urllib.request
 
 import numpy as np
 
-from fakeprint import decode, fakeprint
+from fakeprint import F_MAX, F_MIN, N_FFT, SR, decode, fakeprint, mean_spectrum_db
 
 UA = 'human-music-research/0.1 (https://github.com/wai-lau/human-music)'
 _last = [0.0]
@@ -68,6 +68,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('artists'); ap.add_argument('label', choices=['ai', 'human']); ap.add_argument('out')
     ap.add_argument('--max', type=int, default=1000); ap.add_argument('--seed', type=int, default=20261122)
+    ap.add_argument('--spectra', action='store_true', help='also keep each song\'s 5-16 kHz mean spectrum')
     a = ap.parse_args()
     data = json.load(open(a.artists))
     rows = data['artists'] if isinstance(data, dict) else data
@@ -93,21 +94,29 @@ def main():
             aid = deezer_artist(name)
             if not aid:
                 continue
-            prints, tracks = [], []
+            prints, tracks, spectra = [], [], []
             for tid, url in previews(aid, name):
-                prints.append(fakeprint(decode(get(url, raw=True))))
+                x = decode(get(url, raw=True))
+                prints.append(fakeprint(x))
+                if a.spectra:
+                    # The full 5-16 kHz mean spectrum (dB), so fakeprint settings can be tuned offline.
+                    spec = mean_spectrum_db(x)
+                    freqs = np.fft.rfftfreq(N_FFT, 1 / SR)
+                    spectra.append(spec[(freqs >= F_MIN) & (freqs <= F_MAX)].astype(np.float16))
                 tracks.append(tid)
             if len(prints) < 2:
                 continue
-            for tid, fp in zip(tracks, prints):
+            for i, (tid, fp) in enumerate(zip(tracks, prints)):
                 have['names'].append(name); have['labels'].append(a.label); have['tracks'].append(tid); have['prints'].append(fp)
+                if a.spectra:
+                    have.setdefault('spectra', []).append(spectra[i])
             kept += 1
             if kept % 25 == 0:
-                np.savez(a.out, **{k: np.array(v, dtype=object if k != 'prints' else np.float32) for k, v in have.items()})
+                np.savez(a.out, **{k: np.array(v, dtype=object if k not in ('prints', 'spectra') else (np.float32 if k == 'prints' else np.float16)) for k, v in have.items()})
                 print(f'{kept}/{a.max} {a.label} artists', flush=True)
         except Exception as e:  # one artist's failure never stops the run
             print(f'skip {name!r}: {str(e)[:80]}', file=sys.stderr, flush=True)
-    np.savez(a.out, **{k: np.array(v, dtype=object if k != 'prints' else np.float32) for k, v in have.items()})
+    np.savez(a.out, **{k: np.array(v, dtype=object if k not in ('prints', 'spectra') else (np.float32 if k == 'prints' else np.float16)) for k, v in have.items()})
     print(f'done: {kept} {a.label} artists, {len(have["prints"])} songs', flush=True)
 
 
