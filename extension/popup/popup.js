@@ -233,7 +233,9 @@
     const input = $(INPUTS[kind]);
     const add = () => { const value = input.value; input.value = ''; editUser(u => HM.popup.addEntry(u, kind, value)); };
     btn.addEventListener('click', add);
-    if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+    // Not while an IME is composing (Chinese, Japanese, Korean input): that Enter picks the
+    // characters, and adding then saved half a name (Modern Web Guidance scan, 2026-11-23).
+    if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) add(); });
   }
   $('add-song-btn').addEventListener('click', () => {
     const title = $('song-title').value;
