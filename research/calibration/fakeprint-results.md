@@ -51,3 +51,15 @@ no exact Deezer match or no previews).
 
 No sign of inflation at the chosen line (0.8). Some of these may still carry Deezer's tag without being
 on Zoundhub, whose filter is stricter. The false-positive side never depended on Deezer's labels.
+
+## Tuning from full spectra (2026-11-23)
+
+Resampled with each song's 5-16 kHz mean spectrum kept (`sample.py --spectra`): 600 AI artists, 1,161 people (161 labelled, 1,000 crawled), plus 56 held-out Soul Over AI artists not on Zoundhub. `tune.py` rebuilt fakeprints over 54 settings (running-minimum width 51/151/301, smoothing 11/51, pooling 4/8/16, C 0.003/0.01/0.03).
+
+| Model | Cross-validation: AI caught at 0.8 | People flagged at 0.8 | Held-out AI caught at 0.8 |
+|---|---|---|---|
+| Live model (400 AI, 761 people; min 151, smooth 51, pool 8, C 0.01) | 49.5% | 0 of 761 | 30 of 58 (52%) |
+| Same settings, retrained on 600 AI and 1,161 people | 70.0% | 0 of 1,161 | 24 of 56 (43%) |
+| Best retrained setting (min 301, smooth 11 or 51, pool 4, C 0.01) | 71.7% | 0 of 1,161 | 28 of 56 (50%) |
+
+Reading: more training data lifts cross-validation by 20 points but not the held-out set. Most training AI comes from Zoundhub, which is likely Deezer-flagged, so cross-validation rewards learning what Deezer's own detector already catches. On held-out the differences are within noise (56 artists, about 6.6 points). The live model stays. A real gain needs AI training data that Deezer did not flag; player-audio fakeprints from AI songs the extension already skips would give that.

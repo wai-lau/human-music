@@ -5,7 +5,10 @@ width, smoothing width, pooling, classifier C) and scores each setting the way t
 folds split by artist, an artist's score is the lower of its two songs. Reports AI caught at the
 threshold where no person is flagged in cross-validation, and at 0.8.
 
-Usage: .venv/bin/python tune.py data/ai-full.npz data/human-full.npz data/crawled-full.npz
+Usage: .venv/bin/python tune.py data/ai-full.npz data/human-full.npz data/crawled-full.npz [--heldout data/soa-full.npz]
+  --heldout: AI artists kept out of training (Soul Over AI, not on Zoundhub, so not Deezer-flagged);
+  a model trained on everything else scores them. Cross-validation flatters, because most training AI
+  is Deezer-flagged; the held-out column is the honest one.
 """
 import argparse
 import itertools
@@ -50,19 +53,36 @@ def score(names, y, X, C):
     return (ai > worst).mean(), (ai >= 0.8).mean(), (pe >= 0.8).sum(), worst, len(ai), len(pe)
 
 
+def heldout(names, y, X, hX, hnames, C):
+    sc = StandardScaler().fit(X)
+    m = LogisticRegression(C=C, max_iter=3000, class_weight='balanced').fit(sc.transform(X), y)
+    per = {}
+    for n, p in zip(hnames, m.predict_proba(sc.transform(hX))[:, 1]):
+        per.setdefault(n, []).append(p)
+    s = np.array([min(v) for v in per.values() if len(v) >= 2])
+    return (s >= 0.8).sum(), len(s)
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('files', nargs='+'); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument('files', nargs='+'); ap.add_argument('--heldout'); a = ap.parse_args()
     names, y, spec = load(a.files)
+    hnames, hspec = [], None
+    if a.heldout:
+        hnames, _, hspec = load([a.heldout])
+        keep = np.array([n not in set(hnames) for n in names])
+        names, y, spec = names[keep], y[keep], spec[keep]
     print(f'{len(set(names))} artists, {len(y)} songs')
-    print('| min width | smooth | pool | C | AI caught, no person flagged | AI caught at 0.8 | people at 0.8 | top person |')
-    print('|---|---|---|---|---|---|---|---|')
+    print('| min width | smooth | pool | C | AI caught, no person flagged | AI caught at 0.8 | people at 0.8 | top person | held-out AI at 0.8 |')
+    print('|---|---|---|---|---|---|---|---|---|')
     rows = []
     for env, smooth, pool, C in itertools.product((51, 151, 301), (11, 51), (4, 8, 16), (0.003, 0.01, 0.03)):
         if smooth > env:
             continue
-        s = score(names, y, prints(spec, env, smooth, pool), C)
-        rows.append(((env, smooth, pool, C), s))
-        print(f'| {env} | {smooth} | {pool} | {C} | {100 * s[0]:.1f}% | {100 * s[1]:.1f}% | {s[2]} of {s[5]} | {s[3]:.3f} |', flush=True)
+        X = prints(spec, env, smooth, pool)
+        s = score(names, y, X, C)
+        h = heldout(names, y, X, prints(hspec, env, smooth, pool), hnames, C) if a.heldout else (0, 0)
+        rows.append(((env, smooth, pool, C), s, h))
+        print(f'| {env} | {smooth} | {pool} | {C} | {100 * s[0]:.1f}% | {100 * s[1]:.1f}% | {s[2]} of {s[5]} | {s[3]:.3f} | {h[0]} of {h[1]} |', flush=True)
     best = max(rows, key=lambda r: (r[1][2] == 0, r[1][1], r[1][0]))
     print('best (no person at 0.8, then most AI at 0.8):', best)
 
