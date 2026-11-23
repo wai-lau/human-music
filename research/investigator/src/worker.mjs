@@ -18,7 +18,7 @@ const STRONG_NAMES = { S1: 'deezer_ai_label', S2: 'own_disclosure', S3: 'youtube
 
 const cut = (s, n = 300) => String(s ?? '').slice(0, n);
 
-export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false, aiLists, fetchPage, shlabsDailyCap, isrcLinker }) {
+export function createWorker({ store, queue, cheapPass, investigate, shlabs, schedulePublish, mapping, now, fetchArt, lookArt, scoring = false, aiLists, fakeprintLayer, fetchPage, shlabsDailyCap, isrcLinker }) {
   const lastError = (msg) => {
     try { store.setState('queue.lastError', cut(msg)); } catch { /* nothing more to do */ }
   };
@@ -119,6 +119,28 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
             return 'done';
           }
         } catch { /* list check failed; fall through */ }
+      }
+
+      // Fakeprint layer: our own audio detector. Two 30-second Deezer previews are scored with
+      // our model; both at 0.8 or more settles the artist as AI at 90 without asking SH Labs or
+      // Claude (Wai, 2026-11-22: build our own detector first).
+      if (fakeprintLayer) {
+        try {
+          const probs = await fakeprintLayer.scoreArtist(artist);
+          if (probs.length === 2 && probs[0] >= 0.8 && probs[1] >= 0.8) {
+            save(artist, null, {
+              verdict: 'ai',
+              confidence: 90,
+              rawConfidence: 90,
+              signals: ['M3'],
+              reasons: [`${probs[0].toFixed(2)} and ${probs[1].toFixed(2)} on our audio model`],
+              sources: ['https://www.deezer.com'],
+            }, 'fakeprint', today);
+            queue.done(artist);
+            schedulePublish();
+            return 'done';
+          }
+        } catch { /* fakeprint layer failed; fall through to SH Labs */ }
       }
 
       // SH Labs layer, graded by SH Labs' own percentage (Wai, 2026-11-20: "if they are highly

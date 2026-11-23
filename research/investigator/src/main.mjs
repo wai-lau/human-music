@@ -16,6 +16,9 @@ import { createQueue } from './queue.mjs';
 import { createServer } from './server.mjs';
 import { createShLabs } from './shlabs.mjs';
 import { createIsrcLinker } from './isrclink.mjs';
+import { createFakeprintLayer } from './fakeprintlayer.mjs';
+import { decode as fpDecode } from './fakeprint.mjs';
+import { readFileSync } from 'node:fs';
 import { openStore } from './store.mjs';
 import { createWorker } from './worker.mjs';
 
@@ -66,6 +69,24 @@ export function createApp(env, deps = {}) {
   const shlabs = deps.shlabs !== undefined ? deps.shlabs : (shlabsKey ? createShLabs({ fetch: doFetch, key: shlabsKey, sleep }) : null);
   const isrcLinker = deps.isrcLinker !== undefined ? deps.isrcLinker : createIsrcLinker({ fetch: doFetch });
   const aiLists = deps.aiLists !== undefined ? deps.aiLists : createAiLists({ fetch: doFetch, now: () => Date.now() });
+
+  // Load the fakeprint model
+  let fakeprintModel = null;
+  try {
+    // Next to the code (model/fakeprint.json), not the data folder.
+    fakeprintModel = JSON.parse(readFileSync(new URL('../model/fakeprint.json', import.meta.url), 'utf8'));
+  } catch {
+    // Model not available; fakeprint layer will be disabled
+  }
+
+  const fakeprintLayer = deps.fakeprintLayer !== undefined
+    ? deps.fakeprintLayer
+    : (fakeprintModel ? createFakeprintLayer({
+        fetch: doFetch,
+        decode: fpDecode,
+        model: fakeprintModel,
+        linker: isrcLinker,
+      }) : null);
   const fetchPage = deps.fetchPage || ((url) =>
     doFetch(url, { redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(20000) }).then(async (res) => {
       if (!res.ok) throw new Error(`fetch failed ${res.status} for ${url}`);
@@ -158,6 +179,7 @@ export function createApp(env, deps = {}) {
   // A fresh worker per step, so a calibration the owner accepts takes effect without a restart.
   const buildWorker = () => createWorker({
     store, queue, cheapPass, investigate, shlabs, fetchArt, lookArt, schedulePublish, now,
+    fakeprintLayer,
     mapping: store.getState('calibration.mapping'),
     // Evidence scoring is the default (Wai, 2026-11-18: the research weights approved);
     // HM_SCORING=off goes back to Claude's own number.

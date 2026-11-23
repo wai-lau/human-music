@@ -14,3 +14,4 @@ node_modules/
 # Python environment for the fakeprint research tools
 research/fakeprint/.venv/
 research/fakeprint/data/
+research/fakeprint/__pycache__/

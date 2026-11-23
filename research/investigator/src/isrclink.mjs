@@ -93,7 +93,19 @@ export function createIsrcLinker({ fetch }) {
     return isrcs;
   }
 
+  async function deezerArtistFor(artist) {
+    let artistId = null;
+    if (artist && typeof artist.channelId === 'string' && artist.channelId) {
+      artistId = await musicbrainzLink(artist.channelId);
+    }
+    if (artistId === null && artist && typeof artist.name === 'string' && artist.name) {
+      artistId = await deezerLinkByName(artist);
+    }
+    return artistId;
+  }
+
   return {
+    deezerArtistFor,
     async isrcsFor(artist) {
       let artistId = null;
       if (artist && typeof artist.channelId === 'string' && artist.channelId) {

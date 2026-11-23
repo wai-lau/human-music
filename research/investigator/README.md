@@ -12,11 +12,12 @@ Each artist goes through a layered decision:
 
 1. A cheap pass looks up the release history. An artist with clear releases before 2020 is marked `human` with no further work.
 2. If the artist is on a maintained AI-artist list (Zoundhub, Soul Over AI, or Cevval by channel ID), it is marked `ai` at 100 confidence. Lists are downloaded at most once a day; if a list fails to download the last good copy is used.
-3. The service then asks SH Labs to score the artist's top two Spotify tracks, one at a time. A first song under 8% is `human` at 95 without a second request; otherwise both 95% or higher is `ai` at 95 (Optimal skips it), both 85% or higher is `ai` at 90 (below Optimal, so SH Labs alone never reaches it), and both under 50% is `human` at 95. For YouTube Music artists without a Spotify ID, the service links the artist to Deezer through MusicBrainz or by name, finds ISRCs, and scores those instead. Any other result or the day's request cap passes the artist on to Claude.
-4. Only when the cheaper layers cannot answer does the service run `claude -p` with web search and page fetch only. Claude gets no shell, no file tools and no git.
-5. The service checks Claude's answer against a strict schema and drops anything else, without repairing it.
-6. A decision rule in code sets the verdict. `ai` needs two different signals, or one strong one (an AI label from Deezer, the artist's own disclosure, a tracker listing). Anything weaker is stored as `unsure`.
-7. The verdict goes into a SQLite file. A publisher writes the list to a git branch once a day. The due time is stored, so a restart does not push it back, and a failed push is retried every 10 minutes.
+3. The service scores two 30-second Deezer previews of the artist with our own audio model (written from Afchar et al., ISMIR 2025; results in research/calibration). Both songs at 0.8 or more is `ai` at 90 (below Optimal); anything else goes on to the next layer. The model runs in the service; only Deezer is contacted, for the previews.
+4. The service then asks SH Labs to score the artist's top two Spotify tracks, one at a time. A first song under 8% is `human` at 95 without a second request; otherwise both 95% or higher is `ai` at 95 (Optimal skips it), both 85% or higher is `ai` at 90 (below Optimal, so SH Labs alone never reaches it), and both under 50% is `human` at 95. For YouTube Music artists without a Spotify ID, the service links the artist to Deezer through MusicBrainz or by name, finds ISRCs, and scores those instead. Any other result or the day's request cap passes the artist on to Claude.
+5. Only when the cheaper layers cannot answer does the service run `claude -p` with web search and page fetch only. Claude gets no shell, no file tools and no git.
+6. The service checks Claude's answer against a strict schema and drops anything else, without repairing it.
+7. A decision rule in code sets the verdict. `ai` needs two different signals, or one strong one (an AI label from Deezer, the artist's own disclosure, a tracker listing). Anything weaker is stored as `unsure`.
+8. The verdict goes into a SQLite file. A publisher writes the list to a git branch once a day. The due time is stored, so a restart does not push it back, and a failed push is retried every 10 minutes.
 
 ```mermaid
 flowchart TD
