@@ -25,7 +25,7 @@
 //   JSON, redirect 'error', credentials 'omit', a timeout signal); no token or a non-https base: no
 //   fetch, { sent: 0 }; a failed fetch or a status of 400+: { sent: 0 }, never throws. The worker's
 //   onMessage handles { type: 'hm-fingerprint', item } only when isDev(): sendFingerprint(item).
-// Run from the repo root: node tests/wip-contract-player-prints.check.mjs
+// Run from the repo root: node tests/contract-player-prints.check.mjs
 const { readFileSync } = await import('fs');
 const { runInContext } = await import('vm');
 const { load } = await import(process.cwd() + '/tests/load.mjs');
@@ -132,6 +132,11 @@ await t('the song changes during capture: no skip, nothing sent', async () => {
   const r = await start({ song: LISTED });
   r.box.song = OTHER; r.release(); await settle(r.clock, 100); await settle(r.clock, 1000);
   return (r.calls.next === 0 && r.sent.length === 0) || J({ next: r.calls.next, sent: r.sent.length });
+});
+await t('capture hangs and the song changes: the 20 s timer skips nothing', async () => {
+  const r = await start({ song: LISTED, capture: 'hang' });
+  r.box.song = OTHER; await settle(r.clock, 21000); await settle(r.clock, 1000);
+  return r.calls.next === 0 || J({ next: r.calls.next });
 });
 await t('without the option, or enabled() false: skipped at once, no capture', async () => {
   const a = await start({ song: LISTED, hook: false });

@@ -473,6 +473,35 @@ list = lists[HM.store.KEYS.filterLists][i];
       return key || 'unknown';
     }
 
+    async function sendFingerprint(item) {
+      if (!item || typeof item !== 'object') return { sent: 0 };
+      let token;
+      let base;
+      try {
+        const state = await readState();
+        base = state.base;
+        try { token = (await secrets.get('investigator-token')) || ''; } catch (e) { token = ''; }
+      } catch (e) { return { sent: 0 }; }
+      if (!token || !/^https:\/\//.test(base)) return { sent: 0 };
+      const init = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(item),
+        redirect: 'error',
+        credentials: 'omit'
+      };
+      if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(15000);
+      try {
+        const resp = await fetchFn(base + '/api/fingerprint', init);
+        return { sent: resp.ok ? 1 : 0 };
+      } catch (e) {
+        return { sent: 0 };
+      }
+    }
+
     async function send(items) {
       if (!Array.isArray(items) || items.length === 0) return { sent: 0, skipped: 0 };
       items = items.filter(function (it) { return it && typeof it === 'object'; });
@@ -529,7 +558,13 @@ list = lists[HM.store.KEYS.filterLists][i];
           credentials: 'omit',
           redirect: 'error'
         };
-        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') init.signal = AbortSignal.timeout(15000);
+      let sig = null;
+      if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+        sig = AbortSignal.timeout(15000);
+      } else if (typeof AbortController !== 'undefined') {
+        sig = new AbortController().signal;
+      }
+      if (sig) init.signal = sig;
         const resp = await fetchFn(base + '/api/investigate', init);
         ok = true;
         error = resp.ok ? null : 'HTTP ' + resp.status;
@@ -553,7 +588,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       return { sent: ok ? toSend.length : 0, skipped: skippedCount };
     }
 
-    return { send: send };
+    return { send: send, sendFingerprint: sendFingerprint };
   }
 
   globalThis.HM.createInvestigator = createInvestigator;
@@ -746,6 +781,13 @@ list = lists[HM.store.KEYS.filterLists][i];
       if (msg && msg.type === 'hm-investigate' && Array.isArray(msg.items)) {
         waitDev(function (dev) {
           if (dev) globalThis.HM.investigator.send(msg.items.slice(0, 20)).catch(function () { /* recorded as lastError */ });
+        });
+        return false;
+      }
+      // Audio fingerprints for model training. Only development copies send them.
+      if (msg && msg.type === 'hm-fingerprint' && msg.item && typeof msg.item === 'object') {
+        waitDev(function (dev) {
+          if (dev) globalThis.HM.investigator.sendFingerprint(msg.item).catch(function () { /* ignore */ });
         });
         return false;
       }

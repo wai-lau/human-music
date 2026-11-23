@@ -36,7 +36,7 @@
     };
   }
 
-  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {} }) {
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {}, fingerprints = null }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -58,6 +58,10 @@
       skipMatch: null, // the match behind the skip in progress (for a skip-failed log line)
       removeFailures: new Map(), // queue rows whose removal failed: rowKey -> { tries, at }
       reported: new Set(), // normalised credits already sent to the investigator this page
+      // Fingerprinting state
+      captureRunning: false,
+      captureSong: null, // { title, artistLine } of the song being captured
+      captureSkipTimer: null, // 20s timer to force skip if capture hangs
     };
     let writes = Promise.resolve();
 
@@ -158,6 +162,120 @@
       });
     }
 
+    // --- audio fingerprints ---------------------------------------------------------
+
+    // Captures the song's audio (12 s muted for a song to skip, 30 s unmuted for a song that plays on),
+    // prints it to 510 values, and sends it. If the song changes during capture, nothing is sent
+    // and no skip happens. If capture hangs (never resolves), the skip is forced after 20 s.
+    function captureAndSend(song, match) {
+      const startKey = song.title + '\u0000' + song.artistLine;
+      const doSkip = () => {
+        state.captureRunning = false;
+        state.captureSong = null;
+        safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
+        log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
+      };
+      // Skip immediately if fingerprinting unavailable or already capturing
+      if (!fingerprints || state.captureRunning) {
+        doSkip();
+        return;
+      }
+      // Check if dev mode is on before capturing
+      safe(() => {
+        const devPromise = fingerprints.enabled();
+        if (devPromise && typeof devPromise.then === 'function') {
+          devPromise.then(dev => {
+            if (!dev) { doSkip(); return; }
+            beginCapture(song, match, startKey, doSkip);
+          }).catch(() => doSkip());
+        } else if (devPromise) {
+          beginCapture(song, match, startKey, doSkip);
+        } else {
+          doSkip();
+        }
+      }, null);
+    }
+
+    function beginCapture(song, match, startKey, doSkip) {
+      state.captureRunning = true;
+      state.captureSong = { title: song.title, artistLine: song.artistLine };
+      let settled = false;
+      // If the capture hangs, force a skip after 20 s
+      state.captureSkipTimer = timers.setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        // Never skip a song that started meanwhile: it may be a person's.
+        if (songMatches(safe(() => site.readSong(doc), null), startKey)) { doSkip(); return; }
+        state.captureRunning = false;
+        state.captureSong = null;
+      }, 20000);
+      safe(() => fingerprints.capture(12, { mute: true }), null)
+        .catch(() => null)
+        .then(async (captured) => {
+          if (state.captureSkipTimer != null) {
+            safe(() => timers.clearTimeout(state.captureSkipTimer));
+            state.captureSkipTimer = null;
+          }
+          if (settled) return;
+          if (!captured || captured.length < 44100 * 5) {
+            doSkip();
+            return;
+          }
+          // Print the samples to 510 values
+          const fp = HM.fingerprint.fakeprint(captured);
+          // Check if the song changed during capture
+          const current = safe(() => site.readSong(doc), null);
+          if (!songMatches(current, startKey)) {
+            state.captureRunning = false;
+            state.captureSong = null;
+            // Song changed: no skip, no send
+            return;
+          }
+          // Song is still the same; send the fingerprint, then skip
+          fingerprints.send({
+            title: song.title,
+            artistLine: song.artistLine,
+            label: 'ai',
+            seconds: 12,
+            print: Array.from(fp)
+          });
+          doSkip();
+        });
+    }
+
+    function capturePlayedSong(song) {
+      if (!fingerprints) return;
+      if (!safe(() => fingerprints.enabled(), false)) return;
+      if (state.captureRunning) return;
+      const startKey = song.title + '\u0000' + song.artistLine;
+      state.captureRunning = true;
+      state.captureSong = { title: song.title, artistLine: song.artistLine };
+      Promise.resolve().then(() => safe(() => fingerprints.capture(30, { mute: false }), null))
+        .catch(() => null)
+        .then(async (captured) => {
+          state.captureRunning = false;
+          state.captureSong = null;
+          if (!captured) return;
+          // Song changed during capture?
+          const current = safe(() => site.readSong(doc), null);
+          if (!songMatches(current, startKey)) return;
+          // Print and send
+          const fp = HM.fingerprint.fakeprint(captured);
+          fingerprints.send({
+            title: song.title,
+            artistLine: song.artistLine,
+            label: 'played',
+            seconds: 30,
+            print: Array.from(fp)
+          });
+        });
+    }
+
+    function songMatches(song, key) {
+      if (!song) return false;
+      return song.title + '\u0000' + song.artistLine === key;
+    }
+
     // --- the playing song ---------------------------------------------------------
 
     // Only the tab whose video is actually playing acts on the playing song: pressing Next in
@@ -185,12 +303,17 @@
       const songKey = song.title + '\u0000' + song.artistLine;
       if (songKey !== state.lastSongKey) { state.lastSongKey = songKey; state.lastLogged = null; }
       const match = matchSong(song);
-      if (!match) { reportUnknown(song, true); return; }
+      if (!match) {
+        reportUnknown(song, true);
+        // Song plays on: capture its audio for training
+        capturePlayedSong(song);
+        return;
+      }
       if (match.mode === 'watch') { logPlaying('watched', song, match); return; }
       if (!state.settings.autoSkip) { logPlaying('seen', song, match); return; }
       state.skipMatch = match; // named in the log if this skip doesn't take
-      safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
-      log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
+      // Capture audio before skipping, in dev copies
+      captureAndSend(song, match);
     }
 
     // Logs a song that plays on (watched, or seen with auto-skip off) once per play.
@@ -450,6 +573,15 @@
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local && !HM.app) {
     const api = HM.store.api();
+    const askDev = () => new Promise(resolve => {
+      const result = chrome.runtime.sendMessage({ type: 'dev-mode' }, reply => { void chrome.runtime.lastError; resolve(reply === true); });
+      if (result && typeof result.then === 'function') { result.then(r => resolve(r === true)).catch(() => resolve(false)); }
+    }).catch(() => false);
+    // Fingerprints only once the worker has said dev mode; a plain flag, so a store copy never
+    // starts a recording while the answer is pending (a Promise would read as true).
+    let devCopy = false;
+    askDev().then(dev => { devCopy = dev === true; });
+
     HM.app = createApp({
       doc: document,
       storage: api.storage.local,
@@ -461,6 +593,15 @@
       },
       now: () => Date.now(),
       alive: () => !!(chrome.runtime && chrome.runtime.id),
+      fingerprints: {
+        enabled: () => devCopy,
+        capture: (seconds, opts) => (HM.capture && typeof HM.capture.record === 'function' ? HM.capture.record(seconds, opts) : Promise.resolve(null)),
+        send: item => {
+          try {
+            chrome.runtime.sendMessage({ type: 'hm-fingerprint', item: item });
+          } catch (err) { /* ignore */ }
+        }
+      },
       // The worker puts this tab's count on the toolbar icon.
       onCount: count => {
         try {
@@ -483,13 +624,6 @@
       if (msg && msg.type === 'hm-ping') { sendResponse(true); return false; }
       return false;
     });
-    // Ask the worker whether this is a development install; page aids are added only on true.
-    // A cut-off copy's sendMessage throws, and a worker that can't answer leaves lastError:
-    // both mean no aids.
-    const askDev = () => new Promise(resolve => {
-      const result = chrome.runtime.sendMessage({ type: 'dev-mode' }, reply => { void chrome.runtime.lastError; resolve(reply === true); });
-      if (result && typeof result.then === 'function') { result.then(r => resolve(r === true)).catch(() => resolve(false)); }
-    }).catch(() => false);
     askDev().then(dev => {
       if (!dev) return;
       // Development only: copy the service worker's notes onto the page so a test can read them.
