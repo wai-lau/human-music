@@ -34,3 +34,20 @@ Limits:
   established artists, so new small acts are the least tested.
 
 Model: research/fakeprint/model.json (weights, intercept, feature scaling).
+
+## Held-out check: AI artists Deezer didn't flag (2026-11-23)
+
+A side agent noted that the AI sample leans on Deezer's own labels (Zoundhub keeps artists Deezer
+tags AI), so the catch rate could be inflated. Check: Soul Over AI artists that are not on Zoundhub
+and were never in training, scored with the saved model. 58 of the 324 could be scored (the rest had
+no exact Deezer match or no previews).
+
+| Both songs at or above | Held-out AI caught | (cross-validation, for comparison) |
+|---|---|---|
+| 0.5 | 39 of 58 (67%) | 64.5% |
+| 0.7 | 34 of 58 (59%) | 54.5% |
+| 0.8 | 30 of 58 (52%) | 49.5% |
+| 0.9 | 19 of 58 (33%) | 39.5% |
+
+No sign of inflation at the chosen line (0.8). Some of these may still carry Deezer's tag without being
+on Zoundhub, whose filter is stricter. The false-positive side never depended on Deezer's labels.
