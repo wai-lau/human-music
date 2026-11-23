@@ -50,9 +50,18 @@ def deezer_artist(name):
     return next(iter(ids)) if len(ids) == 1 else None
 
 
-def previews(artist_id, n=2):
+def previews(artist_id, name, n=2):
+    # Deezer's "top" list is empty for many small artists; its track search, kept to this exact
+    # artist, usually has their songs with previews.
     top = get(f'https://api.deezer.com/artist/{artist_id}/top?limit=10').get('data') or []
-    return [(t['id'], t['preview']) for t in top if t.get('preview')][:n]
+    got = [(t['id'], t['preview']) for t in top if t.get('preview')]
+    if len(got) < n:
+        q = urllib.parse.quote(name)
+        found = get(f'https://api.deezer.com/search?q={q}&limit=25').get('data') or []
+        seen = {tid for tid, _ in got}
+        got += [(t['id'], t['preview']) for t in found
+                if t.get('preview') and (t.get('artist') or {}).get('id') == artist_id and t['id'] not in seen]
+    return got[:n]
 
 
 def main():
@@ -85,7 +94,7 @@ def main():
             if not aid:
                 continue
             prints, tracks = [], []
-            for tid, url in previews(aid):
+            for tid, url in previews(aid, name):
                 prints.append(fakeprint(decode(get(url, raw=True))))
                 tracks.append(tid)
             if len(prints) < 2:
