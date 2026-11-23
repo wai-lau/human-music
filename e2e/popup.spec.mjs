@@ -87,7 +87,7 @@ test('behaviour settings are saved', async ({ context, extensionId, setState, re
   await expect.poll(async () => { const s = await readStore('hm.settings'); return [s.lookahead, s.autoSkip]; }).toEqual([7, false]);
   await popup.locator('#lookahead').fill('99');
   await popup.locator('#lookahead').dispatchEvent('change');
-  await expect.poll(async () => (await readStore('hm.settings')).lookahead).toBe(10); // capped
+  await expect.poll(async () => (await readStore('hm.settings')).lookahead).toBe(25); // capped
 });
 
 test('the run stays offline: the list download fails and the last downloaded copy is kept', async ({ setState, readStore }) => {

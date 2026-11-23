@@ -74,7 +74,7 @@ async function runTests() {
       throw new Error('filterLists not installed: ' + JSON.stringify(lists['hm.filterLists']));
     }
     const settings = await storage.get('hm.settings');
-    if (!deepEqual(settings['hm.settings'], { lookahead: 3, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, plainPages: false, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false })) {
+    if (!deepEqual(settings['hm.settings'], { lookahead: 10, autoSkip: true, autoDislike: false, hidePageItems: true, playerButtons: true, plainPages: false, paused: false, refresh: 'daily', mode: 'lists', modeChosen: false, investigate: false })) {
       throw new Error('settings not defaults');
     }
     const user = await storage.get('hm.user');

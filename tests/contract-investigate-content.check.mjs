@@ -33,14 +33,14 @@ function fakeSite({ song, queue = [], rows = [], art }) {
   return { site, calls };
 }
 
-async function start({ site, investigate = true, mode = 'lists', modeChosen = true }) {
+async function start({ site, investigate = true, mode = 'lists', modeChosen = true, lookahead }) {
   const ctx = load(FILES, { setTimeout, clearTimeout });
   const { HM } = ctx;
   const storage = fakeStorage({
     'hm.filterLists': [{ ...HM.lists.SOUL_OVER_AI, lastRefresh: 1 }, { ...HM.lists.HM_VERDICTS, lastRefresh: 1, calibrated: true }],
     'hm.list.soul-over-ai': { artists: [{ name: 'The Velvet Sundown' }] },
     'hm.list.hm-verdicts': { artists: [{ name: 'Verdict Act', verdict: 'ai', confidence: 97 }, { name: 'Low Act', verdict: 'ai', confidence: 40 }], calibrated: true },
-    'hm.settings': { ...HM.settings.DEFAULTS, investigate, mode, modeChosen },
+    'hm.settings': { ...HM.settings.DEFAULTS, investigate, mode, modeChosen, ...(lookahead === undefined ? {} : { lookahead }) },
     'hm.user': { artists: [], songs: [], keywords: [], neverSkip: ['Real Person'] },
   });
   const clock = fakeClock();
@@ -112,7 +112,7 @@ await t('a verdict at 40 does not block in Optimal; it does in Aggressive only a
 });
 await t('only queue rows in the lookahead window are reported', async () => {
   const queue = [{ ...PERSON, selected: true }, ...['One', 'Two', 'Three', 'Four', 'Five'].map(n => ({ title: n, artistLine: n + ' Act • X', selected: false }))];
-  const r = await start({ site: fakeSite({ song: PERSON, queue }).site }); // lookahead 3 by default
+  const r = await start({ site: fakeSite({ song: PERSON, queue }).site, lookahead: 3 }); // a window of 3 (the default is 10)
   for (let k = 0; k < 2; k++) { await r.app.runLookahead(); await settle(r.clock, 1000); }
   return J(r.reported().sort()) === J(['One Act', 'Three Act', 'Two Act']) || J(r.reported());
 });

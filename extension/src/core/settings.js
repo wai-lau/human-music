@@ -1,8 +1,12 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
 
+  // Cap: a radio queue shows about 50 rows; checking ahead only reads rows (a menu opens only
+  // for a listed one), so 25 stays cheap (Wai: "cap somewhere higher that is still reasonable").
+  const LOOKAHEAD_MAX = 25;
+
   const DEFAULTS = {
-    lookahead: 3,
+    lookahead: 10, // Wai, 2026-11-23: "set default queue lookahead to 10 songs"
     autoSkip: true,
     autoDislike: false,
     hidePageItems: true,
@@ -29,7 +33,7 @@
     const n = typeof obj.lookahead === 'number' ? obj.lookahead
       : typeof obj.lookahead === 'string' && obj.lookahead.trim() !== '' ? Number(obj.lookahead) : NaN;
     if (Number.isFinite(n)) {
-      out.lookahead = Math.max(0, Math.min(10, Math.floor(n)));
+      out.lookahead = Math.max(0, Math.min(LOOKAHEAD_MAX, Math.floor(n)));
     } else {
       out.lookahead = DEFAULTS.lookahead;
     }

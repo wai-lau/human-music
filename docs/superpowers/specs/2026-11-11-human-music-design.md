@@ -155,8 +155,8 @@ flowchart TD
 Wai confirmed: check the next N songs in the queue against the lists and
 take matches out of the queue before they play, so no skip is heard.
 
-- N is the "lookahead distance" setting. Default 3, range 0 to 10; 0 turns
-  lookahead off. **(Claude's call)**
+- N is the "lookahead distance" setting. Default 10, range 0 to 25; 0 turns
+  lookahead off (Wai, 2026-11-23: default 10, cap "somewhere higher that is still reasonable").
 - Runs when a song starts and when the queue changes.
 - Removing uses the queue row's own menu ("Remove from queue"). Finding that
   menu item without depending on English text, and doing it without the
