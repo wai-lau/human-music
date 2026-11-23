@@ -5,7 +5,8 @@
 //   the same algorithm as research/investigator/src/fakeprint.mjs (read its comments; port it, no
 //   imports): mono 44100 Hz in, 510 values out for 10 s or more. Listed in the manifest's YouTube
 //   Music content_scripts before src/content.js.
-// content.js: createApp gains an optional fingerprints option
+// content.js: createApp gains an optional fingerprints option (and the app a captureNow(): once the
+//   dev answer arrives, a playing song with no match that wasn't recorded is recorded then)
 //   { enabled: () => boolean, capture: (seconds, { mute }) => Promise<Float32Array | null>, send: (item) => void }
 //   item = { title, artistLine, label: 'ai' | 'played', seconds, print: plain array of 510 numbers }.
 //   With it enabled:
@@ -76,12 +77,12 @@ async function start({ song, capture = 'ok', enabled = true, hook = true }) {
     'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [] },
   });
   const clock = fakeClock();
-  const box = { song };
+  const box = { song, enabled };
   const { site, calls } = fakeSite(box);
   const captures = [], sent = [];
   let release = null;
   const fingerprints = {
-    enabled: () => enabled,
+    enabled: () => box.enabled,
     capture: (seconds, opts) => {
       captures.push({ seconds, mute: opts && opts.mute });
       if (capture === 'ok') return new Promise(r => { release = () => r(signal()); });
@@ -93,7 +94,7 @@ async function start({ song, capture = 'ok', enabled = true, hook = true }) {
   };
   const app = HM.createApp({ doc: makeDocument(), storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(), site, ...(hook ? { fingerprints } : {}) });
   await app.start(); await settle(clock, 60);
-  return { HM, app, clock, box, calls, captures, sent, release: () => release && release() };
+  return { HM, app, clock, box, calls, captures, sent, release: () => release && release(), enable: () => { box.enabled = true; } };
 }
 
 await t('fakeprint() matches the Python reference on the golden signal (within 0.002)', async () => {
@@ -148,6 +149,12 @@ await t('a song that plays on: captured unmuted for 30 s, sent as played', async
   r.release(); await settle(r.clock, 100);
   const item = r.sent[0] || {};
   return (J(r.captures) === J([{ seconds: 30, mute: false }]) && r.calls.next === 0 && r.sent.length === 1 && item.label === 'played' && item.seconds === 30 && item.title === 'Fresh') || J({ captures: r.captures, sent: r.sent.map(i => i.label) });
+});
+await t('dev mode answered after the first check: captureNow() records the song that plays on', async () => {
+  const r = await start({ song: UNKNOWN, enabled: false });
+  const before = r.captures.length;
+  r.enable(); r.app.captureNow(); await settle(r.clock); r.release(); await settle(r.clock, 100);
+  return (before === 0 && J(r.captures) === J([{ seconds: 30, mute: false }]) && r.sent.length === 1 && r.sent[0].label === 'played') || J({ before, captures: r.captures, sent: r.sent.length });
 });
 await t('a played capture whose song changed is not sent', async () => {
   const r = await start({ song: UNKNOWN });

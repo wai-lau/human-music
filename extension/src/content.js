@@ -243,6 +243,16 @@
         });
     }
 
+    // The dev-mode answer can arrive after the first song was checked: record that song then,
+    // if it plays on (a song to skip was already skipped).
+    function captureNow() {
+      if (!fingerprints || state.captureRunning || safe(() => fingerprints.enabled(), false) !== true) return;
+      if (state.settings.paused || !videoPlaying()) return;
+      const song = safe(() => site.readSong(doc), null);
+      if (!song || matchSong(song)) return;
+      capturePlayedSong(song);
+    }
+
     function capturePlayedSong(song) {
       if (!fingerprints) return;
       if (!safe(() => fingerprints.enabled(), false)) return;
@@ -566,7 +576,7 @@
       return { passes: state.passes, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
     }
 
-    return { start, checkPlaying, runLookahead, flush, status };
+    return { start, checkPlaying, runLookahead, flush, status, captureNow };
   }
 
   HM.createApp = createApp;
@@ -580,7 +590,7 @@
     // Fingerprints only once the worker has said dev mode; a plain flag, so a store copy never
     // starts a recording while the answer is pending (a Promise would read as true).
     let devCopy = false;
-    askDev().then(dev => { devCopy = dev === true; });
+    askDev().then(dev => { devCopy = dev === true; if (devCopy && HM.app) safe(() => HM.app.captureNow()); });
 
     HM.app = createApp({
       doc: document,
