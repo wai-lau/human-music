@@ -10,7 +10,7 @@
 // it has.
 (function () {
   'use strict';
-  globalThis.HM = globalThis.HM || {};
+  if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   const RATE = 44100;
 
   function record(seconds, opts) {
