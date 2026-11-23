@@ -63,3 +63,15 @@ Resampled with each song's 5-16 kHz mean spectrum kept (`sample.py --spectra`): 
 | Best retrained setting (min 301, smooth 11 or 51, pool 4, C 0.01) | 71.7% | 0 of 1,161 | 28 of 56 (50%) |
 
 Reading: more training data lifts cross-validation by 20 points but not the held-out set. Most training AI comes from Zoundhub, which is likely Deezer-flagged, so cross-validation rewards learning what Deezer's own detector already catches. On held-out the differences are within noise (56 artists, about 6.6 points). The live model stays. A real gain needs AI training data that Deezer did not flag; player-audio fakeprints from AI songs the extension already skips would give that.
+
+## Stored droplet verdicts through the audio model (2026-11-23, read-only)
+
+The 202 verdicts from Claude and SH Labs, matched on Deezer by exact name only (stored rows keep no song titles; the live layer also confirms by title).
+
+| Stored verdict | Audio model says AI | Passes on | No previews found |
+|---|---|---|---|
+| made by people (158) | 0 | 79 | 79 |
+| AI (20) | 1 | 7 | 12 |
+| unsure (16) | 0 | 6 | 10 |
+
+No person is flagged. Only 1 of 8 AI artists with previews is caught, far under the 52% held-out rate. Eight is too few to call, but the AI acts people actually play may differ from the list artists the model learned from; player-audio data from skipped AI songs would show it.
