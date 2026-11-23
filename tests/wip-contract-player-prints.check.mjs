@@ -176,7 +176,7 @@ await t('sendFingerprint posts the item with the token to <base>/api/fingerprint
   const h = c.init.headers || {};
   return (res.sent === 1 && r.calls.length === 1 && c.url === 'https://wai-lau.net/human-music/api/fingerprint' && c.init.method === 'POST'
     && h.Authorization === 'Bearer t0k' && /json/.test(h['Content-Type'] || '') && c.init.redirect === 'error' && c.init.credentials === 'omit'
-    && J(JSON.parse(c.init.body)) === J(ITEM) && c.init.signal) || J({ res, url: c.url, init: { ...c.init, body: undefined, signal: !!c.init.signal } });
+    && J(JSON.parse(c.init.body)) === J(ITEM) && !!c.init.signal) || J({ res, url: c.url, init: { ...c.init, body: undefined, signal: !!c.init.signal } });
 });
 await t('sendFingerprint: no token, http base, failed fetch or 4xx: { sent: 0 }, no throw', async () => {
   const a = rig({ token: '' }), b = rig({ base: 'http://x.example' }), c = rig({ fetchThrows: true }), d = rig({ status: 429 });
