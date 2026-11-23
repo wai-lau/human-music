@@ -15,3 +15,8 @@ node_modules/
 research/fakeprint/.venv/
 research/fakeprint/data/
 research/fakeprint/__pycache__/
+
+# Third-party agent skills (npx modern-web-guidance install), regenerated, never committed
+/.agents/
+/.claude/skills/
+/skills-lock.json
