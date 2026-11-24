@@ -11,6 +11,7 @@ const BOOLEAN_FLAGS = ['keyIsButton'];
 const OPTIONAL = {
   'queue panel (Spotify draws the queue only in a panel)': ['queueOpen', 'otherPanelOpen', 'openQueue', 'closeQueue', 'timeLeft'],
   'Next switched off (Spotify Free skip limit)': ['nextBlocked'],
+  'video source (tells one track\'s video from the next)': ['videoSrc'],
   'marked rows (rows that will be skipped look unavailable)': ['readListRows', 'markRow', 'unmarkRow'],
 };
 

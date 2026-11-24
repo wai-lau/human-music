@@ -63,6 +63,23 @@ test('lookahead removes a listed song from the queue before it plays', async ({ 
   expect(nexts(await events(page))).toEqual([]);
 });
 
+test('lookahead presses nothing when two menu items share the remove icon', async ({ context, setState, readLog }) => {
+  await setState({ user: { artists: [AI] }, settings: { lookahead: 3 } });
+  const page = await openSite(context, YTM, { shareIcon: true, songs: [
+    { title: 'Now Playing', artist: PERSON },
+    { title: 'Made Song', artist: AI },
+    { title: 'Later', artist: PERSON },
+  ] });
+  await expect.poll(async () => (await events(page)).filter(e => e.type === 'menu').length).toBeGreaterThan(0);
+  await page.waitForTimeout(1500);
+  const seen = (await events(page)).map(e => e.type);
+  expect(seen).not.toContain('removed');
+  expect(seen).not.toContain('removed-from-playlist');
+  await expect(page.locator('#queue .song-title')).toHaveText(['Now Playing', 'Made Song', 'Later']);
+  await expect(page.locator('ytmusic-menu-popup-renderer')).toBeHidden(); // our menu was closed again
+  expect((await readLog()).map(e => e.event)).not.toContain('removed');
+});
+
 test('search results by a listed artist are hidden, others stay', async ({ context, setState }) => {
   await setState({ user: { artists: [AI] } });
   const page = await openSite(context, 'https://music.youtube.com/search?q=e2e', {

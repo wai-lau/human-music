@@ -81,4 +81,13 @@ run([
     const failed = (await log()).filter(e => e.event === 'remove-failed');
     return (failed.length === 1 && failed[0].title === 'Let it Burn' && f.calls.remove >= 1) || J((await log()).map(e => e.event));
   }],
+  ['the lookahead hands the adapter a typing check, so a menu is closed unclicked if the person starts typing', async () => {
+    const queue = [{ ...PERSON, selected: true }, { title: 'Let it Burn', artistLine: 'The Velvet Sundown • Dust and Silence', selected: false }];
+    const f = fakeSite({ song: PERSON, queue, removes: false });
+    let opts = null;
+    f.site.removeQueueRow = async (d, r, o) => { opts = o; return false; };
+    const { app } = await start(f.site);
+    await app.runLookahead();
+    return (opts && typeof opts.typing === 'function') || J(opts);
+  }],
 ]);

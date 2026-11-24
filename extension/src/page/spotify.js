@@ -172,11 +172,11 @@
 
   // Open the row's menu, press "Remove from queue" (exact icon), and resolve true once the
   // row is gone. No such item: Escape, click nothing else, false. Focus goes back after.
-  async function removeQueueRow(doc, row) {
-    return PC.removeQueueRowWrap(doc, row, removeInner.bind(null, doc));
+  async function removeQueueRow(doc, row, opts) {
+    return PC.removeQueueRowWrap(doc, row, r => removeInner(doc, r, opts || {}));
   }
 
-  async function removeInner(doc, row) {
+  async function removeInner(doc, row, opts) {
     if (!row || !row.el || !row.el.isConnected) return false;
 
     // If a context menu is already open, it might belong to another row (the person is about
@@ -193,12 +193,17 @@
       menu = doc.querySelector(SEL.menu);
       if (!menu) await wait(50);
     }
+    // The person may have started typing while the menu was opening: close ours, click nothing.
+    if (menu && typeof opts.typing === 'function' && opts.typing()) {
+      PC.dispatchEscape(doc, menu);
+      return false;
+    }
     const item = menu && [...menu.querySelectorAll('[role="menuitem"], button')].find(i => {
       const path = i.querySelector('svg path');
       return path && path.getAttribute('d') === REMOVE_ICON;
     });
     if (!item) {
-      PC.dispatchEscape(doc);
+      PC.dispatchEscape(doc, menu);
       return false;
     }
     item.click();

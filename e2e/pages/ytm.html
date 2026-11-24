@@ -100,7 +100,16 @@
       events.push({ type: 'removed', title: song.title });
       setTimeout(render, 100); // the real page takes a moment too
     });
-    popup.append(radio, remove);
+    popup.append(radio);
+    // setup.shareIcon: a "Remove from playlist" item with the same icon (the real page may do
+    // this); Human Music must then press nothing.
+    if (setup.shareIcon) {
+      const fromPlaylist = make('div', { role: 'menuitem' });
+      fromPlaylist.append(svgPath(setup.icons.ytm), document.createTextNode('Remove from playlist'));
+      fromPlaylist.addEventListener('click', () => { events.push({ type: 'removed-from-playlist', title: song.title }); popup.hidden = true; });
+      popup.append(fromPlaylist);
+    }
+    popup.append(remove);
     popup.hidden = false;
     events.push({ type: 'menu', title: song.title });
   }

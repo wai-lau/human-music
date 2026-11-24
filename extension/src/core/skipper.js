@@ -5,6 +5,8 @@
     createSkipper({ page, setTimeout, clearTimeout, setInterval, clearInterval, onGiveUp }) {
       let busy = false;
       let skipSong = null;
+      let skipDuration = NaN; // the video's length and source when the skip began
+      let skipSrc = null;
       let pollInterval = null;
       let giveUpTimeout = null;
       let seekTimeout = null;
@@ -30,6 +32,23 @@
         try {
           const now = page.readSong();
           return skipSong != null && now != null && now.title === skipSong.title && now.artistLine === skipSong.artistLine;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // A second Next or a seek is aimed at the song the skip began on. If the title lags the
+      // player, the video may already be the next song, a person's: its length (or source)
+      // then differs from the one read at the start, so don't act.
+      function sameVideo() {
+        try {
+          if (typeof page.videoSrc === 'function') {
+            const src = page.videoSrc();
+            if (skipSrc && src && src !== skipSrc) return false;
+          }
+          if (!Number.isFinite(skipDuration)) return true; // length unknown at the start: nothing to compare
+          const dur = page.videoDuration();
+          return typeof dur === 'number' && Math.abs(dur - skipDuration) <= 1;
         } catch (e) {
           return false;
         }
@@ -64,7 +83,7 @@
         if (!page.keyIsButton) {
           buttonTimeout = setTimeout(() => {
             buttonTimeout = null;
-            if (!busy || !stillSameSong() || nextBlocked()) return;
+            if (!busy || !stillSameSong() || nextBlocked() || !sameVideo()) return;
             const now = videoNow();
             if (before && now && !now.paused && now.time > before.time) {
               try { page.clickNext(); } catch (e) {}
@@ -74,7 +93,7 @@
         const seekDelay = page.keyIsButton ? 3000 : 1500;
         seekTimeout = setTimeout(() => {
           seekTimeout = null;
-          if (busy && stillSameSong() && !nextBlocked()) {
+          if (busy && stillSameSong() && !nextBlocked() && sameVideo()) {
             tryMaybeSeek();
           }
         }, seekDelay);
@@ -89,7 +108,7 @@
           } else {
             if (seekInterval == null) {
               seekInterval = setInterval(() => {
-                if (!busy || !stillSameSong()) {
+                if (!busy || !stillSameSong() || !sameVideo()) {
                   clearInterval(seekInterval);
                   seekInterval = null;
                   return;
@@ -127,6 +146,9 @@
           skipSong = null;
 
           try { skipSong = page.readSong(); } catch (e) {}
+          skipDuration = NaN; skipSrc = null;
+          try { const d = page.videoDuration(); if (typeof d === 'number' && Number.isFinite(d) && d > 0) skipDuration = d; } catch (e) {}
+          try { if (typeof page.videoSrc === 'function') skipSrc = page.videoSrc() || null; } catch (e) {}
 
           // Next is switched off: stop for this song and report it like a failed skip.
           if (nextBlocked()) {
@@ -143,7 +165,7 @@
             if (disliked) {
               dislikeWaitTimeout = setTimeout(() => {
                 dislikeWaitTimeout = null;
-                if (busy && isCurrentSong()) {
+                if (busy && stillSameSong() && sameVideo()) {
                   pressNext();
                 }
               }, 2000);

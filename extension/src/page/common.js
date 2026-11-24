@@ -109,10 +109,30 @@
     return null;
   }
 
-  function dispatchEscape(doc) {
-    const View = (doc.defaultView && doc.defaultView.KeyboardEvent) || KeyboardEvent;
-    const ev = new View('keydown', { key: 'Escape', bubbles: true });
-    doc.dispatchEvent(ev);
+  // A menu popup that is attached and drawn (position:fixed popups have no offsetParent,
+  // so a client rect counts too).
+  function menuVisible(menu) {
+    try {
+      if (!menu || !menu.isConnected) return false;
+      if (menu.offsetParent !== null && menu.offsetParent !== undefined) return true;
+      return !!(menu.getClientRects && menu.getClientRects().length > 0);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Closes the menu we opened: Escape, sent to that menu only, and only while it is really
+  // on screen. Nothing opened, or it already closed: no key at all, so a person's own
+  // dialog, search box or player never gets an Escape from us. Returns whether one was sent.
+  function dispatchEscape(doc, menu) {
+    if (!menuVisible(menu)) return false;
+    try {
+      const View = (doc.defaultView && doc.defaultView.KeyboardEvent) || KeyboardEvent;
+      menu.dispatchEvent(new View('keydown', { key: 'Escape', code: 'Escape', bubbles: true, cancelable: true, composed: true }));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // Right-click on an element (for menu when the menu button isn't there).
@@ -131,6 +151,7 @@
     removeQueueRowWrap,
     waitFor,
     dispatchEscape,
+    menuVisible,
     rightClickFallback,
   };
 })();

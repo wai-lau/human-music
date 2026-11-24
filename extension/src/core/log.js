@@ -45,6 +45,7 @@
       case 'hidden': action = 'Hidden on page'; break;
       case 'skip-failed': action = 'Couldn\'t skip (still playing after 10 s)'; break;
       case 'remove-failed': action = 'Couldn\'t remove from queue'; break;
+      case 'skip-loop': action = 'Auto-skip paused for a minute (6 skips in 20 s)'; break;
       default: action = entry.event; break;
     }
 
@@ -69,14 +70,14 @@
   const SECTIONS = {
     removed: 'blocks', hidden: 'blocks',
     skipped: 'actions', disliked: 'actions', seen: 'actions', watched: 'actions',
-    'skip-failed': 'errors', 'remove-failed': 'errors',
+    'skip-failed': 'errors', 'remove-failed': 'errors', 'skip-loop': 'errors',
   };
   function section(event) { return SECTIONS[event] || 'actions'; }
 
   // One or two words for a log line's tag; the artist and reason are shown once per group.
   const ACTIONS = {
     removed: 'Removed', hidden: 'Hidden', skipped: 'Skipped', disliked: 'Disliked', seen: 'Played',
-    watched: 'Would skip', 'skip-failed': 'Couldn’t skip', 'remove-failed': 'Couldn’t remove',
+    watched: 'Would skip', 'skip-failed': 'Couldn’t skip', 'remove-failed': 'Couldn’t remove', 'skip-loop': 'Paused skipping',
   };
   function action(event) { return ACTIONS[event] || String(event || ''); }
 

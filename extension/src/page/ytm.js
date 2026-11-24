@@ -17,6 +17,8 @@
     nextOld: '.next-button',
     dislikeNew: 'dislike-button-view-model button',
     dislikeOld: '.dislike',
+    likeNew: 'like-button-view-model button',
+    likeOld: '.like',
     queueRow: '#queue ytmusic-player-queue-item',
     queueRowTitle: '.song-title',
     queueRowByline: '.byline',
@@ -147,6 +149,11 @@
     }
     if (!btn) return false;
 
+    // A song the person has liked is never disliked, even when it is on a list: false makes
+    // the skipper just press Next.
+    const likeBtn = player.el.querySelector(layout === 'new' ? SEL.likeNew : SEL.likeOld);
+    if (likeBtn && likeBtn.getAttribute('aria-pressed') === 'true') return false;
+
     // In new layout, the inner button has aria-pressed
     if (layout === 'new') {
       const pressed = btn.getAttribute('aria-pressed');
@@ -166,6 +173,16 @@
     return video.duration;
   }
 
+  // The playing video's source, to tell one track's video from the next.
+  function videoSrc(doc) {
+    try {
+      const video = doc.querySelector('video');
+      return (video && (video.currentSrc || video.src)) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function videoState(doc) {
     return PC.videoState(doc);
   }
@@ -179,11 +196,40 @@
 
   // Opening a row's menu moves keyboard focus into the menu, and closing it leaves focus
   // on some other control (checked live). Put focus back where the person had it.
-  async function removeQueueRow(doc, row) {
-    return PC.removeQueueRowWrap(doc, row, removeQueueRowInner.bind(null, doc));
+  async function removeQueueRow(doc, row, opts) {
+    return PC.removeQueueRowWrap(doc, row, r => removeQueueRowInner(doc, r, opts || {}));
   }
 
-  async function removeQueueRowInner(doc, row) {
+  // Words that never appear in "Remove from queue" but do in "Remove from playlist", "Save to
+  // library", "Delete playlist" and the like: playlist, library and history nouns in the
+  // languages YouTube Music is mostly used in (a verb such as "remove" can't be used: it is
+  // the queue action's own word). A hit means the item is not the one expected: do nothing.
+  const NOT_QUEUE_ACTION = /playlist|library|history|delete|wiedergabeliste|bibliothek|verlauf|biblioth[eè]que|historique|lista de reproducci|mediateca|mediathek|biblioteca|historial|cronologia|hist[oó]rico|afspeellijst|bibliotheek|spellista|プレイリスト|ライブラリ|플레이리스트|보관함|播放列表|媒体库|плейлист|медиатек/i;
+
+  function itemLabel(item) {
+    return [item.textContent || '', item.getAttribute('aria-label') || '', item.getAttribute('title') || ''].join(' ');
+  }
+
+  // The one "Remove from queue" item of a queue row's menu, or null. Matched by its icon, but
+  // "Remove from playlist" may share it, so also: the row must sit in the queue panel, exactly
+  // one item may carry the icon, and its own text may not name a playlist, library, history
+  // or delete action. Any doubt means null (nothing is clicked).
+  function findRemoveItem(popup, row) {
+    if (!row || !row.el || !row.el.closest || !row.el.closest('#queue')) return null;
+    const items = popup.querySelectorAll(SEL.menuItem);
+    let found = null;
+    for (let i = 0; i < items.length; i++) {
+      const svg = items[i].querySelector('svg path');
+      if (svg && svg.getAttribute('d') === REMOVE_ICON) {
+        if (found) return null; // two items share the icon: can't tell which is which
+        found = items[i];
+      }
+    }
+    if (found && NOT_QUEUE_ACTION.test(itemLabel(found))) return null;
+    return found;
+  }
+
+  async function removeQueueRowInner(doc, row, opts) {
     try {
       if (!row.el.isConnected) return false;
 
@@ -211,24 +257,23 @@
         }
         return null;
       }, 1500, 50);
-      if (!popup) {
-        PC.dispatchEscape(doc);
+      if (!popup) return false; // nothing opened: nothing to close
+
+      // The person may have started typing while the menu was opening: close ours, click nothing.
+        if (typeof opts.typing === 'function' && opts.typing()) {
+        PC.dispatchEscape(doc, popup);
         return false;
       }
 
-      // Find the remove item
-      const items = popup.querySelectorAll(SEL.menuItem);
-      for (let i = 0; i < items.length; i++) {
-        const svg = items[i].querySelector('svg path');
-        if (svg && svg.getAttribute('d') === REMOVE_ICON) {
-          items[i].click();
-          // Wait for row to be removed (up to 1500 ms)
-          await PC.waitFor(() => !row.el.isConnected, 1500, 50);
-          return !row.el.isConnected;
-        }
+      const item = findRemoveItem(popup, row);
+      if (item) {
+        item.click();
+        // Wait for row to be removed (up to 1500 ms)
+        await PC.waitFor(() => !row.el.isConnected, 1500, 50);
+        return !row.el.isConnected;
       }
 
-      PC.dispatchEscape(doc);
+      PC.dispatchEscape(doc, popup);
       return false;
     } catch (e) {
       return false;
@@ -521,6 +566,8 @@
     return svg;
   }
 
+  const MENU_PARTS = 'ytmusic-menu-renderer, ytmusic-menu-renderer button';
+
   function markRow(row, doc = row && row.ownerDocument) {
     try {
       row.setAttribute('data-hm-marked', '');
@@ -535,6 +582,8 @@
       // songs that look blocked unclickable"): it would only be skipped.
       setStyle(row, 'pointer-events', 'none');
       row.setAttribute('aria-disabled', 'true');
+      // ...but its own menu stays usable, so a row marked by mistake can still be handled.
+      for (const part of row.querySelectorAll(MENU_PARTS)) setStyle(part, 'pointer-events', 'auto');
       const left = row.querySelector('.left-items');
       if (!left) return;
       const thumb = left.querySelector('ytmusic-thumbnail-renderer');
@@ -559,6 +608,7 @@
       const parts = row.querySelectorAll(DIM_PARTS);
       for (let i = 0; i < parts.length; i++) setStyle(parts[i], 'color', null);
       setStyle(row, 'pointer-events', null);
+      for (const part of row.querySelectorAll(MENU_PARTS)) setStyle(part, 'pointer-events', null);
       row.removeAttribute('aria-disabled');
       const thumb = row.querySelector('.left-items ytmusic-thumbnail-renderer');
       if (thumb) setStyle(thumb, 'display', null);
@@ -585,6 +635,7 @@
     pressNextKey,
     clickDislike,
     videoDuration,
+    videoSrc,
     seekTo,
     removeQueueRow,
     videoState,

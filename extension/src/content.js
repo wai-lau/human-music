@@ -30,6 +30,7 @@
       pressNextKey: () => site.pressNextKey(doc),
       clickDislike: () => site.clickDislike(doc),
       videoDuration: () => site.videoDuration(doc),
+      videoSrc: () => (site.videoSrc ? site.videoSrc(doc) : null),
       videoState: () => (site.videoState ? site.videoState(doc) : null),
       seekTo: seconds => site.seekTo(doc, seconds),
       nextBlocked: () => (site.nextBlocked ? site.nextBlocked(doc) : false),
@@ -57,6 +58,8 @@
       lastChanceFor: '', // the song the near-the-end check already opened the panel for
       closeAfterCheck: false, // close the panel again once its rows were seen
       skipMatch: null, // the match behind the skip in progress (for a skip-failed log line)
+      skipTimes: [], // when recent skips began (for the skip-loop breaker)
+      skipPausedUntil: 0, // auto-skip rests until then (the breaker tripped)
       removeFailures: new Map(), // queue rows whose removal failed: rowKey -> { tries, at }
       reported: new Set(), // normalised credits already sent to the investigator this page
       // Fingerprinting state
@@ -328,9 +331,30 @@
       }
       if (match.mode === 'watch') { logPlaying('watched', song, match); return; }
       if (!state.settings.autoSkip) { logPlaying('seen', song, match); return; }
+      if (skipLoopOpen()) return; // resting: the playing song is checked again when the pause is over
       state.skipMatch = match; // named in the log if this skip doesn't take
       // Capture audio before skipping, in dev copies
       captureAndSend(song, match);
+    }
+
+    // Circuit breaker: a queue of only listed songs on repeat, or a radio full of them, would
+    // skip forever. After 6 skips within 20 s, auto-skip rests for 60 s and one 'skip-loop'
+    // line goes to the log's Errors section. True while it rests. Called once per song that
+    // is about to be skipped, which also counts that skip.
+    const LOOP_SKIPS = 6, LOOP_WINDOW_MS = 20000, LOOP_REST_MS = 60000;
+    function skipLoopOpen() {
+      const t = now();
+      if (t < state.skipPausedUntil) return true;
+      state.skipTimes = state.skipTimes.filter(x => t - x < LOOP_WINDOW_MS);
+      if (state.skipTimes.length >= LOOP_SKIPS) {
+        state.skipTimes = [];
+        state.skipPausedUntil = t + LOOP_REST_MS;
+        log('skip-loop', { title: 'Every song kept being skipped, so auto-skip rests for a minute', artistLine: '' }, null);
+        safe(() => timers.setTimeout(() => { state.last = null; schedule(); }, LOOP_REST_MS + 100));
+        return true;
+      }
+      state.skipTimes.push(t);
+      return false;
     }
 
     // Logs a song that plays on (watched, or seen with auto-skip off) once per play.
@@ -419,7 +443,7 @@
           if (!remove.length || typing() || state.settings.paused || !state.index) break;
           const row = rows[remove[0]];
           const match = matchSong(row);
-          const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row), false)).catch(() => false);
+          const removed = await Promise.resolve(safe(() => site.removeQueueRow(doc, row, { typing }), false)).catch(() => false);
           if (removed) log('removed', row, match);
           else {
             const f = state.removeFailures.get(rowKey(row)) || { tries: 0, at: 0 };
