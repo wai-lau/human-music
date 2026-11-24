@@ -8,6 +8,9 @@
   // and every entry (Wai: "keep all entries for my own version", "no cap for dev?"): cap 0.
   const SEGMENT = 1000;
   const STORE_CAP = 20000;
+  // The log also stays under this many bytes (about; an entry is about 220), so a long log
+  // can't fill the 10 MB a store copy gets and make every write, list updates included, fail.
+  const MAX_BYTES = 3000000;
 
   function capFor(isDev) {
     return isDev ? 0 : STORE_CAP;
@@ -144,38 +147,89 @@
         a.listId === b.listId && a.rule === b.rule && a.entry === b.entry;
     }
 
-    // oncePerDay looks back one day in the newest two segments only.
-    async function append(entry, o) {
+    // The estimated stored size of one entry: its JSON text.
+    const sizeOf = x => { try { return JSON.stringify(x).length; } catch (e) { return 220; } };
+
+    // Drops the oldest segment from index (its count and bytes with it) and returns its key.
+    // Reads the segment to learn how much it held.
+    async function dropOldest(index) {
+      const old = await readSeg(index.first);
+      const key = segKey(index.first);
+      index.count = Math.max(0, index.count - (old.length || SEGMENT));
+      index.bytes = Math.max(0, (typeof index.bytes === 'number' ? index.bytes : index.count * 220) - sizeOf(old));
+      index.first += 1;
+      return key;
+    }
+
+    // Adds several entries in one write: [{ entry, oncePerDay }]. oncePerDay looks back one day
+    // in the newest two segments (and in this batch) only. Resolves to one boolean per entry
+    // (false when oncePerDay found it already today). Only the newest segment(s) and the index
+    // are written, once, however many entries came in.
+    async function appendMany(items) {
+      const kept = items.map(function () { return false; });
       try {
         let index = await readIndex();
         if (!index) index = { first: 0, last: 0, count: 0 };
         let seg = await readSeg(index.last);
-        if (o && o.oncePerDay) {
-          const recent = index.last > index.first ? (await readSeg(index.last - 1)).concat(seg) : seg;
-          for (let k = recent.length - 1; k >= 0; k--) {
-            const x = recent[k];
-            if (!x || entry.at - x.at >= DAY) break;
-            if (entry.at - x.at >= 0 && same(x, entry)) return false;
+        let recent = null; // the newest two segments, read when a oncePerDay entry needs them
+        const touched = {};
+        for (let n = 0; n < items.length; n++) {
+          const entry = items[n].entry;
+          if (items[n].oncePerDay) {
+            if (!recent) recent = index.last > index.first ? (await readSeg(index.last - 1)).concat(seg) : seg.slice();
+            let dup = false;
+            for (let k = recent.length - 1; k >= 0; k--) {
+              const x = recent[k];
+              if (!x || entry.at - x.at >= DAY) break;
+              if (entry.at - x.at >= 0 && same(x, entry)) { dup = true; break; }
+            }
+            if (dup) continue;
           }
+          if (seg.length >= SEGMENT) { touched[index.last] = seg; index.last += 1; seg = []; }
+          seg.push(entry);
+          if (recent) recent.push(entry);
+          index.count += 1;
+          index.bytes = (typeof index.bytes === 'number' ? index.bytes : (index.count - 1) * 220) + sizeOf(entry);
+          kept[n] = true;
         }
-        if (seg.length >= SEGMENT) { index.last += 1; seg = []; }
-        seg.push(entry);
-        index.count += 1;
-        const write = {};
-        write[segKey(index.last)] = seg;
+        if (!kept.some(Boolean)) return kept;
+        touched[index.last] = seg;
         const gone = [];
         while (limit > 0 && index.first < index.last && index.count - SEGMENT >= limit) {
           gone.push(segKey(index.first));
           index.first += 1;
           index.count -= SEGMENT;
+          index.bytes = Math.max(0, (index.bytes || 0) - SEGMENT * 220);
         }
+        // Over the byte budget too (the store copy's 10 MB is shared with the lists).
+        while (limit > 0 && index.first < index.last && index.bytes > MAX_BYTES) gone.push(await dropOldest(index));
+        const write = {};
+        for (const n in touched) if (Number(n) >= index.first) write[segKey(Number(n))] = touched[n];
         write['hm.log.index'] = index;
-        await storage.set(write);
+        try {
+          await storage.set(write);
+        } catch (e) {
+          // Storage full: the oldest half of the log goes, then one more try.
+          const drop = Math.max(1, Math.floor((index.last - index.first) / 2));
+          for (let d = 0; d < drop && index.first < index.last; d++) gone.push(await dropOldest(index));
+          if (index.first === index.last && seg.length > 1) {
+            const cut = Math.floor(seg.length / 2);
+            seg = seg.slice(cut); touched[index.last] = seg;
+            index.count = Math.max(seg.length, index.count - cut);
+          }
+          for (const n in touched) if (Number(n) >= index.first) write[segKey(Number(n))] = touched[n];
+          write[segKey(index.last)] = seg;
+          await storage.set(write);
+        }
         if (gone.length) await storage.remove(gone);
-        return true;
+        return kept;
       } catch (e) {
-        return false;
+        return kept;
       }
+    }
+
+    async function append(entry, o) {
+      return (await appendMany([{ entry: entry, oncePerDay: !!(o && o.oncePerDay) }]))[0];
     }
 
     // Newest first: the segments, then an old 'hm.log' array not migrated yet (newest first too).
@@ -226,12 +280,13 @@
       } catch (e) { /* the old array stays; readAll still shows it */ }
     }
 
-    return { append: append, readAll: readAll, clear: clear, migrate: migrate };
+    return { append: append, appendMany: appendMany, readAll: readAll, clear: clear, migrate: migrate };
   }
 
   globalThis.HM.log = {
     SEGMENT: SEGMENT,
     STORE_CAP: STORE_CAP,
+    MAX_BYTES: MAX_BYTES,
     capFor: capFor,
     createLogStore: createLogStore,
     makeEntry: makeEntry,

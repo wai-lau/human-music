@@ -99,8 +99,9 @@ export function readAllLogsSync(storage) {
   const idx = data['hm.log.index'];
   if (!idx || typeof idx.count !== 'number' || idx.count === 0) return [];
   const result = [];
-  let segN = Math.ceil(idx.count / 1000) - 1;
-  while (segN >= 0) {
+  let segN = Number.isInteger(idx.last) ? idx.last : Math.ceil(idx.count / 1000) - 1;
+  const firstN = Number.isInteger(idx.first) ? idx.first : 0;
+  while (segN >= firstN) {
     const key = 'hm.log.seg.' + segN;
     if (data[key] && Array.isArray(data[key])) {
       result.push(...data[key]);

@@ -129,7 +129,7 @@ run([
     const { storage, clock } = await start(doc, { user: { artists: ['Someone New'] } });
     const wasMarked = marked(r);
     await storage.set({ 'hm.user': { artists: [], songs: [], keywords: [], neverSkip: [] } });
-    await settle(clock, 60);
+    await settle(clock, 300); await settle(clock, 60);
     return (wasMarked && !marked(r)) || J({ wasMarked, now: marked(r) });
   }],
   ['search rows that are hidden stay hidden, not marked', async () => {

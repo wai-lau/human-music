@@ -43,6 +43,7 @@ await t('switching to No filtering mid-removal stops the removals after the curr
   const started = app.start();
   await new Promise((r) => setTimeout(r, 30)); // the first removal is under way
   await storage.set({ 'hm.settings': { ...settings, paused: true, mode: 'off', modeChosen: true } });
+  clock.tick(300); // the debounced reload
   await started;
   await new Promise((r) => setTimeout(r, 1500));
   await app.flush();

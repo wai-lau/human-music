@@ -45,10 +45,13 @@
       last: null, // { title, artistLine } of the song checked last
       lookaheadRunning: false,
       passTimer: null,
+      reloadTimer: null,
+      dirty: true, // the page changed since its rows were last looked at
       skipper: null,
       observer: null,
       stopped: false,
       passes: 0, // passes run so far (shown in development status)
+      pagePasses: 0, // of those, the ones that looked at the page's rows
       // Sites that draw their queue only in a panel (Spotify):
       queueSeenOpen: false, // the panel was seen open at least once
       queueRefused: false, // seen open, then found closed: the person closed it; leave it
@@ -145,19 +148,36 @@
         if (loggedOnce.size >= 2000) loggedOnce.clear();
         loggedOnce.set(k, entry.at);
       }
-      return queueWrite(async () => (await getLogStore()).append(entry, { oncePerDay }));
+      // Entries made in one tick go to storage as one write.
+      pendingLog.push({ entry, oncePerDay });
+      if (!logBatch) logBatch = Promise.resolve().then(flushLog);
+      return logBatch;
     }
 
+    let pendingLog = [];
+    let logBatch = null;
+    function flushLog() {
+      const batch = pendingLog;
+      pendingLog = [];
+      logBatch = null;
+      if (!batch.length) return writes;
+      return queueWrite(async () => (await getLogStore()).appendMany(batch));
+    }
+
+    let reloadGen = 0; // only the newest reload's index applies
     async function reload() {
+      const gen = ++reloadGen;
       const stored = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
-      state.settings = HM.settings.sanitize(stored[HM.store.KEYS.settings]);
+      if (gen !== reloadGen) return false;
       const user = { ...HM.store.emptyUser(), ...(stored[HM.store.KEYS.user] || {}) };
       const lists = Array.isArray(stored[HM.store.KEYS.filterLists]) ? stored[HM.store.KEYS.filterLists] : [];
       const keys = lists.map(l => HM.store.listKey(l.id));
       const data = keys.length ? await storage.get(keys) : {};
+      if (gen !== reloadGen) return false; // a newer reload started meanwhile: its result wins
       // Calibration is the verdict list meta's flag (the refresher copies it there).
       const verdictList = lists.find(l => l.id === 'hm-verdicts');
       const calibrated = !!(verdictList && verdictList.calibrated === true);
+      state.settings = HM.settings.sanitize(stored[HM.store.KEYS.settings]);
       const mode = HM.settings.effectiveMode(state.settings, calibrated);
       const threshold = HM.settings.threshold(mode);
       state.index = HM.match.buildIndex({
@@ -165,6 +185,7 @@
         user,
         threshold,
       });
+      return true;
     }
 
     // --- audio fingerprints ---------------------------------------------------------
@@ -470,12 +491,25 @@
 
     // --- page items -----------------------------------------------------------------------
 
+    // A row's match is kept with its item: the adapter hands back the same object while the
+    // row's text is unchanged, so an unchanged row is neither read nor matched again. A new
+    // index (lists or settings changed) drops every kept match.
+    const matches = new WeakMap();
+    function matchPageItem(item) {
+      const el = item && item.el;
+      const kept = el && matches.get(el);
+      if (kept && kept.item === item && kept.index === state.index) return kept.match;
+      const match = safe(() => HM.match.matchItem(state.index, item), null);
+      if (el) matches.set(el, { item, index: state.index, match });
+      return match;
+    }
+
     function hidePass() {
       if (state.settings.paused || !state.settings.hidePageItems || !state.index) return;
       const path = safe(() => doc.location.pathname, '');
       for (const item of safe(() => site.readPageItems(doc, path), [])) {
         const wasHidden = safe(() => item.el.hasAttribute('data-hm-hidden'), true);
-        const match = safe(() => HM.match.matchItem(state.index, item), null);
+        const match = matchPageItem(item);
         if (!wasHidden && (!match || match.mode !== 'act')) continue;
         if (match && match.mode === 'act') {
           if (!wasHidden) {
@@ -495,7 +529,7 @@
       if (!site.readListRows || !site.markRow || !site.unmarkRow) return;
       const on = !state.settings.paused && state.settings.autoSkip && !!state.index && !state.settings.plainPages;
       for (const item of safe(() => site.readListRows(doc), [])) {
-        const match = on ? safe(() => HM.match.matchItem(state.index, item), null) : null;
+        const match = on ? matchPageItem(item) : null;
         const should = !!(match && match.mode === 'act');
         const is = safe(() => item.el.hasAttribute('data-hm-marked'), false);
         if (should && !is) safe(() => site.markRow(item.el, doc));
@@ -549,6 +583,9 @@
       safe(() => state.observer && state.observer.disconnect());
       if (state.passTimer != null) safe(() => timers.clearTimeout(state.passTimer));
       state.passTimer = null;
+      if (state.reloadTimer != null) safe(() => timers.clearTimeout(state.reloadTimer));
+      state.reloadTimer = null;
+      safe(() => doc.removeEventListener('visibilitychange', onVisible));
       const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
       if (box) safe(() => box.remove());
     }
@@ -560,14 +597,37 @@
       if (!safe(alive, false)) { standDown(); return; }
       safe(checkPlaying);
       safe(() => runLookahead().catch(() => {}));
-      safe(hidePass);
-      safe(markPass);
-      safe(playerButtons);
+      // The page passes (every row on the page) run when the page changed, and not in a hidden
+      // tab: they run once when it shows again. The playing song is checked either way, so
+      // auto-skip works in a background tab.
+      if (state.dirty && !isHidden()) {
+        state.dirty = false;
+        state.pagePasses += 1;
+        safe(hidePass);
+        safe(markPass);
+        safe(playerButtons);
+      }
     }
 
-    function schedule() {
+    const isHidden = () => safe(() => doc.visibilityState === 'hidden', false);
+
+    // full: the page changed, so its rows are looked at again. A pass without it only checks
+    // the playing song and the queue.
+    function schedule(full = true) {
+      if (full !== false) state.dirty = true;
       if (!state.stopped && state.passTimer == null) state.passTimer = timers.setTimeout(pass, 50);
     }
+
+    function onVisible() { if (!isHidden()) schedule(); }
+
+    // The player's time text ticks about once a second. A tick starts a light pass (the playing
+    // song and the queue: the last seconds of a song, a paused tab that resumes), never the
+    // page passes that look at every row.
+    const TICK = '.time-info, [data-testid="playback-position"], [data-testid="playback-duration"], [data-testid="playback-progressbar"]';
+    const inTick = node => safe(() => {
+      const e = node && node.nodeType === 1 ? node : node && node.parentNode;
+      return !!(e && e.closest && e.closest(TICK));
+    }, false);
 
     async function start() {
       safe(() => onCount(0));
@@ -581,32 +641,44 @@
       storage.onChanged.addListener((changes, area) => {
         if (area && area !== 'local') return;
         if (!Object.keys(changes).some(rebuilds)) return; // hm.log alone changes nothing
-        reload().then(() => {
-          state.last = null; // check the playing song again against the new lists
-          // Hidden items are checked again at once (each is shown if it no longer matches), so a
-          // refresh that changes nothing doesn't flash them. Hiding turned off shows them all.
-          if (state.settings.paused || !state.settings.hidePageItems || !state.index) safe(() => site.unhideAll(doc));
-          else safe(hidePass);
-          schedule();
-        }).catch(() => {});
+        // A refresh writes many keys, one event each: one reload follows the last of them.
+        if (state.stopped) return;
+        if (state.reloadTimer != null) safe(() => timers.clearTimeout(state.reloadTimer));
+        state.reloadTimer = timers.setTimeout(() => {
+          state.reloadTimer = null;
+          reload().then(applied => {
+            if (applied === false) return; // a newer reload is running
+            state.last = null; // check the playing song again against the new lists
+            // Hidden items are checked again at once (each is shown if it no longer matches), so a
+            // refresh that changes nothing doesn't flash them. Hiding turned off shows them all.
+            if (state.settings.paused || !state.settings.hidePageItems || !state.index) safe(() => site.unhideAll(doc));
+            else if (!isHidden()) safe(hidePass);
+            schedule();
+          }).catch(() => {});
+        }, 300);
       });
       safe(() => {
         const Observer = doc.defaultView.MutationObserver;
-        state.observer = new Observer(schedule);
+        state.observer = new Observer(records => {
+          if (Array.isArray(records) && records.length && records.every(r => inTick(r.target))) { schedule(false); return; }
+          schedule();
+        });
         state.observer.observe(doc.body, { childList: true, subtree: true, characterData: true });
       });
+      safe(() => doc.addEventListener('visibilitychange', onVisible));
       pass();
     }
 
     // Resolves once every queued storage write has finished.
     async function flush() {
+      flushLog();
       let seen;
       do { seen = writes; await seen; } while (seen !== writes);
     }
 
     // Development aid: a small summary of this copy's state.
     function status() {
-      return { passes: state.passes, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
+      return { passes: state.passes, pagePasses: state.pagePasses, stopped: state.stopped, lists: !!state.index, observing: !!state.observer, settings: state.settings };
     }
 
     return { start, checkPlaying, runLookahead, flush, status, captureNow };

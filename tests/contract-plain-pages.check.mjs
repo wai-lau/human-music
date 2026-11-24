@@ -86,10 +86,10 @@ await t('turned on in a running tab: the button goes and the row is put back; tu
   const s = await start(p);
   const before = marked(r) && button(p.doc);
   await s.storage.set({ 'hm.settings': { ...s.ctx.HM.settings.DEFAULTS, plainPages: true } });
-  await settle(s.clock, 2000); await s.app.flush();
+  await settle(s.clock, 2000); await settle(s.clock, 100); await s.app.flush();
   const plain = !marked(r) && !r.querySelector('.hm-mark') && !button(p.doc);
   await s.storage.set({ 'hm.settings': { ...s.ctx.HM.settings.DEFAULTS, plainPages: false } });
-  await settle(s.clock, 2000); await s.app.flush();
+  await settle(s.clock, 2000); await settle(s.clock, 100); await s.app.flush();
   const back = marked(r) && button(p.doc);
   return (before && plain && back) || J({ before, plain, back });
 });

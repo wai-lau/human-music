@@ -485,6 +485,19 @@
     }
   }
 
+  // A row read once is read again only when its text changes: a pass over a long page would
+  // otherwise re-extract every row each time. The same object comes back, so the caller can
+  // keep its match for the row too.
+  const extracted = new WeakMap();
+  function readRow(el, doc) {
+    const text = el.textContent;
+    const hit = extracted.get(el);
+    if (hit && hit.text === text) return hit.item;
+    const item = { ...extractPageItem(el, doc), el };
+    extracted.set(el, { text, item });
+    return item;
+  }
+
   function readPageItems(doc, path) {
     if (!isPageItemPath(path)) return [];
 
@@ -494,7 +507,7 @@
       const item = items[i];
       // Skip items inside player page or queue
       if (item.closest('ytmusic-player-page') || item.closest('#queue')) continue;
-      result.push({ ...extractPageItem(item, doc), el: item });
+      result.push(readRow(item, doc));
     }
     return result;
   }
@@ -533,7 +546,7 @@
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (row.closest('ytmusic-player-page') || row.closest('#queue') || row.hasAttribute('data-hm-hidden')) continue;
-      result.push({ ...extractPageItem(row, doc), el: row });
+      result.push(readRow(row, doc));
     }
     return result;
   }

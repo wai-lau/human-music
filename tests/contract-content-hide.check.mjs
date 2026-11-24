@@ -56,8 +56,8 @@ await t('search: listed artist hidden, logged once', async () => {
 await t('logged once a day even after unhide and hide again', async () => {
   const b = boot(); const p = page({ items: [card('X', 'Album • 10mm')] });
   const r = await app(b, p);
-  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: true } }); await settle(r.clock, 60);
-  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: false } }); await settle(r.clock, 60); await r.a.flush();
+  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: true } }); await settle(r.clock, 300); await settle(r.clock, 60);
+  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 0, paused: false } }); await settle(r.clock, 300); await settle(r.clock, 60); await r.a.flush();
   return (J(hidden(p)) === J(['X']) && (await log(b)).filter(e => e.event === 'hidden').length === 1) || J({ hidden: hidden(p), log: (await log(b)).map(e => e.event) });
 });
 await t('watch list never hides', async () => {
@@ -69,14 +69,14 @@ await t('paused shows everything again', async () => {
   const b = boot(); const p = page({ items: [card('X', 'Album • 10mm')] });
   const r = await app(b, p);
   const before = J(hidden(p));
-  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, paused: true } }); await settle(r.clock, 60);
+  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, paused: true } }); await settle(r.clock, 300); await settle(r.clock, 60);
   const item = p.doc.querySelector('ytmusic-two-row-item-renderer');
   return (before === J(['X']) && J(hidden(p)) === '[]' && item.hidden === false) || J({ before, after: hidden(p) });
 });
 await t('hiding switched off shows everything; off from the start hides nothing', async () => {
   const b = boot(); const p = page({ items: [card('X', 'Album • 10mm')] });
   const r = await app(b, p);
-  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, hidePageItems: false } }); await settle(r.clock, 60);
+  await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, hidePageItems: false } }); await settle(r.clock, 300); await settle(r.clock, 60);
   const b2 = boot({ settings: { hidePageItems: false } }); const p2 = page({ items: [card('X', 'Album • 10mm')] });
   await app(b2, p2);
   return (J(hidden(p)) === '[]' && J(hidden(p2)) === '[]') || J([hidden(p), hidden(p2)]);
@@ -84,7 +84,7 @@ await t('hiding switched off shows everything; off from the start hides nothing'
 await t('never skip after hiding shows it again', async () => {
   const b = boot(); const p = page({ items: [card('X', 'Album • 10mm')] });
   const r = await app(b, p);
-  await b.storage.set({ 'hm.user': { artists: [], songs: [], keywords: [], neverSkip: ['10mm'] } }); await settle(r.clock, 60);
+  await b.storage.set({ 'hm.user': { artists: [], songs: [], keywords: [], neverSkip: ['10mm'] } }); await settle(r.clock, 300); await settle(r.clock, 60);
   return J(hidden(p)) === '[]' || J(hidden(p));
 });
 await t('other pages untouched', async () => {
@@ -103,7 +103,7 @@ await t('player buttons: Block artist adds the whole credit, then skips', async 
   const btns = [...p.doc.querySelectorAll('#hm-player-buttons button')];
   if (btns.length !== 1) return `buttons ${btns.length}`;
   btns.find(x => x.getAttribute('aria-label') === 'Block artist').click();
-  await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
+  await settle(r.clock, 300); await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
   return (J(b.storage.data['hm.user'].artists) === J(['Band A & Band B']) && p.clicks.next === 1) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
 });
 // Security audit 2026-11-17, finding 8: a page script's .click() (isTrusted false) must not add
@@ -137,7 +137,7 @@ await t('player buttons off: none, and turning off removes them', async () => {
   const b2 = boot(); const p2 = page();
   const r2 = await app(b2, p2);
   const had = p2.doc.querySelectorAll('#hm-player-buttons').length === 1;
-  await b2.storage.set({ 'hm.settings': { ...b2.ctx.HM.settings.DEFAULTS, playerButtons: false } }); await settle(r2.clock, 60);
+  await b2.storage.set({ 'hm.settings': { ...b2.ctx.HM.settings.DEFAULTS, playerButtons: false } }); await settle(r2.clock, 300); await settle(r2.clock, 60);
   return (none && had && p2.doc.querySelectorAll('#hm-player-buttons').length === 0) || J({ none, had });
 });
 await t('hiding pass over 100 items under 30 ms', async () => {

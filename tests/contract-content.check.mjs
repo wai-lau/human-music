@@ -192,16 +192,16 @@ await t('never skip wins', async () => {
     const { a, clock } = await app(b, p);
     if (p.clicks.next !== 0) return 'skipped before blocking';
     await b.storage.set({ 'hm.user': { artists: ['Real Fake Band'], songs: [], keywords: [], neverSkip: [] } });
-    await settle(clock, 60); a.checkPlaying(); await a.flush();
+    await settle(clock, 300); await settle(clock, 60); a.checkPlaying(); await a.flush();
     return (p.clicks.next === 1 && (await log(b))[0]?.listId === 'user:artists') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('hm.log writes never rebuild the index', async () => {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
     const { clock } = await app(b, p);
     const before = b.builds();
-    await b.storage.set({ 'hm.log': [] }); await settle(clock, 60);
+    await b.storage.set({ 'hm.log': [] }); await settle(clock, 300); await settle(clock, 60);
     const afterLog = b.builds();
-    await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 2 } }); await settle(clock, 60);
+    await b.storage.set({ 'hm.settings': { ...b.ctx.HM.settings.DEFAULTS, lookahead: 2 } }); await settle(clock, 300); await settle(clock, 60);
     return (before >= 1 && afterLog === before && b.builds() === before + 1) || J({ before, afterLog, after: b.builds() });
   });
   await t('quick log writes are not lost', async () => {

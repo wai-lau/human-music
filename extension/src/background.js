@@ -52,7 +52,15 @@
       return HM.store.modify(storage, key, fn, { locks: opts.locks });
     }
 
-    async function install() {
+    // reason is chrome's onInstalled reason. Anything but a first install (a Chrome or
+    // extension update) only fills in what is missing; the work that touches the network
+    // and the bundled files runs when something was missing, never on every update.
+    async function install(reason) {
+      const stored = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
+      if (reason !== undefined && reason !== 'install') {
+        const metas = stored[HM.store.KEYS.filterLists];
+        if (Array.isArray(metas) && metas.length > 0 && stored[HM.store.KEYS.user] && stored[HM.store.KEYS.settings]) return;
+      }
       await updateMetas(function (metas) {
         if (metas) return undefined;
         // Every built-in list starts on. Soul Over AI was off for new installs from 2026-11-18
@@ -66,7 +74,9 @@
       await modifyKey(HM.store.KEYS.settings, function (cur) { return cur ? undefined : globalThis.HM.settings.DEFAULTS; });
 
       await importBundled();
-      await refreshOne('soul-over-ai');
+      // Every enabled built-in list downloads now, not only Soul Over AI: the start-up refresh
+      // ran before these records existed. A disabled list is not fetched.
+      await refreshDue();
     }
 
     // Import the list files committed in extension/lists/ (named in lists/index.json),
@@ -309,7 +319,7 @@ list = lists[HM.store.KEYS.filterLists][i];
           if (!Array.isArray(metas)) return undefined;
           return metas.map(function (m) {
             if (m.id !== id) return m;
-            const next = { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, calibrated: listData.calibrated };
+            const next = { ...m, count: listData.artists.length, lastRefresh: refreshedAt, lastError: null, failures: 0, calibrated: listData.calibrated };
             // A held list is switched off, with the reason shown in its row and in the log
             // (Wai, 2026-11-19: no Watch only; it was put in Watch only before).
             if (held) {
@@ -359,7 +369,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       const failedAt = nowFn();
       const after = await updateMetas(function (metas) {
         if (!Array.isArray(metas) || metas.length === 0) return undefined;
-        return metas.map(function (m) { return m.id === id ? { ...m, lastError: message, lastFailedAt: failedAt } : m; });
+        return metas.map(function (m) { return m.id === id ? { ...m, lastError: message, lastFailedAt: failedAt, failures: (Number.isFinite(m.failures) ? m.failures : 0) + 1 } : m; });
       });
       if (!Array.isArray(after) || after.length === 0) return;
 
@@ -370,6 +380,11 @@ list = lists[HM.store.KEYS.filterLists][i];
         emptyList[listKey] = { artists: [] };
         await storage.set(emptyList);
       }
+    }
+
+    function restAfter(failures) {
+      const n = Number.isFinite(failures) && failures > 1 ? Math.min(failures - 1, 5) : 0;
+      return Math.min(3600000 * Math.pow(2, n), 24 * 3600000);
     }
 
     async function refreshDue() {
@@ -390,9 +405,10 @@ list = lists[HM.store.KEYS.filterLists][i];
         if (!list || !list.enabled) {
           continue;
         }
-        // A list that failed in the last hour rests, so a broken list isn't fetched at every
-        // worker start (the popup's Refresh button still tries at once).
-        if (list.lastError && typeof list.lastFailedAt === 'number' && list.lastFailedAt <= now && now - list.lastFailedAt < 3600000) continue;
+        // A list that failed rests, so a broken list isn't fetched at every worker start (the
+        // popup's Refresh button still tries at once): an hour after the first failure, twice as
+        // long after each one in a row, a day at most. A success starts it over.
+        if (list.lastError && typeof list.lastFailedAt === 'number' && list.lastFailedAt <= now && now - list.lastFailedAt < restAfter(list.failures)) continue;
         if (globalThis.HM.lists.isRefreshDue(list.lastRefresh, settings.refresh, now)) {
           refreshed.push(list.id);
           await refreshOne(list.id);
@@ -701,7 +717,7 @@ list = lists[HM.store.KEYS.filterLists][i];
 
     chrome.runtime.onInstalled.addListener(function (details) {
       devNote('installed', { reason: details && details.reason });
-      globalThis.HM.refresher.install();
+      globalThis.HM.refresher.install(details && details.reason).catch(function () { /* the next start looks again */ });
     });
 
     // After a reload or update Chrome leaves YouTube Music tabs that are already open with
