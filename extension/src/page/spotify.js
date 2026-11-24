@@ -69,14 +69,21 @@
   }
 
   // The Queue panel: Spotify draws the queue only while it is open.
+  // A Queue panel that is open but still drawing (no rows yet) counts as open.
   function queueOpen(doc) {
-    return safe(() => !!doc.querySelector(SEL.queuePanel + ' ul[role="treegrid"]'), false);
+    return safe(() => !!doc.querySelector(SEL.queuePanel), false);
+  }
+
+  // Another right-hand panel (Lyrics, Now Playing view, Devices, Friend activity) is the
+  // person's choice: Human Music never replaces it by clicking Queue.
+  function otherPanelOpen(doc) {
+    return safe(() => [...doc.querySelectorAll('aside')].some(a => !a.matches(SEL.queuePanel + ', [data-testid="now-playing-bar"]')), false);
   }
 
   // Open the Queue panel (Wai, 2026-11-13: lookahead may open it). True if it clicked.
   function openQueue(doc) {
     return safe(() => {
-      if (queueOpen(doc)) return false;
+      if (queueOpen(doc) || otherPanelOpen(doc)) return false;
       const btn = doc.querySelector('[data-testid="control-button-queue"]');
       if (!btn) return false;
       btn.click();
@@ -105,9 +112,20 @@
     }, NaN);
   }
 
+  // Spotify Free limits skips: Next is then disabled, or a notice says so. Pressing again
+  // does nothing useful and never moves the person's song.
+  function nextBlocked(doc) {
+    return safe(() => {
+      const btn = doc.querySelector(SEL.next);
+      if (btn && (btn.disabled === true || btn.getAttribute('aria-disabled') === 'true' || btn.hasAttribute('disabled'))) return true;
+      const notices = doc.querySelectorAll('[role="alert"], [role="status"], [data-testid*="toast"], [data-testid*="notification"], [data-testid*="banner"]');
+      return [...notices].some(n => /skip limit|out of skips|skips? (left|remaining)|reached .{0,20}skip|too many skips/i.test(text(n)));
+    }, false);
+  }
+
   function clickNext(doc) {
     const btn = safe(() => doc.querySelector(SEL.next), null);
-    if (!btn) return false;
+    if (!btn || nextBlocked(doc)) return false;
     return safe(() => { btn.click(); return true; }, false);
   }
 
@@ -278,7 +296,7 @@
 
   HM.spotify = {
     keyIsButton: true,
-    SEL, REMOVE_ICON, readSong, readArt, readQueue, queueOpen, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
+    SEL, REMOVE_ICON, readSong, readArt, readQueue, queueOpen, otherPanelOpen, nextBlocked, openQueue, closeQueue, timeLeft, clickNext, pressNextKey, clickDislike,
     videoDuration, videoState, seekTo, removeQueueRow, mountPlayerButtons, readPageItems, hideItem, unhideItem, unhideAll,
   };
 })();

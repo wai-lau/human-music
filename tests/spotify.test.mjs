@@ -128,7 +128,7 @@ run([
     await new Promise(r => setTimeout(r, 120)); await settle(clock, 60); // the first open removes it already
     return (JSON.stringify(p.removed) === '["Listed Next"]') || JSON.stringify({ removed: p.removed });
   }],
-  ['you closed the panel: with 13 s left it reopens, removes the listed next song, and closes', async () => {
+  ['you closed the panel: with 13 s left it stays closed (never reopened against your choice)', async () => {
     const p = fullPage({ next: [['Human Next', '2222222222222222222222']] });
     const { clock } = await start(p);
     p.panel.remove(); // the person closes it
@@ -143,9 +143,9 @@ run([
     const early = p.opens;
     p.pos.textContent = '2:30'; await settle(clock, 60); // 13 s left
     await settle(clock, 700); await new Promise(r => setTimeout(r, 200)); await settle(clock, 60);
-    const reopened = p.opens === opensBefore + 1;
+    const reopened = p.opens !== opensBefore;
     p.pos.textContent = '2:31'; await settle(clock, 60); await settle(clock, 700);
-    return (early === opensBefore && reopened && p.opens === opensBefore + 1 && !p.panel.isConnected) || JSON.stringify({ opensBefore, early, opens: p.opens, open: p.panel.isConnected, removed: p.removed });
+    return (early === opensBefore && !reopened && !p.panel.isConnected) || JSON.stringify({ opensBefore, early, opens: p.opens, open: p.panel.isConnected, removed: p.removed });
   }],
   ['lookahead set to 0: the panel is left alone', async () => {
     const p = spotifyPage({ id: '1111111111111111111111', name: 'Real Band' });

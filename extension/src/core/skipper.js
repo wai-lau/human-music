@@ -52,13 +52,19 @@
         try { return page.videoState ? page.videoState() : null; } catch (e) { return null; }
       }
 
+      // A site whose Next is switched off (Spotify Free's skip limit): pressing again or seeking
+      // would only fight the page, and a seek could move a person's song.
+      function nextBlocked() {
+        try { return !!(page.nextBlocked && page.nextBlocked()); } catch (e) { return false; }
+      }
+
       function pressNext() {
         const before = videoNow();
         try { page.pressNextKey(); } catch (e) {}
         if (!page.keyIsButton) {
           buttonTimeout = setTimeout(() => {
             buttonTimeout = null;
-            if (!busy || !stillSameSong()) return;
+            if (!busy || !stillSameSong() || nextBlocked()) return;
             const now = videoNow();
             if (before && now && !now.paused && now.time > before.time) {
               try { page.clickNext(); } catch (e) {}
@@ -68,7 +74,7 @@
         const seekDelay = page.keyIsButton ? 3000 : 1500;
         seekTimeout = setTimeout(() => {
           seekTimeout = null;
-          if (busy && stillSameSong()) {
+          if (busy && stillSameSong() && !nextBlocked()) {
             tryMaybeSeek();
           }
         }, seekDelay);
@@ -121,6 +127,14 @@
           skipSong = null;
 
           try { skipSong = page.readSong(); } catch (e) {}
+
+          // Next is switched off: stop for this song and report it like a failed skip.
+          if (nextBlocked()) {
+            const song = skipSong;
+            skipDone();
+            if (onGiveUp) { try { onGiveUp(song); } catch (e) { /* reporting only */ } }
+            return;
+          }
 
           if (dislikeFirst) {
             let disliked = false;

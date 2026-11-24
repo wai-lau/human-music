@@ -32,6 +32,7 @@
       videoDuration: () => site.videoDuration(doc),
       videoState: () => (site.videoState ? site.videoState(doc) : null),
       seekTo: seconds => site.seekTo(doc, seconds),
+      nextBlocked: () => (site.nextBlocked ? site.nextBlocked(doc) : false),
       keyIsButton: !!site.keyIsButton,
     };
   }
@@ -359,6 +360,7 @@
     // 2 s apart (checked live: the first click on a fresh page did nothing).
     function showQueue() {
       if (!site.openQueue || !site.queueOpen || state.queueRefused) return;
+      if (site.otherPanelOpen && safe(() => site.otherPanelOpen(doc), true)) return; // the person's own panel
       if (safe(() => site.queueOpen(doc), true)) { state.queueSeenOpen = true; return; }
       if (state.queueSeenOpen) { state.queueRefused = true; return; } // closed by the person
       if (!safe(() => site.readSong(doc), null)) return;
@@ -380,6 +382,7 @@
     const LAST_CHANCE_S = 15;
     function lastChance() {
       if (!site.openQueue || !site.queueOpen || !site.timeLeft) return;
+      if (state.queueRefused || (site.otherPanelOpen && safe(() => site.otherPanelOpen(doc), true))) return;
       const key = songKey(safe(() => site.readSong(doc), null));
       if (!key || state.checkedFor === key || state.lastChanceFor === key) return;
       const left = safe(() => site.timeLeft(doc), NaN);

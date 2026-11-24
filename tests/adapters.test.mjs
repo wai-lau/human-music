@@ -9,7 +9,8 @@ const REQUIRED = ['readSong', 'readQueue', 'clickNext', 'pressNextKey', 'clickDi
 const BOOLEAN_FLAGS = ['keyIsButton'];
 // Each group is all-or-nothing: content.js uses a group only when every method in it is there.
 const OPTIONAL = {
-  'queue panel (Spotify draws the queue only in a panel)': ['queueOpen', 'openQueue', 'closeQueue', 'timeLeft'],
+  'queue panel (Spotify draws the queue only in a panel)': ['queueOpen', 'otherPanelOpen', 'openQueue', 'closeQueue', 'timeLeft'],
+  'Next switched off (Spotify Free skip limit)': ['nextBlocked'],
   'marked rows (rows that will be skipped look unavailable)': ['readListRows', 'markRow', 'unmarkRow'],
 };
 
