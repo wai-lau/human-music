@@ -37,7 +37,8 @@ export function stripStagedTree(dir) {
   const mp = join(dir, 'manifest.json');
   const m = storeScripts(storeManifest(JSON.parse(readFileSync(mp, 'utf8'))));
   writeFileSync(mp, JSON.stringify(m, null, 2) + '\n');
-  for (const f of [...DEV_ONLY_SCRIPTS, DEV_ONLY_LISTS]) rmSync(join(dir, f), { force: true });
+  // dev-copy never reaches a git archive (gitignored), but a copied working tree can carry it.
+  for (const f of [...DEV_ONLY_SCRIPTS, DEV_ONLY_LISTS, 'dev-copy']) rmSync(join(dir, f), { force: true });
   const ip = join(dir, 'lists/index.json');
   let index = null;
   try { index = JSON.parse(readFileSync(ip, 'utf8')); } catch (e) { if (e.code !== 'ENOENT') throw e; }
