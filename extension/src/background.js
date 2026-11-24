@@ -607,6 +607,23 @@ list = lists[HM.store.KEYS.filterLists][i];
   }
   globalThis.HM.moveInvestigatorKey = moveInvestigatorKey;
 
+  // One time, when the lookahead default went to 10 (Wai, 2026-11-23: "just override? then start
+  // using saved values, if changed again"): every saved lookahead becomes 10, except 0, which
+  // someone set to turn it off. The marker makes it run once; later changes are kept.
+  const LOOKAHEAD_RAISED = 'hm.lookahead-raised';
+  async function raiseLookahead(storage) {
+    const got = (await storage.get([LOOKAHEAD_RAISED, HM.store.KEYS.settings])) || {};
+    if (got[LOOKAHEAD_RAISED] === true) return false;
+    const saved = got[HM.store.KEYS.settings];
+    const change = { [LOOKAHEAD_RAISED]: true };
+    if (saved && typeof saved === 'object' && saved.lookahead !== 0) {
+      change[HM.store.KEYS.settings] = Object.assign({}, saved, { lookahead: HM.settings.DEFAULTS.lookahead });
+    }
+    await storage.set(change);
+    return true;
+  }
+  globalThis.HM.raiseLookahead = raiseLookahead;
+
   // Fresh verdicts (investigator plan, Task 5): for 30 minutes after a send, each worker
   // start refreshes the verdict list when its copy is more than 5 minutes old, so new
   // verdicts arrive soon after the investigator writes them.
@@ -638,6 +655,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       secrets: globalThis.HM.secrets
     });
     globalThis.HM.moveInvestigatorKey(api.storage.local, globalThis.HM.secrets).catch(function () { /* migration is best-effort */ });
+    globalThis.HM.raiseLookahead(api.storage.local).catch(function () { /* best-effort; the saved value stays */ });
 
     // Development mode: only true when management.getSelf() reports installType 'development'
     // (unpacked Chrome extension or temporary Firefox add-on). Cached after first answer.
