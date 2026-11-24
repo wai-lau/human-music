@@ -61,7 +61,7 @@ maximum of five):
 5. `5-lists.png`: the Lists tab, largest list first, with refresh icons (real counts on
    2026-11-20, the verdict list's first 3 AI verdicts) and Optimal selected.
 
-Shots 4 and 5 were retaken 2026-11-19 after Watch only was removed and refresh became an icon; shots 2 and 3 on 2026-11-20 (Optimal selected, no Watch only text).
+Shots 2-5 were retaken together on 2026-11-24 for 0.2.0: the header line under the name now describes the filtering level and its risk, the Behaviour tab shows lookahead 10 and the Plain pages switch (Optimal selected, the same seeded log and list counts as before).
 
 Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub switch) show the popup
 with the filtering-mode slider and Zoundhub as the list, from a store-like copy (no investigator
