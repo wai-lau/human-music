@@ -36,7 +36,9 @@ function page({ path = '/search', title = 'Fine Song', artist = 'Some Person', i
   return { doc, clicks };
 }
 async function app(b, p, clock = fakeClock()) {
-  const a = b.ctx.HM.createApp({ doc: p.doc, storage: b.storage, timers: clock, now: () => 1_700_000_000_000 + clock.now() });
+  const a = b.ctx.HM.createApp({ doc: p.doc, storage: b.storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(),
+    // The worker's side of Block artist: the same write it does under the shared lock.
+    blockArtist: async artist => { await b.ctx.HM.store.modify(b.storage, b.ctx.HM.store.KEYS.user, u => ({ ...b.ctx.HM.store.emptyUser(), ...(u || {}), artists: [...((u && u.artists) || []), artist] }), { locks: null }); return true; } });
   await a.start();
   await settle(clock, 60);
   await a.flush();

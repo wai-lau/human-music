@@ -38,7 +38,7 @@
     };
   }
 
-  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {}, fingerprints = null, locks }) {
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {}, fingerprints = null, blockArtist = async () => false }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -547,24 +547,19 @@
 
     // --- player buttons -----------------------------------------------------------------
 
-    function block(kind) {
+    // The write goes to the service worker: it shares the popup's extension origin, so its Web
+    // Lock on hm.user excludes the popup's edits; a lock taken here, in the music page's origin,
+    // would not. The skip follows from the stored change, as before. A refusal or a cut-off
+    // worker leaves the song playing and logs an error the person sees under Errors.
+    function block() {
       const song = safe(() => site.readSong(doc), null);
       if (!song) return;
       const credit = HM.text.leadCredit(song.artistLine);
-      const N = HM.text.normalize;
-      // Under the user key's lock with the popup and the worker: a concurrent removal is kept.
-      queueWrite(() => HM.store.modify(storage, HM.store.KEYS.user, stored => {
-        const user = { ...HM.store.emptyUser(), ...(stored || {}) };
-        if (kind === 'artist') {
-          if (!credit || user.artists.some(a => N(a) === N(credit))) return undefined;
-          user.artists = [...user.artists, credit];
-        } else {
-          const artist = HM.text.splitNames(credit)[0] || null;
-          if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return undefined;
-          user.songs = [...user.songs, { title: song.title, artist }];
-        }
-        return user;
-      }, { locks }));
+      if (!credit) return;
+      const failed = () => log('block-failed', song, null);
+      Promise.resolve()
+        .then(() => blockArtist(credit))
+        .then(ok => { if (ok !== true) failed(); }, failed);
     }
 
     // Each copy tags the button it mounts; a button left by an earlier copy (cut off by a
@@ -575,7 +570,7 @@
       if (state.settings.playerButtons && !state.settings.paused && !state.settings.plainPages) {
         const old = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (old && old.getAttribute('data-hm-copy') !== copyId) safe(() => old.remove());
-        safe(() => site.mountPlayerButtons(doc, { onBlockArtist: () => block('artist') }));
+        safe(() => site.mountPlayerButtons(doc, { onBlockArtist: () => block() }));
         const box = safe(() => doc.querySelector('#hm-player-buttons'), null);
         if (box && !box.hasAttribute('data-hm-copy')) safe(() => box.setAttribute('data-hm-copy', copyId));
       } else {
@@ -727,6 +722,13 @@
         }
       },
       // The worker puts this tab's count on the toolbar icon.
+      // Block artist: the worker adds the artist to hm.user under the shared lock.
+      blockArtist: artist => new Promise(resolve => {
+        try {
+          const sent = chrome.runtime.sendMessage({ type: 'hm-block', artist }, reply => { void chrome.runtime.lastError; resolve(reply === true); });
+          if (sent && typeof sent.then === 'function') sent.then(r => resolve(r === true)).catch(() => resolve(false));
+        } catch (e) { resolve(false); }
+      }),
       onCount: count => {
         try {
           const sent = chrome.runtime.sendMessage({ type: 'hm-count', count });

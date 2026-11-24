@@ -52,6 +52,19 @@
       return HM.store.modify(storage, key, fn, { locks: opts.locks });
     }
 
+    // The player's Block artist button: adds one artist to the person's list, under the same
+    // lock the popup uses, so neither edit undoes the other. Resolves true once it is stored.
+    async function blockArtist(name) {
+      const N = HM.text.normalize;
+      await modifyKey(HM.store.KEYS.user, function (stored) {
+        const user = Object.assign(HM.store.emptyUser(), stored || {});
+        if (user.artists.some(function (a) { return N(a) === N(name); })) return undefined;
+        user.artists = user.artists.concat([name]);
+        return user;
+      });
+      return true;
+    }
+
     // reason is chrome's onInstalled reason. Anything but a first install (a Chrome or
     // extension update) only fills in what is missing; the work that touches the network
     // and the bundled files runs when something was missing, never on every update.
@@ -418,7 +431,7 @@ list = lists[HM.store.KEYS.filterLists][i];
       return refreshed;
     }
 
-    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue, importBundled: importBundled, ensureBuiltIns: ensureBuiltIns };
+    return { install: install, refreshOne: refreshOne, refreshDue: refreshDue, importBundled: importBundled, ensureBuiltIns: ensureBuiltIns, blockArtist: blockArtist };
   }
 
   globalThis.HM.createRefresher = createRefresher;
@@ -803,6 +816,16 @@ list = lists[HM.store.KEYS.filterLists][i];
           try { badge.setBadgeText({ tabId: tabId, text: n === 0 ? '' : n > 999 ? '999+' : String(n) }); } catch (e) { /* tab gone */ }
         }
         return false;
+      }
+      // Block artist from a music page: only a string under 300 characters, only from a tab on
+      // one of the two music sites. Anything else is ignored.
+      if (msg && msg.type === 'hm-block') {
+        const artist = typeof msg.artist === 'string' ? msg.artist.trim() : '';
+        let host;
+        try { host = new URL((sender && sender.tab && sender.tab.url) || (sender && sender.url) || '').hostname; } catch (e) { host = ''; }
+        if (!artist || artist.length >= 300 || (host !== 'music.youtube.com' && host !== 'open.spotify.com')) { sendResponse(false); return false; }
+        globalThis.HM.refresher.blockArtist(artist).then(function () { sendResponse(true); }, function () { sendResponse(false); });
+        return true;
       }
       if (msg && msg.type === 'dev-mode') {
         if (devMode !== null) { sendResponse(isDev()); return false; }

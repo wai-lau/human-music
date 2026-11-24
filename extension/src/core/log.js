@@ -73,14 +73,14 @@
   const SECTIONS = {
     removed: 'blocks', hidden: 'blocks',
     skipped: 'actions', disliked: 'actions', seen: 'actions', watched: 'actions',
-    'skip-failed': 'errors', 'remove-failed': 'errors', 'skip-loop': 'errors',
+    'skip-failed': 'errors', 'remove-failed': 'errors', 'skip-loop': 'errors', 'block-failed': 'errors',
   };
   function section(event) { return SECTIONS[event] || 'actions'; }
 
   // One or two words for a log line's tag; the artist and reason are shown once per group.
   const ACTIONS = {
     removed: 'Removed', hidden: 'Hidden', skipped: 'Skipped', disliked: 'Disliked', seen: 'Played',
-    watched: 'Would skip', 'skip-failed': 'Couldn’t skip', 'remove-failed': 'Couldn’t remove', 'skip-loop': 'Paused skipping',
+    watched: 'Would skip', 'skip-failed': 'Couldn’t skip', 'remove-failed': 'Couldn’t remove', 'skip-loop': 'Paused skipping', 'block-failed': 'Couldn’t block',
   };
   function action(event) { return ACTIONS[event] || String(event || ''); }
 

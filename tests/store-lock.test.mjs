@@ -61,6 +61,25 @@ function worker(storage, { locks = null, fetchBody } = {}) {
   return ctx.HM.createRefresher({ storage, fetch, now: () => 5000, locks, assetUrl: p => 'bundle:' + p, isDev: async () => false });
 }
 
+
+// The real worker (background.js with its message listener), sharing the given locks. send()
+// delivers one message the way chrome does and resolves to the reply.
+function workerMessages(storage, { locks = null } = {}) {
+  let listener;
+  const chrome = {
+    storage: { local: storage },
+    runtime: { onInstalled: { addListener: () => {} }, onMessage: { addListener: f => { listener = f; } }, getURL: p => 'bundle:' + p },
+    action: { setBadgeText: () => {} },
+  };
+  let ctx;
+  const runFile = f => runInContext(ext('src/' + f), ctx);
+  ctx = load([], { URL, importScripts: (...fs) => fs.forEach(runFile), chrome, fetch: async () => ({ ok: false, status: 404, text: async () => '' }),
+    setTimeout, clearTimeout, navigator: locks ? { locks } : undefined });
+  runFile('background.js');
+  return (msg, sender) => new Promise(res => { const kept = listener(msg, sender, res); if (kept !== true) res(undefined); });
+}
+const TAB = { tab: { id: 1, url: 'https://music.youtube.com/watch?v=x' } };
+
 const mine = (o = {}) => ({ id: 'mine', name: 'Mine', url: 'https://example.org/mine.json', enabled: true, mode: 'act', builtIn: false, lastRefresh: null, count: 0, lastError: null, ...o });
 const USER = { artists: ['Old'], songs: [], keywords: [], neverSkip: [] };
 const row = (p, ul, text) => [...p.doc.querySelectorAll(ul + ' li')].find(li => li.textContent.includes(text));
@@ -109,7 +128,8 @@ run([
     const by = el('div', { class: 'ytmusicTrackInfoByline' }, 'Band A • Album • 2025');
     const doc = makeDocument(el('ytmusic-miniplayer', {}, ti, by, el('dislike-button-view-model', {}, el('button', { 'aria-pressed': 'false' })), el('button', { 'aria-label': 'Next' })), el('div', { id: 'contents' }));
     doc.location.pathname = '/watch';
-    const app = ctx.HM.createApp({ doc, storage: slow(base), timers: clock, now: () => 1_700_000_000_000 + clock.now(), locks });
+    const send = workerMessages(slow(base), { locks });
+    const app = ctx.HM.createApp({ doc, storage: slow(base), timers: clock, now: () => 1_700_000_000_000 + clock.now(), blockArtist: async artist => (await send({ type: 'hm-block', artist }, TAB)) === true });
     await app.start(); await settle(); clock.tick(60); await settle(); await app.flush();
     const p = popup(base, { locks });
     await settle();
@@ -119,6 +139,53 @@ run([
     await settle(); clock.tick(60); await settle(); await app.flush(); await settle();
     const a = base.data['hm.user'].artists;
     return (J([...a].sort()) === J(['Band A', 'Keep'])) || J(a);
+  }],
+  ['worker: a popup-style edit and an hm-block message at the same moment both survive', async () => {
+    const base = fakeStorage({ 'hm.user': { ...USER, artists: ['Old', 'Keep'] } });
+    const locks = fakeLocks();
+    const send = workerMessages(slow(base), { locks });
+    const HM = load(['src/core/store.js']).HM;
+    const [reply] = await Promise.all([
+      send({ type: 'hm-block', artist: 'Band A' }, TAB),
+      HM.store.modify(slow(base), 'hm.user', u => ({ ...u, artists: u.artists.filter(a => a !== 'Old') }), { locks }),
+    ]);
+    const a = base.data['hm.user'].artists;
+    return (reply === true && J([...a].sort()) === J(['Band A', 'Keep'])) || J({ reply, a });
+  }],
+  ['worker: hm-block ignores bad artists and senders off the music sites', async () => {
+    const base = fakeStorage({ 'hm.user': { ...USER, artists: [] } });
+    const send = workerMessages(base, { locks: fakeLocks() });
+    const bad = [
+      [{ type: 'hm-block', artist: '' }, TAB], [{ type: 'hm-block', artist: 5 }, TAB], [{ type: 'hm-block', artist: 'x'.repeat(300) }, TAB],
+      [{ type: 'hm-block', artist: 'Evil' }, { tab: { id: 2, url: 'https://evil.example/' } }],
+      [{ type: 'hm-block', artist: 'Evil' }, { tab: { id: 2, url: 'https://music.youtube.com.evil.example/' } }],
+      [{ type: 'hm-block', artist: 'Evil' }, {}],
+    ];
+    const replies = []; for (const [m, snd] of bad) replies.push(await send(m, snd));
+    const ok = await send({ type: 'hm-block', artist: 'Fine' }, { tab: { id: 3, url: 'https://open.spotify.com/track/1' } });
+    return (replies.every(r => r === false) && ok === true && J(base.data['hm.user'].artists) === J(['Fine'])) || J({ replies, ok, a: base.data['hm.user'].artists });
+  }],
+  ['content: Block artist sends the artist to the worker and writes no storage itself; a refusal logs an error', async () => {
+    const CORE = ['src/core/text.js', 'src/core/store.js', 'src/core/match.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/log.js', 'src/core/lookahead.js', 'src/core/skipper.js', 'src/page/common.js', 'src/page/ytm.js', 'src/content.js'];
+    const ctx = load(CORE, { setTimeout, clearTimeout });
+    const run = async reply => {
+      const base = fakeStorage({ 'hm.filterLists': [{ ...ctx.HM.lists.SOUL_OVER_AI, lastRefresh: 1, count: 0 }], 'hm.list.soul-over-ai': { artists: [] },
+        'hm.settings': { ...ctx.HM.settings.DEFAULTS, lookahead: 0 }, 'hm.user': { ...USER, artists: ['Keep'] } });
+      const before = J(base.data['hm.user']);
+      const clock = fakeClock(), sent = [];
+      const ti = el('div', { class: 'ytmusicTrackInfoTitle' }, 'Song');
+      const by = el('div', { class: 'ytmusicTrackInfoByline' }, 'Band A • Album • 2025');
+      const doc = makeDocument(el('ytmusic-miniplayer', {}, ti, by, el('dislike-button-view-model', {}, el('button', { 'aria-pressed': 'false' })), el('button', { 'aria-label': 'Next' })), el('div', { id: 'contents' }));
+      doc.location.pathname = '/watch';
+      const app = ctx.HM.createApp({ doc, storage: base, timers: clock, now: () => 1_700_000_000_000 + clock.now(), blockArtist: async a => { sent.push(a); return reply; } });
+      await app.start(); await settle(); clock.tick(60); await settle(); await app.flush();
+      doc.querySelector('#hm-player-buttons button').click();
+      await settle(); clock.tick(60); await settle(); await app.flush(); await settle();
+      const errs = (base.data['hm.log'] || []).concat(...Object.entries(base.data).filter(([k]) => k.startsWith('hm.log')).map(([, v]) => v)).filter(e => e && e.event === 'block-failed');
+      return { sent, same: J(base.data['hm.user']) === before, errs: errs.length };
+    };
+    const good = await run(true), bad = await run(false);
+    return (J(good.sent) === J(['Band A']) && good.same && good.errs === 0 && bad.same && bad.errs >= 1) || J({ good, bad });
   }],
   ['the worker refreshing a list does not undo a popup toggle made at the same moment', async () => {
     const bad = [];
