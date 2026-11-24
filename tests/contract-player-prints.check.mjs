@@ -15,8 +15,8 @@
 //     (resolves, rejects or 20 s pass on the app's timers, whichever is first). Samples of 5 s or more
 //     (44100 * 5) are sent with label 'ai' and seconds 12. If the playing song changed meanwhile:
 //     no skip and nothing sent. The skip is logged as today.
-//   - A playing song with no match (it plays on): capture(30, { mute: false }); if the same song is
-//     still playing when it resolves, send label 'played', seconds 30.
+//   - A playing song with no match (it plays on): capture(30, { mute: false }), once per play; if the
+//     same song is still playing when it resolves, send label 'played', seconds 30.
 //   - One capture at a time: while one runs, a song to skip is skipped at once, uncaptured.
 //   - While the page is hidden (document.visibilityState 'hidden'), a song to skip is skipped at once, uncaptured.
 //   Absent, or enabled() false: exactly today's behaviour (skip at once, no capture).
@@ -179,6 +179,13 @@ await t('dev mode answered after the first check: captureNow() records the song 
   const before = r.captures.length;
   r.enable(); r.app.captureNow(); await settle(r.clock); r.release(); await settle(r.clock, 100);
   return (before === 0 && J(r.captures) === J([{ seconds: 30, mute: false }]) && r.sent.length === 1 && r.sent[0].label === 'played') || J({ before, captures: r.captures, sent: r.sent.length });
+});
+await t('a song that plays on is recorded once per play, even when a lists change re-checks it', async () => {
+  const r = await start({ song: UNKNOWN });
+  r.release(); await settle(r.clock, 100);
+  await r.storage.set({ 'hm.user': { artists: ['Someone New'], songs: [], keywords: [], neverSkip: [] } });
+  await settle(r.clock, 200); await r.app.checkPlaying(); await settle(r.clock, 200);
+  return (r.captures.length === 1 && r.sent.length === 1) || J({ captures: r.captures.length, sent: r.sent.length });
 });
 await t('a played capture whose song changed is not sent', async () => {
   const r = await start({ song: UNKNOWN });

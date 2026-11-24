@@ -61,6 +61,7 @@
       // Fingerprinting state
       captureRunning: false,
       captureSong: null, // { title, artistLine } of the song being captured
+      recordedKey: '', // the song (title + artist line) already recorded this play; once per play
       captureSkipTimer: null, // 20s timer to force skip if capture hangs
     };
     let writes = Promise.resolve();
@@ -254,6 +255,9 @@
       if (!safe(() => fingerprints.enabled(), false)) return;
       if (state.captureRunning) return;
       const startKey = song.title + '\u0000' + song.artistLine;
+      // A re-check of the same play (lists or settings changed) never records it again.
+      if (state.recordedKey === startKey) return;
+      state.recordedKey = startKey;
       state.captureRunning = true;
       state.captureSong = { title: song.title, artistLine: song.artistLine };
       Promise.resolve().then(() => safe(() => fingerprints.capture(30, { mute: false }), null))
