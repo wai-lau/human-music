@@ -75,3 +75,15 @@ The 202 verdicts from Claude and SH Labs, matched on Deezer by exact name only (
 | unsure (16) | 0 | 6 | 10 |
 
 No person is flagged. Only 1 of 8 AI artists with previews is caught, far under the 52% held-out rate. Eight is too few to call, but the AI acts people actually play may differ from the list artists the model learned from; player-audio data from skipped AI songs would show it.
+
+## Larger held-out set (2026-11-24)
+
+`heldout_more.py` grew the held-out set (AI artists Deezer did not flag: Soul Over AI, not on Zoundhub) from 56 to 185 artists, matched by name plus a date rule: exactly one namesake whose albums are all from 2023 or later. Spot checks of the dates look right.
+
+| Model | Held-out AI caught at 0.8 (185 artists, about ±7) | People flagged at 0.8 (cross-validation) |
+|---|---|---|
+| Live model | 65% | 0 of 761 |
+| Same settings, retrained on 600 AI and 1,161 people | 120 of 185 (65%) | 0 of 1,161 |
+| Best of 54 settings (min 51, smooth 11, pool 4, C 0.01) | 125 of 185 (68%) | 0 of 1,161 |
+
+The new 129 artists score much higher (71% at 0.8) than the old 56 (50%). They are almost all 2025 releases, so newer generators may be easier to catch. The best setting gains 3 points, inside the noise, so the live model stays. A clear gain still needs different training data, such as the player fingerprints now coming in.
