@@ -453,6 +453,8 @@
   }
 
   function renderToday() {
+    // Not while the slider is held: its own input events show the level being dragged to.
+    if (document.activeElement === $('mode')) return;
     showModeLine(state.settings.paused ? 'off' : HM.settings.effectiveMode(state.settings, verdictsCalibrated()));
   }
 

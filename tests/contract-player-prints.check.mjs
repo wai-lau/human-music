@@ -7,7 +7,8 @@
 //   Music content_scripts before src/content.js.
 // content.js: createApp gains an optional fingerprints option (and the app a captureNow(): once the
 //   dev answer arrives, a playing song with no match that wasn't recorded is recorded then)
-//   { enabled: () => boolean, capture: (seconds, { mute }) => Promise<Float32Array | null>, send: (item) => void }
+//   { enabled: () => boolean, capture: (seconds, { mute }) => Promise<Float32Array | null>, send: (item) => void,
+//     cancel: () => void (ends the running recording now) }
 //   item = { title, artistLine, label: 'ai' | 'played', seconds, print: plain array of 510 numbers }.
 //   With it enabled:
 //   - A song that would be auto-skipped: capture(12, { mute: true }) first, then skip once it settles
@@ -17,6 +18,7 @@
 //   - A playing song with no match (it plays on): capture(30, { mute: false }); if the same song is
 //     still playing when it resolves, send label 'played', seconds 30.
 //   - One capture at a time: while one runs, a song to skip is skipped at once, uncaptured.
+//   - While the page is hidden (document.visibilityState 'hidden'), a song to skip is skipped at once, uncaptured.
 //   Absent, or enabled() false: exactly today's behaviour (skip at once, no capture).
 //   content.js wires it (real copy) as: enabled = the worker answered dev-mode true; capture =
 //   HM.capture.record (written by the lead, not part of this task; call it only if it exists);
@@ -67,7 +69,7 @@ function fakeSite(box) {
 }
 
 // capture: 'ok' resolves with the golden signal (10 s), 'short' with 1 s, 'reject', 'hang' never settles.
-async function start({ song, capture = 'ok', enabled = true, hook = true }) {
+async function start({ song, capture = 'ok', enabled = true, hook = true, hidden = false }) {
   const ctx = load(FILES, { setTimeout, clearTimeout });
   const { HM } = ctx;
   const storage = fakeStorage({
@@ -80,6 +82,7 @@ async function start({ song, capture = 'ok', enabled = true, hook = true }) {
   const box = { song, enabled };
   const { site, calls } = fakeSite(box);
   const captures = [], sent = [];
+  let cancels = 0;
   let release = null;
   const fingerprints = {
     enabled: () => box.enabled,
@@ -91,10 +94,13 @@ async function start({ song, capture = 'ok', enabled = true, hook = true }) {
       return new Promise(() => {});
     },
     send: item => sent.push(item),
+    cancel: () => { cancels++; },
   };
-  const app = HM.createApp({ doc: makeDocument(), storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(), site, ...(hook ? { fingerprints } : {}) });
+  const doc = makeDocument();
+  if (hidden) Object.defineProperty(doc, 'visibilityState', { value: 'hidden', configurable: true });
+  const app = HM.createApp({ doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(), site, ...(hook ? { fingerprints } : {}) });
   await app.start(); await settle(clock, 60);
-  return { HM, app, clock, box, calls, captures, sent, release: () => release && release(), enable: () => { box.enabled = true; } };
+  return { HM, app, clock, box, calls, captures, sent, storage, cancels: () => cancels, release: () => release && release(), enable: () => { box.enabled = true; } };
 }
 
 await t('fakeprint() matches the Python reference on the golden signal (within 0.002)', async () => {
@@ -138,6 +144,24 @@ await t('capture hangs and the song changes: the 20 s timer skips nothing', asyn
   const r = await start({ song: LISTED, capture: 'hang' });
   r.box.song = OTHER; await settle(r.clock, 21000); await settle(r.clock, 1000);
   return r.calls.next === 0 || J({ next: r.calls.next });
+});
+await t('a lists or settings change during a recording does not skip early or record twice', async () => {
+  const r = await start({ song: LISTED });
+  await r.storage.set({ 'hm.user': { artists: ['Someone New'], songs: [], keywords: [], neverSkip: [] } });
+  await settle(r.clock, 200); await r.app.checkPlaying(); await settle(r.clock, 200);
+  const early = r.calls.next;
+  r.release(); await settle(r.clock, 100); await settle(r.clock, 1000);
+  return (early === 0 && r.captures.length === 1 && r.calls.next >= 1 && r.sent.length === 1) || J({ early, captures: r.captures.length, next: r.calls.next, sent: r.sent.length });
+});
+await t('the song changes during a recording: the recording is cancelled (its mute ends at once)', async () => {
+  const r = await start({ song: LISTED });
+  r.box.song = OTHER; await r.app.checkPlaying(); await settle(r.clock, 100);
+  return r.cancels() >= 1 || 'cancel not called';
+});
+await t('the page is hidden: a song to skip is skipped at once, uncaptured', async () => {
+  const r = await start({ song: LISTED, hidden: true });
+  await settle(r.clock, 1000);
+  return (r.captures.length === 0 && r.calls.next >= 1) || J({ captures: r.captures, next: r.calls.next });
 });
 await t('without the option, or enabled() false: skipped at once, no capture', async () => {
   const a = await start({ song: LISTED, hook: false });

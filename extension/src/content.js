@@ -169,14 +169,19 @@
     // and no skip happens. If capture hangs (never resolves), the skip is forced after 20 s.
     function captureAndSend(song, match) {
       const startKey = song.title + '\u0000' + song.artistLine;
+      // This song is being recorded already (a list or settings change re-checks the playing
+      // song): the running recording skips it; skipping now would leave the next song muted.
+      if (state.captureRunning && state.captureSong && songMatches(state.captureSong, startKey)) return;
       const doSkip = () => {
         state.captureRunning = false;
         state.captureSong = null;
         safe(() => state.skipper.skip({ dislikeFirst: state.settings.autoDislike }));
         log(state.settings.autoDislike ? 'disliked' : 'skipped', song, match);
       };
-      // Skip immediately if fingerprinting unavailable or already capturing
-      if (!fingerprints || state.captureRunning) {
+      // Skip immediately if fingerprinting unavailable or already capturing, or while the page
+      // is hidden: Chrome slows a background window's timers once it goes silent, and the muted
+      // recording left skips failing in the YouTube Music app window (2026-11-24).
+      if (!fingerprints || state.captureRunning || safe(() => doc.visibilityState === 'hidden', false)) {
         doSkip();
         return;
       }
@@ -211,34 +216,25 @@
       }, 20000);
       safe(() => fingerprints.capture(12, { mute: true }), null)
         .catch(() => null)
-        .then(async (captured) => {
+        .then((captured) => {
           if (state.captureSkipTimer != null) {
             safe(() => timers.clearTimeout(state.captureSkipTimer));
             state.captureSkipTimer = null;
           }
           if (settled) return;
-          if (!captured || captured.length < 44100 * 5) {
-            doSkip();
-            return;
-          }
-          // Print the samples to 510 values
-          const fp = HM.fingerprint.fakeprint(captured);
-          // Check if the song changed during capture
-          const current = safe(() => site.readSong(doc), null);
-          if (!songMatches(current, startKey)) {
-            state.captureRunning = false;
-            state.captureSong = null;
-            // Song changed: no skip, no send
-            return;
-          }
-          // Song is still the same; send the fingerprint, then skip
-          fingerprints.send({
-            title: song.title,
-            artistLine: song.artistLine,
-            label: 'ai',
-            seconds: 12,
-            print: Array.from(fp)
-          });
+          settled = true;
+          const same = songMatches(safe(() => site.readSong(doc), null), startKey);
+          // Song changed during capture: no skip, no send (it may be a person's song).
+          if (!same) { state.captureRunning = false; state.captureSong = null; return; }
+          try {
+            if (captured && captured.length >= 44100 * 5) {
+              const print = Array.from(HM.fingerprint.fakeprint(captured));
+              // A silent recording (all zeros) teaches the model nothing.
+              if (print.some(v => v > 0)) {
+                safe(() => fingerprints.send({ title: song.title, artistLine: song.artistLine, label: 'ai', seconds: 12, print }));
+              }
+            }
+          } catch (e) { /* any failure still skips below */ }
           doSkip();
         });
     }
@@ -283,6 +279,7 @@
 
     function songMatches(song, key) {
       if (!song) return false;
+      if (typeof key !== 'string') key = key.title + '\u0000' + key.artistLine;
       return song.title + '\u0000' + song.artistLine === key;
     }
 
@@ -300,6 +297,11 @@
       if (state.settings.paused) return;
       const song = safe(() => site.readSong(doc), null);
       if (!song) return;
+      // The song changed while one was being recorded: stop that recording now, so its mute
+      // never carries over to this song.
+      if (state.captureRunning && state.captureSong && !songMatches(song, state.captureSong.title + '\u0000' + state.captureSong.artistLine)) {
+        safe(() => fingerprints && typeof fingerprints.cancel === 'function' && fingerprints.cancel());
+      }
       if (state.last && state.last.title === song.title && state.last.artistLine === song.artistLine) return;
       if (!videoPlaying()) return; // not remembered yet, so the song is checked once it plays
       // A skip still finishing (its poll sees the new song within 100 ms) would refuse this
@@ -606,6 +608,7 @@
       fingerprints: {
         enabled: () => devCopy,
         capture: (seconds, opts) => (HM.capture && typeof HM.capture.record === 'function' ? HM.capture.record(seconds, opts) : Promise.resolve(null)),
+        cancel: () => { if (HM.capture && typeof HM.capture.cancel === 'function') HM.capture.cancel(); },
         send: item => {
           try {
             chrome.runtime.sendMessage({ type: 'hm-fingerprint', item: item });

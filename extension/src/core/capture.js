@@ -12,9 +12,13 @@
   'use strict';
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
   const RATE = 44100;
+  let active = null; // the running recording's finish(), so a new one or cancel() ends it first
 
   function record(seconds, opts) {
     const mute = !!(opts && opts.mute);
+    // One recording at a time: the old one ends (and undoes its mute) before this one reads the
+    // mute state, so a mute is never mistaken for the person's own setting.
+    cancel();
     return new Promise(function (resolve) {
       let video, ctx, wasMuted = false, muted = false, done = false, timer = null;
       const want = Math.max(1, Math.round(seconds * RATE));
@@ -23,11 +27,13 @@
       function finish(ok) {
         if (done) return;
         done = true;
+        if (active === finish) active = null;
         if (timer) clearTimeout(timer);
         try { if (muted && video) video.muted = wasMuted; } catch (e) { /* gone */ }
         try { if (ctx) ctx.close(); } catch (e) { /* closed */ }
         resolve(ok && n > 0 ? out.slice(0, n) : null);
       }
+      active = finish;
       try {
         video = document.querySelector('video');
         if (!video || video.paused || typeof video.captureStream !== 'function') { finish(false); return; }
@@ -59,5 +65,8 @@
     });
   }
 
-  globalThis.HM.capture = { record: record };
+  // Ends the running recording now (its mute undone); it resolves with what it has.
+  function cancel() { if (active) active(false); }
+
+  globalThis.HM.capture = { record: record, cancel: cancel };
 })();
