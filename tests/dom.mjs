@@ -230,6 +230,10 @@ export class Element extends EventTarget {
     notify(this, 'childList', { removedNodes: [old] });
     return old;
   }
+  replaceChildren(...nodes) {
+    for (const c of this.childNodes.slice()) this.removeChild(c);
+    if (nodes.length) this.append(...nodes);
+  }
   remove() { if (this.parentNode) this.parentNode.removeChild(this); }
   contains(n) { for (let p = n; p; p = p.parentNode) if (p === this) return true; return false; }
   matches(sel) { return matches(this, sel); }

@@ -284,7 +284,7 @@
       const icon = button.querySelector('svg');
       const holder = icon ? null : [...button.querySelectorAll('*')].find(e => /icon/i.test(String(e.className || '')) || e.tagName.toLowerCase() === 'yt-icon');
       if (icon && icon.parentNode) icon.parentNode.replaceChild(glyph(doc), icon);
-      else if (holder) { while (holder.firstChild) holder.removeChild(holder.firstChild); holder.appendChild(glyph(doc)); }
+      else if (holder) { holder.replaceChildren(glyph(doc)); }
       else button.appendChild(glyph(doc));
       button.addEventListener('click', onClick);
       wrapper.parentElement.insertBefore(box, wrapper.nextSibling);

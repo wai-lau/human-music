@@ -150,7 +150,7 @@
     const now = Date.now();
     // Largest list first (Wai, 2026-11-19: "order them by list size in the popup"); equal sizes
     // keep their stored order.
-    const bySize = [...state.lists].sort((a, b) => (Number(b.count) || 0) - (Number(a.count) || 0));
+    const bySize = state.lists.toSorted((a, b) => (Number(b.count) || 0) - (Number(a.count) || 0));
     for (const list of bySize) {
       const on = node('input', {
         type: 'checkbox', checked: !!list.enabled, title: 'On or off', 'aria-label': `${list.name} on`,

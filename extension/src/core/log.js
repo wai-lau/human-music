@@ -208,7 +208,7 @@
         const got = await storage.get('hm.log');
         const old = got['hm.log'];
         if (!Array.isArray(old)) return;
-        const oldestFirst = old.slice().reverse();
+        const oldestFirst = old.toReversed();
         let index = await readIndex();
         const write = {};
         if (oldestFirst.length) {
