@@ -95,7 +95,9 @@ Human Music checks songs against lists:
   and Soul Over AI lists are built in, and you can add others by URL. Each one can be switched off.
 - Your own lists of artists, songs and keywords. Add to them from the
   popup, or press the block button (a circle with a slash) next to Repeat
-  on the player to add the artist that's playing.
+  on the player to add the artist that's playing. The Plain pages switch in
+  the Behaviour tab takes that button away, along with the greying of listed
+  songs; skipping and hiding keep working.
 - Never skip: an artist on that list is always played, whatever the other
   lists say.
 
