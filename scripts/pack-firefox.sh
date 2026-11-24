@@ -35,4 +35,5 @@ with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as z:
             z.write(p, os.path.relpath(p, src))
 PY
 fi
+node "$repo/scripts/verify-pack.mjs" "$zip_path" --firefox --version "$version"
 echo "wrote $zip_path"

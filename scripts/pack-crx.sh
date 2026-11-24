@@ -22,9 +22,10 @@ git -C "$repo" diff --quiet HEAD -- extension \
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 git -C "$repo" archive "$ref" extension | tar -x -C "$work"
-# The store package asks for no development-only permission (scripts/store-manifest.mjs).
+# The store package drops development-only permissions, audio code and personal lists (scripts/store-manifest.mjs).
 node "$repo/scripts/store-manifest.mjs" "$work/extension/manifest.json"
 version=$(node -p "require(process.argv[1]).version" "$work/extension/manifest.json")
+node "$repo/scripts/verify-pack.mjs" "$work/extension" --version "$version"
 
 "$chrome" --headless=new --no-sandbox --user-data-dir="$work/profile" \
   --pack-extension="$work/extension" --pack-extension-key="$key" >/dev/null 2>&1 || true

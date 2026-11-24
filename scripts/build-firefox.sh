@@ -22,7 +22,7 @@ const [src, dst] = process.argv.slice(2);
 const m = JSON.parse(fs.readFileSync(src, 'utf8'));
 // The service worker's importScripts list, as plain background scripts.
 m.background = { scripts: ['src/core/text.js', 'src/core/store.js', 'src/core/lists.js', 'src/core/settings.js', 'src/core/secret.js', 'src/core/log.js', 'src/background.js'] };
-m.browser_specific_settings = { gecko: { id: 'human-music@wai-lau', strict_min_version: '121.0',
+m.browser_specific_settings = { gecko: { id: 'human-music@wai-lau', strict_min_version: '127.0',
   // AMO requires this for new extensions (since 2025-11-03). Human Music collects and
   // transmits no data: required ["none"]. Firefox before 140 ignores the key.
   data_collection_permissions: { required: ['none'] } } };

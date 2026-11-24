@@ -80,7 +80,7 @@ const basics = [
 
 function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', distributionChannels: [{ crxVersion: '0.1.2' }] } },
   head = '0.1.2', dirty = '', branch = 'main', origin = 'aaa', moves = false, answer = true, lastTag = 'v0.1.2', tagAt = 'aaa',
-  commits = 'bbb2 fix: one\nccc3 feat: two\n', failing = null, untracked = '' } = {}) {
+  commits = 'bbb2 fix: one\nccc3 feat: two\n', failing = null, problems = [], untracked = '' } = {}) {
   const steps = [];
   let version = head;
   let sha = 'aaa';
@@ -111,6 +111,7 @@ function fakes({ status = { publishedItemRevisionStatus: { state: 'PUBLISHED', d
   const shown = [];
   const confirm = async text => { steps.push('confirm'); shown.push(text); return answer; };
   const deps = { git, run, client, confirm, readVersion: () => version, writeVersion: v => { steps.push('version ' + v); version = v; },
+    verify: (dir, v) => { steps.push('verify ' + v + ' ' + dir); return problems; },
     readCrx: (v, dir) => { steps.push('read crx ' + v + ' ' + dir); return Buffer.from('crx'); }, stage: '/stage', log: () => {} };
   return { steps, deps, shown };
 }
@@ -125,7 +126,7 @@ await run([
   ['a release runs checks, then bumps, commits, packs everything into a staging folder, and only then tags, pushes, uploads and submits', async () => {
     const { steps, deps } = fakes();
     const res = await runRelease({ kind: 'patch', ...deps });
-    const order = ['confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'status', 'version 0.1.3', 'git commit', 'run scripts/pack-crx.sh new >/stage', 'run scripts/pack-firefox.sh new >/stage', 'git tag v0.1.3', 'git push', 'read crx 0.1.3 /stage', 'upload human-music-0.1.3.crx', 'publish'];
+    const order = ['confirm', 'run npm test', 'run npm run lint', 'run npm run e2e', 'status', 'version 0.1.3', 'git commit', 'run scripts/pack-crx.sh new >/stage', 'run scripts/pack-firefox.sh new >/stage', 'verify 0.1.3 /stage', 'git tag v0.1.3', 'git push', 'read crx 0.1.3 /stage', 'upload human-music-0.1.3.crx', 'publish'];
     let at = -1;
     const inOrder = order.every(o => { const i = steps.findIndex((s, k) => k > at && s.startsWith(o)); if (i < 0) return false; at = i; return true; });
     return (inOrder && res.version === '0.1.3') || JSON.stringify(steps);
@@ -155,6 +156,12 @@ await run([
       if (!steps.includes('git reset -q --mixed aaa') || !steps.includes('git checkout aaa -- extension/manifest.json') || steps.some(s => /reset --hard/.test(s))) out.push(failing + ' left the version commit or reset hard: ' + JSON.stringify(steps));
     }
     return out.length === 0 || out.join('; ');
+  }],
+  ['a pack that fails verify-pack stops the release like a pack failure: no tag, no push, version undone', async () => {
+    const { steps, deps } = fakes({ problems: ['lists/my-lists.json is in the package'] });
+    try { await runRelease({ kind: 'patch', ...deps }); return 'did not stop'; } catch (e) { if (!/my-lists/.test(e.message)) return 'wrong error: ' + e.message; }
+    if (steps.some(s => /^git tag|^git push|^upload|^publish/.test(s))) return 'went too far: ' + JSON.stringify(steps);
+    return steps.includes('git reset -q --mixed aaa') || JSON.stringify(steps);
   }],
   ['tests, lint and e2e run before the keyed step, and nothing but signing runs inside it', async () => {
     const { steps, deps } = fakes();

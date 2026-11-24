@@ -75,7 +75,7 @@ folder. A copy loaded this way doesn't update, and it behaves like the store
 copy: the development aids stay off unless the folder holds the owner's
 `dev-copy` marker file, which is never committed.
 
-In Firefox (121 or later), run `scripts/build-firefox.sh`, open
+In Firefox (127 or later), run `scripts/build-firefox.sh`, open
 `about:debugging`, choose This Firefox, then Load Temporary Add-on, and pick
 `dist/firefox/manifest.json`.
 

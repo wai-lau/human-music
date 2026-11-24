@@ -25,6 +25,7 @@ import { homedir, tmpdir } from 'os';
 import { createInterface } from 'readline';
 import { join, dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { verifyStage } from './verify-pack.mjs';
 
 const API = 'https://chromewebstore.googleapis.com';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -220,7 +221,7 @@ function undoVersion(git, head) {
 }
 
 // The signing and shipping half: needs the keys. `head` is the commit runChecks tested.
-export async function runSigned({ kind = 'patch', head, git, run, client, readVersion, writeVersion, readCrx, stage, log = console.log }) {
+export async function runSigned({ kind = 'patch', head, git, run, client, readVersion, writeVersion, readCrx, stage, verify = verifyStage, log = console.log }) {
   if (guardMain(git) !== head) throw new Error('main moved while testing: run again');
   guardExtensionClean(git);
 
@@ -242,6 +243,9 @@ export async function runSigned({ kind = 'patch', head, git, run, client, readVe
   try {
     run('scripts/pack-crx.sh', [commit], { HM_DIST_DIR: stage });
     run('scripts/pack-firefox.sh', [commit], { HM_DIST_DIR: stage });
+    // Open both packs again and check what friends would get; any problem stops the release here.
+    const problems = verify(stage, version);
+    if (problems.length) throw new Error(`pack check failed: ${problems.join('; ')}`);
   } catch (e) {
     undoVersion(git, head); // drop the version commit: nothing was tagged or pushed
     throw new Error(`packing failed, nothing tagged or pushed (the version commit is undone): ${e.message}`, { cause: e });

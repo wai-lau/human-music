@@ -6,7 +6,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 import { run } from './load.mjs';
-import { storeManifest } from '../scripts/store-manifest.mjs';
+import { storeManifest, storeScripts, stripStagedTree } from '../scripts/store-manifest.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '..', '..');
 const chrome = JSON.parse(readFileSync(join(root, 'extension/manifest.json'), 'utf8'));
@@ -30,6 +30,8 @@ const ff = JSON.parse(readFileSync(join(out, 'manifest.json'), 'utf8'));
 const archived = mkdtempSync(join(tmpdir(), 'hm-ff-arch-'));
 process.on('exit', () => rmSync(archived, { recursive: true, force: true }));
 execFileSync('bash', ['-c', 'git -C "$1" archive HEAD extension | tar -x -C "$2"', '_', work, archived], { env });
+// The packed build drops the dev-only files; strip the reference copy the same way so the diff shows only leaks.
+stripStagedTree(join(archived, 'extension'));
 const background = readFileSync(join(root, 'extension/src/background.js'), 'utf8');
 const imported = (background.match(/importScripts\(([^)]*)\)/) || [null, ''])[1].match(/'([^']+)'/g).map(s => 'src/' + s.slice(1, -1));
 
@@ -39,13 +41,15 @@ run([
   ['background scripts = the core files the worker imports, then background.js', () =>
     JSON.stringify(ff.background.scripts) === JSON.stringify([...imported, 'src/background.js']) || JSON.stringify({ ff: ff.background.scripts, imported })],
   ['gecko id and a Firefox version with MV3 background scripts', () =>
-    (ff.browser_specific_settings.gecko.id === 'human-music@wai-lau' && parseInt(ff.browser_specific_settings.gecko.strict_min_version, 10) >= 121) || JSON.stringify(ff.browser_specific_settings)],
+    (ff.browser_specific_settings.gecko.id === 'human-music@wai-lau' && parseInt(ff.browser_specific_settings.gecko.strict_min_version, 10) >= 127) || JSON.stringify(ff.browser_specific_settings)],
   ['declares no data collection (AMO requires it for new extensions)', () =>
     JSON.stringify(ff.browser_specific_settings.gecko.data_collection_permissions) === '{"required":["none"]}' || JSON.stringify(ff.browser_specific_settings.gecko)],
+  ['the build has no dev-copy, my-lists.json, capture.js or fingerprint.js, and the lists index does not name my-lists.json', () =>
+    (['dev-copy', 'lists/my-lists.json', 'src/core/capture.js', 'src/core/fingerprint.js'].every(f => !existsSync(join(out, f))) && !readFileSync(join(out, 'lists/index.json'), 'utf8').includes('my-lists')) || 'dev-only file present'],
   ['no management permission is requested (getSelf needs none)', () => !(ff.permissions || []).includes('management') || 'management present'],
   ['everything else matches the packed Chrome manifest (no development-only permission)', () => {
     const strip = m => { const c = { ...m }; delete c.background; delete c.browser_specific_settings; return JSON.stringify(c); };
-    return strip(ff) === strip(storeManifest(chrome)) || 'manifests differ';
+    return strip(ff) === strip(storeScripts(storeManifest(chrome))) || 'manifests differ';
   }],
   ['every file the Firefox manifest names exists in the build', () => {
     const files = [...ff.background.scripts, ff.action.default_popup, ...Object.values(ff.icons), ...ff.content_scripts.flatMap(c => c.js)];
