@@ -83,9 +83,12 @@ In Firefox (127 or later), run `scripts/build-firefox.sh`, open
 
 On Spotify, Human Music matches listed artists by their Spotify ID, so a
 look-alike name never counts. It removes listed songs from your queue (it
-opens the Queue panel once to see them; close it and it stays closed), skips
+opens the Queue panel once to see them; close it and it stays closed, and it
+never replaces Lyrics or another panel you opened), skips
 one that starts anyway, and hides listed artists' songs and albums on the home page
-and in search. Spotify has no dislike button, so auto-dislike only skips there.
+and in search. Spotify has no dislike button, so auto-dislike only skips there. When Next is
+switched off, as on Spotify Free after its skip limit, Human Music doesn't press it
+again, and the song plays.
 
 ## How it decides
 
@@ -103,7 +106,15 @@ Human Music checks songs against lists:
 
 An artist matches only when they're credited on the song. A list entry
 called "After Midnight" catches the artist After Midnight, not every song
-with that title.
+with that title. Where the page links each artist, those names are the
+credits. Otherwise a line is split only at "feat.", "ft.", "featuring" or
+" x ", and at commas or "&" only into parts of two or more words, so "Earth,
+Wind & Fire" stays one band. An ID beats a name: a same-named artist with a
+different ID doesn't match. Very common names such as "Various Artists" never
+match on a shared list. A card or row that names several artists is a mix and
+is hidden only when every one of them is listed. The playing song is read
+twice before Human Music acts on it, and if 6 songs in a row are skipped within
+20 seconds, auto-skip rests for a minute.
 
 The repository also holds a copy of my own lists in `extension/lists/`, so
 they survive removing the extension. Only my own working copy (the one with
@@ -111,7 +122,9 @@ the `dev-copy` marker) imports them; a copy you load yourself starts with the
 built-in lists only.
 
 Coming from YTM AI Artist & Song Blocker? Export a backup there and import
-it in Human Music's Lists tab to keep your lists.
+it in Human Music's Lists tab to keep your lists. Every import shows what it
+would add and asks first. A list holds up to 50,000 entries, and a list
+address must be one on the web, not a local or private one.
 
 ## Credits
 

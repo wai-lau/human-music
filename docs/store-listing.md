@@ -4,8 +4,8 @@ Text for each field of the developer dashboard, ready to paste. Package:
 the item takes verified uploads only, so a release uploads the signed
 `dist/human-music-<version>.crx` that `npm run release` packs (see "Releasing
 from the terminal" below); a plain zip of `extension/` is no longer accepted.
-Check before every upload that `extension/lists/my-lists.json` holds no
-personal lists: it ships in the package.
+The store pack leaves out `extension/lists/my-lists.json` (personal lists) and the
+development-only audio files; `scripts/verify-pack.mjs` checks the pack before a release.
 
 ## Package tab
 

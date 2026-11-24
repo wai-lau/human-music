@@ -127,19 +127,30 @@ flowchart TD
 
 | List | Matches when |
 |---|---|
-| Filter list artists (Soul Over AI, others) | a credited artist is that name, or the artist's channel ID is listed |
+| Filter list artists (Soul Over AI, others) | a credited artist is that name, or the artist's channel ID is listed; an ID beats a name (2026-11-24 hardening) |
 | Your artists | a credited artist is that name |
-| Your songs | the title is that title, by that artist (title only when the entry has no artist) |
+| Your songs | the title is that title, by that artist (title only when the entry has no artist, and then only on a song row: an album or playlist card with that title is left alone) (2026-11-24 hardening) |
 | Your keywords | the word appears as a whole word in the title or a credited artist; never the album or year (Wai, 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist") |
 | Never skip | overrides all of the above for that artist |
 
 - **Credited artists** come from the artist line before the first " • "
   (the rest is album and year). A credited artist matches a listed name when
-  the whole credit equals it, or one part of it does after splitting on
-  ", ", " & " and " feat. ". Comparison ignores case. **(Claude's call:** the
+  the whole credit equals it, or one part of it does. Comparison ignores case.
+  (2026-11-24 hardening) Where the page links each artist, the linked names
+  are the credits and nothing is split. In a plain text line, the line is split
+  only at "feat.", "ft.", "featuring" and " x ", and into comma or "&" parts only
+  when a part has two or more words ("Tyler, The Creator" gives "the creator",
+  never "tyler"; "Earth, Wind & Fire" stays whole). **(Claude's call:** the
   old extension matched artist names anywhere in title plus artist, so a
   list entry like "After Midnight" skipped every song with that title, a
   direct hit on the first anti-goal.)
+- (2026-11-24 hardening) **Generic names** ("The", "Various Artists",
+  "Unknown", one character or no letters) never match by name on a filter
+  list; your own lists are exempt, and an entry with an ID still matches by it.
+  A verdict-list name that also belongs to a person (verdict human or unsure)
+  matches by ID only. A name match gives way to IDs: when the song names
+  artist IDs of the listed entry's kind and none is the entry's, it is a
+  different artist with the same name.
 - **Whole words** work for any script and for names with punctuation:
   "Beyoncé" must not match "Beyoncés"; "米津玄師", "Panic!" and "Ke$ha" must
   match. A word boundary is any character that is not a letter or digit in
@@ -189,6 +200,16 @@ found in the old extension on 2026-11-11.
    run steps 2 to 5.
 7. A song that was already checked is never checked again while it plays.
    The check compares title and artist line together.
+8. (2026-11-24 hardening) The byline can lag the title for a moment after a
+   song change, so a playing song is acted on only after the same title and
+   artist line were read twice, 150 ms apart.
+9. (2026-11-24 hardening) A second Next or a seek happens only if the video's
+   length (and source, where the page gives one) is still what it was when the
+   skip began; otherwise the player may already be on the next song, which may
+   be a person's. After 6 skips within 20 s, auto-skip rests for 60 s and the
+   log's Errors section gets one line. A site whose Next is switched off
+   (Spotify Free's skip limit) is not pressed again or seeked: the skip is
+   reported as one that didn't take.
 
 ### Never in the person's way
 
@@ -229,7 +250,10 @@ Like an ad blocker, Human Music hides matching items so they never show.
   **Mix cards** (a subtitle that is only a comma list of featured artists,
   like "ILLENIUM, GameChops, El Jazzy Chavo") hide only when every named
   artist is listed: one AI artist in a mix doesn't hide the human ones.
-  **(Claude's call)** Watch-mode lists never hide.
+  (2026-11-24 hardening) Any card or row that names several artists is a
+  mix, linked or plain text, on both sites, and every artist in it must be
+  listed. A text line whose whole is itself a listed act ("Earth, Wind &
+  Fire") hides as that act. **(Claude's call)** Watch-mode lists never hide.
 - **Undo:** pausing Human Music or switching hiding off shows everything
   again at once.
 - **Log:** a hidden item gets one log line ("Hidden on page"), at most once
@@ -290,6 +314,16 @@ Three tabs (Wai's layout). Log comes first and the popup opens on it (Wai,
   extension's backup: an object with `blockedArtists`, `blockedKeywords`
   (arrays of strings) and `blockedTracks` (strings, or `{title, artist}`
   objects where an artist of "Manual Entry" means no artist).
+  (2026-11-24 hardening) Every import asks first and lists what it would add:
+  new lists with their addresses, and the number of new artists, keywords and
+  songs with the first few named. Development-only settings in a file are
+  dropped, and a file over 2 MB is refused.
+- (2026-11-24 hardening) **List limits.** A list holds at most 50,000
+  entries; entries that are empty, one character, over 200 characters or very
+  common words are skipped. An address that is an IP number, `localhost`, or
+  ends in `.local` or `.internal` is refused. The refresh guard holds an update
+  that adds an artist from the well-known list by name or ID, or more than 500
+  new names at once, until the person looks at it.
 - **Credit**: "Soul Over AI list by souloverai.com, CC BY 4.0."
 
 ### 2. Behaviour
@@ -339,7 +373,9 @@ list".
 - The header says what happened today ("3 skipped · 2 removed today", or
   "Paused") and holds the Pause switch.
 - Keeps the last 1000 entries; "Clear log" and "Export log" (one full line
-  per entry). **(Claude's call)**
+  per entry). **(Claude's call)** (2026-11-24 hardening) The store copy keeps
+  at most 20,000 entries and about 3 MB; the oldest go first, so a long log
+  can't fill the 10 MB the lists share.
 
 ## YouTube Music page facts (checked live 2026-11-11)
 
@@ -508,8 +544,10 @@ Then, Wai: "Try reopening the queue panel again when the song is about to end
 and the next queue is not open and if when the lookahead has not happened
 yet". With 15 s or less left in a song, the panel closed and the upcoming
 songs not yet seen during that song, Human Music opens the panel once for
-that song (even if the person had closed it), removes a listed next song,
-and, if the person had closed the panel, closes it again. 15 s leaves time
+that song and removes a listed next song. (2026-11-24 hardening) Human
+Music never opens the Queue panel over another right-hand panel (Lyrics, Now
+Playing view, Devices, Friend activity), and a panel the person closed stays
+closed: the last-chance check no longer reopens it. 15 s leaves time
 for the panel to open (up to about 4 s live) and a removal (about 0.5 s).
 
 ### Spotify, checked live (2026-11-13)

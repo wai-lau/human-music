@@ -1,7 +1,7 @@
 # Privacy policy
 
 Human Music: AI Music Blocker, the browser extension in this repository.
-Last updated: 20 November 2026.
+Last updated: 24 November 2026.
 
 Human Music collects nothing about you and sends nothing about you anywhere. It reads the music
 pages you open so it can do its one job, and everything it keeps stays on your computer.
@@ -12,7 +12,8 @@ Human Music runs only on music.youtube.com and open.spotify.com. On those pages 
 that are playing, queued or shown on the home page and in search: the song title, the artist names,
 the album, the cover picture's address, and the artist's YouTube channel ID or Spotify ID. It
 compares them with the lists you have turned on, so it can skip a listed song, take it out of the
-queue, or hide it on the page. It reads nothing on any other website.
+queue, or hide it on the page. It reads nothing on any other website. Because it marks and hides items on those pages, the sites can tell the
+extension is installed.
 
 ## What it keeps on your computer
 
