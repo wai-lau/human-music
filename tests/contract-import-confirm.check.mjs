@@ -20,8 +20,8 @@ const M = load(files).HM;
 const SETTINGS = { ...M.settings.DEFAULTS };
 const LISTS = [{ ...M.lists.SOUL_OVER_AI }, { ...M.lists.ZOUNDHUB }];
 
-await t('names only: no changes to ask about', () => {
-  const data = { user: { artists: ['A'], songs: [], keywords: ['suno'], neverSkip: ['B'] } };
+await t('an empty backup: no changes to ask about', () => {
+  const data = { user: M.store.emptyUser() };
   return J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data)) === '[]' || J(M.popup.importChanges({ settings: SETTINGS, filterLists: LISTS }, data));
 });
 await t('a list with no mode in the backup is not reported as a change', () => {
@@ -81,10 +81,12 @@ await t('Cancel writes nothing and says so', async () => {
   p.$('import-cancel').click(); await settle();
   return (J(p.storage.data['hm.settings']) === J(SETTINGS) && p.storage.data['hm.user'].artists.length === 0 && p.$('import-confirm').hidden === true && /nothing/i.test(p.$('status').textContent)) || J({ status: p.$('status').textContent });
 });
-await t('a names-only backup imports at once, without asking', async () => {
+await t('a names-only backup asks first (hardening: it lists the names), then imports on Apply', async () => {
   const p = await open(START);
   await p.importFile({ format: 'human-music-backup', version: 1, user: { artists: ['Only Names'], songs: [], keywords: [], neverSkip: [] } });
-  return (p.storage.data['hm.user'].artists.includes('Only Names') && (!p.$('import-confirm') || p.$('import-confirm').hidden === true)) || J(p.storage.data['hm.user']);
+  const asked = p.$('import-confirm').hidden === false && /Only Names/.test(p.$('import-confirm').textContent) && p.storage.data['hm.user'].artists.length === 0;
+  p.$('import-apply').click(); await settle();
+  return (asked && p.storage.data['hm.user'].artists.includes('Only Names')) || J(p.storage.data['hm.user']);
 });
 
 console.log(fails.length ? fails.map((f) => 'PROBE FAIL ' + f).join('\n') : 'probe ok');

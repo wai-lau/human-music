@@ -33,16 +33,16 @@ const within = (ms, p) => Promise.race([p, new Promise(r => setTimeout(() => r('
 
 await t('http:// list is not fetched', async () => {
   let called = false;
-  const { storage, r } = mk('http://lists.example/a.json', async () => { called = true; return body('["A"]'); });
+  const { storage, r } = mk('http://lists.example/a.json', async () => { called = true; return body('["AA"]'); });
   const res = await r.refreshOne('x');
   if (called) return 'fetch was called for an http:// address';
   return keptGood(storage, res);
 });
 
 await t('javascript: / data: / file: lists are not fetched', async () => {
-  for (const url of ['javascript:alert(1)', 'data:application/json,["A"]', 'file:///etc/passwd', 'not a url']) {
+  for (const url of ['javascript:alert(1)', 'data:application/json,["AA"]', 'file:///etc/passwd', 'not a url']) {
     let called = false;
-    const { storage, r } = mk(url, async () => { called = true; return body('["A"]'); });
+    const { storage, r } = mk(url, async () => { called = true; return body('["AA"]'); });
     const res = await r.refreshOne('x');
     if (called) return `fetch was called for ${url}`;
     const k = await keptGood(storage, res);
@@ -53,16 +53,16 @@ await t('javascript: / data: / file: lists are not fetched', async () => {
 
 await t('fetch refuses redirects and can be aborted', async () => {
   let seen = null;
-  const { r } = mk('https://lists.example/a.json', async (url, opts) => { seen = opts; return body('["A"]'); });
+  const { r } = mk('https://lists.example/a.json', async (url, opts) => { seen = opts; return body('["AA"]'); });
   await r.refreshOne('x');
   return (seen && seen.redirect === 'error' && seen.signal && typeof seen.signal.aborted === 'boolean') || 'fetch options: ' + J(seen && { redirect: seen.redirect, signal: !!seen.signal });
 });
 
 await t('a good https list still refreshes', async () => {
-  const { storage, r } = mk('https://lists.example/a.json', async () => body('[{"name":"A"},{"name":"B"}]', { 'content-type': 'application/json' }));
+  const { storage, r } = mk('https://lists.example/a.json', async () => body('[{"name":"AA"},{"name":"BB"}]', { 'content-type': 'application/json' }));
   const res = await r.refreshOne('x');
   const m = storage.data['hm.filterLists'][0];
-  return (res === true && J(storage.data['hm.list.x']) === J({ artists: [{ name: 'A' }, { name: 'B' }] }) && m.count === 2 && m.lastRefresh === NOW && m.lastError === null) || J({ res, d: storage.data });
+  return (res === true && J(storage.data['hm.list.x']) === J({ artists: [{ name: 'AA' }, { name: 'BB' }] }) && m.count === 2 && m.lastRefresh === NOW && m.lastError === null) || J({ res, d: storage.data });
 });
 
 await t('a hanging fetch gives up after timeoutMs (fetch honours abort)', async () => {
@@ -98,7 +98,7 @@ await t('a body over maxBytes is refused', async () => {
 
 await t('a Content-Length over maxBytes is refused without reading the body', async () => {
   let read = false;
-  const resp = { ok: true, status: 200, headers: { get: k => (k.toLowerCase() === 'content-length' ? '999999999' : null) }, text: async () => { read = true; return '["A"]'; } };
+  const resp = { ok: true, status: 200, headers: { get: k => (k.toLowerCase() === 'content-length' ? '999999999' : null) }, text: async () => { read = true; return '["AA"]'; } };
   const { storage, r } = mk('https://lists.example/a.json', async () => resp, { maxBytes: 1000 });
   const res = await r.refreshOne('x');
   if (read) return 'the body was read despite Content-Length over maxBytes';
@@ -106,16 +106,16 @@ await t('a Content-Length over maxBytes is refused without reading the body', as
 });
 
 await t('defaults: 15 s timeout and 5 MB cap (a 4 MB list is fine)', async () => {
-  const names = Array.from({ length: 100000 }, (_, i) => ({ name: 'Artist number ' + i + ' '.repeat(10) }));
+  const names = Array.from({ length: 50000 }, (_, i) => ({ name: 'Artist number ' + i + ' '.repeat(40) }));
   const text = JSON.stringify(names);
   if (text.length < 3_500_000 || text.length > 5_000_000) return 'test body size off: ' + text.length;
   const { storage, r } = mk('https://lists.example/a.json', async () => body(text));
   const res = await r.refreshOne('x');
-  return (res === true && storage.data['hm.list.x'].artists.length === 100000) || 'res ' + res;
+  return (res === true && storage.data['hm.list.x'].artists.length === 50000) || 'res ' + res;
 });
 
 await t('responses without headers still work (older fakes)', async () => {
-  const { storage, r } = mk('https://lists.example/a.json', async () => ({ ok: true, status: 200, text: async () => '["A"]' }));
+  const { storage, r } = mk('https://lists.example/a.json', async () => ({ ok: true, status: 200, text: async () => '["AA"]' }));
   const res = await r.refreshOne('x');
   return (res === true && storage.data['hm.list.x'].artists.length === 1) || J({ res, d: storage.data });
 });

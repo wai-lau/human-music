@@ -18,6 +18,7 @@
     // (security hardening, Wai 2026-11-18). Loaded once per worker; a failed load means an
     // empty guard list, never a blocked refresh.
     let wellKnownNames = [];
+    let wellKnownIds = [];
     async function loadWellKnown() {
       if (typeof opts.assetUrl !== 'function') return;
       try {
@@ -25,6 +26,7 @@
         if (!resp.ok) return;
         const data = JSON.parse(await resp.text());
         if (Array.isArray(data.names)) wellKnownNames = data.names;
+        if (Array.isArray(data.ids)) wellKnownIds = data.ids;
       } catch (e) {
         // empty guard list is fine
       }
@@ -289,7 +291,7 @@ list = lists[HM.store.KEYS.filterLists][i];
         await wellKnownReady;
         const stored = (await storage.get(HM.store.listKey(id)))[HM.store.listKey(id)];
         const oldArtists = stored && Array.isArray(stored.artists) ? stored.artists : [];
-        const held = globalThis.HM.lists.checkUpdate(oldArtists, listData.artists, wellKnownNames);
+        const held = globalThis.HM.lists.checkUpdate(oldArtists, listData.artists, wellKnownNames, wellKnownIds);
 
         // Written under the records' lock and only while the list still has its record: a list
         // removed meanwhile in the popup must not get its data back (an orphan).

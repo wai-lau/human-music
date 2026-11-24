@@ -9,16 +9,16 @@ function deepEqual(a, b) {
 
 run([
   ['parseFilterList: Soul Over AI array', () => {
-    const r = parseFilterList([{ name: 'A', removed: false }, { name: 'B', removed: true }, { name: 'C' }]);
-    return deepEqual(r, { artists: [{ name: 'A' }, { name: 'C' }] }) || 'got ' + JSON.stringify(r);
+    const r = parseFilterList([{ name: 'AA', removed: false }, { name: 'BB', removed: true }, { name: 'CC' }]);
+    return deepEqual(r, { artists: [{ name: 'AA' }, { name: 'CC' }] }) || 'got ' + JSON.stringify(r);
   }],
   ['parseFilterList: simple array of strings', () => {
-    const r = parseFilterList(['A', 'B']);
-    return deepEqual(r, { artists: [{ name: 'A' }, { name: 'B' }] }) || 'got ' + JSON.stringify(r);
+    const r = parseFilterList(['AA', 'BB']);
+    return deepEqual(r, { artists: [{ name: 'AA' }, { name: 'BB' }] }) || 'got ' + JSON.stringify(r);
   }],
   ['parseFilterList: Human Music own format', () => {
-    const r = parseFilterList({ name: 'HM', updated: '2026-11-11', artists: [{ name: 'A', channelId: 'UC1' }] });
-    return deepEqual(r, { artists: [{ name: 'A', channelId: 'UC1' }] }) || 'got ' + JSON.stringify(r);
+    const r = parseFilterList({ name: 'HM', updated: '2026-11-11', artists: [{ name: 'AA', channelId: 'UC1' }] });
+    return deepEqual(r, { artists: [{ name: 'AA', channelId: 'UC1' }] }) || 'got ' + JSON.stringify(r);
   }],
   ['parseFilterList: Soul Over AI youtube/spotify fields', () => {
     const YT = 'UCOCi_VDTQPFn9fZtfqnpVag';
@@ -36,14 +36,14 @@ run([
     ] }) || 'got ' + JSON.stringify(r);
   }],
   ['parseFilterList: channelId field wins over youtube', () => {
-    const r = parseFilterList([{ name: 'A', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', youtube: 'UCbbbbbbbbbbbbbbbbbbbbbb' }]);
+    const r = parseFilterList([{ name: 'AA', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', youtube: 'UCbbbbbbbbbbbbbbbbbbbbbb' }]);
     return r.artists[0].channelId === 'UCaaaaaaaaaaaaaaaaaaaaaa' || 'got ' + r.artists[0].channelId;
   }],
   ['parseFilterList: own format keeps spotifyId', () => {
     const SP = '5ExXpwxyFXhwPKYKx6ItaN';
     const r = parseFilterList({ name: 'HM', artists: [
-      { name: 'A', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', spotifyId: SP },
-      { name: 'B', spotifyId: 'nope!' }
+      { name: 'AA', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', spotifyId: SP },
+      { name: 'BB', spotifyId: 'nope!' }
     ]});
     return r.artists[0].spotifyId === SP && !r.artists[1].spotifyId || 'got ' + JSON.stringify(r);
   }],

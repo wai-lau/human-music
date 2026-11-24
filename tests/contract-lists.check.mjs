@@ -16,15 +16,15 @@ eq('SOUL_OVER_AI', lists.SOUL_OVER_AI, { id: 'soul-over-ai', name: 'Soul Over AI
 eq('FREQUENCIES', lists.FREQUENCIES, { '6h': 21600000, '12h': 43200000, daily: 86400000, weekly: 604800000, manual: Infinity });
 t('manual is Infinity', () => lists.FREQUENCIES.manual === Infinity || String(lists.FREQUENCIES.manual));
 
-eq('soul over ai records', lists.parseFilterList([{ name: 'A', removed: false }, { name: 'B', removed: true }, { name: 'C' }]), { artists: [{ name: 'A' }, { name: 'C' }] });
-eq('strings', lists.parseFilterList(['A', 'B']), { artists: [{ name: 'A' }, { name: 'B' }] });
-eq('own format', lists.parseFilterList({ name: 'HM', updated: '2026-11-11', artists: [{ name: 'A', channelId: 'UC1' }] }), { artists: [{ name: 'A', channelId: 'UC1' }] });
+eq('soul over ai records', lists.parseFilterList([{ name: 'AA', removed: false }, { name: 'BB', removed: true }, { name: 'CC' }]), { artists: [{ name: 'AA' }, { name: 'CC' }] });
+eq('strings', lists.parseFilterList(['AA', 'BB']), { artists: [{ name: 'AA' }, { name: 'BB' }] });
+eq('own format', lists.parseFilterList({ name: 'HM', updated: '2026-11-11', artists: [{ name: 'AA', channelId: 'UC1' }] }), { artists: [{ name: 'AA', channelId: 'UC1' }] });
 eq('html', lists.parseFilterList('<html>'), null);
 eq('foo', lists.parseFilterList({ foo: 1 }), null);
 eq('null', lists.parseFilterList(null), null);
 eq('empty array', lists.parseFilterList([]), { artists: [] });
-eq('bad names dropped', lists.parseFilterList([{ name: '' }, { name: 5 }, {}, null, 'X', '']), { artists: [{ name: 'X' }] });
-eq('channelId only if non-empty string', lists.parseFilterList([{ name: 'A', channelId: '' }, { name: 'B', channelId: 7 }]), { artists: [{ name: 'A' }, { name: 'B' }] });
+eq('bad names dropped', lists.parseFilterList([{ name: '' }, { name: 5 }, {}, null, 'XX', '']), { artists: [{ name: 'XX' }] });
+eq('channelId only if non-empty string', lists.parseFilterList([{ name: 'AA', channelId: '' }, { name: 'BB', channelId: 7 }]), { artists: [{ name: 'AA' }, { name: 'BB' }] });
 
 eq('due never fetched', lists.isRefreshDue(null, 'manual', 0), true);
 eq('due daily edge', [lists.isRefreshDue(0, 'daily', 86400000), lists.isRefreshDue(0, 'daily', 86399999)], [true, false]);
@@ -47,7 +47,7 @@ const state = {
 const exp = lists.exportBackup(state);
 t('export format', () => (exp.format === 'human-music-backup' && exp.version === 1) || J(exp));
 eq('round trip', lists.importBackup(JSON.parse(J(exp))), state);
-const fat = lists.exportBackup({ ...state, filterLists: [{ ...state.filterLists[0], lastRefresh: 5, count: 9, lastError: 'e', artists: [{ name: 'Z' }] }] });
+const fat = lists.exportBackup({ ...state, filterLists: [{ ...state.filterLists[0], lastRefresh: 5, count: 9, lastError: 'e', artists: [{ name: 'ZZ' }] }] });
 eq('export strips list data', fat.filterLists, state.filterLists);
 t('export has no artist data', () => !J(fat).includes('"Z"') || 'artist Z leaked');
 eq('own format fills user', lists.importBackup({ format: 'human-music-backup', version: 1, user: { artists: ['A'] }, settings: {}, filterLists: [] }).user,

@@ -27,12 +27,12 @@ const mk = (initial, fetch) => { const storage = fakeStorage(initial); return { 
 if (typeof HM.createRefresher !== 'function') fails.push('HM.createRefresher missing');
 else {
   await t('install on empty storage', async () => {
-    const { storage, r } = mk({}, ok([{ name: 'A' }, { name: 'B' }]));
+    const { storage, r } = mk({}, ok([{ name: 'AA' }, { name: 'BB' }]));
     await r.install();
     const d = storage.data;
     eq('install settings', d['hm.settings'], HM.settings.DEFAULTS);
     eq('install user', d['hm.user'], { artists: [], songs: [], keywords: [], neverSkip: [] });
-    eq('install list data', d['hm.list.soul-over-ai'], { artists: [{ name: 'A' }, { name: 'B' }] });
+    eq('install list data', d['hm.list.soul-over-ai'], { artists: [{ name: 'AA' }, { name: 'BB' }] });
     const m = d['hm.filterLists'];
     // Soul Over AI first; the verdict list (investigator plan, 2026-11-16) is the second built-in;
     // Cevval's list may follow (tests/wip-contract-cevval.check.mjs pins it).
@@ -41,15 +41,15 @@ else {
   await t('install keeps existing', async () => {
     const user = { artists: ['X'], songs: [], keywords: [], neverSkip: [] };
     const settings = { ...HM.settings.DEFAULTS, lookahead: 7 };
-    const { storage, r } = mk({ 'hm.user': user, 'hm.settings': settings, 'hm.filterLists': [{ ...SOA(), enabled: false }] }, ok(['A']));
+    const { storage, r } = mk({ 'hm.user': user, 'hm.settings': settings, 'hm.filterLists': [{ ...SOA(), enabled: false }] }, ok(['AA']));
     await r.install();
     return (J(storage.data['hm.user']) === J(user) && storage.data['hm.settings'].lookahead === 7 && storage.data['hm.filterLists'][0].enabled === false) || J(storage.data);
   });
   await t('refreshOne ok', async () => {
-    const { storage, r } = mk({ 'hm.filterLists': [SOA()] }, ok([{ name: 'A', removed: false }, { name: 'Z', removed: true }, { name: 'B' }]));
+    const { storage, r } = mk({ 'hm.filterLists': [SOA()] }, ok([{ name: 'AA', removed: false }, { name: 'ZZ', removed: true }, { name: 'BB' }]));
     const res = await r.refreshOne('soul-over-ai');
     const m = storage.data['hm.filterLists'][0];
-    return (res === true && J(storage.data['hm.list.soul-over-ai']) === J({ artists: [{ name: 'A' }, { name: 'B' }] }) && m.count === 2 && m.lastRefresh === NOW && m.lastError === null) || J({ res, d: storage.data });
+    return (res === true && J(storage.data['hm.list.soul-over-ai']) === J({ artists: [{ name: 'AA' }, { name: 'BB' }] }) && m.count === 2 && m.lastRefresh === NOW && m.lastError === null) || J({ res, d: storage.data });
   });
   for (const [label, fetch] of [['html page', ok('<html>error</html>')], ['broken json', ok('{"artists": [')], ['not a list', ok({ foo: 1 })], ['http 500', status(500)], ['fetch rejects', reject]]) {
     await t(`keeps last good copy: ${label}`, async () => {
@@ -66,7 +66,7 @@ else {
     const res = await r.refreshOne('soul-over-ai');
     return (res === false && J(storage.data['hm.list.soul-over-ai']) === J({ artists: [] })) || J({ res, d: storage.data });
   });
-  await t('unknown id', async () => { const { r } = mk({ 'hm.filterLists': [SOA()] }, ok(['A'])); return (await r.refreshOne('nope')) === false || 'not false'; });
+  await t('unknown id', async () => { const { r } = mk({ 'hm.filterLists': [SOA()] }, ok(['AA'])); return (await r.refreshOne('nope')) === false || 'not false'; });
   await t('refreshDue picks due, enabled lists', async () => {
     const lists = [
       { ...SOA(), id: 'old', url: 'https://a/old', lastRefresh: NOW - 25 * 3600000 },
@@ -75,14 +75,14 @@ else {
       { ...SOA(), id: 'never', url: 'https://a/never', lastRefresh: null },
     ];
     const urls = [];
-    const fetch = async url => { urls.push(url); return ok(['A'])(); };
+    const fetch = async url => { urls.push(url); return ok(['AA'])(); };
     const { storage, r } = mk({ 'hm.filterLists': lists, 'hm.settings': { ...HM.settings.DEFAULTS, refresh: 'daily' } }, fetch);
     const ids = await r.refreshDue();
     return (J(ids) === J(['old', 'never']) && J(urls) === J(['https://a/old', 'https://a/never']) && storage.data['hm.filterLists'].find(l => l.id === 'old').lastRefresh === NOW) || J({ ids, urls });
   });
   await t('refreshDue manual refreshes only never-fetched', async () => {
     const lists = [{ ...SOA(), id: 'a', lastRefresh: 1 }, { ...SOA(), id: 'b', lastRefresh: null }];
-    const { r } = mk({ 'hm.filterLists': lists, 'hm.settings': { ...HM.settings.DEFAULTS, refresh: 'manual' } }, ok(['A']));
+    const { r } = mk({ 'hm.filterLists': lists, 'hm.settings': { ...HM.settings.DEFAULTS, refresh: 'manual' } }, ok(['AA']));
     const ids = await r.refreshDue();
     return J(ids) === J(['b']) || J(ids);
   });
@@ -95,7 +95,7 @@ await t('chrome hooks registered; due lists refreshed when the worker starts, no
   const ev = name => ({ addListener: fn => { seen[name] = fn; } });
   const storage = fakeStorage({ 'hm.filterLists': [{ ...SOA(), lastRefresh: 1 }], 'hm.settings': { refresh: 'daily' } });
   const chrome = { storage: { local: storage }, runtime: { onInstalled: ev('installed'), onMessage: ev('message') } };
-  const fetchSpy = (url, opts) => { seen.fetched.push(url); return ok(['A'])(url, opts); };
+  const fetchSpy = (url, opts) => { seen.fetched.push(url); return ok(['AA'])(url, opts); };
   const c2 = load([], { chrome, importScripts: (...f) => { for (const x of f) runInContext(readFileSync(process.cwd() + '/extension/src/' + x, 'utf8'), c2); }, fetch: fetchSpy, setTimeout, clearTimeout, AbortController });
   runInContext(readFileSync(process.cwd() + '/extension/src/background.js', 'utf8'), c2);
   for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0));

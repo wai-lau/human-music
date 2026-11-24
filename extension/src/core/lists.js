@@ -91,10 +91,25 @@
     return artists.length ? { name: 'Zoundhub', artists } : null;
   }
 
-  function checkUpdate(oldArtists, newArtists, wellKnownNames) {
+  const MAX_ENTRIES = 50000;
+  const MAX_NAME_LENGTH = 200;
+  const MAX_ADDED_AT_ONCE = 500;
+  // Names that would block a lot of music if a bad line carried them.
+  const COMMON_NAMES = new Set(['the', 'a', 'an', 'various artists', 'various', 'unknown artist', 'unknown', 'va', 'n/a']);
+  // A usable name: not empty, not one character, has a letter or digit, not too long, not a
+  // very common word (names are compared as HM.text.normalize does: NFC, lower case, spaces).
+  function usableName(name) {
+    if (typeof name !== 'string' || name.length > MAX_NAME_LENGTH) return false;
+    const n = globalThis.HM.text.normalize(name);
+    if (n.length < 2 || !/[\p{L}\p{N}]/u.test(n)) return false;
+    return !COMMON_NAMES.has(n);
+  }
+
+  function checkUpdate(oldArtists, newArtists, wellKnownNames, wellKnownIds) {
     if (!Array.isArray(oldArtists)) oldArtists = [];
     if (!Array.isArray(newArtists)) newArtists = [];
     if (!Array.isArray(wellKnownNames)) wellKnownNames = [];
+    const knownIds = new Set(Array.isArray(wellKnownIds) ? wellKnownIds.filter(x => typeof x === 'string' && x) : []);
     const N = globalThis.HM.text.normalize;
     const oldNames = new Set();
     for (const a of oldArtists) {
@@ -103,6 +118,17 @@
     const newNames = new Set();
     for (const a of newArtists) {
       if (a && typeof a.name === 'string' && a.name !== '') newNames.add(N(a.name));
+    }
+    const oldIds = new Set();
+    for (const a of oldArtists) {
+      if (a && a.channelId) oldIds.add(a.channelId);
+      if (a && a.spotifyId) oldIds.add(a.spotifyId);
+    }
+    for (const a of newArtists) {
+      if (!a) continue;
+      for (const id of [a.channelId, a.spotifyId]) {
+        if (id && knownIds.has(id) && !oldIds.has(id)) return { reason: 'names a well-known artist by ID: ' + id };
+      }
     }
     const added = [];
     for (const n of newNames) {
@@ -119,7 +145,10 @@
         return { reason: 'names a well-known artist: ' + nw };
       }
     }
-    if (oldNames.size > 0 && added.length > Math.max(100, oldNames.size / 2)) {
+    // Half the list or 100 names, but never more than 500 in one refresh: a hacked list could
+    // otherwise add thousands a day to a big list and nobody would notice. A real list grows by
+    // dozens per refresh; a one-off big import is a few hundred at most.
+    if (oldNames.size > 0 && added.length > Math.min(MAX_ADDED_AT_ONCE, Math.max(100, oldNames.size / 2))) {
       return { reason: 'added ' + added.length + ' names at once' };
     }
     return null;
@@ -146,9 +175,10 @@
   function parseEntries(entries) {
     const artists = [];
     for (const entry of entries) {
-      if (typeof entry === 'string' && entry !== '') {
+      if (artists.length >= MAX_ENTRIES) break;
+      if (typeof entry === 'string' && usableName(entry)) {
         artists.push({ name: entry });
-      } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && entry.name !== '') {
+      } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && usableName(entry.name)) {
         if (entry.removed) continue;
         const artist = { name: entry.name };
         if (typeof entry.channelId === 'string' && entry.channelId !== '') {
@@ -203,6 +233,14 @@
     return result;
   }
 
+  // Dev-only settings never come in from a file.
+  function stripDevSettings(settings) {
+    const out = settings && typeof settings === 'object' && !Array.isArray(settings) ? { ...settings } : {};
+    delete out.investigate;
+    delete out.modeChosen;
+    return out;
+  }
+
   function importBackup(data) {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       throw new Error('Not a Human Music or YTM blocker backup');
@@ -225,7 +263,7 @@
       }
       return {
         user: { artists, songs, keywords, neverSkip },
-        settings: data.settings || {},
+        settings: stripDevSettings(data.settings),
         filterLists: Array.isArray(data.filterLists) ? data.filterLists : []
       };
     }
@@ -323,7 +361,8 @@
   // Returns a new { user, settings, filterLists }; the inputs are not changed.
   function applyBackup(current, imported) {
     const user = mergeUser({ ...HM.store.emptyUser(), ...(current.user || {}) }, { ...HM.store.emptyUser(), ...(imported.user || {}) });
-    const settings = imported.settings ? { ...(current.settings || {}), ...imported.settings } : { ...(current.settings || {}) };
+    const settings = imported.settings ? { ...(current.settings || {}), ...stripDevSettings(imported.settings) } : { ...(current.settings || {}) };
+    if (imported.settings && imported.settings.mode !== undefined && imported.settings.mode !== (current.settings || {}).mode) settings.modeChosen = true;
     let lists = (current.filterLists || []).map(l => ({ ...l }));
     if (Array.isArray(imported.filterLists)) {
       lists = lists.map(l => {
@@ -364,7 +403,7 @@
         for (let j = 0; j < m.length; j++) {
           if (!seen.has(m[j])) {
             seen.add(m[j]);
-            artists.push({ channelId: m[j] });
+            if (artists.length < MAX_ENTRIES) artists.push({ channelId: m[j] });
           }
         }
       }

@@ -327,6 +327,7 @@
   $('import-btn').addEventListener('click', async () => {
     const file = $('import-file').files && $('import-file').files[0];
     if (!file) { fail('Choose a backup file first.'); return; }
+    if (file.size > 2 * 1024 * 1024) { fail('That file is over 2 MB, too big for a backup.'); return; }
     let data;
     try {
       data = HM.lists.importBackup(JSON.parse(await file.text()));
@@ -334,7 +335,7 @@
       fail(e instanceof SyntaxError ? 'That file is not a backup (it is not JSON).' : e.message);
       return;
     }
-    const changes = HM.popup.importChanges({ settings: state.settings, filterLists: state.lists }, data);
+    const changes = HM.popup.importChanges({ user: state.user, settings: state.settings, filterLists: state.lists }, data);
     if (changes.length === 0) {
       await applyImport(data);
       return;

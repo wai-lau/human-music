@@ -140,6 +140,7 @@ run([
     const old = { blockedArtists: ['a', 'B'], blockedKeywords: ['remix'], blockedTracks: ['Song One', { title: 'T', artist: 'Band • Album' }] };
     p.$('import-file').files = [{ text: async () => JSON.stringify(old) }];
     await p.click(p.$('import-btn'));
+    await p.click(p.$('import-apply'));
     const u = data(p, 'hm.user');
     return (JSON.stringify(u.artists) === '["A","B"]' && u.songs.length === 2 && u.songs[1].artist === 'Band'
       && p.$('status').textContent === 'Imported 2 artists, 2 songs, 1 keyword and 0 never-skip artists.') || JSON.stringify({ u, s: p.$('status').textContent });

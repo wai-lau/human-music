@@ -19,10 +19,10 @@ eq('soul over ai ids kept', lists.parseFilterList([
   { name: 'BadIds', youtube: 'not-a-channel', spotify: 'short' },
   { name: 'Gone', youtube: YT, spotify: SP, removed: true },
 ]), { artists: [{ name: '10mm', channelId: YT, spotifyId: SP }, { name: 'NoIds' }, { name: 'BadIds' }] });
-eq('channelId field still wins over youtube', lists.parseFilterList([{ name: 'A', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', youtube: YT }]).artists[0].channelId, 'UCaaaaaaaaaaaaaaaaaaaaaa');
+eq('channelId field still wins over youtube', lists.parseFilterList([{ name: 'AA', channelId: 'UCaaaaaaaaaaaaaaaaaaaaaa', youtube: YT }]).artists[0].channelId, 'UCaaaaaaaaaaaaaaaaaaaaaa');
 // Human Music's own format carries channelId and spotifyId.
-eq('own format ids kept', lists.parseFilterList({ name: 'HM', artists: [{ name: 'A', channelId: YT, spotifyId: SP }, { name: 'B', spotifyId: 'nope!' }] }),
-  { artists: [{ name: 'A', channelId: YT, spotifyId: SP }, { name: 'B' }] });
+eq('own format ids kept', lists.parseFilterList({ name: 'HM', artists: [{ name: 'AA', channelId: YT, spotifyId: SP }, { name: 'BB', spotifyId: 'nope!' }] }),
+  { artists: [{ name: 'AA', channelId: YT, spotifyId: SP }, { name: 'BB' }] });
 
 const list = (artists, extra = {}) => ({ id: 'soul-over-ai', name: 'Soul Over AI', url: 'u', enabled: true, mode: 'act', builtIn: true, artists, ...extra });
 const EMPTY = { artists: [], songs: [], keywords: [], neverSkip: [] };
@@ -37,8 +37,8 @@ t('youtube channel id still matches', () => (match.matchSong(ix, { title: 'X', a
 t('spotify id matches a page item', () => (match.matchItem(ix, { title: 'EP', credits: ['Someone'], channelIds: [SP], featured: false })?.rule === 'channel') || 'no match');
 t('an unknown id does not match', () => match.matchSong(ix, { title: 'X', artistLine: 'Real Band • A', channelIds: ['0000000000000000000000'] }) === null || 'matched');
 t('never skip still wins over an id', () => match.matchSong(idx([list([{ name: 'Listed Name', spotifyId: SP }])], { neverSkip: ['Real Band'] }), { title: 'X', artistLine: 'Real Band • A', channelIds: [SP] }) === null || 'matched');
-t('watch list id match is watch mode', () => (match.matchSong(idx([list([{ name: 'N', spotifyId: SP }], { mode: 'watch' })]), { title: 'X', artistLine: 'Z • A', channelIds: [SP] })?.mode === 'watch') || 'not watch');
-t('disabled list id ignored', () => match.matchSong(idx([list([{ name: 'N', spotifyId: SP }], { enabled: false })]), { title: 'X', artistLine: 'Z • A', channelIds: [SP] }) === null || 'matched');
+t('watch list id match is watch mode', () => (match.matchSong(idx([list([{ name: 'NN', spotifyId: SP }], { mode: 'watch' })]), { title: 'X', artistLine: 'Z • A', channelIds: [SP] })?.mode === 'watch') || 'not watch');
+t('disabled list id ignored', () => match.matchSong(idx([list([{ name: 'NN', spotifyId: SP }], { enabled: false })]), { title: 'X', artistLine: 'Z • A', channelIds: [SP] }) === null || 'matched');
 
 console.log(fails.length ? fails.map(f => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);

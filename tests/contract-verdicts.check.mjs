@@ -31,9 +31,9 @@ await t('verdict fields parsed', () => {
   eq('unknown verdict word dropped', pick(v, 'Odd Word').verdict, undefined);
   eq('calibrated flag', v.calibrated, false);
   eq('calibrated true', HM.lists.parseFilterList({ calibrated: true, artists: [] }).calibrated, true);
-  eq('no calibrated key when the list states none', 'calibrated' in HM.lists.parseFilterList({ artists: [{ name: 'A' }] }), false);
-  eq('negative clamped to 0', HM.lists.parseFilterList({ artists: [{ name: 'N', verdict: 'ai', confidence: -5 }] }).artists[0].confidence, 0);
-  eq('plain lists unchanged', HM.lists.parseFilterList([{ name: 'A' }]).artists, [{ name: 'A' }]);
+  eq('no calibrated key when the list states none', 'calibrated' in HM.lists.parseFilterList({ artists: [{ name: 'AA' }] }), false);
+  eq('negative clamped to 0', HM.lists.parseFilterList({ artists: [{ name: 'NN', verdict: 'ai', confidence: -5 }] }).artists[0].confidence, 0);
+  eq('plain lists unchanged', HM.lists.parseFilterList([{ name: 'AA' }]).artists, [{ name: 'AA' }]);
   return true;
 });
 const refresher = (storage, fetch) => HM.createRefresher({ storage, fetch, now: () => 1_000_000, assetUrl: p => 'bundle:' + p });

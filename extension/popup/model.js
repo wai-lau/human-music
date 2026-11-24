@@ -75,6 +75,13 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  // IP literals, localhost, *.local and *.internal are not list hosts.
+  function isLocalHost(host) {
+    const h = String(host).toLowerCase().replace(/\.$/, '');
+    return h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') || h.endsWith('.internal') ||
+      h.startsWith('[') || /^\d+(\.\d+){0,3}$/.test(h) || !h.includes('.');
+  }
+
   function addFilterList(lists, url, name, options) {
     let parsedUrl;
     try {
@@ -84,6 +91,9 @@
     }
     if (parsedUrl.protocol !== 'https:') {
       throw new Error('Use an https:// address');
+    }
+    if (isLocalHost(parsedUrl.hostname)) {
+      throw new Error('Use the address of a list on the web, not a local or private one');
     }
 
     const existingLists = lists || [];
@@ -153,7 +163,7 @@
   // channel match, the listed artist that matched (review 2026-11-17: the whole credit line of
   // a duet, "Some Person, The Velvet Sundown", protected nobody while the switch showed on);
   // otherwise, or for a bare channel ID, the first credited artist.
-  const CHANNEL_ID = /^UC[\w-]{22}$/;
+  const CHANNEL_ID = /^(UC[\w-]{22}|[A-Za-z0-9]{22})$/;
   function artistOf(entry) {
     const named = (entry.rule === 'artist' || entry.rule === 'channel') && typeof entry.entry === 'string'
       && entry.entry.trim() && !CHANNEL_ID.test(entry.entry.trim());
@@ -277,7 +287,22 @@
     for (const b of impLists) {
       if (!b || b.builtIn || typeof b.url !== 'string' || !/^https:\/\//.test(b.url)) continue;
       if (curLists.some(l => l.id === b.id || l.url === b.url)) continue;
-      changes.push(`Add list: ${b.name || b.id}`);
+      changes.push(`Add list: ${b.name || b.id} (${b.url})`);
+    }
+    const cu = current.user || {};
+    const u = data.user || {};
+    const N = globalThis.HM.text.normalize;
+    const songKey = e => N(e.title) + '|' + N(typeof e.artist === 'string' ? globalThis.HM.text.leadCredit(e.artist) : '');
+    const kinds = [['artists', 'artists', x => x, x => N(x)], ['keywords', 'keywords', x => x, x => N(x)],
+      ['songs', 'songs', e => e.title + (e.artist ? ' by ' + e.artist : ''), songKey]];
+    for (const [key, label, show, keyOf] of kinds) {
+      const have = new Set((cu[key] || []).map(keyOf));
+      const fresh = [];
+      for (const x of u[key] || []) { const k = keyOf(x); if (!have.has(k)) { have.add(k); fresh.push(show(x)); } }
+      if (fresh.length) {
+        const first = fresh.slice(0, 5).map(x => '\u201c' + x + '\u201d').join(', ');
+        changes.push(`Add ${fresh.length} ${label}: ${first}${fresh.length > 5 ? ', and more' : ''}`);
+      }
     }
     return changes;
   }

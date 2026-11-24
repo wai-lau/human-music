@@ -1,5 +1,5 @@
 {
- "description": "Well-known artists whose music is made by people. A list update that names one of them is held in Watch only (security hardening, Wai 2026-11-18): a hacked or mistaken list must not make everyone skip a star. The famous people from research/calibration/known-people.json plus the most-streamed artists across genres and countries.",
+ "description": "Well-known artists whose music is made by people. A list update that names one of them is held in Watch only (security hardening, Wai 2026-11-18): a hacked or mistaken list must not make everyone skip a star. The famous people from research/calibration/known-people.json plus the most-streamed artists across genres and countries. The ids list holds YouTube channel IDs and Spotify artist IDs of such artists; an update that adds one is held the same way.",
  "names": [
   "Wet Leg",
   "Laufey",
@@ -206,5 +206,6 @@
   "Yo-Yo Ma",
   "Lang Lang",
   "Joe Hisaishi"
- ]
+ ],
+ "ids": []
 }

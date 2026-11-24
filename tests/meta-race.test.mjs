@@ -45,7 +45,7 @@ function rig(seed) {
     fetched.push(url);
     if (url.startsWith('bundle:')) return { ok: true, status: 200, text: async () => files[url.slice(7)] };
     await new Promise(r => setTimeout(r, 2));
-    const body = /cevval|\.txt$/.test(url) ? '! list\nUCaaaaaaaaaaaaaaaaaaaaaa\nUCbbbbbbbbbbbbbbbbbbbbbb' : JSON.stringify({ artists: [{ name: 'A' }, { name: 'B' }] });
+    const body = /cevval|\.txt$/.test(url) ? '! list\nUCaaaaaaaaaaaaaaaaaaaaaa\nUCbbbbbbbbbbbbbbbbbbbbbb' : JSON.stringify({ artists: [{ name: 'AA' }, { name: 'BB' }] });
     return { ok: true, status: 200, text: async () => body };
   };
   const r = HM.createRefresher({ storage, fetch, now: () => NOW, assetUrl: p => 'bundle:' + p, isDev: async () => false });
