@@ -36,7 +36,7 @@
     };
   }
 
-  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {}, fingerprints = null }) {
+  function createApp({ doc, storage, timers, now, alive = () => true, site = siteFor(doc), onCount = () => {}, onUnknown = () => {}, fingerprints = null, locks }) {
     const state = {
       settings: HM.settings.sanitize({}),
       index: null,
@@ -483,19 +483,19 @@
       if (!song) return;
       const credit = HM.text.leadCredit(song.artistLine);
       const N = HM.text.normalize;
-      queueWrite(async () => {
-        const stored = await storage.get(HM.store.KEYS.user);
-        const user = { ...HM.store.emptyUser(), ...(stored[HM.store.KEYS.user] || {}) };
+      // Under the user key's lock with the popup and the worker: a concurrent removal is kept.
+      queueWrite(() => HM.store.modify(storage, HM.store.KEYS.user, stored => {
+        const user = { ...HM.store.emptyUser(), ...(stored || {}) };
         if (kind === 'artist') {
-          if (!credit || user.artists.some(a => N(a) === N(credit))) return;
+          if (!credit || user.artists.some(a => N(a) === N(credit))) return undefined;
           user.artists = [...user.artists, credit];
         } else {
           const artist = HM.text.splitNames(credit)[0] || null;
-          if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return;
+          if (user.songs.some(s => N(s.title) === N(song.title) && N(s.artist || '') === N(artist || ''))) return undefined;
           user.songs = [...user.songs, { title: song.title, artist }];
         }
-        await storage.set({ [HM.store.KEYS.user]: user });
-      });
+        return user;
+      }, { locks }));
     }
 
     // Each copy tags the button it mounts; a button left by an earlier copy (cut off by a

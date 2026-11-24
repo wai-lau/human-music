@@ -15,7 +15,29 @@
   // a host permission from inside the click itself).
   const state = { user: HM.store.emptyUser(), settings: HM.settings.sanitize({}), lists: [], log: [], investigator: {} };
 
-  function status(text) { const el = $('status'); if (el) el.textContent = text || ''; }
+  // The status line. A routine message fades after 6 s; a problem (fail) stays until the next
+  // action; an undo offer (offerUndo) stays 8 s. Every call replaces the one before.
+  let statusTimer = null;
+  const OK_MS = 6000;
+  const UNDO_MS = 8000;
+  function status(text, ms = OK_MS) {
+    const el = $('status');
+    clearTimeout(statusTimer);
+    statusTimer = null;
+    if (!el) return;
+    el.textContent = text || '';
+    if (text && ms) statusTimer = setTimeout(() => { el.textContent = ''; statusTimer = null; }, ms);
+  }
+  const fail = text => status(text, 0);
+  // "Removed X. Undo": the button runs undo once, then the line clears.
+  function offerUndo(text, undo) {
+    status(text + ' ', UNDO_MS);
+    const el = $('status');
+    if (!el) return;
+    const b = node('button', { class: 'undo-btn', textContent: 'Undo' });
+    b.addEventListener('click', () => { b.disabled = true; status(''); Promise.resolve().then(undo).catch(() => fail('Could not undo that.')); });
+    el.append(b);
+  }
 
   function node(tag, props = {}, ...children) {
     const e = document.createElement(tag);
@@ -54,7 +76,7 @@
   async function load() {
     let r;
     try { r = (await store.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists, HM.store.KEYS.investigator])) || {}; } catch (e) {
-      status('Could not read your saved data. What shows may be out of date.');
+      fail('Could not read your saved data. What shows may be out of date.');
       return false;
     }
     state.user = { ...HM.store.emptyUser(), ...(r[HM.store.KEYS.user] || {}) };
@@ -78,13 +100,17 @@
   // time. The popup's own copy (state) is only for drawing. A failed read or write changes
   // nothing and says so. Resolves to the new value, or null.
   let queue = Promise.resolve();
+  // The read-write itself is HM.store.modify: it takes the key's Web Lock, so another open
+  // popup, the worker and the music page's Block artist button queue behind it too.
   function edit(key, normalize, change, apply) {
     const run = queue.then(async () => {
-      let cur;
-      try { cur = normalize(((await store.get(key)) || {})[key]); } catch (e) { status(READ_FAILED); return null; }
       let next;
-      try { next = normalize(change(cur)); } catch (e) { status(e.message); return null; }
-      try { await store.set({ [key]: next }); } catch (e) { status('Could not save that change.'); return null; }
+      try {
+        next = await HM.store.modify(store, key, cur => normalize(change(normalize(cur))));
+      } catch (e) {
+        fail(e && e.stage === 'read' ? READ_FAILED : e && e.stage === 'change' ? e.message : 'Could not save that change.');
+        return null;
+      }
       apply(next);
       return next;
     });
@@ -133,15 +159,43 @@
 
   // after: what to say once the refresh worked (a newly added list says how it starts).
   function refreshList(id, after = 'List refreshed.') {
-    status('Refreshing…');
+    status('Refreshing…', 0);
     try {
       chrome.runtime.sendMessage({ type: 'refresh', id }, ok => {
         // A worker that isn't running ("No SW", just after a reload or update) leaves lastError
         // set; reading it keeps Chrome from listing an unchecked error. It counts as a failure.
         const failed = !!chrome.runtime.lastError;
-        status(ok && !failed ? after : 'Could not refresh that list; the last good copy is kept.');
+        if (ok && !failed) status(after); else fail('Could not refresh that list; the last good copy is kept.');
       });
-    } catch (e) { status('Could not refresh that list; the last good copy is kept.'); }
+    } catch (e) { fail('Could not refresh that list; the last good copy is kept.'); }
+  }
+
+  // Remove a list. The record goes first, under its lock, so a refresh in flight can no longer
+  // find it (the worker writes a list's data only while its record exists: no orphan copy, and
+  // no resurrected list). Then its downloaded copy (up to 5 MB) goes, so adding the same address
+  // later starts clean. If that fails the record is put back: the list stays in view to try again.
+  async function removeList(list) {
+    try { HM.popup.removeFilterList(state.lists, list.id); } catch (e) { fail(e.message); return; }
+    let record = null;
+    let at = 0;
+    const next = await editLists(ls => {
+      at = ls.findIndex(l => l.id === list.id);
+      if (at < 0) return ls;
+      record = ls[at];
+      return HM.popup.removeFilterList(ls, list.id);
+    });
+    if (!next || !record) return;
+    const putBack = () => editLists(ls => (ls.some(l => l.id === record.id) ? ls : ls.toSpliced(Math.min(at, ls.length), 0, record)));
+    try { await store.remove(HM.store.listKey(list.id)); } catch (e) {
+      await putBack();
+      fail('Could not remove that list. Try again.');
+      return;
+    }
+    offerUndo(`Removed ${list.name}.`, async () => {
+      // Its saved copy is gone, so it comes back from a fresh download.
+      const back = await putBack();
+      if (back) refreshList(list.id, `Restored ${list.name}.`);
+    });
   }
 
   function renderFilterLists() {
@@ -169,13 +223,7 @@
           list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null,
           iconButton('refresh', `Refresh ${list.name}`, () => refreshList(list.id)),
           list.builtIn ? null : iconButton('remove', `Remove ${list.name}`,
-            () => {
-              try { HM.popup.removeFilterList(state.lists, list.id); } catch (e) { status(e.message); return; }
-              // The downloaded copy goes too (up to 5 MB), first: if it fails the list stays
-              // in view to try again, and adding the same address later starts clean.
-              Promise.resolve().then(() => store.remove(HM.store.listKey(list.id))).then(() => editLists(ls => HM.popup.removeFilterList(ls, list.id)))
-                .catch(() => status('Could not remove that list. Try again.'));
-            })),
+            () => removeList(list))),
         node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
           list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${HM.popup.plainError(list.lastError)}` }) : null,
           list.held && !list.enabled ? node('span', { class: 'error', textContent: `Switched off: ${list.held.reason}` }) : null)));
@@ -209,6 +257,22 @@
     { kind: 'neverSkip', ul: 'never-skip', heading: 'Never skip' },
   ];
 
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  async function removeEntry(kind, entry, text) {
+    let gone = false;
+    let at = -1;
+    const next = await editUser(u => {
+      at = (u[kind] || []).findIndex(x => same(x, entry));
+      gone = at >= 0;
+      return gone ? HM.popup.removeEntry(u, kind, at) : u;
+    });
+    if (!next || !gone) return;
+    offerUndo(`Removed ${text}.`, () => editUser(u => {
+      const list = u[kind] || [];
+      return list.some(x => same(x, entry)) ? u : { ...u, [kind]: list.toSpliced(Math.min(at, list.length), 0, entry) };
+    }));
+  }
+
   function renderUserLists() {
     for (const { kind, ul: id, heading } of USER_LISTS) {
       const ul = $(id);
@@ -219,10 +283,7 @@
       entries.forEach((entry, i) => {
         const text = typeof entry === 'string' ? entry : entry.title + (entry.artist ? ` by ${entry.artist}` : '');
         ul.append(node('li', {}, node('span', { textContent: text }),
-          node('button', { textContent: 'Remove', onclick: () => editUser(u => {
-            const at = (u[kind] || []).findIndex(x => JSON.stringify(x) === JSON.stringify(entry));
-            return at < 0 ? u : HM.popup.removeEntry(u, kind, at);
-          }) })));
+          node('button', { textContent: 'Remove', onclick: () => removeEntry(kind, entry, text) })));
       });
     }
   }
@@ -253,7 +314,7 @@
       const a = node('a', { href: url, download: name });
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (e) { status('Could not save the file.'); }
+    } catch (e) { fail('Could not save the file.'); }
   }
 
   let pendingImport = null;
@@ -265,12 +326,12 @@
 
   $('import-btn').addEventListener('click', async () => {
     const file = $('import-file').files && $('import-file').files[0];
-    if (!file) { status('Choose a backup file first.'); return; }
+    if (!file) { fail('Choose a backup file first.'); return; }
     let data;
     try {
       data = HM.lists.importBackup(JSON.parse(await file.text()));
     } catch (e) {
-      status(e instanceof SyntaxError ? 'That file is not a backup (it is not JSON).' : e.message);
+      fail(e instanceof SyntaxError ? 'That file is not a backup (it is not JSON).' : e.message);
       return;
     }
     const changes = HM.popup.importChanges({ settings: state.settings, filterLists: state.lists }, data);
@@ -370,7 +431,7 @@
     if (HM.settings.threshold(mode) !== null && !verdictsCalibrated()) {
       // Refused: nothing is saved, so this person still gets the Optimal default once the
       // verdict list is calibrated (saving a chosen List only would keep them off it).
-      status(`${MODE_NAMES[mode]} is not ready yet, so List only stays on until the verdict list is checked.`);
+      fail(`${MODE_NAMES[mode]} is not ready yet, so List only stays on until the verdict list is checked.`);
       showMode(HM.settings.effectiveMode(state.settings, verdictsCalibrated()));
       return;
     }
@@ -422,7 +483,7 @@
         renderInvestigator();
         status(token ? 'A key is saved.' : 'The key is removed.');
       })
-      .catch(() => { status('Could not save the key.'); });
+      .catch(() => { fail('Could not save the key.'); });
     editSettings(s => ({ ...s, investigate: !!token }));
   });
 
@@ -543,7 +604,9 @@
     btn.addEventListener('click', () => { section = btn.dataset.section; renderLog(); });
   }
 
-  $('clear-log').addEventListener('click', () => getLogStore().then(s => s.clear()));
+  $('clear-log').addEventListener('click', () => {
+    getLogStore().then(s => s.clear()).then(() => status('Log cleared.'), () => fail('Could not clear the log. Try again.'));
+  });
   $('export-log').addEventListener('click', () => {
     const lines = state.log.map(e => [when(e.at), HM.log.describe(e), e.title, e.artistLine, e.entry ? `entry: ${e.entry}` : ''].filter(Boolean).join('\t'));
     download('human-music-log.txt', 'text/plain', lines.join('\n') + '\n');

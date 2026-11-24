@@ -39,21 +39,18 @@
     // lastRefresh, count and repairs (review 2026-11-17).
     let metaQueue = Promise.resolve();
     function updateMetas(fn) {
-      const run = metaQueue.then(async function () {
-        const key = HM.store.KEYS.filterLists;
-        const cur = (await storage.get(key))[key];
-        const next = fn(cur);
-        if (next === undefined) return cur;
-        await storage.set({ [key]: next });
-        return next;
+      const run = metaQueue.then(function () {
+        return modifyKey(HM.store.KEYS.filterLists, fn);
       });
       metaQueue = run.then(function () {}, function () {});
       return run;
     }
 
-    async function install() {
-      const stored = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings]);
+    function modifyKey(key, fn) {
+      return HM.store.modify(storage, key, fn, { locks: opts.locks });
+    }
 
+    async function install() {
       await updateMetas(function (metas) {
         if (metas) return undefined;
         // Every built-in list starts on. Soul Over AI was off for new installs from 2026-11-18
@@ -62,17 +59,9 @@
         return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }];
       });
 
-      if (!stored[HM.store.KEYS.user]) {
-        await storage.set({
-          [HM.store.KEYS.user]: HM.store.emptyUser()
-        });
-      }
-
-      if (!stored[HM.store.KEYS.settings]) {
-        await storage.set({
-          [HM.store.KEYS.settings]: globalThis.HM.settings.DEFAULTS
-        });
-      }
+      // Only when missing, and under the key's lock: a popup edit made first is never overwritten.
+      await modifyKey(HM.store.KEYS.user, function (cur) { return cur ? undefined : HM.store.emptyUser(); });
+      await modifyKey(HM.store.KEYS.settings, function (cur) { return cur ? undefined : globalThis.HM.settings.DEFAULTS; });
 
       await importBundled();
       await refreshOne('soul-over-ai');
@@ -137,15 +126,21 @@
           if (f.kind === 'backup') {
             if (!(await Promise.resolve().then(isDev).catch(function () { return false; }))) continue;
             const imported = HM.lists.importBackup(data);
-            const cur = await storage.get([HM.store.KEYS.user, HM.store.KEYS.settings, HM.store.KEYS.filterLists]);
-            const next = HM.lists.applyBackup({
-              user: cur[HM.store.KEYS.user], settings: cur[HM.store.KEYS.settings],
-              filterLists: cur[HM.store.KEYS.filterLists] || [{ ...HM.lists.SOUL_OVER_AI }]
-            }, imported);
-            const write = { [HM.store.KEYS.user]: next.user };
-            if (imported.settings) write[HM.store.KEYS.settings] = HM.settings.sanitize(next.settings);
-            if (imported.filterLists) write[HM.store.KEYS.filterLists] = next.filterLists;
-            await storage.set(write);
+            // The three keys, each under its own lock (nested in one fixed order).
+            let next;
+            await modifyKey(HM.store.KEYS.user, async function (curUser) {
+              await modifyKey(HM.store.KEYS.settings, async function (curSettings) {
+                await modifyKey(HM.store.KEYS.filterLists, function (curLists) {
+                  next = HM.lists.applyBackup({
+                    user: curUser, settings: curSettings,
+                    filterLists: curLists || [{ ...HM.lists.SOUL_OVER_AI }]
+                  }, imported);
+                  return imported.filterLists ? next.filterLists : undefined;
+                });
+                return imported.settings ? HM.settings.sanitize(next.settings) : undefined;
+              });
+              return next.user;
+            });
           } else if (f.kind === 'filter-list' && typeof f.id === 'string') {
             const parsed = HM.lists.parseFilterList(data);
             if (!parsed) continue;
@@ -296,9 +291,16 @@ list = lists[HM.store.KEYS.filterLists][i];
         const oldArtists = stored && Array.isArray(stored.artists) ? stored.artists : [];
         const held = globalThis.HM.lists.checkUpdate(oldArtists, listData.artists, wellKnownNames);
 
-        const setObj = {};
-        setObj[HM.store.listKey(id)] = listData;
-        await storage.set(setObj);
+        // Written under the records' lock and only while the list still has its record: a list
+        // removed meanwhile in the popup must not get its data back (an orphan).
+        const stillListed = await modifyKey(HM.store.KEYS.filterLists, async function (metas) {
+          if (!Array.isArray(metas) || !metas.some(function (m) { return m.id === id; })) return undefined;
+          const setObj = {};
+          setObj[HM.store.listKey(id)] = listData;
+          await storage.set(setObj);
+          return undefined;
+        }).then(function (metas) { return Array.isArray(metas) && metas.some(function (m) { return m.id === id; }); });
+        if (!stillListed) return false;
 
         const refreshedAt = nowFn();
         await updateMetas(function (metas) {
@@ -612,14 +614,14 @@ list = lists[HM.store.KEYS.filterLists][i];
   // someone set to turn it off. The marker makes it run once; later changes are kept.
   const LOOKAHEAD_RAISED = 'hm.lookahead-raised';
   async function raiseLookahead(storage) {
-    const got = (await storage.get([LOOKAHEAD_RAISED, HM.store.KEYS.settings])) || {};
-    if (got[LOOKAHEAD_RAISED] === true) return false;
-    const saved = got[HM.store.KEYS.settings];
-    const change = { [LOOKAHEAD_RAISED]: true };
-    if (saved && typeof saved === 'object' && saved.lookahead !== 0) {
-      change[HM.store.KEYS.settings] = Object.assign({}, saved, { lookahead: HM.settings.DEFAULTS.lookahead });
-    }
-    await storage.set(change);
+    if (((await storage.get(LOOKAHEAD_RAISED)) || {})[LOOKAHEAD_RAISED] === true) return false;
+    await HM.store.modify(storage, HM.store.KEYS.settings, function (saved) {
+      if (saved && typeof saved === 'object' && saved.lookahead !== 0) {
+        return Object.assign({}, saved, { lookahead: HM.settings.DEFAULTS.lookahead });
+      }
+      return undefined;
+    });
+    await storage.set({ [LOOKAHEAD_RAISED]: true });
     return true;
   }
   globalThis.HM.raiseLookahead = raiseLookahead;
