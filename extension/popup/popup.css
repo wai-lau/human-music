@@ -54,7 +54,7 @@ button, input, select { font: inherit; color: inherit; }
 .logo { width: 24px; height: 24px; }
 .title { flex: 1; min-width: 0; }
 .name { font-weight: 650; font-size: 14px; }
-.today { color: var(--muted); font-size: 12px; }
+.today { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* one line: a wrap would move the slider while it is dragged */
 .today.paused { color: var(--danger); }
 
 /* --- switches: a real checkbox laid over the track (still clickable, still a checkbox) --- */

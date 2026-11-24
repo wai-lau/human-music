@@ -326,6 +326,14 @@
   // need a calibrated verdict list; until then a move to either lands on List only.
 
   const MODE_NAMES = { off: 'No filtering', lists: 'List only', optimal: 'Optimal', aggressive: 'Aggressive' };
+  // The header line under the name: what each level blocks and how often it may skip a person
+  // (Wai, 2026-11-24: "a quick 1-line desc of blocking level and risk", updated as the slider moves).
+  const MODE_LINES = {
+    off: 'Nothing skipped. AI-generated songs play.',
+    lists: 'Listed artists only. Almost never skips people.',
+    optimal: 'Adds artists sure to be AI. Rarely skips people.',
+    aggressive: 'Adds likely AI artists. Sometimes skips people.',
+  };
   const verdictsCalibrated = () => state.lists.some(l => l.id === 'hm-verdicts' && l.calibrated === true);
 
   function showMode(mode) {
@@ -338,6 +346,15 @@
     // The name sits under its stop but never runs past the popup's edge.
     label.style.marginLeft = `${(i / 3) * 100}%`;
     label.style.transform = `translateX(-${(i / 3) * 100}%)`;
+    showModeLine(mode);
+  }
+
+  function showModeLine(mode) {
+    const el = $('today');
+    if (!el) return;
+    el.textContent = MODE_LINES[mode] || '';
+    el.title = el.textContent;
+    el.classList.toggle('paused', mode === 'off');
   }
 
   function renderMode() {
@@ -436,15 +453,7 @@
   }
 
   function renderToday() {
-    const el = $('today');
-    if (!el) return;
-    if (state.settings.paused) { el.textContent = 'Paused'; el.classList.add('paused'); return; }
-    el.classList.remove('paused');
-    const t = HM.popup.todaySummary(state.log, Date.now());
-    const parts = [];
-    if (t.skipped) parts.push(`${t.skipped} skipped`);
-    if (t.removed) parts.push(`${t.removed} removed`);
-    el.textContent = parts.length ? `${parts.join(' · ')} today` : 'Nothing skipped today';
+    showModeLine(state.settings.paused ? 'off' : HM.settings.effectiveMode(state.settings, verdictsCalibrated()));
   }
 
   function renderLog() {

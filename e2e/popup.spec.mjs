@@ -168,3 +168,21 @@ test('the four stop dots sit where the thumb lands for each value', async ({ con
     await popup.locator('.mode').screenshot({ path: `e2e/.results/slider-${v}.png` });
   }
 });
+
+test('the line under the name describes the level and follows the slider as it moves', async ({ context, extensionId, setState }) => {
+  await setState();
+  const popup = await context.newPage();
+  await popup.goto(popupUrl(extensionId));
+  const line = popup.locator('#today');
+  await expect(line).toHaveText('Listed artists only. Almost never skips people.');
+  // An input event alone (dragging, before release) updates the line.
+  await popup.locator('#mode').evaluate(el => { el.value = '3'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await expect(line).toHaveText('Adds likely AI artists. Sometimes skips people.');
+  await popup.locator('#mode').evaluate(el => { el.value = '0'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await expect(line).toHaveText('Nothing skipped. AI-generated songs play.');
+  // Every level's line fits on one line without being cut off.
+  for (const v of ['0', '1', '2', '3']) {
+    await popup.locator('#mode').evaluate((el, n) => { el.value = n; el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
+    expect(await line.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  }
+});
