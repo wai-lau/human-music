@@ -65,7 +65,7 @@ await t('a song newly listed by a refresh is still acted on', async () => {
   const app = ctx.HM.createApp({ doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now() });
   await app.start(); await settle(clock, 60); await app.flush();
   await storage.set({ 'hm.list.soul-over-ai': { artists: [{ name: 'Someone Else' }, { name: 'The Velvet Sundown' }] } });
-  await settle(clock, 300); await settle(clock, 60); await app.flush();
+  await settle(clock, 300); await settle(clock, 60); await settle(clock, 260); await app.flush(); // debounce, then read twice 150 ms apart
   const events = (await readLog(storage)).map((e) => e.event);
   return J(events) === J(['seen']) || J(events);
 });

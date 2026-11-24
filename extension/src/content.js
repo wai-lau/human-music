@@ -342,8 +342,16 @@
       // state.last is cleared when the lists change, so the song is checked again; this one
       // isn't, so a refresh that changes nothing doesn't log the same song again (review 2026-11-17).
       const songKey = song.title + '\u0000' + song.artistLine;
-      if (songKey !== state.lastSongKey) { state.lastSongKey = songKey; state.lastLogged = null; }
+      if (songKey !== state.lastSongKey) { state.lastSongKey = songKey; state.lastLogged = null; state.confirmKey = null; }
       const match = matchSong(song);
+      // The byline can lag the title for a moment after a song change: a match is acted on only
+      // when the same title and artist line were read twice, 150 ms apart; else look again.
+      if (match && !(state.confirmKey === songKey && now() - state.confirmAt >= 150)) {
+        if (state.confirmKey !== songKey) { state.confirmKey = songKey; state.confirmAt = now(); }
+        state.last = null;
+        safe(() => timers.setTimeout(schedule, 160));
+        return;
+      }
       if (!match) {
         reportUnknown(song, true);
         // Song plays on: capture its audio for training

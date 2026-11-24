@@ -8,6 +8,15 @@
     return r;
   }
 
+  // Names too common or too empty to stand for one artist on a shared list. Your own lists are
+  // exempt; a list entry that has an ID can still match by it.
+  const GENERIC = new Set(['the', 'a', 'an', 'va', 'various', 'various artists', 'unknown', 'unknown artist', 'artist', 'youtube music', 'spotify']);
+  function genericKey(key) {
+    return key.length < 2 || !/[\p{L}\p{N}]/u.test(key) || GENERIC.has(key);
+  }
+  const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
+  const YT_ID = /^UC[\w-]{22}$/;
+
   function buildIndex({ filterLists, user, threshold }) {
     const actArtists = new Map();
     const actChannels = new Map();
@@ -18,6 +27,15 @@
     // that have a low-confidence verdict.
     const known = new Set();
 
+    // A verdicts name that also belongs to a person (verdict human or unsure) is matched by ID only.
+    const shared = new Set();
+    for (const list of filterLists) {
+      if (!list.enabled || list.id !== 'hm-verdicts' || !Array.isArray(list.artists)) continue;
+      for (const a of list.artists) {
+        if (a && typeof a.name === 'string' && a.verdict !== 'ai') shared.add(normalize(a.name));
+      }
+    }
+
     for (const list of filterLists) {
       if (!list.enabled) continue;
       const artists = Array.isArray(list.artists) ? list.artists : [];
@@ -25,11 +43,12 @@
         if (!a) continue;
         const name = typeof a.name === 'string' ? a.name : '';
         // An idOnly entry is matched by its IDs only: its name may belong to someone else too.
-        const key = name && !a.idOnly ? normalize(name) : null;
+        const nameKey = name ? normalize(name) : null;
+        if (nameKey && !a.idOnly) known.add(nameKey);
+        const key = nameKey && !a.idOnly && !genericKey(nameKey) && !(list.id === 'hm-verdicts' && shared.has(nameKey)) ? nameKey : null;
 
         if (a.channelId) known.add(a.channelId);
         if (a.spotifyId) known.add(a.spotifyId);
-        if (key) known.add(key);
 
         // The verdict list only blocks at the mode's confidence threshold.
         let confidence;
@@ -42,6 +61,8 @@
 
         const entry = { listId: list.id, listName: list.name, entry: name || a.channelId || a.spotifyId };
         if (confidence !== undefined) entry.confidence = confidence;
+        if (a.channelId) entry.channelId = a.channelId;
+        if (a.spotifyId) entry.spotifyId = a.spotifyId;
         if (list.mode === 'act') {
           if (a.channelId) actChannels.set(a.channelId, entry);
           if (a.spotifyId) actChannels.set(a.spotifyId, entry);
@@ -88,14 +109,26 @@
   // lists (name, then channel ID), then watch lists. Each rule tests only its own field (Wai,
   // 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist"):
   // keywords see the title and the credited artists, never the album or year.
-  function matchChain(index, title, normalizedCreditedArtists, channelIds) {
+  // A name match gives way to IDs: when the song names artist IDs of the entry's kind and none is
+  // the entry's, it is a different artist with the same name.
+  function sameArtist(entry, channelIds) {
+    const yt = channelIds.filter(c => YT_ID.test(c));
+    const sp = channelIds.filter(c => SPOTIFY_ID.test(c));
+    if (entry.channelId && yt.length && !yt.includes(entry.channelId)) return false;
+    if (entry.spotifyId && sp.length && !sp.includes(entry.spotifyId)) return false;
+    return true;
+  }
+
+  // songRow: the item is a song row (not an album or playlist card); a song with no artist
+  // matches only those.
+  function matchChain(index, title, normalizedCreditedArtists, channelIds, songRow = true) {
     for (const songEntry of index.userSongs) {
       if (normalize(title) === songEntry.title) {
         if (songEntry.artist) {
           if (normalizedCreditedArtists.includes(songEntry.artist)) {
             return result('user:songs', 'Your songs', 'song', songEntry.original.title, 'act');
           }
-        } else {
+        } else if (songRow) {
           return result('user:songs', 'Your songs', 'song', songEntry.original.title, 'act');
         }
       }
@@ -114,8 +147,8 @@
     }
 
     for (const credit of normalizedCreditedArtists) {
-      if (index.actArtists.has(credit)) {
-        const act = index.actArtists.get(credit);
+      const act = index.actArtists.get(credit);
+      if (act && sameArtist(act, channelIds)) {
         return result(act.listId, act.listName, 'artist', act.entry, 'act', act.confidence);
       }
     }
@@ -126,8 +159,8 @@
       }
     }
     for (const credit of normalizedCreditedArtists) {
-      if (index.watchArtists.has(credit)) {
-        const watch = index.watchArtists.get(credit);
+      const watch = index.watchArtists.get(credit);
+      if (watch && sameArtist(watch, channelIds)) {
         return result(watch.listId, watch.listName, 'artist', watch.entry, 'watch');
       }
     }
@@ -146,13 +179,13 @@
     const title = s.title || '';
     const artistLine = s.artistLine || '';
     const channelIds = s.channelIds || [];
-    const normalizedCreditedArtists = credits(artistLine);
+    const normalizedCreditedArtists = credits(artistLine, Array.isArray(s.credits) ? s.credits : null);
 
     for (const credit of normalizedCreditedArtists) {
       if (index.neverSkip.has(credit)) return null;
     }
 
-    return matchChain(index, title, normalizedCreditedArtists, channelIds);
+    return matchChain(index, title, normalizedCreditedArtists, channelIds, true);
   }
 
   function matchItem(index, item) {
@@ -166,14 +199,22 @@
     for (const credit of normalizedCredits) {
       if (index.neverSkip.has(credit)) return null;
     }
+    // A mix lists every name in it (`names`); `credits` may also hold the whole line.
+    const required = featured && Array.isArray(i.names) ? i.names.map(normalize) : normalizedCredits;
+    if (featured) for (const name of required) if (index.neverSkip.has(name)) return null;
 
     // A mix card (featured artists) matches only when every credit is listed: one person in
     // the mix keeps it. It acts only if every credit is on your artists or an act list;
     // otherwise (some only on watch lists) it is a watch match.
     if (featured) {
-      if (normalizedCredits.length === 0) return null;
+      if (required.length === 0) return null;
+      // The whole line may itself be one listed act ("Earth, Wind & Fire").
+      if (i.whole) {
+        const whole = matchChain(index, '', [normalize(i.whole)], [], false);
+        if (whole && whole.rule === 'artist') return whole;
+      }
       const found = [];
-      for (const credit of normalizedCredits) {
+      for (const credit of required) {
         const mine = index.userArtists.find(a => a.key === credit);
         if (mine) found.push(result('user:artists', 'Your artists', 'artist', mine.name, 'act'));
         else if (index.actArtists.has(credit)) {
@@ -190,7 +231,9 @@
       return result(first.listId, first.listName, 'artist', first.entry, first.mode);
     }
 
-    return matchChain(index, title, normalizedCredits, channelIds);
+    // An item credited to several artists never reaches here (it is a mix); a card for an album or
+    // playlist is not a song row.
+    return matchChain(index, title, normalizedCredits, channelIds, i.kind === 'song');
   }
 
   globalThis.HM.match = { buildIndex, matchSong, matchItem, isKnown };

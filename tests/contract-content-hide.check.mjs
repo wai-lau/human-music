@@ -47,7 +47,8 @@ const hidden = p => [...p.doc.querySelectorAll('[data-hm-hidden]')].map(e => e.q
 const pass = async ({ a, clock }, p) => { p.doc.body.append(el('span')); await settle(clock, 60); await a.flush(); };
 
 await t('search: listed artist hidden, logged once', async () => {
-  const b = boot(); const p = page({ items: [card('Midnight Bloom', 'EP • 1950 SoulClub, 1960 SoulClub & Lewis Hanton • 2025'), card('Otis Blue', 'Album • Otis Redding')] });
+  // Changed 2026-11-24 (harden): a card crediting three artists hides only when all three are listed.
+  const b = boot({ artists: ['1950 SoulClub', '1960 SoulClub', 'Lewis Hanton'] }); const p = page({ items: [card('Midnight Bloom', 'EP • 1950 SoulClub, 1960 SoulClub & Lewis Hanton • 2025'), card('Otis Blue', 'Album • Otis Redding')] });
   const r = await app(b, p);
   await pass(r, p); await pass(r, p);
   const hid = (await log(b)).filter(e => e.event === 'hidden');
@@ -103,7 +104,7 @@ await t('player buttons: Block artist adds the whole credit, then skips', async 
   const btns = [...p.doc.querySelectorAll('#hm-player-buttons button')];
   if (btns.length !== 1) return `buttons ${btns.length}`;
   btns.find(x => x.getAttribute('aria-label') === 'Block artist').click();
-  await settle(r.clock, 300); await settle(r.clock, 60); r.a.checkPlaying(); await r.a.flush();
+  await settle(r.clock, 300); await settle(r.clock, 60); await settle(r.clock, 260); r.a.checkPlaying(); await r.a.flush();
   return (J(b.storage.data['hm.user'].artists) === J(['Band A & Band B']) && p.clicks.next === 1) || J({ user: b.storage.data['hm.user'], next: p.clicks.next });
 });
 // Security audit 2026-11-17, finding 8: a page script's .click() (isTrusted false) must not add

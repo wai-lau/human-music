@@ -33,7 +33,7 @@ await run([
       items[0].channelIds.length === 2 &&
       items[0].channelIds[0] === 'UCABC' &&
       items[0].channelIds[1] === 'UCDEF' &&
-      items[0].featured === false;
+      items[0].featured === true; // two artists: a mix (harden 2026-11-24)
   }],
   // Item without links, type word
   ['item without links, type word Album → credit from subtitle', async () => {

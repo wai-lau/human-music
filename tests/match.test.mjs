@@ -58,7 +58,7 @@ run([
         artists: [{ name: 'The Velvet Sundown' }, { name: 'After Midnight' }, { name: '10mm' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] }
     });
-    const m = match.matchSong(idx, { title: 'X', artistLine: '10mm, Someone • Album' });
+    const m = match.matchSong(idx, { title: 'X', artistLine: '10mm feat. Someone • Album' });
     return m && m.rule === 'artist';
   }],
   ['matchSong: empty artistLine does not throw', () => {
@@ -298,16 +298,16 @@ run([
     return match.matchSong(idx, { title: 'Beyoncé Live', artistLine: 'X • A' })?.rule === 'keyword';
   }],
   ['mix with your own artist counts as listed', () => {
-    const idx = match.buildIndex({ filterLists: [{ id: 'l', name: 'L', enabled: true, mode: 'act', artists: [{ name: 'A' }] }],
-      user: { artists: ['B'], songs: [], keywords: [], neverSkip: [] } });
-    return match.matchItem(idx, { title: 'Mix', credits: ['A', 'B'], channelIds: [], featured: true })?.mode === 'act';
+    const idx = match.buildIndex({ filterLists: [{ id: 'l', name: 'L', enabled: true, mode: 'act', artists: [{ name: 'Alpha' }] }],
+      user: { artists: ['Beta'], songs: [], keywords: [], neverSkip: [] } });
+    return match.matchItem(idx, { title: 'Mix', credits: ['Alpha', 'Beta'], channelIds: [], featured: true })?.mode === 'act';
   }],
   ['mix with a watch-only artist is a watch match', () => {
     const idx = match.buildIndex({ filterLists: [
-      { id: 'a', name: 'A', enabled: true, mode: 'act', artists: [{ name: 'A' }] },
-      { id: 'w', name: 'W', enabled: true, mode: 'watch', artists: [{ name: 'B' }] }],
+      { id: 'a', name: 'A', enabled: true, mode: 'act', artists: [{ name: 'Alpha' }] },
+      { id: 'w', name: 'W', enabled: true, mode: 'watch', artists: [{ name: 'Beta' }] }],
       user: { artists: [], songs: [], keywords: [], neverSkip: [] } });
-    return match.matchItem(idx, { title: 'Mix', credits: ['A', 'B'], channelIds: [], featured: true })?.mode === 'watch';
+    return match.matchItem(idx, { title: 'Mix', credits: ['Alpha', 'Beta'], channelIds: [], featured: true })?.mode === 'watch';
   }],
   // Each entry matches its own kind of field (Wai, 2026-11-13: "match correct fields in
   // general, e.g. album to album, artist to artist"): keywords never hit the album or year.

@@ -17,7 +17,7 @@ const link = (id, name) => el('a', { href: `channel/${id}` }, name);
 t('search row with three channel links', () => {
   const doc = makeDocument(searchRow('Midnight Bloom', 'EP • ', link('UC1', '1950 SoulClub'), ', ', link('UC2', '1960 SoulClub'), ' & ', link('UC3', 'Lewis Hanton'), ' • 2025'));
   const items = plain(ytm.readPageItems(doc, '/search'));
-  return J(items) === J([{ title: 'Midnight Bloom', credits: ['1950 SoulClub', '1960 SoulClub', 'Lewis Hanton'], channelIds: ['UC1', 'UC2', 'UC3'], featured: false }]) || J(items);
+  return J(items) === J([{ title: 'Midnight Bloom', credits: ['1950 SoulClub', '1960 SoulClub', 'Lewis Hanton'], channelIds: ['UC1', 'UC2', 'UC3'], featured: true }]) || J(items);
 });
 t('repeated link counted once', () => {
   const doc = makeDocument(searchRow('X', link('UC1', 'A'), ' • ', link('UC1', 'A')));

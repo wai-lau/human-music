@@ -33,7 +33,7 @@ eq('velvet full match', ms(soa, 'Dust on the Wind', 'The Velvet Sundown • Floa
   { listId: 'soul-over-ai', listName: 'Soul Over AI', rule: 'artist', entry: 'The Velvet Sundown', mode: 'act' });
 eq('title is not an artist', ms(soa, 'After Midnight', 'Eric Clapton • Slowhand'), null);
 eq('exact credit only', ms(soa, 'X', 'After Midnight Project • Album'), null);
-eq('10mm in list', ms(soa, 'X', '10mm, Someone • Album')?.rule, 'artist');
+eq('10mm in list', ms(soa, 'X', '10mm feat. Someone • Album')?.rule, 'artist');
 t('empty artist line', () => match.matchSong(soa, { title: 'X', artistLine: '' }) === null || 'not null');
 t('missing artist line', () => match.matchSong(soa, { title: 'X' }) === null || 'not null');
 t('missing title', () => match.matchSong(soa, { artistLine: 'Nobody • A' }) === null || 'not null');

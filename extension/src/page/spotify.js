@@ -48,7 +48,7 @@
       if (!title) return null;
       const byline = widget.querySelector(SEL.byline) || widget;
       const { names, ids } = artistsIn(byline);
-      return { title, artistLine: names.join(', '), channelIds: ids };
+      return { title, artistLine: names.join(', '), credits: names, channelIds: ids };
     }, null);
   }
 
@@ -62,7 +62,7 @@
       const out = playing ? [{ ...playing, selected: true, el: doc.querySelector(SEL.widget) }] : [];
       for (const row of panel.querySelectorAll(SEL.queueRow)) {
         const { names, ids } = artistsIn(row);
-        out.push({ title: text(row.querySelector(SEL.rowTitle)), artistLine: names.join(', '), channelIds: ids, selected: false, el: row });
+        out.push({ title: text(row.querySelector(SEL.rowTitle)), artistLine: names.join(', '), credits: names, channelIds: ids, selected: false, el: row });
       }
       return out;
     }, []);
@@ -260,12 +260,16 @@
         const own = el.querySelector('a[href]');
         const ownId = own ? idOf(own.getAttribute('href')) : null;
         let credits;
+        // Several credited artists make a mix: it hides only when every one is listed.
+        let featured = false;
         if (isListRow) {
           credits = names;
         } else {
           credits = uniq(ownId && title ? [title, ...names] : names);
         }
-        out.push({ title, credits, channelIds: uniq(ownId ? [ownId, ...ids] : ids), featured: false, el });
+        if (!ownId && names.length > 1) featured = true;
+        const kind = el.getAttribute('data-testid') === 'tracklist-row' ? 'song' : 'other';
+        out.push({ title, credits, channelIds: uniq(ownId ? [ownId, ...ids] : ids), featured, kind, el });
       }
       return out;
     }, []);

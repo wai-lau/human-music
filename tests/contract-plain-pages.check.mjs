@@ -56,7 +56,7 @@ async function start(p, settings = {}) {
   });
   const clock = fakeClock();
   const app = ctx.HM.createApp({ doc: p.doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now() });
-  await app.start(); await settle(clock, 60); await app.flush();
+  await app.start(); await settle(clock, 60); await settle(clock, 260); await app.flush(); // a match is acted on after the song is read twice, 150 ms apart
   return { ctx, storage, clock, app };
 }
 const marked = (r) => r.hasAttribute('data-hm-marked');

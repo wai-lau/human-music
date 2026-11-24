@@ -35,7 +35,8 @@ await t('a mix card stays a mix', () => (got.Mix && got.Mix.mode === null) || J(
 await t('a playlist by one listed artist still hides', () => (got['Sundown Hits'] && got['Sundown Hits'].mode === 'act') || J(got['Sundown Hits']));
 await t('a person\'s search shelf is read from its own header, not the songs inside', () =>
   (got['Some Person'] && J(got['Some Person'].credits) === J(['Some Person']) && got['Some Person'].mode === null) || J(got['Some Person']));
-await t('the duet inside the shelf is still its own item', () => (got.Duet && got.Duet.mode === 'act') || J(got.Duet));
+// Changed 2026-11-24 (harden): the duet credits Some Person too, who is not listed, so it is a mix and plays.
+await t('the duet inside the shelf is its own item, and a mix with a person in it plays', () => (got.Duet && got.Duet.mode === null) || J(got.Duet));
 
 console.log(fails.length ? fails.map((f) => 'PROBE FAIL ' + f).join('\n') : 'probe ok');
 process.exit(fails.length ? 1 : 0);

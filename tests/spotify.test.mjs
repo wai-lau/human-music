@@ -64,7 +64,7 @@ async function start(page, artists = [{ name: 'Listed Name', spotifyId: LISTED }
   });
   const clock = fakeClock();
   const app = ctx.HM.createApp({ doc: page.doc, storage, timers: clock, now: () => clock.now() });
-  await app.start(); await settle(clock, 60); await app.flush();
+  await app.start(); await settle(clock, 60); await settle(clock, 260); await app.flush(); // a match is acted on after the song is read twice, 150 ms apart
   return { storage, clock, app };
 }
 

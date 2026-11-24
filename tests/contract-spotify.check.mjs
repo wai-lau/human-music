@@ -50,7 +50,7 @@ function queuePanel(doc, songs, clicks, { menuItems = [OTHER, REMOVE, OTHER] } =
 
 await t('readSong: title, artists joined, Spotify artist IDs', () => {
   const s = spotify.readSong(makeDocument(bar({ artists: [['The Velvet Sundown', A2], ['Otis Redding', A1]] })));
-  return J(s) === J({ title: 'Dust on the Wind', artistLine: 'The Velvet Sundown, Otis Redding', channelIds: [A2, A1] }) || J(s);
+  return J(s) === J({ title: 'Dust on the Wind', artistLine: 'The Velvet Sundown, Otis Redding', credits: ['The Velvet Sundown', 'Otis Redding'], channelIds: [A2, A1] }) || J(s);
 });
 await t('readSong: nothing playing -> null', () => spotify.readSong(makeDocument(el('div'))) === null || 'not null');
 await t('clickNext and pressNextKey both press the Next button', () => {
@@ -132,7 +132,7 @@ await t('page items: artist links give credits and IDs; artist cards credit thei
     card('Indie Mix', '/playlist/pppppppppppppppppppppp', ['The latest from Future, Fall Out Boy and more'])),
     bar());
   const items = spotify.readPageItems(doc, '/search/velvet').map(i => [i.title, i.credits, i.channelIds, i.featured]);
-  return J(items) === J([['Song One', ['The Velvet Sundown', 'Otis Redding'], [A2, A1], false], ['The Velvet Sundown', ['The Velvet Sundown'], [A2], false], ['Indie Mix', [], [], false]]) || J(items);
+  return J(items) === J([['Song One', ['The Velvet Sundown', 'Otis Redding'], [A2, A1], true], ['The Velvet Sundown', ['The Velvet Sundown'], [A2], false], ['Indie Mix', [], [], false]]) || J(items);
 });
 await t('page items only on home and search; never the player or queue', () => {
   const doc = makeDocument(el('main', {}, card('X', `/artist/${A2}`)), bar());

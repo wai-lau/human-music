@@ -99,7 +99,7 @@ async function start({ song, capture = 'ok', enabled = true, hook = true, hidden
   const doc = makeDocument();
   if (hidden) Object.defineProperty(doc, 'visibilityState', { value: 'hidden', configurable: true });
   const app = HM.createApp({ doc, storage, timers: clock, now: () => 1_700_000_000_000 + clock.now(), site, ...(hook ? { fingerprints } : {}) });
-  await app.start(); await settle(clock, 60);
+  await app.start(); await settle(clock, 60); await settle(clock, 260); // a match is acted on after the song is read twice, 150 ms apart
   return { HM, app, clock, box, calls, captures, sent, storage, cancels: () => cancels, release: () => release && release(), enable: () => { box.enabled = true; } };
 }
 

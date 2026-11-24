@@ -39,7 +39,7 @@ async function start(doc, { settings = {}, user = {}, onCount } = {}) {
   });
   const clock = fakeClock();
   const app = ctx.HM.createApp({ doc, storage, timers: clock, now: () => clock.now(), onCount });
-  await app.start(); await settle(clock, 60); await app.flush();
+  await app.start(); await settle(clock, 60); await settle(clock, 260); await app.flush(); // a match is acted on after the song is read twice, 150 ms apart
   return { ctx, storage, clock, app };
 }
 

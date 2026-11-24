@@ -69,6 +69,7 @@ async function app(b, p, clock = fakeClock()) {
   const a = b.ctx.HM.createApp({ doc: p.doc, storage: b.storage, timers: clock, now: () => 1_700_000_000_000 + clock.now() });
   await a.start();
   await settle(clock);
+  await settle(clock, 260); // a match is acted on after the same song is read twice, 150 ms apart
   return { a, clock };
 }
 const log = async b => readLog(b.storage);
@@ -111,6 +112,7 @@ else {
     await settle(clock, 300); // skipper sees the change and finishes
     p.setSong('Dust on the Wind', 'The Velvet Sundown');
     await settle(clock, 60); // mutation -> pass
+    await settle(clock, 260); // read twice, 150 ms apart
     a.checkPlaying();
     await a.flush();
     return (p.clicks.next === 2 && (await log(b)).filter(e => e.event === 'skipped').length === 2) || J({ clicks: p.clicks, l: (await log(b)).map(e => e.event) });
@@ -133,7 +135,7 @@ else {
     const b = boot(); const p = page({ title: 'Fine', artist: 'Some Person' });
     const { clock } = await app(b, p);
     p.setSong('Dust on the Wind', 'The Velvet Sundown');
-    await settle(clock, 60);
+    await settle(clock, 60); await settle(clock, 260);
     return p.clicks.next === 1 || `next ${p.clicks.next}`;
   });
   await t('lookahead removes B and C, keeps D; E moves into range and goes too (rows shift)', async () => {
@@ -174,7 +176,7 @@ await t('a paused tab never presses Next; it acts once its video plays', async (
   const whilePaused = p.clicks.next;
   video.paused = false;
   p.doc.body.append(el('span')); // the page moves on while it plays (time display and so on)
-  await settle(clock, 60); await a.flush();
+  await settle(clock, 60); await settle(clock, 260); await a.flush();
   return (whilePaused === 0 && p.clicks.next === 1 && (await log(b)).filter(e => e.event === 'skipped').length === 1) || J({ whilePaused, next: p.clicks.next, log: (await log(b)).map(e => e.event) });
 });
 await t('never skip wins', async () => {
@@ -192,7 +194,7 @@ await t('never skip wins', async () => {
     const { a, clock } = await app(b, p);
     if (p.clicks.next !== 0) return 'skipped before blocking';
     await b.storage.set({ 'hm.user': { artists: ['Real Fake Band'], songs: [], keywords: [], neverSkip: [] } });
-    await settle(clock, 300); await settle(clock, 60); a.checkPlaying(); await a.flush();
+    await settle(clock, 300); await settle(clock, 60); await settle(clock, 260); a.checkPlaying(); await a.flush();
     return (p.clicks.next === 1 && (await log(b))[0]?.listId === 'user:artists') || J({ clicks: p.clicks, l: await log(b) });
   });
   await t('hm.log writes never rebuild the index', async () => {

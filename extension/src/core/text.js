@@ -17,13 +17,37 @@
     return String(credit == null ? '' : credit).split(/, | & | feat\. /i).map(p => p.trim()).filter(Boolean);
   }
 
-  function credits(artistLine) {
+  // Names that are safe to match on their own inside a credit line. "Earth, Wind & Fire" is one
+  // band, so a one-word piece of it ("Fire") must never stand for a person. A piece counts when
+  // it sits beside an explicit "feat."/"ft."/"featuring"/" x " marker, or has at least two words
+  // ("Tyler, The Creator" gives "the creator", never "tyler"). A one-word piece between commas
+  // or "&" is dropped: the whole credit is matched instead, and links (when the page has them)
+  // name each artist exactly.
+  function safeParts(credit) {
+    const segments = String(credit == null ? '' : credit).split(/ feat\. | ft\. | featuring | x /i).map(p => p.trim()).filter(Boolean);
+    const marked = segments.length > 1;
+    const out = [];
+    for (const seg of segments) {
+      if (marked) out.push(seg);
+      const subs = seg.split(/, | & /).map(p => p.trim()).filter(Boolean);
+      if (subs.length > 1) for (const sub of subs) if (/\s/.test(sub)) out.push(sub);
+    }
+    return out;
+  }
+
+  // Every name in a credit, however short: for a mix card, where all of them must be listed.
+  function allNames(credit) {
+    return String(credit == null ? '' : credit).split(/, | & | feat\. | ft\. | featuring | x /i).map(p => p.trim()).filter(Boolean);
+  }
+
+  // `names`: the artists' own names when the page shows each as a link; then nothing is split.
+  function credits(artistLine, names) {
     if (!artistLine || typeof artistLine !== 'string') return [];
     const before = leadCredit(artistLine);
     if (!before) return [];
     const whole = normalize(before);
-    const parts = splitNames(before)
-      .map(normalize)
+    const linked = Array.isArray(names) ? names.map(normalize).filter(Boolean) : [];
+    const parts = (linked.length ? linked : safeParts(before).map(normalize))
       .filter(c => c !== '');
     const result = [whole];
     const seen = new Set([whole]);
@@ -41,5 +65,5 @@
     return new RegExp('(?<![\\p{L}\\p{N}])' + escaped + '(?![\\p{L}\\p{N}])', 'iu');
   }
 
-  globalThis.HM.text = { normalize, leadCredit, splitNames, credits, wholeWord };
+  globalThis.HM.text = { normalize, leadCredit, splitNames, safeParts, allNames, credits, wholeWord };
 })();

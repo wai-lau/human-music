@@ -36,6 +36,16 @@
     const m = /^https:\/\/([^/?#:@]+)(?:[/?#]|$)/.exec(src || '');
     return !!m && ART_HOSTS.includes(m[1].toLowerCase());
   }
+  // The names on the byline's artist links (one per linked artist), for matching without splitting.
+  function channelNamesIn(bylineEl) {
+    const names = [];
+    if (!bylineEl) return names;
+    for (const a of bylineEl.querySelectorAll('a[href*="channel/"]')) {
+      const t = (a.textContent || '').trim();
+      if (t && !names.includes(t)) names.push(t);
+    }
+    return names;
+  }
   function channelIdsIn(bylineEl) {
     const ids = [];
     if (!bylineEl) return ids;
@@ -90,7 +100,10 @@
     const title = (titleEl.textContent || '').trim();
     if (!title) return null;
     const artistLine = (bylineEl ? bylineEl.textContent : '').trim();
-    return { title, artistLine, channelIds: channelIdsIn(bylineEl) };
+    const song = { title, artistLine, channelIds: channelIdsIn(bylineEl) };
+    const linked = channelNamesIn(bylineEl);
+    if (linked.length) song.credits = linked;
+    return song;
   }
 
   function readQueue(doc) {
@@ -106,7 +119,10 @@
       const title = titleEl ? (titleEl.textContent || '').trim() : '';
       const artistLine = bylineEl ? (bylineEl.textContent || '').trim() : '';
       const selected = row.hasAttribute('selected');
-      result.push({ title, artistLine, selected, el: row });
+      const queued = { title, artistLine, selected, el: row };
+      const linked = channelNamesIn(bylineEl);
+      if (linked.length) queued.credits = linked;
+      result.push(queued);
     }
     return result;
   }
@@ -423,7 +439,8 @@
 
       if (linkCredits.length > 0) {
         // Has channel links → use them as credits
-        return { title, credits: linkCredits, channelIds: channelIdsUnique, featured: false };
+        // Several linked artists are a mix: it hides only when every one is listed.
+        return { title, credits: linkCredits, channelIds: channelIdsUnique, featured: linkCredits.length > 1 };
       }
 
       // No channel links → read subtitle
@@ -475,11 +492,13 @@
       }
 
       const creditText = creditParts[0];
-      const split = HM.text.splitNames(creditText);
-      // Credits: whole text first, then split parts
-      const allCredits = [creditText, ...split].filter(Boolean);
-      const uniqueCredits = dedupe(allCredits);
-      return { title, credits: uniqueCredits, channelIds: [], featured: false };
+      // Several names in one line are a mix: it hides only when every name is listed, or when the
+      // whole line is itself a listed act ("Earth, Wind & Fire").
+      const names = dedupe(HM.text.allNames(creditText));
+      const shown = dedupe([creditText, ...HM.text.safeParts(creditText)]);
+      const kind = typeWord ? (/^(song|video)$/i.test(typeWord) ? 'song' : 'other') : undefined;
+      if (names.length > 1) return { title, credits: shown, names, whole: creditText, channelIds: [], featured: true, kind };
+      return { title, credits: dedupe([creditText]), channelIds: [], featured: false, kind };
     } catch (e) {
       return { title: '', credits: [], channelIds: [], featured: false };
     }
@@ -546,7 +565,9 @@
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (row.closest('ytmusic-player-page') || row.closest('#queue') || row.hasAttribute('data-hm-hidden')) continue;
-      result.push(readRow(row, doc));
+      const item = readRow(row, doc);
+      // A list row is a song unless its type word says album, playlist or the like.
+      result.push(item.kind ? item : { ...item, kind: 'song' });
     }
     return result;
   }
