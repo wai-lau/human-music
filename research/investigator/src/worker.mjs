@@ -12,6 +12,7 @@ import { applyMapping } from './calibrate.mjs';
 import { scoreChecklist } from './score.mjs';
 import { trackIdsFromEmbed } from './shlabsrun.mjs';
 import { artistKeys } from './names.mjs';
+import { collectTitles } from './spotifytitles.mjs';
 
 // Scored verdicts keep the old names of their strong signs too, so the published list's 95 rule
 // (mayPass94) sees them.
@@ -117,6 +118,7 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
           reasons: ['Spotify labels this artist "AI Persona"'],
           sources: [`https://open.spotify.com/artist/${artist.spotifyId}`],
         }, 'spotify-label', today);
+        await collectTitles({ store, fetchPage, artist });
         queue.done(artist);
         schedulePublish();
         return 'done';

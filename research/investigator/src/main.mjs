@@ -10,6 +10,7 @@ import { cheapPass as cheapPassImpl } from './cheap.mjs';
 import { fetchArt as fetchArtImpl, lookArt as lookArtImpl } from './art.mjs';
 import { investigate as investigateImpl } from './claude.mjs';
 import { buildList } from './listjson.mjs';
+import { withTitles } from './spotifytitles.mjs';
 import * as intake from './intake.mjs';
 import { createPublisher } from './publish.mjs';
 import { createQueue } from './queue.mjs';
@@ -117,7 +118,7 @@ export function createApp(env, deps = {}) {
     if (!publisher) return;
     let r;
     try {
-      const list = buildList(store.listPublishable(), {
+      const list = buildList(withTitles(store, store.listPublishable()), {
         now: now(),
         calibrated: store.getState('calibrated') === true,
         mapping: store.getState('calibration.mapping'),

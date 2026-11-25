@@ -67,6 +67,15 @@ export function parseRequest(bodyText) {
       if (ids.spotifyId && !artist.spotifyId) artist.spotifyId = ids.spotifyId;
       // Spotify's own "AI Persona" label, as read by a logged-in copy; counts only with the ID.
       if (it.spotifyAiLabel === true && ids.spotifyId) artist.spotifyAiLabel = true;
+      // The titles of the tagged songs the dev copy saw (only with the label; at most 20, 200 characters each).
+      if (it.spotifyAiLabel === true && ids.spotifyId && Array.isArray(it.songTitles)) {
+        const have = artist.songTitles || (artist.songTitles = []);
+        for (const raw of it.songTitles) {
+          const t = clean(raw).slice(0, 200);
+          if (t && have.length < 20 && !have.includes(t)) have.push(t);
+        }
+        if (have.length === 0) delete artist.songTitles;
+      }
       if (ids.channelId && !artist.channelId) artist.channelId = ids.channelId;
       for (const k of artistKeys(artist)) byKey.set(k, artist);
       for (const k of keys) byKey.set(k, artist);

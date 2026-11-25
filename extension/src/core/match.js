@@ -1,6 +1,6 @@
 (function () {
   if (!Object.getOwnPropertyDescriptor(globalThis, 'HM')) globalThis.HM = {};
-  const { normalize, credits, wholeWord } = globalThis.HM.text;
+  const { normalize, credits, wholeWord, titleKey } = globalThis.HM.text;
 
   function result(listId, listName, rule, entry, mode, confidence) {
     const r = { listId, listName, rule, entry, mode };
@@ -15,11 +15,14 @@
     return key.length < 2 || !/[\p{L}\p{N}]/u.test(key) || GENERIC.has(key);
   }
 
-  function buildIndex({ filterLists, user, threshold }) {
+  function buildIndex({ filterLists, user, threshold, site }) {
     const actArtists = new Map();
     const actChannels = new Map();
     const watchArtists = new Map();
     const watchChannels = new Map();
+    // Spotify-labelled verdicts (they carry titles): on YouTube Music a name matches only with a known
+    // song of theirs. name key -> { entry, mode, titles: Set of title keys }.
+    const labelArtists = new Map();
     // Every entry on every enabled list is "known", regardless of threshold:
     // list-only mode still sees them, and we can tell unknown artists from ones
     // that have a low-confidence verdict.
@@ -64,14 +67,18 @@
         if (confidence !== undefined) entry.confidence = confidence;
         if (a.channelId) entry.channelId = a.channelId;
         if (a.spotifyId) entry.spotifyId = a.spotifyId;
+        const withTitles = list.id === 'hm-verdicts' && Array.isArray(a.titles) && site !== 'spotify';
+        if (withTitles && key) {
+          labelArtists.set(key, { entry, mode: list.mode === 'act' ? 'act' : 'watch', titles: new Set(a.titles.map(titleKey).filter(Boolean)) });
+        }
         if (list.mode === 'act') {
           if (a.channelId) actChannels.set(a.channelId, entry);
           if (a.spotifyId) actChannels.set(a.spotifyId, entry);
-          if (key) actArtists.set(key, entry);
+          if (key && !withTitles) actArtists.set(key, entry);
         } else {
           if (a.channelId) watchChannels.set(a.channelId, entry);
           if (a.spotifyId) watchChannels.set(a.spotifyId, entry);
-          if (key) watchArtists.set(key, entry);
+          if (key && !withTitles) watchArtists.set(key, entry);
         }
       }
     }
@@ -90,6 +97,7 @@
       actArtists, actChannels, watchArtists, watchChannels,
       userArtists, userSongs, userKeywords, neverSkip,
       aiLabel,
+      labelArtists,
       known,
     };
   }
@@ -131,7 +139,7 @@
 
   // songRow: the item is a song row (not an album or playlist card); a song with no artist
   // matches only those.
-  function matchChain(index, title, normalizedCreditedArtists, channelIds, songRow = true, tagged = null) {
+  function matchChain(index, title, normalizedCreditedArtists, channelIds, songRow = true, tagged = null, songTitles = null) {
     for (const songEntry of index.userSongs) {
       if (normalize(title) === songEntry.title) {
         if (songEntry.artist) {
@@ -160,6 +168,16 @@
       const act = index.actArtists.get(credit);
       if (act && sameArtist(act, channelIds)) {
         return result(act.listId, act.listName, 'artist', act.entry, 'act', act.confidence);
+      }
+    }
+    // A Spotify-labelled name counts only with a known song: the row's own song, or one shown in a card.
+    if (songTitles && songTitles.length && index.labelArtists.size) {
+      const keys = songTitles.map(titleKey).filter(Boolean);
+      for (const credit of normalizedCreditedArtists) {
+        const lab = index.labelArtists.get(credit);
+        if (lab && lab.mode === 'act' && keys.some(k => lab.titles.has(k))) {
+          return result(lab.entry.listId, lab.entry.listName, 'artist', lab.entry.entry, 'act', lab.entry.confidence);
+        }
       }
     }
     for (const ch of channelIds) {
@@ -199,7 +217,7 @@
       if (index.neverSkip.has(credit)) return null;
     }
 
-    return matchChain(index, title, normalizedCreditedArtists, channelIds, true, taggedSet(index, s));
+    return matchChain(index, title, normalizedCreditedArtists, channelIds, true, taggedSet(index, s), [title]);
   }
 
   function matchItem(index, item) {
@@ -249,7 +267,11 @@
 
     // An item credited to several artists never reaches here (it is a mix); a card for an album or
     // playlist is not a song row.
-    return matchChain(index, title, normalizedCredits, channelIds, i.kind === 'song', taggedSet(index, i));
+    const rowTitles = [];
+    if (typeof i.songTitle === 'string') rowTitles.push(i.songTitle);
+    else if (i.kind === 'song') rowTitles.push(title);
+    if (Array.isArray(i.innerTitles)) for (const x of i.innerTitles) if (typeof x === 'string') rowTitles.push(x);
+    return matchChain(index, title, normalizedCredits, channelIds, i.kind === 'song', taggedSet(index, i), rowTitles);
   }
 
   globalThis.HM.match = { buildIndex, matchSong, matchItem, isKnown };

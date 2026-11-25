@@ -60,10 +60,18 @@
     return result;
   }
 
+  // A song title reduced for comparing: case, bracketed parts ("(Lyrics)", "[Remastered]"), a
+  // trailing "feat. ..." and punctuation do not count. Empty when nothing is left.
+  function titleKey(s) {
+    let t = normalize(s);
+    t = t.replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/\s(?:feat\.?|ft\.?|featuring)\s.*$/, ' ');
+    return t.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  }
+
   function wholeWord(term) {
     const escaped = normalize(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return new RegExp('(?<![\\p{L}\\p{N}])' + escaped + '(?![\\p{L}\\p{N}])', 'iu');
   }
 
-  globalThis.HM.text = { normalize, leadCredit, splitNames, safeParts, allNames, credits, wholeWord };
+  globalThis.HM.text = { normalize, leadCredit, splitNames, safeParts, allNames, credits, wholeWord, titleKey };
 })();

@@ -28,6 +28,8 @@ which stopped updating in March 2026, is built in too and on: it still has
 artists the others lack. Each list is on or off, and the popup shows them
 largest first. On Spotify, "Spotify's AI label" is a built-in list too: it counts an artist as listed when Spotify shows its own "AI Persona" tag next to the name. It has no entries to download, is on by default, and can be switched off like any list.
 
+The "Human Music verdicts" list marks artists found through this tag with the songs known for them. On YouTube Music such an artist is hidden only when the name and one of those songs match, so a different artist with the same name keeps playing.
+
 From Zoundhub, Human Music uses only the artists it rates 5 dots that also
 carry Deezer's AI label and first released music in 2020 or later. Zoundhub
 calls its rating "an AI signal, not a verified classification", so the less

@@ -193,9 +193,14 @@
       if (artists.length >= MAX_ENTRIES) break;
       if (typeof entry === 'string' && usableName(entry)) {
         artists.push({ name: entry });
-      } else if (entry && typeof entry === 'object' && typeof entry.name === 'string' && usableName(entry.name)) {
+      } else if (entry && typeof entry === 'object' && (typeof entry.name === 'string' ? usableName(entry.name) : (typeof entry.labelName === 'string' && Array.isArray(entry.titles) && usableName(entry.labelName)))) {
         if (entry.removed) continue;
-        const artist = { name: entry.name };
+        // A Spotify-labelled entry is published as labelName + titles, with no plain name, so a copy
+        // that does not know titles never matches it by name.
+        const artist = { name: typeof entry.name === 'string' ? entry.name : entry.labelName };
+        if (typeof entry.name !== 'string') {
+          artist.titles = entry.titles.filter(x => typeof x === 'string' && x !== '').slice(0, 50).map(x => x.slice(0, 200));
+        }
         if (typeof entry.channelId === 'string' && entry.channelId !== '') {
           artist.channelId = entry.channelId;
         } else if (typeof entry.youtube === 'string' && YT_CHANNEL_RE.test(entry.youtube)) {

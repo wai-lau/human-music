@@ -513,6 +513,20 @@
     const hit = extracted.get(el);
     if (hit && hit.text === text) return hit.item;
     const item = { ...extractPageItem(el, doc), el };
+    const tag = String(el.tagName || '').toLowerCase();
+    if (tag === 'ytmusic-card-shelf-renderer') {
+      // The songs shown inside a top-result card (an artist's card lists some of theirs).
+      const inner = ownAll(el, 'ytmusic-responsive-list-item-renderer').map(row => {
+        const t = own(row, '.title');
+        return t ? (t.textContent || '').trim() : '';
+      }).filter(Boolean);
+      if (inner.length) item.innerTitles = dedupe(inner);
+    } else if (tag === 'ytmusic-responsive-list-item-renderer' && item.title) {
+      // A song row, unless its type word says album, playlist or the like.
+      const sub = own(el, '.secondary-flex-columns') || own(el, '.subtitle');
+      const first = sub ? (sub.textContent || '').split(' • ')[0].trim() : '';
+      if (!/^(album|single|ep|playlist|artist|podcast|episode|profile)$/i.test(first)) item.songTitle = item.title;
+    }
     extracted.set(el, { text, item });
     return item;
   }

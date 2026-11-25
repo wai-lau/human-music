@@ -136,7 +136,13 @@
         const key = 'label:' + id;
         if (state.reported.has(key)) return;
         state.reported.add(key);
-        safe(() => onUnknown([{ site: 'spotify', title: item.title || '', artistLine: name, credits: [name], album: '', artUrl: '', channelIds: [id], spotifyAiLabel: true }]), []);
+        // The tagged song's own title goes along (a song, queue row or song row; not an album card), so the
+        // verdict knows songs by this artist (at most 20, each at most 200 characters).
+        const own = typeof item.songTitle === 'string' ? item.songTitle : (item.kind && item.kind !== 'song' ? '' : item.title);
+        const songTitles = typeof own === 'string' && own.trim() ? [own.trim().slice(0, 200)].slice(0, 20) : [];
+        const report = { site: 'spotify', title: item.title || '', artistLine: name, credits: [name], album: '', artUrl: '', channelIds: [id], spotifyAiLabel: true };
+        if (songTitles.length) report.songTitles = songTitles;
+        safe(() => onUnknown([report]), []);
       });
     }
 
@@ -200,6 +206,7 @@
         filterLists: lists.map(l => ({ ...l, artists: (data[HM.store.listKey(l.id)] || {}).artists || [] })),
         user,
         threshold,
+        site: /(^|\.)open\.spotify\.com$/.test(safe(() => doc.location.hostname, '') || '') ? 'spotify' : 'ytm',
       });
       return true;
     }

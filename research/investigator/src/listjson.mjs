@@ -34,9 +34,13 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
     } else {
       confidence = Number.isFinite(v.confidence) ? clampInt(v.confidence) : 0;
     }
-    const entry = { name: v.name, verdict: v.verdict, confidence, checked: typeof v.checked === 'string' ? v.checked : '' };
+    // A Spotify-labelled entry names the artist as labelName and carries titles, with no plain name: a
+    // copy that doesn't know titles drops it instead of matching the name alone.
+    const labelled = v.model === 'spotify-label' && Array.isArray(v.titles);
+    const entry = { [labelled ? 'labelName' : 'name']: v.name, verdict: v.verdict, confidence, checked: typeof v.checked === 'string' ? v.checked : '' };
     if (typeof v.spotifyId === 'string' && SPOTIFY_ID.test(v.spotifyId)) entry.spotifyId = v.spotifyId;
     if (typeof v.channelId === 'string' && YOUTUBE_ID.test(v.channelId)) entry.channelId = v.channelId;
+    if (labelled) entry.titles = v.titles.filter((t) => typeof t === 'string');
     rows.push([normalizeName(v.name), entry]);
   }
   rows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
