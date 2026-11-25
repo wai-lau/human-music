@@ -66,10 +66,15 @@ categorically different (not inferior)".
 - YouTube Music page facts (selectors, what works) are in the spec; they
   were checked live on 2026-11-11 and YouTube changes them without notice.
 
-## Start here (2026-11-17)
+## Start here (2026-11-26)
 
-- Phase 1 is done and the extension is on the Chrome Web Store (manifest version
-  0.1.3). The Firefox build exists but has not been loaded in a real Firefox yet.
+- The extension is on the Chrome Web Store; 0.1.8 (the 2026-11-24 friend-safety
+  hardening plus the Breaking Rust fix) is uploaded for Wai to submit. The Firefox
+  build exists but has not been loaded in a real Firefox yet.
+- Matching is name OR ID (Wai's decision); the hardening's ID veto was reverted
+  2026-11-25. Store packs are checked by `scripts/verify-pack.mjs` before a release.
+- Wai's dev copy records audio fingerprints for training (never store copies);
+  `node src/cli.mjs export-prints` on the droplet exports them.
 - The investigator (`research/investigator`) is in the repo; its notes are in
   its README and `docs/superpowers/specs/2026-11-16-ai-investigator-design.md`.
   Optimal and Aggressive stay on List only until the verdict list is calibrated.
