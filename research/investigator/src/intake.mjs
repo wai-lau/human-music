@@ -65,6 +65,8 @@ export function parseRequest(bodyText) {
       artist.songs.push({ ...song });
       if (playing) artist.playing = true;
       if (ids.spotifyId && !artist.spotifyId) artist.spotifyId = ids.spotifyId;
+      // Spotify's own "AI Persona" label, as read by a logged-in copy; counts only with the ID.
+      if (it.spotifyAiLabel === true && ids.spotifyId) artist.spotifyAiLabel = true;
       if (ids.channelId && !artist.channelId) artist.channelId = ids.channelId;
       for (const k of artistKeys(artist)) byKey.set(k, artist);
       for (const k of keys) byKey.set(k, artist);

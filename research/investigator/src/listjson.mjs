@@ -26,11 +26,11 @@ export function buildList(verdicts, { now, calibrated, mapping } = {}) {
       // for Claude's own number only.
       // A list verdict is absolute (Wai, 2026-11-18: "treat the lists and YTM tags as absolute"),
       // and SH Labs' two-track verdict carries its own fixed confidence: neither goes through it.
-      const own = v.model === 'claude-score' || v.model === 'list' || v.model === 'shlabs';
+      const own = v.model === 'claude-score' || v.model === 'list' || v.model === 'spotify-label' || v.model === 'shlabs';
       confidence = own ? clampInt(v.confidence) : applyMapping(mapping, raw);
       // A verdict that didn't meet the rule stays at 94 at most, whatever the fit says. Since
       // 2026-11-19 that is Optimal's threshold, so Optimal skips it (Wai's choice that day).
-      if (v.model !== 'list' && !mayPass94(v)) confidence = Math.min(confidence, 94);
+      if (v.model !== 'list' && v.model !== 'spotify-label' && !mayPass94(v)) confidence = Math.min(confidence, 94);
     } else {
       confidence = Number.isFinite(v.confidence) ? clampInt(v.confidence) : 0;
     }

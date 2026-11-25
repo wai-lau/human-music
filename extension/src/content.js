@@ -124,6 +124,22 @@
       }
     }
 
+    // Spotify's "AI Persona" tag (dev copy, investigator layer; Wai, 2026-11-25): each tagged artist
+    // with its Spotify artist ID is reported with spotifyAiLabel, even though the label list already
+    // knows it, so the investigator can record the verdict. Once per artist per page; the worker
+    // keeps it to once a day. An artist without an ID is not reported.
+    function reportLabelled(item) {
+      if (!state.settings.investigate || !item || !Array.isArray(item.aiTagged) || !Array.isArray(item.aiTaggedIds)) return;
+      item.aiTagged.forEach((name, i) => {
+        const id = item.aiTaggedIds[i];
+        if (typeof name !== 'string' || !name || typeof id !== 'string' || !/^[A-Za-z0-9]{22}$/.test(id)) return;
+        const key = 'label:' + id;
+        if (state.reported.has(key)) return;
+        state.reported.add(key);
+        safe(() => onUnknown([{ site: 'spotify', title: item.title || '', artistLine: name, credits: [name], album: '', artUrl: '', channelIds: [id], spotifyAiLabel: true }]), []);
+      });
+    }
+
     // Storage writes run one after another, so two quick ones never lose each other.
     function queueWrite(fn) {
       writes = writes.then(fn).catch(() => {});
@@ -326,6 +342,7 @@
       if (state.settings.paused) return;
       const song = safe(() => site.readSong(doc), null);
       if (!song) return;
+      reportLabelled(song);
       // The song changed while one was being recorded: stop that recording now, so its mute
       // never carries over to this song.
       if (state.captureRunning && state.captureSong && !songMatches(song, state.captureSong.title + '\u0000' + state.captureSong.artistLine)) {
@@ -485,7 +502,7 @@
         if (state.settings.investigate && state.index) {
           const rows = safe(() => site.readQueue(doc), []);
           const at = rows.findIndex(r => r.selected);
-          for (const row of rows.slice(at + 1, at + 1 + state.settings.lookahead)) reportUnknown(row);
+          for (const row of rows.slice(at + 1, at + 1 + state.settings.lookahead)) { reportUnknown(row); reportLabelled(row); }
         }
       } finally {
         state.lookaheadRunning = false;
@@ -517,6 +534,7 @@
       const path = safe(() => doc.location.pathname, '');
       for (const item of safe(() => site.readPageItems(doc, path), [])) {
         const wasHidden = safe(() => item.el.hasAttribute('data-hm-hidden'), true);
+        reportLabelled(item);
         const match = matchPageItem(item);
         if (!wasHidden && (!match || match.mode !== 'act')) continue;
         if (match && match.mode === 'act') {

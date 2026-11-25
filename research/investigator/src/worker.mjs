@@ -85,6 +85,23 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
       if (!artist) return 'idle';
       const today = now().toISOString().slice(0, 10);
 
+      // Spotify's own "AI Persona" label, read by a logged-in copy of the extension (Wai,
+      // 2026-11-25): the first layer, ahead of everything and over an older verdict. Signal M1 is
+      // the checklist's "Spotify shows an AI Persona badge". Like a list verdict it never expires.
+      if (artist.spotifyAiLabel === true && artist.spotifyId) {
+        save(artist, null, {
+          verdict: 'ai',
+          confidence: 100,
+          rawConfidence: 100,
+          signals: ['M1'],
+          reasons: ['Spotify labels this artist "AI Persona"'],
+          sources: [`https://open.spotify.com/artist/${artist.spotifyId}`],
+        }, 'spotify-label', today);
+        queue.done(artist);
+        schedulePublish();
+        return 'done';
+      }
+
       let cheap = null;
       try { cheap = await cheapPass(artist); } catch { cheap = null; }
       if (cheap && cheap.verdict === 'human') {

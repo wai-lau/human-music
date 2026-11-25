@@ -45,9 +45,10 @@
   // text is exactly that (English only; any other text, or another language, does not count and
   // so errs toward playing). It belongs to the nearest artist link before it in the same line
   // (the link and the tag sit inside one element). Class names are hashed, so none is used.
-  // Returns the tagged artists' names. `strict`: the link and tag must share an element other
+  // Returns the tagged artists as pairs. `strict`: the link and tag must share an element other
   // than `root` itself (a row's artist line), so a tag in another cell never pairs.
-  function taggedIn(root, strict) {
+  // The same, as { name, id } pairs: id is the Spotify artist ID from the link ('' without one).
+  function taggedPairs(root, strict) {
     const out = [];
     const pairs = root.querySelectorAll(SEL.artistLink + ', ' + SEL.tag);
     let last = null;
@@ -57,9 +58,16 @@
       let line = last.parentElement;
       while (line && line !== root && !line.contains(node)) line = line.parentElement;
       if (!line || (strict && line === root)) continue;
-      out.push(text(last));
+      out.push({ name: text(last), id: idOf(last.getAttribute('href')) || '' });
     }
-    return uniq(out);
+    return out.filter((p, i) => out.findIndex(q => q.name === p.name) === i);
+  }
+
+  // Sets item.aiTagged (names) and item.aiTaggedIds (the artists' own IDs, same order) from pairs.
+  function setTagged(item, pairs) {
+    if (!pairs.length) return;
+    item.aiTagged = pairs.map(p => p.name);
+    item.aiTaggedIds = pairs.map(p => p.id);
   }
 
   function readSong(doc) {
@@ -71,8 +79,7 @@
       const byline = widget.querySelector(SEL.byline) || widget;
       const { names, ids } = artistsIn(byline);
       const song = { title, artistLine: names.join(', '), credits: names, channelIds: ids };
-      const aiTagged = taggedIn(byline, false);
-      if (aiTagged.length) song.aiTagged = aiTagged;
+      setTagged(song, taggedPairs(byline, false));
       return song;
     }, null);
   }
@@ -88,8 +95,7 @@
       for (const row of panel.querySelectorAll(SEL.queueRow)) {
         const { names, ids } = artistsIn(row);
         const item = { title: text(row.querySelector(SEL.rowTitle)), artistLine: names.join(', '), credits: names, channelIds: ids, selected: false, el: row };
-        const aiTagged = taggedIn(row, true);
-        if (aiTagged.length) item.aiTagged = aiTagged;
+        setTagged(item, taggedPairs(row, true));
         out.push(item);
       }
       return out;
@@ -298,10 +304,10 @@
         if (!ownId && names.length > 1) featured = true;
         const kind = el.getAttribute('data-testid') === 'tracklist-row' ? 'song' : 'other';
         const item = { title, credits, channelIds: uniq(ownId ? [ownId, ...ids] : ids), featured, kind, el };
-        let aiTagged = taggedIn(el, true);
+        let pairs = taggedPairs(el, true);
         // An artist card: its tag sits beside the artist's own name, which is the card's title.
-        if (!isListRow && ownId && title && !aiTagged.length && [...el.querySelectorAll(SEL.tag)].some(n => text(n).toLowerCase() === 'ai persona' && !el.querySelector(SEL.artistLink + ':not([href*="' + ownId + '"])'))) aiTagged = [title];
-        if (aiTagged.length) item.aiTagged = aiTagged;
+        if (!isListRow && ownId && title && !pairs.length && [...el.querySelectorAll(SEL.tag)].some(n => text(n).toLowerCase() === 'ai persona' && !el.querySelector(SEL.artistLink + ':not([href*="' + ownId + '"])'))) pairs = [{ name: title, id: ownId }];
+        setTagged(item, pairs);
         out.push(item);
       }
       return out;

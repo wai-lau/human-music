@@ -37,6 +37,7 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
     setKey: db.prepare('INSERT OR REPLACE INTO queue_keys (key, queue_id) VALUES (?, ?)'),
     hasKey: db.prepare('SELECT 1 AS x FROM queue_keys WHERE key = ?'),
     top: db.prepare('SELECT id, artist FROM queue WHERE in_progress = 0 AND not_before <= ? ORDER BY front DESC, playing DESC, id ASC LIMIT 1'),
+    topLabel: db.prepare(`SELECT id, artist FROM queue WHERE in_progress = 0 AND not_before <= ? AND artist LIKE '%"spotifyAiLabel":true%' ORDER BY front DESC, id ASC LIMIT 1`),
     triesOf: db.prepare('SELECT tries FROM queue WHERE id = ?'),
     later: db.prepare('UPDATE queue SET in_progress = 0, tries = tries + 1, not_before = ?, front = (SELECT COALESCE(MIN(front), 0) FROM queue) - 1 WHERE id = ?'),
     drop: db.prepare('DELETE FROM queue WHERE id = ?'),
@@ -48,6 +49,8 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
     release: db.prepare('UPDATE queue SET in_progress = 0, front = ? WHERE id = ?'),
     orphans: db.prepare('SELECT id FROM queue WHERE in_progress = 1 ORDER BY id DESC'),
     maxFront: db.prepare('SELECT COALESCE(MAX(front), 0) AS m FROM queue'),
+    queued: db.prepare('SELECT id, artist, in_progress FROM queue WHERE id = ?'),
+    setArtist: db.prepare('UPDATE queue SET artist = ? WHERE id = ?'),
     seen: db.prepare('SELECT 1 AS x FROM enqueued_days WHERE key = ? AND day = ?'),
     markSeen: db.prepare('INSERT OR IGNORE INTO enqueued_days (key, day) VALUES (?, ?)'),
     oldDays: db.prepare('DELETE FROM enqueued_days WHERE day < ?'),
@@ -71,7 +74,7 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
   function isKnown(keys) {
     const v = store.findVerdict(keys);
     if (!v) return false;
-    if (v.model === 'list') return true;
+    if (v.model === 'list' || v.model === 'spotify-label') return true;
     const age = (now().getTime() - Date.parse(v.checked + 'T00:00:00Z')) / DAY_MS;
     return !(age >= recheckDays);
   }
@@ -84,6 +87,24 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
         q.oldDays.run(day);
         for (const a of artists) {
           const keys = artistKeys(a);
+          // Spotify's AI label (Wai, 2026-11-25) goes ahead of a standing verdict, once a day per
+          // artist, and does not count against the day's cap (the worker settles it with no
+          // Claude run). Already labelled: known. Already queued: the flag joins the queued row.
+          if (a.spotifyAiLabel === true) {
+            const v = store.findVerdict(keys);
+            if (v && v.model === 'spotify-label') { known++; continue; }
+            if (keys.some(k => q.seen.get('label:' + k, day))) { again++; continue; }
+            for (const k of keys) q.markSeen.run('label:' + k, day);
+            const owner = keys.map(k => q.owner.get(k)).find(Boolean);
+            const row = owner && q.queued.get(owner.queue_id);
+            if (row && !row.in_progress) {
+              q.setArtist.run(JSON.stringify({ ...JSON.parse(row.artist), spotifyAiLabel: true }), row.id);
+              again++;
+              continue;
+            }
+            if (!row) { insert(a, keys, 1); queued++; continue; }
+            again++; continue;
+          }
           if (isKnown(keys)) { known++; continue; }
           if (keys.some(k => q.hasKey.get(k)) || keys.some(k => q.seen.get(k, day))) { again++; continue; }
           insert(a, keys, 0);
@@ -96,9 +117,10 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
 
     next() {
       if (store.getState('queue.paused') !== null) return null;
-      if (store.count(today()) >= cap) return null;
+      // At the day's cap only Spotify-label artists go on: they cost no Claude run and are not counted.
+      const capped = store.count(today()) >= cap;
       return store.transaction(() => {
-        const row = q.top.get(now().getTime());
+        const row = (capped ? q.topLabel : q.top).get(now().getTime());
         if (!row) return null;
         q.take.run(row.id);
         return JSON.parse(row.artist);

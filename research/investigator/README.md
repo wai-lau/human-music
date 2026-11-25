@@ -6,11 +6,12 @@ The service never makes a song skip by itself. A song is skipped only when the e
 
 ## What it does
 
-The investigator's own verdicts last a month (set by HM_RECHECK_DAYS, default 30); after that, the service requeues them automatically when the live queue is empty, using spare capacity, and the old verdict stands until the new one replaces it. A verdict copied from an AI list doesn't expire.
+The investigator's own verdicts last a month (set by HM_RECHECK_DAYS, default 30); after that, the service requeues them automatically when the live queue is empty, using spare capacity, and the old verdict stands until the new one replaces it. A verdict copied from an AI list or from Spotify's label doesn't expire.
 
 Each artist goes through a layered decision:
 
 1. A cheap pass looks up the release history. An artist with clear releases before 2020 is marked `human` with no further work.
+1a. If a logged-in copy of the extension saw Spotify's own "AI Persona" tag on the artist (it carries the Spotify artist ID), the service marks it `ai` at 100 first, ahead of every other layer and over an older verdict. It never expires, and these artists do not count against the day's cap.
 2. If the artist is on a maintained AI-artist list (Zoundhub, Soul Over AI, or Cevval by channel ID), it is marked `ai` at 100 confidence. Lists are downloaded at most once a day; if a list fails to download the last good copy is used.
 3. The service scores two 30-second Deezer previews of the artist with our own audio model (written from Afchar et al., ISMIR 2025; results in research/calibration). Both songs at 0.8 or more is `ai` at 90 (below Optimal); anything else goes on to the next layer. The model runs in the service; only Deezer is contacted, for the previews.
 4. The service then asks SH Labs to score the artist's top two Spotify tracks, one at a time. A first song under 8% is `human` at 95 without a second request; otherwise both 95% or higher is `ai` at 95 (Optimal skips it), both 85% or higher is `ai` at 90 (below Optimal, so SH Labs alone never reaches it), and both under 50% is `human` at 95. For YouTube Music artists without a Spotify ID, the service links the artist to Deezer through MusicBrainz or by name, finds ISRCs, and scores those instead. Any other result or the day's request cap passes the artist on to Claude.

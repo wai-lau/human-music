@@ -219,7 +219,7 @@ export function openStore(path) {
         SELECT * FROM artists
         WHERE source = 'live'
           AND verdict IN ('human', 'unsure')
-          AND model != 'list'
+          AND model NOT IN ('list', 'spotify-label')
           AND checked <= ?
         ORDER BY checked ASC, id ASC
         LIMIT ?

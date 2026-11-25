@@ -505,7 +505,9 @@ list = lists[HM.store.KEYS.filterLists][i];
           }
         }
       }
-      return key || 'unknown';
+      key = key || 'unknown';
+      // A Spotify-label report is its own once-a-day send, apart from the same artist's ordinary one.
+      return item.spotifyAiLabel === true ? 'label:' + key : key;
     }
 
     async function sendFingerprint(item) {
