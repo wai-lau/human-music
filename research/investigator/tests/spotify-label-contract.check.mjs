@@ -40,7 +40,8 @@ function setup({ now = NOW, cap = 100, pre } = {}) {
     cheapPass: async () => { calls.cheap++; return null; },
     aiLists: { match: async () => { calls.lists++; return null; } },
     fakeprintLayer: { scoreArtist: async () => { calls.fake++; return []; } },
-    fetchPage: async () => { calls.pages++; return ''; },
+    // The song-title fetch of the artist's public embed page (2026-11-25) is part of the label layer, not another layer.
+    fetchPage: async (u) => { if (!String(u).includes('/embed/artist/')) calls.pages++; return ''; },
     shlabs: { scoreTracks: async () => { calls.shlabs++; return []; } },
     investigate: async () => { calls.claude++; return { ok: true, checklist: { signs: signs(), genres: [], sources: [], summary: '' } }; },
   });
