@@ -20,7 +20,7 @@ categorically different (not inferior)".
   means play. Any error leaves the song playing.
 - **Clean room.** This replaces an unlicensed extension (YTM AI Artist &
   Song Blocker). Never copy its code, icons or text, and don't open its
-  source (`~/src/YTM-AI-Artist-Song-Blocker`). The spec describes all the
+  source (deleted from `~/src` 2026-11-25; archived in `~/.archaeology/`). The spec describes all the
   behavior needed.
 - **Two parts.** `extension/` is the whole package, loaded unpacked as is.
   The investigator lives in `research/investigator` and is never bundled:
@@ -77,6 +77,6 @@ categorically different (not inferior)".
 - Questions for Wai go in a gitignored `OPEN-QUESTIONS.md` here, published as
   this repo's own questions page (see the global CLAUDE.md); its URL is in
   project memory.
-- Background lives in the old repo's docs (`docs/answered-questions.md` in
-  `~/src/YTM-AI-Artist-Song-Blocker`); reading those docs is fine, its code
-  is not.
+- Background lives in the old repo's docs (`docs/answered-questions.md` on
+  Wai's fork, github.com/wai-lau/YTM-AI-Artist-Song-Blocker; the local folder
+  was deleted 2026-11-25); reading those docs is fine, its code is not.

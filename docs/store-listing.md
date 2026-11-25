@@ -55,17 +55,12 @@ developer.chrome.com/docs/webstore/best-listing, read 2026-11-18):
 maximum of five):
 
 1. `1-greyed-out.png`: songs by listed artists greyed out on a playlist.
-2. `2-blocked.png`: the log's Blocked section.
-3. `3-actions.png`: the log's Actions section.
-4. `4-behaviour.png`: the Behaviour settings.
-5. `5-lists.png`: the Lists tab, largest list first, with refresh icons (real counts on
-   2026-11-20, the verdict list's first 3 AI verdicts) and Optimal selected.
+2. `2-ytm-oldnew.png`: the same YouTube Music search for an AI-generated artist (Breaking Rust), without and with Human Music, side by side.
+3. `3-spotify-oldnew.png`: the same search on Spotify, without and with Human Music.
+4. `4-blocked.png`: the log's Blocked section.
+5. `5-lists.png`: the Lists tab, largest list first.
 
-Shots 2-5 were retaken together on 2026-11-24 for 0.1.7: the header line under the name now describes the filtering level and its risk, the Behaviour tab shows lookahead 10 and the Plain pages switch (Optimal selected, the same seeded log and list counts as before).
-
-Shots 2-4 (retaken 2026-11-18, after the contrast fix and the Zoundhub switch) show the popup
-with the filtering-mode slider and Zoundhub as the list, from a store-like copy (no investigator
-section).
+The Old/New pairs (shots 2 and 3) were made 2026-11-25 (Wai: "A for both spotify and YTM") from live searches with filtering off and on, cropped to the results so no personal playlists or account show. They replaced the Actions and Behaviour shots, kept in `~/store-shots/old/`. Shots 4 and 5 were retaken 2026-11-24 for 0.1.7.
 
 **Small promo tile** (440x280, `~/store-shots/promo-small.png`): upload it. It is optional, but
 items without one are shown after items that have one. Per the guide it has no text: the icon on
