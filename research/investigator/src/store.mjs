@@ -45,6 +45,11 @@ CREATE TABLE IF NOT EXISTS counters (
   day TEXT PRIMARY KEY,
   n INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS rechecks (
+  artist_id INTEGER PRIMARY KEY,
+  tried TEXT,
+  renewed TEXT
+);
 CREATE TABLE IF NOT EXISTS state (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -69,6 +74,29 @@ function checkVerdict(v) {
   if (!SOURCES.has(v.source)) throw new TypeError('source must be live or calibration');
   if (typeof v.checked !== 'string' || !DAY.test(v.checked)) throw new TypeError('checked must be YYYY-MM-DD');
   if (typeof v.model !== 'string') throw new TypeError('model must be a string');
+}
+
+const DAY_MS = 86400000;
+
+// A failed or unsure recheck is tried again after this many days (at most the recheck age itself).
+export const retryDaysFor = (days) => Math.min(7, days);
+
+function dayMinus(day, n) {
+  const d = new Date(day + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+// A verdict is due for a recheck once it is `days` old (any verdict, any model), unless a recheck
+// was tried inside the retry window and left it standing.
+export function isDue(v, nowMs, days) {
+  const age = (nowMs - Date.parse(v.checked + 'T00:00:00Z')) / DAY_MS;
+  if (!(age >= days)) return false;
+  if (v.recheckTried) {
+    const since = (nowMs - Date.parse(v.recheckTried + 'T00:00:00Z')) / DAY_MS;
+    if (since < retryDaysFor(days)) return false;
+  }
+  return true;
 }
 
 export function openStore(path) {
@@ -98,6 +126,11 @@ export function openStore(path) {
     getScores: db.prepare('SELECT track_id, probability, label, generator, audio_source, at FROM scores WHERE artist_id = ? ORDER BY rowid'),
     getCount: db.prepare('SELECT n FROM counters WHERE day = ?'),
     bumpCount: db.prepare('INSERT INTO counters (day, n) VALUES (?, 1) ON CONFLICT(day) DO UPDATE SET n = n + 1'),
+    triedOf: db.prepare('SELECT tried FROM rechecks WHERE artist_id = ?'),
+    setTried: db.prepare(`INSERT INTO rechecks (artist_id, tried) VALUES (?, ?)
+      ON CONFLICT(artist_id) DO UPDATE SET tried = excluded.tried`),
+    setRenewed: db.prepare(`INSERT INTO rechecks (artist_id, renewed) VALUES (?, ?)
+      ON CONFLICT(artist_id) DO UPDATE SET renewed = excluded.renewed`),
     getState: db.prepare('SELECT value FROM state WHERE key = ?'),
     setState: db.prepare('INSERT OR REPLACE INTO state (key, value) VALUES (?, ?)'),
   };
@@ -116,6 +149,8 @@ export function openStore(path) {
       checked: row.checked,
       source: row.source,
     };
+    const t = q.triedOf.get(row.id);
+    if (t && t.tried) out.recheckTried = t.tried;
     for (const { key } of q.keysOf.all(row.id)) {
       if (key.startsWith('sp:')) out.spotifyId = key.slice(3);
       else if (key.startsWith('yt:')) out.channelId = key.slice(3);
@@ -211,21 +246,41 @@ export function openStore(path) {
       return q.publishable.all().map(toVerdict);
     },
 
-    listDuePasses(day, limit, days = 30) {
-      const cutoff = new Date(day + 'T00:00:00Z');
-      cutoff.setDate(cutoff.getDate() - days);
-      const cutoffStr = cutoff.toISOString().slice(0, 10);
-      const stmt = db.prepare(`
-        SELECT * FROM artists
-        WHERE source = 'live'
-          AND verdict IN ('human', 'unsure')
-          AND model NOT IN ('list', 'spotify-label')
-          AND checked <= ?
-        ORDER BY checked ASC, id ASC
-        LIMIT ?
-      `);
-      const rows = stmt.all(cutoffStr, limit);
-      return rows.map(toVerdict);
+    // Verdicts due for a recheck (any model, any word), oldest first, a fair mix: half AI, half
+    // passes (human, unsure), the other side filling in when one runs short.
+    listDue(day, limit, days = 30) {
+      const cutoff = dayMinus(day, days);
+      const retryCutoff = dayMinus(day, retryDaysFor(days));
+      const dueRows = (cond, n) => db.prepare(`
+        SELECT a.* FROM artists a LEFT JOIN rechecks r ON r.artist_id = a.id
+        WHERE a.source = 'live' AND ${cond} AND a.checked <= ?
+          AND (r.tried IS NULL OR r.tried <= ?)
+        ORDER BY a.checked ASC, a.id ASC LIMIT ?
+      `).all(cutoff, retryCutoff, n);
+      const aiN = Math.floor(limit / 2);
+      const ai = dueRows("a.verdict = 'ai'", limit).map(toVerdict);
+      const pass = dueRows("a.verdict IN ('human', 'unsure')", limit).map(toVerdict);
+      const takeAi = Math.min(ai.length, Math.max(aiN, limit - pass.length));
+      const takePass = Math.min(pass.length, limit - takeAi);
+      return [...ai.slice(0, takeAi), ...pass.slice(0, takePass)]
+        .sort((x, y) => (x.checked < y.checked ? -1 : x.checked > y.checked ? 1 : x.id - y.id));
+    },
+
+    markRecheckTried(id, day) { q.setTried.run(id, day); },
+    markRenewed(id, day) { q.setRenewed.run(id, day); },
+
+    recheckStats(day, days = 30) {
+      const cutoff = dayMinus(day, days);
+      const retryCutoff = dayMinus(day, retryDaysFor(days));
+      const n = (sql, ...a) => db.prepare(sql).get(...a).n;
+      return {
+        due: n(`SELECT COUNT(*) AS n FROM artists a LEFT JOIN rechecks r ON r.artist_id = a.id
+          WHERE a.source = 'live' AND a.checked <= ? AND (r.tried IS NULL OR r.tried <= ?)`, cutoff, retryCutoff),
+        attempted: n(`SELECT COUNT(*) AS n FROM artists a JOIN rechecks r ON r.artist_id = a.id
+          WHERE a.source = 'live' AND a.checked <= ? AND r.tried > ?`, cutoff, retryCutoff),
+        refreshed: n(`SELECT COUNT(*) AS n FROM rechecks r JOIN artists a ON a.id = r.artist_id
+          WHERE a.source = 'live' AND r.renewed >= ?`, cutoff),
+      };
     },
 
     putScores(artistId, scores) {

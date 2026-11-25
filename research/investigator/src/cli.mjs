@@ -1,5 +1,5 @@
 // The owner's commands, run on the droplet against the service's own database:
-//   status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] | calibrate | accept-calibration
+//   status | resume | recheck <key> | recheck-status | calibrate-run [--model opus|sonnet] [--seed N] | calibrate | accept-calibration
 //   checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet]
 //   shlabs-run --ai <path> --people <path> [--max N] | shlabs-report  (SH Labs accuracy; key from SHLABS_API_KEY)
 // `checklist-run` is the evidence-weights experiment (Wai, 2026-11-18): Claude fills in the
@@ -22,7 +22,7 @@ import { createQueue } from './queue.mjs';
 import { openStore } from './store.mjs';
 
 const KEY_SHAPE = /^(sp|yt|nm):.{1,300}$/s;
-const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report | export-prints';
+const USAGE = 'usage: node src/cli.mjs status | resume | recheck <key> | recheck-status | calibrate-run [--model opus|sonnet] [--seed N] [--soul-over-ai <path>] [--people <path>] | calibrate | accept-calibration | checklist-run --ai <path> --people <path> [--model opus|sonnet] | checklist-report [--model opus|sonnet] | shlabs-run --ai <path> --people <path> [--max N] | shlabs-report | export-prints';
 // In the repo the sample files sit beside the service; on the droplet pass their paths.
 const DEFAULT_SOA = new URL('../calibration/soul-over-ai.json', import.meta.url);
 const DEFAULT_PEOPLE = new URL('../../calibration/known-people.json', import.meta.url);
@@ -32,7 +32,7 @@ const val = (v) => (typeof v === 'string' && v.trim() !== '' ? v.trim() : undefi
 
 export async function runCli(argv, env, { out = (l) => console.log(l), now = () => new Date(), investigate = realInvestigate, fetchPage, shlabs } = {}) {
   const [command, ...rest] = argv;
-  if (!['status', 'resume', 'recheck', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report', 'shlabs-run', 'shlabs-report', 'export-prints'].includes(command)) {
+  if (!['status', 'resume', 'recheck', 'recheck-status', 'calibrate-run', 'calibrate', 'accept-calibration', 'checklist-run', 'checklist-report', 'shlabs-run', 'shlabs-report', 'export-prints'].includes(command)) {
     out(USAGE);
     return 1;
   }
@@ -40,7 +40,9 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
   const cap = Number.isInteger(capNum) && capNum > 0 ? capNum : 100;
   const store = openStore(dbPath(val(env.HM_DATA_DIR) || DEFAULT_DATA_DIR));
   try {
-    const queue = createQueue({ store, now, cap });
+    const recheckNum = Number.parseInt(val(env.HM_RECHECK_DAYS) || '', 10);
+    const recheckDays = Number.isInteger(recheckNum) && recheckNum > 0 ? recheckNum : 30;
+    const queue = createQueue({ store, now, cap, recheckDays });
 
     if (command === 'status') {
       const s = queue.status();
@@ -49,6 +51,14 @@ export async function runCli(argv, env, { out = (l) => console.log(l), now = () 
       out(`paused: ${s.paused === null ? 'no' : s.paused}`);
       out(`last error: ${s.lastError === null ? 'none' : s.lastError}`);
       out(`calibrated: ${store.getState('calibrated') === true ? 'yes' : 'no'}`);
+      return 0;
+    }
+
+    if (command === 'recheck-status') {
+      const st = store.recheckStats(now().toISOString().slice(0, 10), recheckDays);
+      out(`due: ${st.due}`);
+      out(`attempted, inconclusive: ${st.attempted}`);
+      out(`refreshed in the last ${recheckDays} days: ${st.refreshed}`);
       return 0;
     }
 

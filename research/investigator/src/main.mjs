@@ -222,14 +222,14 @@ export function createApp(env, deps = {}) {
     } catch { /* try again next tick */ }
     try { if (queue.resumeIfDue()) log('queue: usage-limit pause lifted after an hour'); } catch { /* next tick */ }
     try {
-      // Recheck due passes only when the live queue is empty.
+      // Recheck due verdicts (AI and passes alike) only when the live queue is empty.
       if (queue.status().queued === 0) {
         const day = now().toISOString().slice(0, 10);
         const remaining = cap - queue.status().today;
         if (remaining > 0) {
           // At most RECHECK_BATCH a tick (every 5 minutes): the queue stays short, so an artist a
           // copy sends without playing it never waits behind a long batch of rechecks.
-          const due = store.listDuePasses(day, Math.min(remaining, RECHECK_BATCH), recheckDays);
+          const due = store.listDue(day, Math.min(remaining, RECHECK_BATCH), recheckDays);
           if (due.length > 0) {
             const items = due.map((v) => {
               const item = { name: v.name, site: 'recheck', songs: [], playing: false };
@@ -239,7 +239,7 @@ export function createApp(env, deps = {}) {
             });
             const result = queue.enqueue(items);
             if (result.queued > 0) {
-              log(`recheck: queued ${result.queued} due pass(es)`);
+              log(`recheck: queued ${result.queued} due verdict(s)`);
             }
           }
         }

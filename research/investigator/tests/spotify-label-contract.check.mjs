@@ -7,7 +7,8 @@
 //     the label's), once a day; at the day's cap only flagged artists still run.
 //   worker.runOne: first layer, before the cheap pass; saves ai / 100 / 100, signal M1, model
 //     'spotify-label', source the artist's Spotify page; overrides an older human verdict.
-//   The verdict never expires (queue.isKnown, store.listDuePasses) and publishes at 100.
+//   The verdict is rechecked monthly like every other (queue.isKnown, store.listDue; changed
+//   2026-11-25, recheck-all-contract.check.mjs) and publishes at 100.
 // Run from research/investigator: node tests/spotify-label-contract.check.mjs
 import { run } from './harness.mjs';
 import { openStore } from '../src/store.mjs';
@@ -91,10 +92,10 @@ await run([
     await t.w.runOne();
     return t.calls.cheap === 1 || J(t.calls);
   }],
-  ['the label verdict never expires (months later it is still known and not due)', () => {
+  ['the label verdict is due again a month later, like every verdict (it was exempt before 2026-11-25)', () => {
     const t = setup({ now: LATER, pre: { ...human, verdict: 'ai', confidence: 100, rawConfidence: 100, model: 'spotify-label', signals: ['M1'] } });
     const c = t.queue.enqueue([art({ spotifyAiLabel: undefined })]);
-    return (c.known === 1 && c.queued === 0) || J(c);
+    return (c.known === 0 && c.queued === 1) || J(c);
   }],
   ['an already-labelled artist reported again is known, not requeued', () => {
     const t = setup({ pre: { ...human, verdict: 'ai', confidence: 100, rawConfidence: 100, model: 'spotify-label', signals: ['M1'] } });
@@ -130,8 +131,8 @@ await run([
     const e = (l.artists || [])[0];
     return (e && e.confidence === 100 && e.spotifyId === SP) || J(l);
   }],
-  ['not rechecked as a due pass', () => {
+  ['listed as due a month later (it was exempt before 2026-11-25)', () => {
     const t = setup({ now: LATER, pre: { ...human, verdict: 'ai', model: 'spotify-label', checked: '2026-01-01' } });
-    return t.store.listDuePasses('2027-02-25', 10, 30).length === 0 || 'listed as due';
+    return t.store.listDue('2027-02-25', 10, 30).length === 1 || 'not listed as due';
   }],
 ]);

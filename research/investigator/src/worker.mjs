@@ -11,6 +11,7 @@ import { decide, mayPass94 } from './answer.mjs';
 import { applyMapping } from './calibrate.mjs';
 import { scoreChecklist } from './score.mjs';
 import { trackIdsFromEmbed } from './shlabsrun.mjs';
+import { artistKeys } from './names.mjs';
 
 // Scored verdicts keep the old names of their strong signs too, so the published list's 95 rule
 // (mayPass94) sees them.
@@ -33,7 +34,18 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
     return out;
   }
 
+  // A recheck (or any run for an artist that already has a verdict): an unsure result is
+  // inconclusive and never overwrites a stored ai or human verdict (Wai, 2026-11-25: "just leave on
+  // the list if inconclusive"); a decisive one replaces it and is counted as a renewal.
   function save(artist, found, v, model, today) {
+    const old = store.findVerdict(artistKeys(artist));
+    if (old && v.verdict === 'unsure' && old.verdict !== 'unsure') return old.id;
+    const id = put(artist, found, v, model, today);
+    if (old && v.verdict !== 'unsure') { try { store.markRenewed(id, today); } catch { /* optional */ } }
+    return id;
+  }
+
+  function put(artist, found, v, model, today) {
     return store.putVerdict({
       name: artist.name,
       ...withIds(artist, found, v.verdict),
@@ -85,9 +97,17 @@ export function createWorker({ store, queue, cheapPass, investigate, shlabs, sch
       if (!artist) return 'idle';
       const today = now().toISOString().slice(0, 10);
 
+      // An artist that already has a verdict is being rechecked: record the attempt now, so that
+      // whatever happens (unsure, a Claude failure, an error) it is not retried before the retry
+      // window ends. The old verdict stays as it was.
+      try {
+        const had = store.findVerdict(artistKeys(artist));
+        if (had) store.markRecheckTried(had.id, today);
+      } catch { /* the attempt is not recorded; the artist may come round again sooner */ }
+
       // Spotify's own "AI Persona" label, read by a logged-in copy of the extension (Wai,
       // 2026-11-25): the first layer, ahead of everything and over an older verdict. Signal M1 is
-      // the checklist's "Spotify shows an AI Persona badge". Like a list verdict it never expires.
+      // the checklist's "Spotify shows an AI Persona badge". It is rechecked monthly like any verdict; a server-side recheck cannot see the tag, so the other layers decide.
       if (artist.spotifyAiLabel === true && artist.spotifyId) {
         save(artist, null, {
           verdict: 'ai',

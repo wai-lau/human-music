@@ -1,8 +1,7 @@
 // The investigation queue: priority, daily cap, one a day per artist, pause. All state is in
 // the store's database, so a restart loses nothing (and keeps the once-a-day record).
 import { artistKeys } from './names.mjs';
-
-const DAY_MS = 86400000;
+import { isDue } from './store.mjs';
 
 export function createQueue({ store, now, cap, recheckDays = 30 }) {
   const db = store.db;
@@ -66,17 +65,14 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
     for (const k of keys) q.setKey.run(k, id);
   }
 
-  // 'known' when a verdict stands; the investigator's own verdicts at least recheckDays old
-  // (HM_RECHECK_DAYS, default 30) are due again (Wai, 2026-11-20: "do we have a cache for lookups? It should have a lifetime of 1month",
-  // then "Only the verdicts _I_ set / I mean the investigator"). A verdict copied from an AI list
-  // (model 'list') never expires: the list is the source. Before, only unsure verdicts came back.
-  // The old verdict stays in force, and on the published list, until the new one replaces it.
+  // 'known' when a verdict stands and is not due: every verdict, of every model, is due again
+  // once recheckDays old (HM_RECHECK_DAYS, default 30; Wai, 2026-11-25: "everything should expire
+  // after 1 month"), unless a recheck was tried lately and left it standing. The old verdict stays
+  // in force, and on the published list, until a new decisive one replaces it.
   function isKnown(keys) {
     const v = store.findVerdict(keys);
     if (!v) return false;
-    if (v.model === 'list' || v.model === 'spotify-label') return true;
-    const age = (now().getTime() - Date.parse(v.checked + 'T00:00:00Z')) / DAY_MS;
-    return !(age >= recheckDays);
+    return !isDue(v, now().getTime(), recheckDays);
   }
 
   return {
@@ -92,7 +88,7 @@ export function createQueue({ store, now, cap, recheckDays = 30 }) {
           // Claude run). Already labelled: known. Already queued: the flag joins the queued row.
           if (a.spotifyAiLabel === true) {
             const v = store.findVerdict(keys);
-            if (v && v.model === 'spotify-label') { known++; continue; }
+            if (v && v.model === 'spotify-label' && !isDue(v, now().getTime(), recheckDays)) { known++; continue; }
             if (keys.some(k => q.seen.get('label:' + k, day))) { again++; continue; }
             for (const k of keys) q.markSeen.run('label:' + k, day);
             const owner = keys.map(k => q.owner.get(k)).find(Boolean);

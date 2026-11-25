@@ -2,17 +2,18 @@
 // rechecks on passes as they expire / And changes get pushed up to the list").
 // Then: "Monthly is guess, depends on how much data i generate to search": rechecks use only spare
 // capacity, and the age is a setting.
-// A pass is a verdict that lets the song play: 'human' or 'unsure'. When one of the
-// investigator's own passes (any model but 'list') is HM_RECHECK_DAYS old or more (default 30), the
-// service queues it again by itself, without waiting for a copy of the extension to send the artist,
-// but only when the live queue is empty, and only as many as are left of the day's cap. AI verdicts are
-// not rechecked this way (they come back when the artist is next sent), and list verdicts never
-// expire. A recheck that turns a pass into AI replaces the verdict, so the artist goes onto the
-// published list at the next publish.
+// A pass is a verdict that lets the song play: 'human' or 'unsure'. When one is HM_RECHECK_DAYS old
+// or more (default 30), the service queues it again by itself, without waiting for a copy of the
+// extension to send the artist, but only when the live queue is empty, and only as many as are left
+// of the day's cap. A recheck that turns a pass into AI replaces the verdict, so the artist goes
+// onto the published list at the next publish.
+// Changed 2026-11-25 (recheck-all-contract.check.mjs, Wai: "everything should expire after 1
+// month"): AI and list verdicts are rechecked too, so the first two cases below now expect them
+// (store.listDuePasses became store.listDue; the old exclusion of AI and list verdicts is gone).
 // Interface:
-//   store.listDuePasses(day, limit, days = 30) -> verdicts ('human' or 'unsure', model not 'list',
-//     checked on or before day minus days), oldest checked first, at most limit; each carries name
-//     and, when stored, spotifyId and channelId.
+//   store.listDue(day, limit, days = 30) -> verdicts of any word and model, checked on or before day
+//     minus days, oldest checked first, at most limit; each carries name and, when stored,
+//     spotifyId and channelId.
 //   src/main.mjs: at each slow tick, when queue.status().queued is 0, queue.enqueue up to
 //     cap - today's count due passes (queue.status() gives both), as { name, site: 'recheck',
 //     songs: [], playing: false, spotifyId?, channelId? }. HM_RECHECK_DAYS (a whole number of days,
@@ -75,22 +76,22 @@ async function make({ verdicts = [], aiFor = [], env: extraEnv = {}, live = [] }
 }
 
 await run([
-  ['store.listDuePasses: old investigator passes only, oldest first, with their IDs', async () => {
+  ['store.listDue: every old verdict (passes, AI, list), oldest first, with their IDs', async () => {
     const s = openStore(':memory:');
     s.putVerdict(v('Old Human', { checked: '2026-10-01', spotifyId: SP }));
     s.putVerdict(v('Older Unsure', { verdict: 'unsure', confidence: 40, checked: '2026-09-15' }));
     s.putVerdict(v('Fresh Human', { checked: '2026-11-01' }));
     s.putVerdict(v('Old Ai', { verdict: 'ai', checked: '2026-09-01' }));
     s.putVerdict(v('Old List Pass', { model: 'list', checked: '2026-09-01' }));
-    const due = s.listDuePasses('2026-11-20', 20);
-    return (J(due.map((x) => x.name)) === J(['Older Unsure', 'Old Human']) && due[1].spotifyId === SP) || J(due.map((x) => [x.name, x.spotifyId]));
+    const due = s.listDue('2026-11-20', 20);
+    return (J(due.map((x) => x.name)) === J(['Old Ai', 'Old List Pass', 'Older Unsure', 'Old Human']) && due[3].spotifyId === SP) || J(due.map((x) => [x.name, x.spotifyId]));
   }],
   ['the service queues due passes by itself at the next slow tick, and checks them again', async () => {
     const t = await make({ verdicts: [v('Old Human', { checked: '2026-10-01' }), v('Fresh Human'), v('Old Ai', { verdict: 'ai', checked: '2026-09-01' })] });
     try {
       await t.timers.advance(6 * MIN);
       await t.app.idle(); await t.timers.advance(MIN); await t.app.idle();
-      return J(t.investigated) === J(['Old Human']) || J(t.investigated);
+      return J(t.investigated) === J(['Old Ai', 'Old Human']) || J(t.investigated);
     } finally { await t.stop(); }
   }],
   ['rechecks use only what is left of the day\'s cap', async () => {
