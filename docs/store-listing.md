@@ -100,9 +100,7 @@ the investigator, and store copies can't become one).
 **Remote code:** No. The lists it downloads are data only (JSON, or a plain
 text list of channel IDs) and are never run; all code is in the package.
 
-**Data usage:** collects none of the listed kinds of user data. Certify all
-three statements (not sold to third parties, not used for unrelated
-purposes, not used for creditworthiness or lending).
+**Data usage:** tick **Website content** only (decided 2026-11-25). Google's user-data FAQ: "Extensions are required to disclose how they handle user data, even when data is processed or stored locally on a user's device." Human Music reads song titles, artist names and IDs on the music pages and keeps a log on the computer; nothing leaves it. Not Web history (no record of pages visited), not User activity (no clicks, keystrokes, scrolling or network monitoring), none of the personal kinds. Certify all three statements (not sold to third parties, not used for unrelated purposes, not used for creditworthiness or lending).
 
 **Privacy policy URL:** https://github.com/wai-lau/human-music/blob/main/PRIVACY.md
 (Chrome's policy counts reading page content and keeping a log on the computer as handling user
