@@ -45,13 +45,22 @@
     return e;
   };
   const artistLink = (name, id) => make('a', { href: '/artist/' + (id || 'E2E0000000000000000000') }, name);
+  // The artist line: the link, then Spotify's "AI Persona" tag beside it when the setup asks
+  // for one ({ tagged: true } on a song or item). Like the live page, the tag is a span with
+  // data-encore-id="tag" inside the same line element as the link.
+  const artistLine = it => {
+    const line = make('span', { class: 'artist-line' });
+    line.append(artistLink(it.artist, it.id));
+    if (it.tagged) line.append(make('span', { 'data-encore-id': 'tag' }, 'AI Persona'));
+    return line;
+  };
 
   function render() {
     const s = songs[current];
     $('[data-testid="context-item-link"]').textContent = s ? s.title : '';
     const by = $('[data-testid="context-item-info-subtitles"]');
     by.textContent = '';
-    if (s) by.append(artistLink(s.artist, s.id));
+    if (s) by.append(artistLine(s));
     const old = $('aside[aria-label="Queue"]');
     if (old) old.remove();
     if (!queueOpen) return;
@@ -59,7 +68,7 @@
     const ul = make('ul', { role: 'treegrid' });
     songs.slice(current + 1).forEach(song => {
       const li = make('li', { role: 'row', 'data-e2e': song.title });
-      li.append(make('div', { 'data-encore-id': 'listRowTitle' }, song.title), artistLink(song.artist, song.id));
+      li.append(make('div', { 'data-encore-id': 'listRowTitle' }, song.title), artistLine(song));
       const more = make('button', { 'data-testid': 'more-button', 'aria-label': 'More options' }, '…');
       more.addEventListener('click', () => openMenu(song));
       li.append(more);
@@ -115,7 +124,7 @@
   if (location.pathname === '/' || location.pathname.startsWith('/search')) {
     for (const it of setup.items || []) {
       const card = make('div', { 'data-encore-id': 'card', 'data-e2e': it.title });
-      card.append(make('a', { href: '/track/e2e-' + it.title.length, 'data-encore-id': 'cardTitle' }, it.title), artistLink(it.artist, it.id));
+      card.append(make('a', { href: '/track/e2e-' + it.title.length, 'data-encore-id': 'cardTitle' }, it.title), artistLine(it));
       $('#main').append(card);
     }
   }

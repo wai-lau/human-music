@@ -74,8 +74,8 @@ await t('a start gives stored built-ins the code\'s name and address, keeping th
   const m = storage.data['hm.filterLists'];
   const v = m.find(l => l.id === 'hm-verdicts'); const mine = m.find(l => l.id === 'mine');
   return (v.url === HM.lists.HM_VERDICTS.url && v.name === HM.lists.HM_VERDICTS.name && v.enabled === false && v.mode === 'act' /* Watch only became off (Wai, 2026-11-19) */ && v.count === 7 && v.lastRefresh === 5
-    // 5: the four stored, plus Zoundhub, which every start adds (2026-11-18).
-    && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 5 && m.some(l => l.id === 'zoundhub')) || J(m);
+    // 6: the four stored, plus Zoundhub (2026-11-18) and Spotify's AI label (2026-11-26), which every start adds.
+    && mine.url === 'https://lists.example/m.json' && mine.name === 'Mine' && m.length === 6 && m.some(l => l.id === 'zoundhub') && m.some(l => l.id === 'spotify-ai-label')) || J(m);
 });
 
 // Wai, 2026-11-19: "remove the watch only toggle". A list that was on in Watch only was not acting,

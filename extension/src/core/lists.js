@@ -53,6 +53,21 @@
     lastError: null
   };
 
+  // Spotify's own "AI Persona" tag, treated as a list (Wai, 2026-11-26). It is a rule, not data: no
+  // address, no entries, nothing to download or refresh. The Spotify adapter reads the tag next
+  // to an artist and the match counts a tagged artist as listed while this list is on.
+  const SPOTIFY_AI_LABEL = {
+    id: 'spotify-ai-label',
+    name: "Spotify's AI label",
+    enabled: true,
+    mode: 'act',
+    builtIn: true,
+    rule: true,
+    lastRefresh: null,
+    count: 0,
+    lastError: null
+  };
+
   const FREQUENCIES = {
     '6h': 21600000,
     '12h': 43200000,
@@ -418,6 +433,7 @@
     HM_VERDICTS: HM_VERDICTS,
     CEVVAL: CEVVAL,
     ZOUNDHUB: ZOUNDHUB,
+    SPOTIFY_AI_LABEL: SPOTIFY_AI_LABEL,
     FREQUENCIES: FREQUENCIES,
     parseFilterList: parseFilterList,
     parseFilterText: parseFilterText,

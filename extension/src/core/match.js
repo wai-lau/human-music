@@ -34,8 +34,11 @@
       }
     }
 
+    // Spotify's own AI Persona tag, as a rule list: no entries; the item says who is tagged.
+    let aiLabel = null;
     for (const list of filterLists) {
       if (!list.enabled) continue;
+      if (list.id === 'spotify-ai-label') { aiLabel = { listId: list.id, listName: list.name }; continue; }
       const artists = Array.isArray(list.artists) ? list.artists : [];
       for (const a of artists) {
         if (!a) continue;
@@ -86,6 +89,7 @@
     return {
       actArtists, actChannels, watchArtists, watchChannels,
       userArtists, userSongs, userKeywords, neverSkip,
+      aiLabel,
       known,
     };
   }
@@ -115,9 +119,19 @@
     return true;
   }
 
+  // The credited artists Spotify tags "AI Persona" (item.aiTagged, names), when the label list
+  // is on. Returns a map of normalized name to shown name, or null.
+  function taggedSet(index, item) {
+    if (!index.aiLabel || !item || !Array.isArray(item.aiTagged) || !item.aiTagged.length) return null;
+    return new Map(item.aiTagged.filter(n => typeof n === 'string').map(n => [normalize(n), n]));
+  }
+  function labelResult(index, name) {
+    return result(index.aiLabel.listId, index.aiLabel.listName, 'artist', name, 'act');
+  }
+
   // songRow: the item is a song row (not an album or playlist card); a song with no artist
   // matches only those.
-  function matchChain(index, title, normalizedCreditedArtists, channelIds, songRow = true) {
+  function matchChain(index, title, normalizedCreditedArtists, channelIds, songRow = true, tagged = null) {
     for (const songEntry of index.userSongs) {
       if (normalize(title) === songEntry.title) {
         if (songEntry.artist) {
@@ -154,6 +168,10 @@
         return result(act.listId, act.listName, 'channel', act.entry, 'act', act.confidence);
       }
     }
+    if (tagged) {
+      const hit = normalizedCreditedArtists.find(c => tagged.has(c));
+      if (hit !== undefined) return labelResult(index, tagged.get(hit));
+    }
     for (const credit of normalizedCreditedArtists) {
       const watch = index.watchArtists.get(credit);
       if (watch && sameArtist(watch, channelIds)) {
@@ -181,7 +199,7 @@
       if (index.neverSkip.has(credit)) return null;
     }
 
-    return matchChain(index, title, normalizedCreditedArtists, channelIds, true);
+    return matchChain(index, title, normalizedCreditedArtists, channelIds, true, taggedSet(index, s));
   }
 
   function matchItem(index, item) {
@@ -210,6 +228,7 @@
         if (whole && whole.rule === 'artist') return whole;
       }
       const found = [];
+      const tagged = taggedSet(index, i);
       for (const credit of required) {
         const mine = index.userArtists.find(a => a.key === credit);
         if (mine) found.push(result('user:artists', 'Your artists', 'artist', mine.name, 'act'));
@@ -221,6 +240,7 @@
           const watch = index.watchArtists.get(credit);
           found.push(result(watch.listId, watch.listName, 'artist', watch.entry, 'watch'));
         }
+        else if (tagged && tagged.has(credit)) found.push(labelResult(index, tagged.get(credit)));
         else return null;
       }
       const first = found.every(f => f.mode === 'act') ? found[0] : found.find(f => f.mode === 'watch');
@@ -229,7 +249,7 @@
 
     // An item credited to several artists never reaches here (it is a mix); a card for an album or
     // playlist is not a song row.
-    return matchChain(index, title, normalizedCredits, channelIds, i.kind === 'song');
+    return matchChain(index, title, normalizedCredits, channelIds, i.kind === 'song', taggedSet(index, i));
   }
 
   globalThis.HM.match = { buildIndex, matchSong, matchItem, isKnown };

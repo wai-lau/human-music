@@ -58,7 +58,7 @@ const check = async seed => {
   const metas = inner.data['hm.filterLists'];
   const by = id => metas.find(m => m.id === id) || {};
   const miss = [];
-  for (const m of metas) if (m.lastRefresh !== NOW || m.lastError !== null || !(m.count > 0)) miss.push(`${m.id}: ${JSON.stringify({ lastRefresh: m.lastRefresh, count: m.count, lastError: m.lastError })}`);
+  for (const m of metas) if (!m.rule && (m.lastRefresh !== NOW || m.lastError !== null || !(m.count > 0))) miss.push(`${m.id}: ${JSON.stringify({ lastRefresh: m.lastRefresh, count: m.count, lastError: m.lastError })}`);
   for (const b of [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL]) {
     const m = by(b.id);
     if (m.url !== b.url || m.name !== b.name || m.format !== b.format) miss.push(`${b.id} built-in meta not fixed: ${JSON.stringify(m)}`);

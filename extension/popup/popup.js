@@ -211,7 +211,7 @@
         onchange: () => {
           if (!on.checked) { updateList(list.id, { enabled: false }); return; }
           updateList(list.id, { enabled: true, held: null });
-          refreshList(list.id);
+          if (!list.rule) refreshList(list.id);
         },
       });
       const count = (list.count || 0).toLocaleString('en');
@@ -221,10 +221,10 @@
       ul.append(node('li', { class: 'list-row' },
         node('div', { class: 'list-main' }, on, node('span', { class: 'list-name', textContent: list.name }),
           list.builtIn ? node('span', { class: 'chip', textContent: 'Built in' }) : null,
-          iconButton('refresh', `Refresh ${list.name}`, () => refreshList(list.id)),
+          list.rule ? null : iconButton('refresh', `Refresh ${list.name}`, () => refreshList(list.id)),
           list.builtIn ? null : iconButton('remove', `Remove ${list.name}`,
             () => removeList(list))),
-        node('div', { class: 'list-info' }, `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
+        node('div', { class: 'list-info' }, list.rule ? "Uses Spotify's own AI Persona tag" : `${count} ${list.count === 1 ? 'artist' : 'artists'} · ${updated}`,
           list.lastError ? node('span', { class: 'error', textContent: `Last update failed: ${HM.popup.plainError(list.lastError)}` }) : null,
           list.held && !list.enabled ? node('span', { class: 'error', textContent: `Switched off: ${list.held.reason}` }) : null)));
     }

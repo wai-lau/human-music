@@ -79,7 +79,7 @@
         // Every built-in list starts on. Soul Over AI was off for new installs from 2026-11-18
         // (frozen since March 2026); Wai, 2026-11-19, on merging it with Zoundhub: "B" (keep two
         // lists, Soul Over AI on): it still has 375 artists Zoundhub lacks and YouTube channel IDs.
-        return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }];
+        return [{ ...globalThis.HM.lists.SOUL_OVER_AI }, { ...globalThis.HM.lists.HM_VERDICTS }, { ...globalThis.HM.lists.CEVVAL }, { ...globalThis.HM.lists.ZOUNDHUB }, { ...globalThis.HM.lists.SPOTIFY_AI_LABEL }];
       });
 
       // Only when missing, and under the key's lock: a popup edit made first is never overwritten.
@@ -101,7 +101,7 @@
     // Built-in upkeep at every start, whatever happened to the bundled import.
     async function ensureBuiltIns() {
       const HM = globalThis.HM;
-      const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB];
+      const BUILT_INS = [HM.lists.SOUL_OVER_AI, HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB, HM.lists.SPOTIFY_AI_LABEL];
       // No list meta yet means install has not run: leave the storage to it. Built-in lists
       // take their name, address and format from the code, so a list that moves (the verdict
       // list did, 2026-11-17) follows on the next start, and a missing one comes back. The
@@ -120,7 +120,7 @@
           if (code.format === undefined) delete fixed.format; else fixed.format = code.format;
           return fixed;
         });
-        for (const code of [HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB]) {
+        for (const code of [HM.lists.HM_VERDICTS, HM.lists.CEVVAL, HM.lists.ZOUNDHUB, HM.lists.SPOTIFY_AI_LABEL]) {
           if (!next.some(function (m) { return m && m.id === code.id; })) { next = next.concat([{ ...code }]); changed = true; }
         }
         return changed ? next : undefined;
@@ -222,6 +222,8 @@ list = lists[HM.store.KEYS.filterLists][i];
         if (!list) {
           return false;
         }
+        // A rule list (Spotify's AI label) has no address: nothing to fetch, and no failure to record.
+        if (list.rule === true) return false;
 
         if (typeof list.url !== 'string' || !list.url.startsWith('https://')) {
           await recordFailure(id, 'Not an https:// URL');
@@ -415,7 +417,7 @@ list = lists[HM.store.KEYS.filterLists][i];
         // the first read (the popup's Refresh, say) is not done again.
         const metas = (await storage.get(HM.store.KEYS.filterLists))[HM.store.KEYS.filterLists] || [];
         const list = metas.find(function (l) { return l && l.id === ids[i]; });
-        if (!list || !list.enabled) {
+        if (!list || !list.enabled || list.rule === true) {
           continue;
         }
         // A list that failed rests, so a broken list isn't fetched at every worker start (the

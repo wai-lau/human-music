@@ -564,6 +564,16 @@ for the panel to open (up to about 4 s live) and a removal (about 0.5 s).
 - Not checked live: skipping a listed song that starts playing (playing one
   would put AI music into Wai's Spotify history); covered by tests.
 
+### Spotify's AI label (Wai, 2026-11-26)
+
+Spotify shows its own "AI Persona" tag (a `span[data-encore-id="tag"]`, English text) next
+to some AI artists, in the top result card and in song rows' artist lines. The adapter pairs
+each tag with the nearest artist link before it in the same line (the card's own artist for a
+top result) and puts the names on the item as `aiTagged`. The built-in rule list "Spotify's AI
+label" (`spotify-ai-label`, on by default, no address, never fetched) counts a tagged artist as
+listed, after Never skip and the person's own lists; a mix hides only when every artist is
+listed or tagged. Other languages and other tag text do not match, which errs toward playing.
+
 ### Firefox
 
 Firefox runs Manifest V3 with `background.scripts` (no service worker), needs

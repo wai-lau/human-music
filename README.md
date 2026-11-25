@@ -26,7 +26,7 @@ artists, songs and keywords, or any list you subscribe to by web address. The
 first three are built in. [Soul Over AI](https://souloverai.com) (CC BY 4.0),
 which stopped updating in March 2026, is built in too and on: it still has
 artists the others lack. Each list is on or off, and the popup shows them
-largest first.
+largest first. On Spotify, "Spotify's AI label" is a built-in list too: it counts an artist as listed when Spotify shows its own "AI Persona" tag next to the name. It has no entries to download, is on by default, and can be switched off like any list.
 
 From Zoundhub, Human Music uses only the artists it rates 5 dots that also
 carry Deezer's AI label and first released music in 2020 or later. Zoundhub
