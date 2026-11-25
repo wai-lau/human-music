@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Human Music: AI Music Blocker",
   "short_name": "Human Music",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "minimum_chrome_version": "110",
   "description": "Keeps your YouTube Music and Spotify listening to music made by people.",
   "icons": {
