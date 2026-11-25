@@ -67,7 +67,7 @@ items without one are shown after items that have one. Per the guide it has no t
 a saturated green field.
 
 **Store icon:** Wai uploaded her own in the dashboard (2026-11-20): keep it, never replace it.
-The package's icons (`extension/icons/`) and the small promo tile are built by `docs/make-icons.sh` from Wai's logo, `docs/icon-source.png` (a tan figure with a skull on green, 2026-11-25; the person-and-note icon is archived in `.archaeology/docs/`). The 128 px one is 96 px of artwork in 16 px of transparent padding. Run `PROMO_OUT=~/store-shots/promo-small.png docs/make-icons.sh` to rebuild both. Screenshots 4 and 5 were retaken 2026-11-25 to show the new icon in the popup header.
+The package's icons (`extension/icons/`) and the small promo tile are built by `docs/make-icons.sh` from Wai's icon, `docs/icon-source.png` (a red "no" sign over a pixel invader, 2026-11-25; earlier icons are archived in `.archaeology/docs/`). The 128 px one is 96 px of artwork in 16 px of transparent padding. Run `PROMO_OUT=~/store-shots/promo-small.png docs/make-icons.sh` to rebuild both. Screenshots 4 and 5 were retaken 2026-11-25 to show the new icon in the popup header.
 
 ## Privacy tab
 
