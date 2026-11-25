@@ -56,12 +56,13 @@ for (const g of ['The', 'a', 'VA', 'Various Artists', 'Unknown Artist', 'Artist'
 await t('your own list is exempt', () => song(idx([], { artists: ['VA'] }), 'x', 'VA • A') !== null || 'no match');
 await t('a generic entry still matches by ID', () => song(idx([list([{ name: 'Unknown', channelId: UC1 }])]), 'x', 'Somebody', { channelIds: [UC1] }) !== null || 'no match');
 
-// 3. ID beats name
+// 3. name OR ID (Wai's decision; the 2026-11-24 veto that let a second channel play was reverted 2026-11-25)
 const SP_A = '4V8LLVI7PbaPR0K2TGSxFF', SP_B = 'aaaaaaaaaaaaaaaaaaaaaa';
-await t('Spotify: same name, different ID does not match', () => song(idx([list([{ name: 'Drift', spotifyId: SP_A }])]), 'x', 'Drift', { channelIds: [SP_B] }) === null || 'matched');
+await t('Spotify: same name, different ID still matches by name (namesakes go to Never skip)', () => song(idx([list([{ name: 'Drift', spotifyId: SP_A }])]), 'x', 'Drift', { channelIds: [SP_B] }) !== null || 'no match');
 await t('Spotify: same name, same ID matches', () => song(idx([list([{ name: 'Drift', spotifyId: SP_A }])]), 'x', 'Drift', { channelIds: [SP_A] }) !== null || 'no match');
 await t('Spotify: song with no ID still matches by name', () => song(idx([list([{ name: 'Drift', spotifyId: SP_A }])]), 'x', 'Drift', { channelIds: [] }) !== null || 'no match');
-await t('YouTube: same name, different channel does not match', () => song(idx([list([{ name: 'Drift', channelId: UC1 }])]), 'x', 'Drift', { channelIds: [UC2] }) === null || 'matched');
+await t('YouTube: same name, different channel still matches (an artist has several channels)', () => song(idx([list([{ name: 'Drift', channelId: UC1 }])]), 'x', 'Drift', { channelIds: [UC2] }) !== null || 'no match');
+await t('Breaking Rust: listed under one channel, linked under another, is matched', () => song(idx([list([{ name: 'Breaking Rust', channelId: 'UCODbKiVoR8lWDPl39uf803Q' }])]), 'Walk My Walk', 'Breaking Rust', { channelIds: ['UCTH2Iy0erLYQSPRILNaG2sg'] }) !== null || 'no match');
 await t('verdicts: a name that is also human is ID-only', () => {
   const l = list([{ name: 'Drift', verdict: 'ai', confidence: 0.99, channelId: UC1 }, { name: 'Drift', verdict: 'human', confidence: 0.9, channelId: UC2 }], { id: 'hm-verdicts' });
   const i = idx([l], {}, 0.5);

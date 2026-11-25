@@ -14,8 +14,6 @@
   function genericKey(key) {
     return key.length < 2 || !/[\p{L}\p{N}]/u.test(key) || GENERIC.has(key);
   }
-  const SPOTIFY_ID = /^[A-Za-z0-9]{22}$/;
-  const YT_ID = /^UC[\w-]{22}$/;
 
   function buildIndex({ filterLists, user, threshold }) {
     const actArtists = new Map();
@@ -109,13 +107,11 @@
   // lists (name, then channel ID), then watch lists. Each rule tests only its own field (Wai,
   // 2026-11-13: "match correct fields in general, e.g. album to album, artist to artist"):
   // keywords see the title and the credited artists, never the album or year.
-  // A name match gives way to IDs: when the song names artist IDs of the entry's kind and none is
-  // the entry's, it is a different artist with the same name.
-  function sameArtist(entry, channelIds) {
-    const yt = channelIds.filter(c => YT_ID.test(c));
-    const sp = channelIds.filter(c => SPOTIFY_ID.test(c));
-    if (entry.channelId && yt.length && !yt.includes(entry.channelId)) return false;
-    if (entry.spotifyId && sp.length && !sp.includes(entry.spotifyId)) return false;
+  // Name OR ID matches (Wai's decision: "Namesakes: keep name OR ID matching (catches re-uploads;
+  // namesake fixed via Never skip)"). A different ID never vetoes a name: one artist often has several
+  // YouTube channels (Breaking Rust is UCODbKiVoR8lWDPl39uf803Q on Soul Over AI and
+  // UCTH2Iy0erLYQSPRILNaG2sg on YouTube Music), and the 2026-11-24 veto let it play.
+  function sameArtist() {
     return true;
   }
 
