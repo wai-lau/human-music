@@ -68,8 +68,9 @@ categorically different (not inferior)".
 
 ## Start here (2026-11-26)
 
-- The extension is on the Chrome Web Store; 0.1.8 (the 2026-11-24 friend-safety
-  hardening plus the Breaking Rust fix) is uploaded for Wai to submit. The Firefox
+- The extension is on the Chrome Web Store; 0.1.9 is live (2026-11-26): the
+  friend-safety hardening, Spotify's AI label list, name + known-song matching
+  for Spotify-labelled verdicts, and Wai's invader icon. The Firefox
   build exists but has not been loaded in a real Firefox yet.
 - Matching is name OR ID (Wai's decision); the hardening's ID veto was reverted
   2026-11-25. Store packs are checked by `scripts/verify-pack.mjs` before a release.
